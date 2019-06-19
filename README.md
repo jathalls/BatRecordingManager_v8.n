@@ -1,14 +1,23 @@
 BAT RECORDING MANAGER
+
 Bat Recording Manager (BRM) is a piece of software that I have developed largely for my own use, but I make it freely available although with no warranties of any kind.  It is continually being upgraded and new versions will be posted for download.
+
 Bat Recording Manager arose because I was accumulating large numbers of full spectrum recordings of bats using a variety of equipment from laptops with a native sound card capable of digitising at 192ksps, to a Wildlife Acoustics EM3+ with a Neumic microphone, or a Petterson M500-384 recording to Bat Recorder on an Asus 7" Android tablet.  I needed a better way to keep track of all my recordings and to be able to locate recordings of specific bats quickly and easily.
+
 Bat Recording Manager is a database application that stores metadata about all of your recording sessions and has details of each individual recording (i.e. .wav file) and annotations made to that recording when it was analysed.  It can display details of all your recording sessions, or it can display those sessions and recordings in which a specific species of bat was encountered.  It will accept images which can be attached to recordings, labelled segments of a recording or to particular bats.  Data can also be exported in a variety of report formats in .csv format.
+
 Normal use is predicated on the use of Audacity to analyse recordings, using label tracks to store annotations for particular segments of a recording.  This approach is well suited to my own way of recording which is to record continuously into contiguous four minute long files.  However this approach is not so appropriate for long duration monitoring in which recordings are triggered by ultrasound and last just long enough to capture a single pass.  If recordings are made in this way then they can be more easily analysed using Kaleidoscope Viewer (the free version of Kaleidoscope) and the .wav files with their annotations can then be imported into Bat recording Manager.
+
 Version 7.0 implements the ability to analyse and import on the fly.  In this mode the user can select a folder containing a group of .wav files and they will be opened in turn in Audacity for analysis.  As Audacity saves the label track and closes the information is immediately imported into Bat Recording Manager.  This saves considerable effort when analysing large numbers of files, but does require Audacity to be correctly configured in the first place.
+
 Updates:-
 BRM 8.0.7088 Download
 v8.0.7088
+
 Upgrades to using .NET 4.7.2 and includes data dirtualization which speeds up page loading in some situations.
+
 Instructions:-
+
 The link above will take you to the Figshare page which hosts this and earlier versions for Bat Recording Manager.
 Hover over the file you wish to download and click the blue down-arrow on the right to download the file.
 OR
@@ -20,7 +29,9 @@ The Setup file will install the requisite version of .NET and the LocalSQL datab
 Run the program and read the Help section for instructions on how to configure and use the system and for the file storage and naming conventions that it expects.
 In the event of any errors, look in C:\BRM-Error for an error log file, and send it with a description of what went wrong and details of your computer and operating system, and I will do what I can to sort out the problem. Send to Justin.halls@echolocation.org.uk
 The program does need a reasonably powerful Windows 10 computer with a decent amount of memory in order to perform effectively, especially when the number of recordings is large.
-----------------------------------------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
 v7.0.6789 contains bug fixes to prevent crashes when starting up with or switching to an old database which did not contain the Version table.  This bug could cause crashes at start-up or when trying to switch to an alternate database.
 v7.0.6799 has cosmetic changes to the way in which folders are selected for analysis or to save images.
 v7.0.6844 Allows the addition of fiducial lines to images in the comparison window.  Lines can be adjusted or deleted and their position is stored in the database when the window is closed. Exported images have the lines permanently drawn onto the image.  Exported image numbering is now modified to prevent overwriting pre-existing images in the destination folder.  More changes to try to prevent the program from crashing at start up when trying to identify the database version.  Drop me a line if you have this problem and let me know whether or not this version is an improvement.
@@ -48,6 +59,7 @@ The Audio Play function is accessible from the Recordings Pane of the List Recor
 v7.2.6971 When opening a recording or segment in Audacity the corresponding .txt file will be opened as a label track.  NB this only works if there is only a single copy of Audacity open - subsequent calls with Audacity still open do not open the label track.
 v7.2.6984 Improvements to image handling and some bug fixes.  You can now append a time range in seconds after the filename caption of an image and a new dummy segment with that timing will be created if en existing segment cannot be found.
 -----------------------------------------------------------------------------------------------------
+
 BRM-Aud-Setup_v7_2_7000.exe
 This version includes its only private copy of Audacity 2.3.0 portable, which will be placed in the same folder as BRM and has its own pre-configured configuration file appropriate for use with BRM. This will not interfere with any existing installation of Audacity but provides all the Audacity features required by BRM with no further action by the user. BRM will use this version to display .wav files.
 v7.2.7000 also includes a new report format which is tailored to provide data for the Hertfordshire Mammals, Amphibians and Reptiles survey.  It also displays the GPS co-ordinates for the Recording Session as an OS Grid Reference as well as latitude and longitude.
@@ -76,7 +88,9 @@ In the event of any errors, look in C:\BRM-Error for an error log file, and send
 The program does need a reasonably powerful Windows 10 computer with a decent amount of memory in order to perform effectively, especially when the number of recordings is large.
  
 Bat Recording Manager - Using the Program
+
 Introduction
+
 This program provides a management system for your library of bat (or other) recordings. It can be flexible in its approach but is primarily designed to work with libraries stored and analysed according to a particular protocol which is described below.
 The program has four main ‘views’. The default view lists all recording sessions, with details of the currently selected session. Sessions can be added or edited manually or deleted from the database. Similarly, individual recordings within the session can be added, edited or deleted.
 The program assumes that the recordings are of bat calls, and incorporates a reference list of bat species, which can also be modified by the user. This reference list also defines a set of ‘tags’ which can be used when analyzing recordings to indicate the presence of each species.
@@ -97,6 +111,7 @@ Before each session the date and time are checked and the recording prefix is se
 Saving the recordings
 When the session is complete the recordings can be moved into a folder on the PC for analysis. I place all of my recordings into a root folder called ‘BatRecordings’, which contains individual folders for each year. The year folder contains folders for each session, each of which contains all the recording .wav files made during that session. The folder is then named using the session prefix and date e.g. BBY15-2__20150903 for a session recorded on the 3rd of September 2015.
 A ‘Header’ file may be created to add any extra notes about the recording session. This file should be a plain text file with a .txt extension and will be used by the program to try to extract basic information about the recording session. The first line of the file should consist of ‘[COPY]’, which will prevent the program from attempting to analyse it for bat recording data, and will identify it as a header file.
+
 e.g.
 [COPY]
 Bayfordbury Field Centre
