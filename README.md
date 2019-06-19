@@ -30,63 +30,110 @@ Run the program and read the Help section for instructions on how to configure a
 In the event of any errors, look in C:\BRM-Error for an error log file, and send it with a description of what went wrong and details of your computer and operating system, and I will do what I can to sort out the problem. Send to Justin.halls@echolocation.org.uk
 The program does need a reasonably powerful Windows 10 computer with a decent amount of memory in order to perform effectively, especially when the number of recordings is large.
 
---------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------
 
 v7.0.6789 contains bug fixes to prevent crashes when starting up with or switching to an old database which did not contain the Version table.  This bug could cause crashes at start-up or when trying to switch to an alternate database.
+
 v7.0.6799 has cosmetic changes to the way in which folders are selected for analysis or to save images.
+
 v7.0.6844 Allows the addition of fiducial lines to images in the comparison window.  Lines can be adjusted or deleted and their position is stored in the database when the window is closed. Exported images have the lines permanently drawn onto the image.  Exported image numbering is now modified to prevent overwriting pre-existing images in the destination folder.  More changes to try to prevent the program from crashing at start up when trying to identify the database version.  Drop me a line if you have this problem and let me know whether or not this version is an improvement.
+
 7.0.6850 Fixes an occasional bug when saving images through Analyse and Import - using filenames in the caption has priority over bat's names.  Also improvements in file handling when changing databases - now attempts to recognise if a db is the right type.
+
 7.0.6858 Makes some improvements to image handling, including a modification to the database structure to allow long descriptions for images (previously description+caption had to be less than 250 chars) and the ability to copy images within the application (but not to external applications).  A single image may now be used simultaneously as a bat image, a call image or a segment image.  Changes to it in one location will be reflected in all the other locations.  On deletion the link is removed and if there are no remaining links for the image then the image itself will be removed from the database.
+
 7.0.6859 has some improvements to the image handling system.  In the batReference view the COMP button now adds all bat and call images for all selected bats to the comparison window.  Double clicking on a bat adds all bat, call and segment images for all the bats selected to the comparison window.
+
 7.0.6860 removed the COMP button from the bat reference view.  Double-clicking in this view transfers all images of bat, calls and recordings to the comparison window.  Double-clicking in the ListByBats view transfers all recording images but not the bat and call images to the comparison window.  Exported images for recordings use the recording filename plus the start offset of the segment as a filename, or alternatively the image caption.
+
 7.0.6865 Improvements to the grids and to grid scaling and movement especially for the sonagram grids.
+
 7.0.6876 Added the ability to right-click on a labelled segment in the recordings detail list control, to open that recording in Audacity and scroll to the location of that labelled segment.  Only one instance of Audacity may be opened at a time or the scrolling does not work.  Also made some improvements to the scrolling behaviour of the recording detail window.
+
 Version 7.1 makes significant changes to the way in which the recordingSessions list is displayed.  Because this list can get quite large and therefore takes a long time to load, it now loads the data in discrete pages.
+
 At the top of the RecordingSessions List is a new navigation bar with a set of buttons and two combo-boxes.  The rightmost combobox is used to set the number of items that will be loaded and displayed on a page.  The selections are currently 10, 25, 50 and 100.  Slower machines may find it advantageous to use smaller page sizes in order to speed up load times and reduce the demand for memory and cpu-time.
+
 The other combobox allows the selection of a sort field for the session list. 
+
 Sessions are displayed in columns in a DataGrid which allows columns to be re-sized, moved and sorted.  These functions all now only apply to the subset of data that has been loaded as a page.  The Combo-box allows you to sort the full set of data in the database before loading the page.  Thus if the combobox is set to sort on DATE with a Page size of 10, then only the 10 earliest (or the 10 latest depending on the direction of sorting) sessions in the database will be loaded.  The displayed set of sessions can be sorted on the screen by clicking the column headers but this only changes the order on the screen, it does not load any other sessions from the database.
+
 The four buttons can be used to load the next or previous pages or to move to the start or end of the complete database collection.  The Next or Previous buttons move the selection by 2/3 of the Page Size so that there will always be some visual overlap between pages.
 The sort combo-box has two entries for each field, one with a suffix of ^ and one with a suffix of v .  These sort the database in Ascending or Descending order.  Selecting a sort field will update the display and sort the display entries on the same field, but the sort direction of the displayed items will be whatever was last used.  Clicking the column header will change the direction of sort for the displayed items.
+
 v7.1.6885 Updates the database to DB version 6.2 by the addition of two link tables between bats and recordings and between bats and sessions.  These tables enable much faster access to bat specific data.  Also various improvements to improve the speed of loading data when switching to List By Bats view, especially with very large databases.
+
 v7.1.6891 Further performance improvements in loading ListByBats and in loading images
+
 v7.1.6901 Has the ability to perform screen grabs of images without needing an external screen grabber program.  Shift-Click on the 'PASTE' button and drag and resize the semi-transparent window to select a screen area, right click in the window to capture that portion of the screen.  For details refer to Import/Import Pictures
+
 v7.1.6915 Fixed some scaling issues with Fiducial lines in the comparison window.
+
 v7.1.6941 Adjustments and improvements to the grid settings and fiducial lines.  The Help file has a summary of all menu, mouse and keystroke commands.
+
 v7.1.6951 Fixes some problems with the Search function
+
 Version 7.2
+
 Version 7.2 introduces the ability to play labeled segments at reduced speed or to play them as though heard with a tuned bat detector.  Selected segments can be played just once, or looped repeatedly until stopped and speed reductions of 1,1/5,1/10 and 1/20 are available. In the initial build, the segments are copied completely into memory and this may cause problems on machines with limited RAM available.
 The Audio Play function is accessible from the Recordings Pane of the List Recordings View, or from the Comparison Window.
+
 v7.2.6971 When opening a recording or segment in Audacity the corresponding .txt file will be opened as a label track.  NB this only works if there is only a single copy of Audacity open - subsequent calls with Audacity still open do not open the label track.
+
 v7.2.6984 Improvements to image handling and some bug fixes.  You can now append a time range in seconds after the filename caption of an image and a new dummy segment with that timing will be created if en existing segment cannot be found.
+
 -----------------------------------------------------------------------------------------------------
 
 BRM-Aud-Setup_v7_2_7000.exe
+
 This version includes its only private copy of Audacity 2.3.0 portable, which will be placed in the same folder as BRM and has its own pre-configured configuration file appropriate for use with BRM. This will not interfere with any existing installation of Audacity but provides all the Audacity features required by BRM with no further action by the user. BRM will use this version to display .wav files.
+
 v7.2.7000 also includes a new report format which is tailored to provide data for the Hertfordshire Mammals, Amphibians and Reptiles survey.  It also displays the GPS co-ordinates for the Recording Session as an OS Grid Reference as well as latitude and longitude.
+
 v7.2.7010 Speed improvements and bug-fixes to opening and running Audacity through BRM.  Audacity portable is now located in C:\audacity-win-portable instead of under the BRM program folder.
+
 v7.2.7021 Upgrades the included version of Audacity to 2.3.1 and makes some other minor bug fixes
+
 Version 7.3
+
 Version 7.2 was found to have problems installing on some systems.  These problems have largely been resolved in 7.3 and this version has been demonstrated to install correctly on a virgin installation of Windows 10.
+
 It will not run correctly on Windows 8/8.1 due to problems with installing the database server components.
+
 Version 7.3.7038 has resolved the installation problems encountered with version 7.2 and has been successfully installed on a Virgin Windows 10 computer.  It does have a problem when importing data from recordings with Wildlife Acoustics recorders that store their own metadata in WAMD format and which have been analysed using Kaleidoscope.  In this case the metadata is not imported correctly.  There is no problem in situations where Kaleidoscope stores the analysis data in GUANO format, or when using Audacity.  This problem is currently being worked on.
+
 version 7.3.7045 now works correctly with both WAMD and GUANO metadata or combinations of both.  Also fixes a few other bugs and ensures that file extensions are not case sensitive.
+
 Version 7.3.7056 Adds the ability to link recording or segment images to bats or call types in the Bat reference View.  The Image scroller in Bat Reference View has an IMPORT button which will attach the currently selected image in the Comparison Window to the currently displayed bat or call type.  If the Comparison Window is not open or is empty the button does nothing.
+
 v7.3.7062 fixes some problems with the import pictures function and cosmetic problems in the Import function. Also fixes scrolling problem in recordings list.
+
 version 7.3.7067 corrects some inconsistencies in the open folder dialogs and tidies up some of the UI operations adding COMP-ALL buttons for the three main view panes and allowing a double-click to open a labelled segment in Audacity.
+
 Download Bat Recording Manager v 7.3.7067
+
 Instructions:-
+
 The link above will take you to the Figshare page which hosts this and earlier versions for Bat Recording Manager.
 Hover over the file you wish to download and click the blue down-arrow on the right to download the file.
+
 OR
+
 Click on the specific setup file that you wish to download (i.e. the one with the highest version number) - a new page will open saying that the file cannot be viewed.
+
 Click on the 'Down File' link ( a small blue down arrow) to download the setup file to your computer.
+
 THEN
+
 Save the file in a known location, and then run it.
+
 The Setup file will install the requisite version of .NET and the LocalSQL database support needed by the program.
+
 Run the program and read the Help section for instructions on how to configure and use the system and for the file storage and naming conventions that it expects.
+
 In the event of any errors, look in C:\BRM-Error for an error log file, and send it with a description of what went wrong and details of your computer and operating system, and I will do what I can to sort out the problem. Send to Justin.halls@echolocation.org.uk
 The program does need a reasonably powerful Windows 10 computer with a decent amount of memory in order to perform effectively, especially when the number of recordings is large.
- 
+
 Bat Recording Manager - Using the Program
 
 Introduction
