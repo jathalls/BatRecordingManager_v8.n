@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.IO;
 using Microsoft.VisualStudio.Language.Intellisense;
 
@@ -15,7 +32,8 @@ namespace BatRecordingManager
         ///     Returns null if the directory or the fully qualified file are not
         ///     found on this computer
         /// </summary>
-        /// <param name=""></param>
+        /// <param name="recording"></param>
+        /// <param name="session"></param>
         /// <returns></returns>
         public static string GetFileName(this Recording recording, RecordingSession session = null)
         {
@@ -100,9 +118,10 @@ namespace BatRecordingManager
             existingRecording.RecordingSessionId = session.Id;
             var listOfSegmentAndBatList = new BulkObservableCollection<SegmentAndBatList>();
             var segmentAndBatList = new SegmentAndBatList();
-            var segment = new LabelledSegment();
-            segment.StartOffset = new TimeSpan(0L);
-            segment.EndOffset = fileMetaData.m_Duration ?? new TimeSpan(0L);
+            var segment = new LabelledSegment
+            {
+                StartOffset = new TimeSpan(0L), EndOffset = fileMetaData.m_Duration ?? new TimeSpan(0L)
+            };
 
             var moddedIdentification = "";
             if (!string.IsNullOrWhiteSpace(fileMetaData.m_ManualID))
@@ -135,11 +154,13 @@ namespace BatRecordingManager
         public static Recording CreateRecording(string file, DateTime date, TimeSpan startTime, TimeSpan duration,
             Tuple<double, double> location, string notes)
         {
-            var result = new Recording();
-            result.Id = -1;
-            result.RecordingDate = date;
-            result.RecordingStartTime = startTime;
-            result.RecordingEndTime = startTime + duration;
+            var result = new Recording
+            {
+                Id = -1,
+                RecordingDate = date,
+                RecordingStartTime = startTime,
+                RecordingEndTime = startTime + duration
+            };
             if (location != null && location.Item1 < 200.0 && location.Item2 < 200.0)
             {
                 result.RecordingGPSLatitude = location.Item1.ToString();

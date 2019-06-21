@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -73,11 +90,9 @@ namespace BatRecordingManager
         {
             Recording result = null;
 
-            if (RecordingsListControl != null)
-                if (RecordingsListControl.RecordingsListView != null)
-                    if (RecordingsListControl.RecordingsListView.SelectedItems != null &&
-                        RecordingsListControl.RecordingsListView.SelectedItems.Count > 0)
-                        result = RecordingsListControl.RecordingsListView.SelectedItems[0] as Recording;
+            if (RecordingsListControl?.RecordingsListView?.SelectedItems != null &&
+                RecordingsListControl.RecordingsListView.SelectedItems.Count > 0)
+                result = RecordingsListControl.RecordingsListView.SelectedItems[0] as Recording;
 
             return result;
         }
@@ -90,15 +105,14 @@ namespace BatRecordingManager
         internal RecordingSession GetSelectedSession()
         {
             RecordingSession result = null;
-            if (RecordingSessionListView != null)
-                if (RecordingSessionListView.SelectedItems != null && RecordingSessionListView.SelectedItems.Count > 0)
-                {
-                    var sessionData = RecordingSessionListView.SelectedItems[0] as RecordingSessionData;
-                    if (sessionData != null)
-                        result = DBAccess.GetRecordingSession(sessionData.Id);
-                    else
-                        result = null;
-                }
+            if (RecordingSessionListView?.SelectedItems != null && RecordingSessionListView.SelectedItems.Count > 0)
+            {
+                var sessionData = RecordingSessionListView.SelectedItems[0] as RecordingSessionData;
+                if (sessionData != null)
+                    result = DBAccess.GetRecordingSession(sessionData.Id);
+                else
+                    result = null;
+            }
 
             return result;
         }
@@ -691,8 +705,7 @@ Mouse.OverrideCursor = null;*/
         /// <param name="e"></param>
         public void ReportSessionDataButton_Click(object sender, RoutedEventArgs e)
         {
-            var doFullExport = false;
-            if (sender is AnalyseAndImportClass) doFullExport = true;
+            var doFullExport = false || sender is AnalyseAndImportClass;
             var reportBatStatsList = new List<BatStatistics>();
             var reportSessionList = new List<RecordingSession>();
             var reportRecordingList = new List<Recording>();
@@ -741,7 +754,7 @@ Mouse.OverrideCursor = null;*/
 
                     if (recordingsToreport != null)
                         foreach (var rec in recordingsToreport)
-                            if (!reportRecordingList.Any(existingRec => existingRec.Id == rec.Id))
+                            if (reportRecordingList.All(existingRec => existingRec.Id != rec.Id))
                                 reportRecordingList.Add(rec);
                     //ReportRecordingList.AddRange(recordingsToreport);
                 }

@@ -198,7 +198,7 @@ var allCallsForBat = from bc in dc.BatCalls
 Updating existing elements:-
 //var matchingCalls = allCallsForBat.Where(oldcall => !newCallList.Contains(newcall => newcall.Id == oldcall.Id));
 				var matchingCalls = newCallList.Where(newcall => allCallsForBat.Any(oldcall => oldcall.Id == newcall.Id));
-				if (matchingCalls != null && matchingCalls.Count() > 0)
+				if (matchingCalls != null && matchingCalls.Any())
 				{
 					foreach (var mcall in matchingCalls)
 					{
@@ -229,7 +229,7 @@ Updating existing elements:-
 Adding new elements:
 
 			  var callsToAdd = newCallList.Where(newcall => newcall.Id == 0);// ??<=0, or <0 ??
-				if (callsToAdd != null && callsToAdd.Count() > 0)
+				if (callsToAdd != null && callsToAdd.Any() > 0)
 				{
 					Bat linkBat = (from b in dc.Bats
 								   where b.Id == bat.Id

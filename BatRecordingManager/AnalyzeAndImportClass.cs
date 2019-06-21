@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -60,10 +77,10 @@ namespace BatRecordingManager
         private EventHandler _analysingFinishedEvent;
         private EventHandler<EventArgs> _dataUpdatedEvent;
 
+        private string _kaleidoscopeFolderPath = "";
+
         internal int FilesRemaining;
         internal bool FolderSelected;
-
-        private string _kaleidoscopeFolderPath = "";
 
         /// <summary>
         ///     class constructor
@@ -166,17 +183,19 @@ namespace BatRecordingManager
             //using (System.Windows.Forms.OpenFileDialog dialog = new OpenFileDialog())
             //using(Ookii.Dialogs.Wpf.VistaOpenFileDialog dialog=new VistaOpenFileDialog())
             //{
-            var dialog = new OpenFileDialog();
+            var dialog = new OpenFileDialog
+            {
+                DefaultExt = "*.*",
+                Filter = "Text files (*.txt)|*.txt|Wav files (*.wav)|*.wav|All Files (*.*)|*.*",
+                FilterIndex = 2,
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                Title = "Select Folder or WAV file",
+                ValidateNames = false,
+                CheckFileExists = false,
+                CheckPathExists = true,
+                FileName = "Select Folder"
+            };
 
-            dialog.DefaultExt = "*.*";
-            dialog.Filter = "Text files (*.txt)|*.txt|Wav files (*.wav)|*.wav|All Files (*.*)|*.*";
-            dialog.FilterIndex = 2;
-            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            dialog.Title = "Select Folder or WAV file";
-            dialog.ValidateNames = false;
-            dialog.CheckFileExists = false;
-            dialog.CheckPathExists = true;
-            dialog.FileName = "Select Folder";
             dialog.FileOk += Dialog_FileOk;
 
 

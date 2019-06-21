@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -26,8 +43,7 @@ namespace BatRecordingManager
             if (m_Start == null)
                 if (File.Exists(filename))
                 {
-                    DateTime dt;
-                    if (DBAccess.GetDateTimeFromFilename(filename, out dt))
+                    if (DBAccess.GetDateTimeFromFilename(filename, out var dt))
                     {
                         m_Start = dt;
                     }
@@ -306,8 +322,7 @@ namespace BatRecordingManager
                             break;
 
                         case "Timestamp":
-                            DateTime dt;
-                            if (DateTime.TryParse(entry.Value, out dt))
+                            if (DateTime.TryParse(entry.Value, out var dt))
                             {
                                 m_MetaDate = dt;
                                 m_Start = m_Start != null ? dt < m_Start.Value && dt.Year > 1960 ? dt : m_Start : dt;
@@ -593,7 +608,7 @@ namespace BatRecordingManager
             var result = false;
             latitude = 200.0d;
             longitude = 200.0d;
-            var pattern = @".*([0-9\.-]*),([NS]),?([0-9.-]*),?([WE])";
+            var pattern = @".*([0-9\.-]*),([NS]),?([0-9.-]*),?([WE])"; // e.g. WGS84,51.74607,N,0.26183,W
             var match = Regex.Match(WGS84AsciiLocation, pattern);
             if (match.Success && match.Groups.Count >= 5)
             {

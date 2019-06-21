@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -359,7 +376,7 @@ namespace BatRecordingManager
 
             dialog.ShowDialog();
             var image = dialog.GetStoredImage();
-            if (image != null && image.image != null)
+            if (image?.image != null)
             {
                 base.AddImage(image);
                 if (ImageScrollerDisplaysBatImages)
@@ -395,9 +412,8 @@ namespace BatRecordingManager
         /// <param name="e"></param>
         private void BatAndCallImageScrollerControl_ButtonPressed(object sender, EventArgs e)
         {
-            if (e == null || !(e is ButtonPressedEventArgs)) return;
             var bpe = e as ButtonPressedEventArgs;
-            if (bpe.PressedButton == null) return;
+            if (bpe?.PressedButton == null) return;
 
             if (bpe.PressedButton.Content as string == "DEL")
             {
@@ -446,7 +462,7 @@ namespace BatRecordingManager
         private void LinkImageToBat(StoredImage image)
         {
             BatImages.Add(image);
-            if (CurrentBat != null) CurrentBat.AddImage(image.GetAsBinaryData());
+            CurrentBat?.AddImage(image.GetAsBinaryData());
         }
 
         /// <summary>
@@ -526,8 +542,7 @@ namespace BatRecordingManager
                     foreach (var batCallLink in value.BatCalls)
                     {
                         CallList.Add(batCallLink.Call);
-                        var imageListFromDb = batCallLink.Call.GetImageList();
-                        if (imageListFromDb == null) imageListFromDb = new BulkObservableCollection<StoredImage>();
+                        var imageListFromDb = batCallLink.Call.GetImageList() ?? new BulkObservableCollection<StoredImage>();
                         ListofCallImageLists.Add(imageListFromDb);
                     }
 

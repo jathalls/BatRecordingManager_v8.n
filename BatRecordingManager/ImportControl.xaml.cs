@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -14,16 +31,6 @@ namespace BatRecordingManager
     /// </summary>
     public partial class ImportControl : UserControl
     {
-        /// <summary>
-        ///     The current session identifier
-        /// </summary>
-        public int CurrentSessionId = -1;
-
-        /// <summary>
-        ///     The current session tag
-        /// </summary>
-        public string CurrentSessionTag = "";
-
         /// <summary>
         ///     The file browser
         /// </summary>
@@ -50,6 +57,16 @@ namespace BatRecordingManager
         ///     The session for folder
         /// </summary>
         private RecordingSession _sessionForFolder;
+
+        /// <summary>
+        ///     The current session identifier
+        /// </summary>
+        public int CurrentSessionId = -1;
+
+        /// <summary>
+        ///     The current session tag
+        /// </summary>
+        public string CurrentSessionTag = "";
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ImportControl" /> class.
@@ -171,7 +188,6 @@ namespace BatRecordingManager
                 {
                     var tb = new TextBox();
                     tb.AcceptsReturn = true;
-                    ;
                     tb.AcceptsTab = true;
                     tb.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
                     if (File.Exists(file))
@@ -208,7 +224,7 @@ namespace BatRecordingManager
                             }
                             finally
                             {
-                                if (sr != null) sr.Close();
+                                sr?.Close();
                             }
                         }
                 }
@@ -246,7 +262,8 @@ namespace BatRecordingManager
                              "?", "Overwrite File", MessageBoxButton.YesNo) == MessageBoxResult.No)
                         {
                             var index = 1;
-                            ofn = _fileBrowser.OutputLogFileName.Substring(0, _fileBrowser.OutputLogFileName.Length - 4) +
+                            ofn = _fileBrowser.OutputLogFileName.Substring(0,
+                                      _fileBrowser.OutputLogFileName.Length - 4) +
                                   "." + index;
 
                             while (File.Exists(ofn + ".txt"))
@@ -534,7 +551,7 @@ namespace BatRecordingManager
                 var wavFiles = Directory.EnumerateFiles(_fileBrowser.WorkingFolder, "*.wav");
                 //var WAVFilesEnum = Directory.EnumerateFiles(fileBrowser.WorkingFolder, "*.WAV");
                 //var wavFiles = wavFilesEnum.Concat<string>(WAVFilesEnum).ToList<string>();
-                if (wavFiles != null && wavFiles.Count() > 0)
+                if (wavFiles != null && wavFiles.Any())
                 {
                     if (_sessionForFolder != null && _sessionForFolder.Id > 0)
                     {
@@ -555,7 +572,8 @@ namespace BatRecordingManager
                         else
                         {
                             TbkOutputText.Text = TbkOutputText.Text + "***\n\n" + FileProcessor.ProcessFile(filename,
-                                                     _gpxHandler, CurrentSessionId, ref _fileProcessor.BatsFound) + "\n";
+                                                     _gpxHandler, CurrentSessionId, ref _fileProcessor.BatsFound) +
+                                                 "\n";
                             totalBatsFound = BatsConcatenate(totalBatsFound, _fileProcessor.BatsFound);
                         }
 
@@ -601,7 +619,7 @@ namespace BatRecordingManager
 
         private void SelectFoldersButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_fileBrowser != null && _fileBrowser.WavFileFolders != null && _fileBrowser.WavFileFolders.Count > 1)
+            if (_fileBrowser?.WavFileFolders != null && _fileBrowser.WavFileFolders.Count > 1)
             {
                 var fsd = new FolderSelectionDialog();
                 fsd.FolderList = _fileBrowser.WavFileFolders;
@@ -633,7 +651,7 @@ namespace BatRecordingManager
         /// <param name="e"></param>
         private void UpdateRecordingButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!(ImportPictureControl.Visibility == Visibility.Visible))
+            if (ImportPictureControl.Visibility != Visibility.Visible)
             {
                 // in normal entry mode, so do Updat Recording
                 if (_fileBrowser == null) _fileBrowser = new FileBrowser();

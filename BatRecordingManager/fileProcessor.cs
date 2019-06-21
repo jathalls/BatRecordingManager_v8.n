@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -123,18 +140,18 @@ namespace BatRecordingManager
         /// </summary>
         public Dictionary<string, BatStats> BatsFound = new Dictionary<string, BatStats>();
 
-        private BulkObservableCollection<string> _linesToMerge = null;
+        //private BulkObservableCollection<string> _linesToMerge = null;
 
         /// <summary>
         ///     The m bat summary
         /// </summary>
         //private BatSummary mBatSummary;
-        private Mode _mode = Mode.PROCESS;
+        //private Mode _mode = Mode.PROCESS;
 
         /// <summary>
         ///     The output string
         /// </summary>
-        private string _outputString = "";
+        //private string _outputString = "";
 
         /// <summary>
         ///     Determines whether [is label file line] [the specified line].
@@ -409,12 +426,9 @@ namespace BatRecordingManager
 
                     if (recordingTime.Length == 6)
                     {
-                        int hour;
-                        int minute;
-                        int second;
-                        if (!int.TryParse(recordingTime.Substring(0, 2), out hour)) hour = -1;
-                        if (!int.TryParse(recordingTime.Substring(2, 2), out minute)) minute = -1;
-                        if (!int.TryParse(recordingTime.Substring(4, 2), out second)) second = -1;
+                        if (!int.TryParse(recordingTime.Substring(0, 2), out var hour)) hour = -1;
+                        if (!int.TryParse(recordingTime.Substring(2, 2), out var minute)) minute = -1;
+                        if (!int.TryParse(recordingTime.Substring(4, 2), out var second)) second = -1;
                         if (hour >= 0 && minute >= 0 && second >= 0)
                         {
                             recordingDateTime = new DateTime(creationTime.Year, creationTime.Month, creationTime.Day,
@@ -502,12 +516,11 @@ namespace BatRecordingManager
             out BulkObservableCollection<Bat> bats, ref Dictionary<string, BatStats> batsFound)
         {
             var result = "";
-            TimeSpan newDuration;
             bats = new BulkObservableCollection<Bat>();
 
             if (!string.IsNullOrWhiteSpace(line) && char.IsDigit(line[0]))
             {
-                result = ProcessLabelLine(line, startStr, endStr, comment, out newDuration) + "\n";
+                result = ProcessLabelLine(line, startStr, endStr, comment, out var newDuration) + "\n";
                 bats = AddToBatSummary(line, newDuration, ref batsFound);
             }
             else
@@ -555,10 +568,8 @@ namespace BatRecordingManager
             //MatchCollection allMatches = regexSeconds.Matches(line);
             if (match.Success)
             {*/
-            double startTimeSeconds;
-            double endTimeSeconds;
-            double.TryParse(startStr, out startTimeSeconds);
-            double.TryParse(endStr, out endTimeSeconds);
+            double.TryParse(startStr, out var startTimeSeconds);
+            double.TryParse(endStr, out var endTimeSeconds);
 
             var minutes = (int) Math.Floor(startTimeSeconds / 60);
             var seconds = (int) Math.Floor(startTimeSeconds - minutes * 60);
@@ -653,8 +664,6 @@ namespace BatRecordingManager
 
             batsFound = new Dictionary<string, BatStats>();
 
-            DateTime fileStart;
-            DateTime fileEnd;
             WavFileMetaData wfmd = null;
 
             try
@@ -662,12 +671,12 @@ namespace BatRecordingManager
                 if (File.Exists(fileName))
                 {
                     var wavfile = fileName.Substring(0, fileName.Length - 4) + ".wav";
-                    duration = GetFileDuration(fileName, out wavfile, out fileStart, out fileEnd);
+                    duration = GetFileDuration(fileName, out wavfile, out var fileStart, out var fileEnd);
                     if (File.Exists(wavfile))
                     {
                         wfmd = new WavFileMetaData(wavfile);
                         //Guano GuanoData=new Guano(Guano.GetGuanoData(CurrentRecordingSessionId, wavfile));
-                        if (wfmd != null && wfmd.m_Duration != null)
+                        if (wfmd?.m_Duration != null)
                         {
                             duration = wfmd.m_Duration.Value;
                             if (fileEnd > fileStart + duration)
@@ -713,7 +722,7 @@ namespace BatRecordingManager
                     if (string.IsNullOrWhiteSpace(recording.RecordingGPSLatitude))
                         try
                         {
-                            if (wfmd != null && wfmd.m_Location != null && wfmd.m_Location.m_Latitude < 200.0d &&
+                            if (wfmd?.m_Location != null && wfmd.m_Location.m_Latitude < 200.0d &&
                                 wfmd.m_Location.m_Longitude < 200.0d)
                             {
                                 var location = new Tuple<double, double>(wfmd.m_Location.m_Latitude,
@@ -903,8 +912,7 @@ namespace BatRecordingManager
                         modline = Regex.Replace(modline, @"[Ee][Nn][Dd]", ((decimal) duration.TotalSeconds).ToString());
                         var processedLine = "";
                         var bats = new BulkObservableCollection<Bat>();
-                        string startStr, endStr, comment;
-                        if (IsLabelFileLine(modline, out startStr, out endStr, out comment))
+                        if (IsLabelFileLine(modline, out string startStr, out var endStr, out var comment))
                             processedLine = ProcessLabelFileLine(modline, startStr, endStr, comment, out bats,
                                 ref batsFound);
                         else if ((match = IsManualFileLine(modline)) != null)

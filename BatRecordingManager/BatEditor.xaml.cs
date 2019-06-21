@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
@@ -68,18 +85,14 @@ namespace BatRecordingManager
             //int index = BatNameListBox.SelectedIndex;
             if (string.IsNullOrWhiteSpace(errString))
             {
-                var bat = new Bat();
-                bat.Name = "bat";
-                bat.Batgenus = "BatGenus";
-                bat.BatSpecies = "BatSpecies";
+                var bat = new Bat {Name = "bat", Batgenus = "BatGenus", BatSpecies = "BatSpecies"};
 
                 var max = short.MinValue;
 
-                var bt = new BatTag();
-                bt.BatTag1 = "BatTag";
+                var bt = new BatTag {BatTag1 = "BatTag"};
                 max = short.MinValue;
                 foreach (var tg in bat.BatTags)
-                    if (tg.SortIndex.Value > max)
+                    if (tg.SortIndex != null && tg.SortIndex.Value > max)
                         max = tg.SortIndex.Value;
                 bt.SortIndex = ++max;
 
@@ -120,7 +133,7 @@ namespace BatRecordingManager
             if (_changing) return;
             _changing = true;
             //ListBox senderListBox = sender as ListBox;
-            if (e != null && e.RemovedItems != null && e.RemovedItems.Count > 0)
+            if (e?.RemovedItems != null && e.RemovedItems.Count > 0)
             {
                 var deselected = (Bat) e.RemovedItems[0]; //is the item we are moving away from
                 if (deselected != null)
@@ -347,10 +360,7 @@ namespace BatRecordingManager
             {
                 if (lastSelectedIndex < BatNameListBox.Items.Count)
                 {
-                    if (lastSelectedIndex >= 0)
-                        BatNameListBox.SelectedIndex = lastSelectedIndex;
-                    else
-                        BatNameListBox.SelectedIndex = 0;
+                    BatNameListBox.SelectedIndex = lastSelectedIndex >= 0 ? lastSelectedIndex : 0;
                 }
                 else
                 {
@@ -428,9 +438,7 @@ namespace BatRecordingManager
 
                         foreach (var tag in tags) tag.SortIndex++;
 
-                        var newTag = new BatTag();
-                        newTag.BatTag1 = IdTagEditBox.Text;
-                        newTag.SortIndex = 0;
+                        var newTag = new BatTag {BatTag1 = IdTagEditBox.Text, SortIndex = 0};
                         selectedBat.BatTags.Add(newTag);
                         DBAccess.UpdateBat(selectedBat, null, null, null);
                     }

@@ -30,8 +30,7 @@ namespace BatRecordingManager
                 SummaryStackpanel.Children.Clear();
 
                 var statstring = Tools.GetFormattedBatStats(value, false);
-                var statLabel = new Label();
-                statLabel.Content = statstring;
+                var statLabel = new Label {Content = statstring};
                 SummaryStackpanel.Children.Add(statLabel);
                 InvalidateArrange();
                 UpdateLayout();

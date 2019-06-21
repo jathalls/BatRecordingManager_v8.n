@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.Diagnostics;
 using System.IO;
 using CSCore;
@@ -14,9 +31,9 @@ namespace BatRecordingManager
     /// </summary>
     internal class CscoreWrapper
     {
+        private readonly MMDevice _device;
         private ISoundOut _soundOut;
         private IWaveSource _waveSource;
-        private readonly MMDevice _device;
 
 
         public CscoreWrapper()
@@ -53,11 +70,7 @@ namespace BatRecordingManager
                     return _waveSource.GetPosition();
                 return TimeSpan.Zero;
             }
-            set
-            {
-                if (_waveSource != null)
-                    _waveSource.SetPosition(value);
-            }
+            set => _waveSource?.SetPosition(value);
         }
 
         public TimeSpan Length
@@ -140,20 +153,17 @@ namespace BatRecordingManager
 
         public void Play()
         {
-            if (_soundOut != null)
-                _soundOut.Play();
+            _soundOut?.Play();
         }
 
         public void Pause()
         {
-            if (_soundOut != null)
-                _soundOut.Pause();
+            _soundOut?.Pause();
         }
 
         public void Stop()
         {
-            if (_soundOut != null)
-                _soundOut.Stop();
+            _soundOut?.Stop();
         }
 
         private void CleanupPlayback()

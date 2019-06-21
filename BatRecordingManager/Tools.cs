@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Data.Linq;
 using System.Diagnostics;
@@ -145,7 +162,7 @@ namespace BatRecordingManager
             for (var i = 0; i < childrenCount; i++)
             {
                 DependencyObject child = FindDescendant<T>(VisualTreeHelper.GetChild(obj, i));
-                if (child != null && child is T)
+                if (child is T)
                     return child as T;
             }
 
@@ -397,8 +414,7 @@ namespace BatRecordingManager
 
         internal static void OpenWavFile(Recording selectedRecording)
         {
-            if (selectedRecording == null) return;
-            if (selectedRecording.RecordingSession == null) return;
+            if (selectedRecording?.RecordingSession == null) return;
             var folder = selectedRecording.RecordingSession.OriginalFilePath;
             if (string.IsNullOrWhiteSpace(folder)) return;
             folder = folder.Trim();
@@ -470,7 +486,7 @@ namespace BatRecordingManager
                 var matchingStats = from s in result
                     where s.batCommonName == stat.batCommonName
                     select s;
-                if (matchingStats != null && matchingStats.Count() > 0)
+                if (matchingStats != null && matchingStats.Any())
                 {
                     var existingStat = matchingStats.First();
                     existingStat.Add(stat);
@@ -2093,8 +2109,8 @@ namespace BatRecordingManager
     public class WaitCursor : IDisposable
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
-        private Cursor _previousCursor;
         private string _oldStatus = "null";
+        private Cursor _previousCursor;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
@@ -2108,7 +2124,7 @@ namespace BatRecordingManager
                     Application.Current.Dispatcher.Invoke(delegate
                     {
                         var mw = Application.Current.MainWindow;
-                        if (mw != null && mw is MainWindow)
+                        if (mw is MainWindow)
                             _oldStatus = (mw as MainWindow).SetStatusText(status);
                         //Debug.WriteLine("old Status=" + oldStatus);
                         _previousCursor = Mouse.OverrideCursor;
@@ -2856,7 +2872,6 @@ namespace BatRecordingManager
                 var numberOfImages = 0;
                 if (values[1] == null) return "-";
                 var bat = values[1] as Bat;
-                if (values[0] == null) return "-";
                 var recordings = values[0] as BulkObservableCollection<Recording>;
                 if (recordings == null || recordings.Count <= 0) return "-";
 
@@ -3198,111 +3213,6 @@ namespace BatRecordingManager
         public double? versionAsDouble { get; internal set; }
     }
 
-    /*
-    public static class DataGridExtensions
-    {
-        public static void ExportUsingReflection(this DataGridExtensions grid,ITypeLibExporterNameProvider exporter, string exportPath)
-        {
-            if (grid.ItemsSource == null || grid.Items.Count.Equals(0))
-                throw new InvalidOperationException("You cannot export any data from an empty DataGrid.");
-
-            IEnumerable<DataGridColumn> columns = grid.Columns.OrderBy(c => c.DisplayIndex);
-            ICollectionView collectionView = CollectionViewSource.GetDefaultView(grid.ItemsSource);
-            foreach (object o in collectionView)
-            {
-                if (o.Equals(CollectionView.NewItemPlaceholder))
-                    continue;
-
-                foreach (DataGridColumn column in columns)
-                {
-                    if(column is DataGridBoundColumn)
-    {
-                        string propertyValue = string.Empty;
-
-                        // Get the property name from the column's binding
-                        BindingBase bb = (column as DataGridBoundColumn).Binding;
-                        if (bb != null)
-                        {
-                            Binding binding = bb as Binding;
-                            if (binding != null)
-                            {
-                                string boundProperty = binding.Path.Path;
-
-                                // Get the property value using reflection
-                                PropertyInfo pi = o.GetType().GetProperty(boundProperty);
-                                if (pi != null)
-                                {
-                                    object value = pi.GetValue(o);
-                                    if (value != null)
-                                        propertyValue = value.ToString();
-                                    else if (column is DataGridCheckBoxColumn)
-                                        propertyValue = "-";
-                                }
-                            }
-                        }
-
-                        exporter.AddColumn(propertyValue);
-                    }
-                }
-                exporter.AddLineBreak();
-            }
-            // Create and open export file
-            Process.Start(exporter.Export(exportPath));
-        }
-    }
-
-    public interface IExporter
-    {
-        void AddColumn(string value);
-        void AddLineBreak();
-        string Export(string exportPath);
-    }
-
-    public class CsvExporter : IExporter
-    {
-        private readonly StringBuilder sb = new StringBuilder();
-        private readonly string _delimiter;
-
-        public CsvExporter(char delimiter)
-        {
-            _delimiter = delimiter.ToString();
-        }
-
-        public char Delimiter
-        {
-            get { return _delimiter[0]; }
-        }
-
-        public void AddColumn(string value)
-        {
-            sb.Append(value.Replace(_delimiter,
-                string.Format("\"{0}\"", _delimiter)));
-            sb.Append(_delimiter);
-        }
-
-        public void AddLineBreak()
-        {
-            sb.Remove(sb.Length - 1, 1); //remove trailing delimiter
-            sb.AppendLine();
-        }
-
-        public string Export(string exportPath)
-        {
-            if (string.IsNullOrEmpty(exportPath))
-            {
-                Random rnd = new Random();
-                exportPath = string.Format("{0}.csv", rnd.Next());
-            }
-            else if (!Path.GetExtension(exportPath).ToLower().Equals(".csv"))
-            {
-                throw new ArgumentException("Invalid file extension.", "exportPath");
-            }
-
-            File.WriteAllText(exportPath, sb.ToString().Trim());
-            sb.Clear();
-            return exportPath;
-        }
-    }*/
 
     /// <summary>
     ///     static functions to operate on visual UI elements

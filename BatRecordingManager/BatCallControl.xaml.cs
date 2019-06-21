@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -12,12 +29,11 @@ namespace BatRecordingManager
     /// </summary>
     public partial class BatCallControl : UserControl
     {
+        private readonly object _showImageButtonPressedEventLock = new object();
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public readonly BulkObservableCollection<StoredImage> CallImageList =
             new BulkObservableCollection<StoredImage>();
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-
-        private readonly object _showImageButtonPressedEventLock = new object();
 
         private Brush _mDefaultBrush = Brushes.Cornsilk;
         private EventHandler<EventArgs> _showImageButtonPressedEvent;
@@ -100,10 +116,7 @@ namespace BatRecordingManager
             if (!(sender is Label)) return;
             var call = BatCall;
             var sl = sender as Label;
-            if (sl.Content as string == "+/-")
-                sl.Content = " - ";
-            else
-                sl.Content = "+/-";
+            sl.Content = sl.Content as string == "+/-" ? " - " : "+/-";
             BatCall = call;
         }
 
@@ -170,8 +183,7 @@ namespace BatRecordingManager
                 if (CallImageList != null)
                     foreach (var storedImage in CallImageList)
                     {
-                        var callPicture = new CallPicture();
-                        callPicture.BinaryData = storedImage.GetAsBinaryData();
+                        var callPicture = new CallPicture {BinaryData = storedImage.GetAsBinaryData()};
                         result.CallPictures.Add(callPicture);
                     }
 

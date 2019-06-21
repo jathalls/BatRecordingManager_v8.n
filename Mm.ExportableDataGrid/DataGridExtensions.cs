@@ -1,13 +1,29 @@
-﻿using Microsoft.VisualStudio.Language.Intellisense;
+﻿/*
+ *  Copyright 2015 Magnus Montin
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Data;
+using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace Mm.ExportableDataGrid
 {
@@ -24,20 +40,16 @@ namespace Mm.ExportableDataGrid
             if (grid.ItemsSource == null || grid.Items.Count.Equals(0))
                 throw new InvalidOperationException("You cannot export any data from an empty DataGrid.");
 
-            bool checkAccess = grid.Dispatcher.CheckAccess();
+            var checkAccess = grid.Dispatcher.CheckAccess();
             ICollectionView collectionView = null;
             IList<DataGridColumn> columns = null;
             if (checkAccess)
             {
                 columns = grid.Columns.OrderBy(c => c.DisplayIndex).ToList();
                 if (grid.SelectedItems != null && grid.SelectedItems.Count > 0)
-                {
                     collectionView = CollectionViewSource.GetDefaultView(grid.SelectedItems);
-                }
                 else
-                {
                     collectionView = CollectionViewSource.GetDefaultView(grid.ItemsSource);
-                }
             }
             else
             {
@@ -46,39 +58,33 @@ namespace Mm.ExportableDataGrid
                 grid.Dispatcher.Invoke(() =>
                 {
                     if (grid.SelectedItems != null && grid.SelectedItems.Count > 0)
-                    {
                         collectionView = CollectionViewSource.GetDefaultView(grid.SelectedItems);
-                    }
                     else
-                    {
                         collectionView = CollectionViewSource.GetDefaultView(grid.ItemsSource);
-                    }
                 });
             }
 
             foreach (var column in columns)
             {
-                string exportString = string.Empty;
+                var exportString = string.Empty;
                 if (checkAccess)
                     exportString = column.Header.ToString();
                 else
                     grid.Dispatcher.Invoke(() => { exportString = column.Header.ToString(); });
 
-                if (!string.IsNullOrEmpty(exportString))
-                {
-                    exporter.AddColumn(exportString);
-                }
+                if (!string.IsNullOrEmpty(exportString)) exporter.AddColumn(exportString);
             }
+
             exporter.AddLineBreak();
 
-            foreach (object o in collectionView)
+            foreach (var o in collectionView)
             {
                 if (o.Equals(CollectionView.NewItemPlaceholder))
                     continue;
 
-                foreach (DataGridColumn column in columns)
+                foreach (var column in columns)
                 {
-                    string exportString = string.Empty;
+                    var exportString = string.Empty;
                     if (checkAccess)
                         exportString = ExportBehaviour.GetExportString(column);
                     else
@@ -90,37 +96,38 @@ namespace Mm.ExportableDataGrid
                     }
                     else if (column is DataGridBoundColumn)
                     {
-                        string propertyValue = string.Empty;
+                        var propertyValue = string.Empty;
 
                         /* Get the property name from the column's binding */
-                        BindingBase bb = (column as DataGridBoundColumn).Binding;
+                        var bb = (column as DataGridBoundColumn).Binding;
                         if (bb != null)
                         {
-                            Binding binding = bb as Binding;
+                            var binding = bb as Binding;
                             if (binding != null)
                             {
-                                string boundProperty = binding.Path.Path;
+                                var boundProperty = binding.Path.Path;
 
                                 /// Trying on a sub-class member
                                 ///
                                 var splitProperties = boundProperty.Split('.');
-                                object value = o;
-                                for (int i = 0; i < splitProperties.Count(); i++)
+                                var value = o;
+                                for (var i = 0; i < splitProperties.Count(); i++)
                                 {
                                     if (value == null)
                                     {
                                         value = string.Empty;
                                         break;
                                     }
+
                                     string[] splitArray = null;
-                                    int index = 0;
+                                    var index = 0;
                                     if (splitProperties[i].Contains('['))
                                     {
                                         splitArray = splitProperties[i].Split('[');
                                         splitProperties[i] = splitArray[0];
                                         if (splitArray.Count() > 1)
                                         {
-                                            string strIndex = splitArray[1].Replace('[', ' ');
+                                            var strIndex = splitArray[1].Replace('[', ' ');
                                             strIndex = strIndex.Replace(']', ' ').Trim();
                                             int.TryParse(strIndex, out index);
                                         }
@@ -128,24 +135,18 @@ namespace Mm.ExportableDataGrid
 
                                     var type = value.GetType();
                                     var prop = type.GetProperty(splitProperties[i]);
-                                    PropertyInfo pi = value.GetType().GetProperty(splitProperties[i]);
+                                    var pi = value.GetType().GetProperty(splitProperties[i]);
                                     if (pi != null)
                                     {
                                         value = pi.GetValue(value, null);
                                         if (splitArray != null && splitArray.Count() > 1)
-                                        {
                                             value = (value as BulkObservableCollection<int>)[index];
-                                        }
                                     }
                                 }
+
                                 if (value != null)
-                                {
                                     propertyValue = value.ToString();
-                                }
-                                else if (column is DataGridCheckBoxColumn)
-                                {
-                                    propertyValue = "-";
-                                }
+                                else if (column is DataGridCheckBoxColumn) propertyValue = "-";
 
                                 /* Get the property value using reflection */
                                 //PropertyInfo pi = o.GetType().GetProperty(boundProperty);
@@ -165,42 +166,43 @@ namespace Mm.ExportableDataGrid
                     }
                     else if (column is DataGridComboBoxColumn)
                     {
-                        DataGridComboBoxColumn cmbColumn = column as DataGridComboBoxColumn;
-                        string propertyValue = string.Empty;
-                        string displayMemberPath = string.Empty;
+                        var cmbColumn = column as DataGridComboBoxColumn;
+                        var propertyValue = string.Empty;
+                        var displayMemberPath = string.Empty;
                         if (checkAccess)
                             displayMemberPath = cmbColumn.DisplayMemberPath;
                         else
                             grid.Dispatcher.Invoke(() => { displayMemberPath = cmbColumn.DisplayMemberPath; });
 
                         /* Get the property name from the column's binding */
-                        BindingBase bb = cmbColumn.SelectedValueBinding;
+                        var bb = cmbColumn.SelectedValueBinding;
                         if (bb != null)
                         {
-                            Binding binding = bb as Binding;
+                            var binding = bb as Binding;
                             if (binding != null)
                             {
-                                string boundProperty = binding.Path.Path; //returns "Category" (or CategoryId)
+                                var boundProperty = binding.Path.Path; //returns "Category" (or CategoryId)
 
                                 /* Get the selected property */
-                                PropertyInfo pi = o.GetType().GetProperty(boundProperty);
+                                var pi = o.GetType().GetProperty(boundProperty);
                                 if (pi != null)
                                 {
-                                    object boundProperyValue = pi.GetValue(o); //returns the selected Category object or CategoryId
+                                    var boundProperyValue =
+                                        pi.GetValue(o); //returns the selected Category object or CategoryId
                                     if (boundProperyValue != null)
                                     {
-                                        Type propertyType = boundProperyValue.GetType();
+                                        var propertyType = boundProperyValue.GetType();
                                         if (propertyType.IsPrimitive || propertyType.Equals(typeof(string)))
                                         {
                                             if (cmbColumn.ItemsSource != null)
                                             {
                                                 /* Find the Category object in the ItemsSource of the ComboBox with
                                                  * an Id (SelectedValuePath) equal to the selected CategoryId */
-                                                IEnumerable<object> comboBoxSource = cmbColumn.ItemsSource.Cast<object>();
-                                                object obj = (from oo in comboBoxSource
-                                                              let prop = oo.GetType().GetProperty(cmbColumn.SelectedValuePath)
-                                                              where prop != null && prop.GetValue(oo).Equals(boundProperyValue)
-                                                              select oo).FirstOrDefault();
+                                                var comboBoxSource = cmbColumn.ItemsSource.Cast<object>();
+                                                var obj = (from oo in comboBoxSource
+                                                    let prop = oo.GetType().GetProperty(cmbColumn.SelectedValuePath)
+                                                    where prop != null && prop.GetValue(oo).Equals(boundProperyValue)
+                                                    select oo).FirstOrDefault();
                                                 if (obj != null)
                                                 {
                                                     /* Get the Name (DisplayMemberPath) of the Category object */
@@ -210,11 +212,11 @@ namespace Mm.ExportableDataGrid
                                                     }
                                                     else
                                                     {
-                                                        PropertyInfo displayNameProperty = obj.GetType()
+                                                        var displayNameProperty = obj.GetType()
                                                             .GetProperty(displayMemberPath);
                                                         if (displayNameProperty != null)
                                                         {
-                                                            object displayName = displayNameProperty.GetValue(obj);
+                                                            var displayName = displayNameProperty.GetValue(obj);
                                                             if (displayName != null)
                                                                 propertyValue = displayName.ToString();
                                                         }
@@ -231,12 +233,12 @@ namespace Mm.ExportableDataGrid
                                         else if (!string.IsNullOrEmpty(displayMemberPath))
                                         {
                                             /* Get the Name (DisplayMemberPath) property of the selected Category object */
-                                            PropertyInfo pi2 = boundProperyValue.GetType()
+                                            var pi2 = boundProperyValue.GetType()
                                                 .GetProperty(displayMemberPath);
 
                                             if (pi2 != null)
                                             {
-                                                object displayName = pi2.GetValue(boundProperyValue);
+                                                var displayName = pi2.GetValue(boundProperyValue);
                                                 if (displayName != null)
                                                     propertyValue = displayName.ToString();
                                             }
@@ -253,6 +255,7 @@ namespace Mm.ExportableDataGrid
                         exporter.AddColumn(propertyValue);
                     }
                 }
+
                 exporter.AddLineBreak();
             }
 

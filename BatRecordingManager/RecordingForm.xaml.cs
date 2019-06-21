@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -144,7 +161,7 @@ namespace BatRecordingManager
                     LabelledSegmentsList.Clear();
                     LabelledSegmentsList.AddRange(recording.LabelledSegments);
                     var view = CollectionViewSource.GetDefaultView(LabelledSegmentsListView.ItemsSource);
-                    if (view != null) view.Refresh();
+                    view?.Refresh();
                     Debug.WriteLine(LabelledSegmentsListView.Items.Count);
                 }
             }
@@ -178,7 +195,7 @@ namespace BatRecordingManager
                     LabelledSegmentsList.AddRange(recording.LabelledSegments);
 
                     var view = CollectionViewSource.GetDefaultView(LabelledSegmentsListView.ItemsSource);
-                    if (view != null) view.Refresh();
+                    view?.Refresh();
                     Debug.WriteLine(LabelledSegmentsListView.Items.Count);
 
                     return true;
@@ -254,12 +271,8 @@ namespace BatRecordingManager
             LabelledSegmentsListView.SelectedItem = segment;
             var index = LabelledSegmentsListView.SelectedIndex;
 
-            TimeSpan start;
-            TimeSpan end;
-            string comment;
-
             // parse the label string into times and comment
-            if (FileProcessor.IsLabelFileLine(text, out start, out end, out comment))
+            if (FileProcessor.IsLabelFileLine(text, out TimeSpan start, out var end, out var comment))
             {
                 segment.StartOffset = start;
                 segment.EndOffset = end;
@@ -632,7 +645,7 @@ namespace BatRecordingManager
 
                     //LabelledSegmentsListView.ItemsSource = LabelledSegmentsList;
                     var date = DateTime.Now;
-                    if (value.RecordingSession != null && value.RecordingSession.SessionDate != null)
+                    if (value.RecordingSession?.SessionDate != null)
                         date = value.RecordingSession.SessionDate;
                     RecordingDatePicker.SelectedDate = value.RecordingDate ?? date;
                     EndTimeTimePicker.Value = new DateTime((value.RecordingEndTime ?? new TimeSpan(22, 0, 0)).Ticks);

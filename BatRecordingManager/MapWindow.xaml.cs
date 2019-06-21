@@ -20,7 +20,7 @@ namespace BatRecordingManager
         /// </param>
         public MapWindow(bool isDialog)
         {
-            this._isDialog = isDialog;
+            _isDialog = isDialog;
             InitializeComponent();
             MapControl.OkButton.Click += OKButton_Click;
         }

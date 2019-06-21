@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -40,15 +57,14 @@ namespace BatRecordingManager
         internal static RecordingSession SetGpsCoordinates(RecordingSession session, GpxHandler gpxHandler)
         {
             if (session.LocationGPSLatitude == null || session.LocationGPSLatitude < 5.0m)
-                if (gpxHandler != null)
+            {
+                var gpxLoc = gpxHandler?.GetLocation(session.SessionDate);
+                if (gpxLoc != null && gpxLoc.Count == 2)
                 {
-                    var gpxLoc = gpxHandler.GetLocation(session.SessionDate);
-                    if (gpxLoc != null && gpxLoc.Count == 2)
-                    {
-                        session.LocationGPSLatitude = gpxLoc[0];
-                        session.LocationGPSLongitude = gpxLoc[1];
-                    }
+                    session.LocationGPSLatitude = gpxLoc[0];
+                    session.LocationGPSLongitude = gpxLoc[1];
                 }
+            }
 
             return session;
         }
@@ -150,9 +166,7 @@ namespace BatRecordingManager
             }
 
             if (string.IsNullOrWhiteSpace(newSession.OriginalFilePath)) newSession.OriginalFilePath = folderPath;
-            TimeSpan start;
-            TimeSpan end;
-            if (GetTimesFromFiles(folderPath, sessionTag, out start, out end))
+            if (GetTimesFromFiles(folderPath, sessionTag, out var start, out var end))
             {
                 newSession.SessionStartTime = start;
                 newSession.SessionEndTime = end;
@@ -328,7 +342,7 @@ namespace BatRecordingManager
                 //var WAVFiles= Directory.EnumerateFiles(folder, "*.WAV");
                 //wavFiles = wavFiles.Concat<string>(WAVFiles);
 
-                if (wavFiles != null && wavFiles.Count() > 0) wavFile = wavFiles.First();
+                if (wavFiles != null && wavFiles.Any()) wavFile = wavFiles.First();
             }
 
             WavFileMetaData wfmd = null;
@@ -477,13 +491,9 @@ namespace BatRecordingManager
             if (match.Success)
                 if (match.Groups.Count == 6)
                 {
-                    int day;
-                    int month;
-                    int year;
-
-                    int.TryParse(match.Groups[5].Value, out day);
-                    int.TryParse(match.Groups[4].Value, out month);
-                    int.TryParse(match.Groups[3].Value, out year);
+                    int.TryParse(match.Groups[5].Value, out var day);
+                    int.TryParse(match.Groups[4].Value, out var month);
+                    int.TryParse(match.Groups[3].Value, out var year);
                     result = new DateTime(year, month, day);
                 }
 
@@ -500,7 +510,7 @@ namespace BatRecordingManager
         /// </returns>
         private static string GetEquipment(string[] headerFile, WavFileMetaData wfmd = null)
         {
-            if (wfmd != null && wfmd.m_Device != null) return wfmd.m_Device;
+            if (wfmd?.m_Device != null) return wfmd.m_Device;
             if (headerFile == null || headerFile.Length <= 0) return "";
             var knownEquipment = DBAccess.GetEquipmentList();
             if (knownEquipment == null || knownEquipment.Count <= 0) return "";
@@ -526,7 +536,7 @@ namespace BatRecordingManager
         private static bool GetGpsCoOrdinates(string[] headerFile, WavFileMetaData wfmd,
             out decimal? latitude, out decimal? longitude)
         {
-            if (wfmd != null && wfmd.m_Location != null)
+            if (wfmd?.m_Location != null)
             {
                 latitude = (decimal) wfmd.m_Location.m_Latitude;
                 longitude = (decimal) wfmd.m_Location.m_Longitude;
@@ -588,7 +598,7 @@ namespace BatRecordingManager
         /// </returns>
         private static string GetMicrophone(string[] headerFile, WavFileMetaData wfmd = null)
         {
-            if (wfmd != null && wfmd.m_Microphone != null) return wfmd.m_Microphone;
+            if (wfmd?.m_Microphone != null) return wfmd.m_Microphone;
             if (headerFile == null || headerFile.Length <= 0) return "";
             var knownMicrophones = DBAccess.GetMicrophoneList();
             if (knownMicrophones == null || knownMicrophones.Count <= 0) return "";
@@ -634,7 +644,7 @@ namespace BatRecordingManager
         private static short? GetTemp(string[] headerFile, WavFileMetaData wfmd = null)
         {
             short temp = 0;
-            if (wfmd != null && wfmd.m_Temperature != null)
+            if (wfmd?.m_Temperature != null)
                 if (short.TryParse(wfmd.m_Temperature, out temp))
                     return temp;
             if (headerFile == null) return 0;
@@ -678,8 +688,8 @@ namespace BatRecordingManager
             startTime = new DateTime();
             endTime = new DateTime();
 
-            if (wfmd != null && wfmd.m_Start != null) startTime = wfmd.m_Start.Value;
-            if (wfmd != null && wfmd.m_End != null) endTime = wfmd.m_End.Value;
+            if (wfmd?.m_Start != null) startTime = wfmd.m_Start.Value;
+            if (wfmd?.m_End != null) endTime = wfmd.m_End.Value;
             sunset = new TimeSpan();
             if (headerFile == null) return;
             var times = new BulkObservableCollection<TimeSpan>();

@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -31,14 +48,14 @@ namespace BatRecordingManager
         /// <param name="occurrencesPerPeriod"></param>
         public FrequencyData(int aggregationPeriod, Bat bat, BulkObservableCollection<int> occurrencesPerPeriod)
         {
-            this.AggregationPeriod = aggregationPeriod;
+            AggregationPeriod = aggregationPeriod;
             var periods = (int) Math.Floor(1440.0m / aggregationPeriod);
             this.bat = bat;
             if (occurrencesPerPeriod != null)
-                this.OccurrencesPerPeriod = occurrencesPerPeriod;
+                OccurrencesPerPeriod = occurrencesPerPeriod;
             else
-                this.OccurrencesPerPeriod = new BulkObservableCollection<int>();
-            while (this.OccurrencesPerPeriod.Count < periods) this.OccurrencesPerPeriod.Add(0);
+                OccurrencesPerPeriod = new BulkObservableCollection<int>();
+            while (OccurrencesPerPeriod.Count < periods) OccurrencesPerPeriod.Add(0);
         }
 
         /// <summary>
@@ -274,7 +291,7 @@ namespace BatRecordingManager
         private void ExportTabItem(TabItem tab, string filename)
         {
             var exporter = new CsvExporter(',');
-            if (tab.Content is ReportMaster) (tab.Content as ReportMaster).Export(exporter, filename);
+            (tab.Content as ReportMaster)?.Export(exporter, filename);
         }
 
         private void ByRecordingTab_GotFocus(object sender, RoutedEventArgs e)

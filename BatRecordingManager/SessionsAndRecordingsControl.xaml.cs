@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -61,21 +78,21 @@ namespace BatRecordingManager
     public partial class SessionsAndRecordingsControl : UserControl
     {
         private readonly object _sessionActionEventLock = new object();
+
+        private ImportPictureDialog _importPictureDialog;
+        private bool _isPictureDialogOpen;
         private BatStatistics _selectedBatDetails;
 
 
         private BulkObservableCollection<BatStatistics> _selectedBatDetailsList =
             new BulkObservableCollection<BatStatistics>();
 
-        private ImportPictureDialog _importPictureDialog;
-        private bool _isPictureDialogOpen;
+        private EventHandler<SessionActionEventArgs> _sessionActionEvent;
 
         /// <summary>
         ///     The selected bat identifier
         /// </summary>
         public int SelectedBatId = 0;
-
-        private EventHandler<SessionActionEventArgs> _sessionActionEvent;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="SessionsAndRecordingsControl" /> class.
@@ -377,7 +394,7 @@ namespace BatRecordingManager
             if (e.AddedItems != null && e.AddedItems.Count > 0 || e.RemovedItems != null && e.RemovedItems.Count > 0)
                 if (RecordingsDataGrid.SelectedItems != null)
                     foreach (var item in RecordingsDataGrid.SelectedItems)
-                        if (item != null && item is BatSessionRecordingData)
+                        if (item is BatSessionRecordingData)
                         {
                             var brec = item as BatSessionRecordingData;
                             //Recording recording = DBAccess.GetRecording(brec.RecordingId??-1);
@@ -393,8 +410,7 @@ namespace BatRecordingManager
                         }
 
             if (_importPictureDialog != null && _isPictureDialogOpen)
-                if (RecordingsDataGrid.SelectedItem != null &&
-                    RecordingsDataGrid.SelectedItem as BatSessionRecordingData != null)
+                if (RecordingsDataGrid.SelectedItem as BatSessionRecordingData != null)
                     _importPictureDialog.SetCaption((RecordingsDataGrid.SelectedItem as BatSessionRecordingData)
                         .RecordingName);
         }
@@ -413,8 +429,7 @@ namespace BatRecordingManager
                 _importPictureDialog.Closed += ImportPictureDialog_Closed;
             }
 
-            if (RecordingsDataGrid.SelectedItem != null &&
-                RecordingsDataGrid.SelectedItem as BatSessionRecordingData != null)
+            if (RecordingsDataGrid.SelectedItem as BatSessionRecordingData != null)
             {
                 var fileName = (RecordingsDataGrid.SelectedItem as BatSessionRecordingData).RecordingName;
                 _importPictureDialog.SetCaption(fileName);

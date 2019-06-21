@@ -3,6 +3,8 @@
 // Project-level suppressions either have no target or are given 
 // a specific target and scoped to a namespace, type, member, etc.
 
+using System.Diagnostics.CodeAnalysis;
+
 [assembly:
-    System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>",
+    SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>",
         Scope = "member", Target = "~F:BatRecordingManager.BatDetailControl._selectedCallIndex")]

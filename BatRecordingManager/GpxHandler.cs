@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -164,10 +181,8 @@ namespace BatRecordingManager
         {
             var strLat = trkpt.Attribute("lat").Value;
             var strLong = trkpt.Attribute("lon").Value;
-            decimal dLat;
-            decimal dLong;
-            decimal.TryParse(strLat, out dLat);
-            decimal.TryParse(strLong, out dLong);
+            decimal.TryParse(strLat, out var dLat);
+            decimal.TryParse(strLong, out var dLong);
             var result = new BulkObservableCollection<decimal>
             {
                 dLat,
@@ -226,7 +241,7 @@ namespace BatRecordingManager
         private DateTime GetTrackPointTime(XElement trackPoint)
         {
             var strDateTimeElement =
-                trackPoint.Descendants().Where(x => x.ToString().StartsWith("<time")).First().Value;
+                trackPoint.Descendants().First(x => x.ToString().StartsWith("<time")).Value;
             var tpTime = DateTime.Parse(strDateTimeElement);
             return tpTime;
         }

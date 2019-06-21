@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -21,16 +38,16 @@ namespace BatRecordingManager
     {
         private readonly object _recordingChangedEventLock = new object();
 
+        private readonly SearchableCollection _searchTargets = new SearchableCollection();
+
         private readonly object _segmentSelectionChangedEventLock = new object();
-        private RecordingSession _selectedSession;
 
         private bool _isSegmentSelected;
         private EventHandler<EventArgs> _recordingChangedEvent;
         private SearchDialog _searchDialog = new SearchDialog();
-
-        private readonly SearchableCollection _searchTargets = new SearchableCollection();
         private EventHandler<EventArgs> _segmentSelectionChangedEvent;
         private LabelledSegment _selectedSegment;
+        private RecordingSession _selectedSession;
 
         //private double vo = -1.0;
 
@@ -120,7 +137,7 @@ namespace BatRecordingManager
                         RecordingsListView.ItemContainerGenerator.ContainerFromIndex(RecordingsListView.SelectedIndex)
                             as ListBoxItem;
                     var lsegListView = Tools.FindDescendant<ListView>(currentSelectedListBoxItem);
-                    if (lsegListView != null) lsegListView.UnselectAll();
+                    lsegListView?.UnselectAll();
                     RecordingsListView.UnselectAll();
                 }
 
@@ -355,9 +372,9 @@ namespace BatRecordingManager
                         DeleteRecordingButton.IsEnabled = true;
                         if (RecordingsListView.Items != null)
                             foreach (var item in RecordingsListView.Items)
-                                if (item is ListView)
+                                if (item is ListView view)
                                 {
-                                    if ((item as ListView).SelectedIndex >= 0)
+                                    if (view.SelectedIndex >= 0)
                                         _isSegmentSelected = true;
                                     else
                                         _isSegmentSelected = false;
@@ -543,7 +560,7 @@ namespace BatRecordingManager
                     AddSegImgButton.Content = "Add Image";
                     AddSegImgButton.IsEnabled = true;
                     _isSegmentSelected = true;
-                    this._selectedSegment = selectedSegment;
+                    _selectedSegment = selectedSegment;
                     var isRecordingSelected = false;
                     if (RecordingsListView.SelectedItem != null)
                         if (selectedSegment.RecordingID == (RecordingsListView.SelectedItem as Recording).Id)
@@ -631,7 +648,8 @@ namespace BatRecordingManager
             {
                 var imageDialog = new ImageDialog(
                     _selectedSegment != null
-                        ? _selectedSegment.Recording != null ? _selectedSegment.Recording.RecordingName : "image caption"
+                        ? _selectedSegment.Recording != null ? _selectedSegment.Recording.RecordingName :
+                        "image caption"
                         : "image caption",
                     _selectedSegment != null ? _selectedSegment.Comment : "new image");
                 var result = imageDialog.ShowDialog();
@@ -643,7 +661,7 @@ namespace BatRecordingManager
             }
 
             // applies to both types of add...
-            if (_selectedSegment != null && _selectedSegment.Recording != null)
+            if (_selectedSegment?.Recording != null)
             {
                 selectedRecording = _selectedSegment.Recording;
             }
@@ -709,7 +727,7 @@ namespace BatRecordingManager
                 RecordingsListView.SelectedIndex = oldIndex >= 0 && oldIndex < recordingsList.Count ? oldIndex : -1;
                 RecordingsListView.ItemsSource = recordingsList;
                 var view = CollectionViewSource.GetDefaultView(RecordingsListView.ItemsSource);
-                if (view != null) view.Refresh();
+                view?.Refresh();
             }
 
             CreateSearchDialog();
@@ -780,12 +798,11 @@ namespace BatRecordingManager
 
         private void ContentControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (sender is ContentControl)
-                if ((sender as ContentControl).Content is TextBlock)
-                {
-                    LabelledSegmentTextBlock_MouseRightButtonUp((sender as ContentControl).Content, e);
-                    e.Handled = true;
-                }
+            if ((sender as ContentControl)?.Content is TextBlock)
+            {
+                LabelledSegmentTextBlock_MouseRightButtonUp((sender as ContentControl).Content, e);
+                e.Handled = true;
+            }
         }
     } // End of Class RecordingDetailListControl
 

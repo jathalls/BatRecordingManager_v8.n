@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -18,22 +35,9 @@ namespace BatRecordingManager
     public partial class MainWindow : Window
     {
         /// <summary>
-        ///     Instance holder for the Analyze and Import class.  If null, then a new folder
-        ///     needs to be selectedd, otherwise analyses the next .wav file in the currently
-        ///     selected folder.
-        /// </summary>
-        private AnalyseAndImportClass _analyseAndImport;
-
-        /// <summary>
         ///     The build
         /// </summary>
         private readonly string _build;
-
-        private bool _doingOnClosed;
-
-        private ImportPictureDialog _importPictureDialog;
-
-        private bool _runKaleidoscope;
 
         /// <summary>
         ///     The is saved
@@ -44,6 +48,19 @@ namespace BatRecordingManager
         ///     The window title
         /// </summary>
         private readonly string _windowTitle = "Bat Log Manager - v";
+
+        /// <summary>
+        ///     Instance holder for the Analyze and Import class.  If null, then a new folder
+        ///     needs to be selectedd, otherwise analyses the next .wav file in the currently
+        ///     selected folder.
+        /// </summary>
+        private AnalyseAndImportClass _analyseAndImport;
+
+        private bool _doingOnClosed;
+
+        private ImportPictureDialog _importPictureDialog;
+
+        private bool _runKaleidoscope;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="MainWindow" /> class.
@@ -84,8 +101,9 @@ namespace BatRecordingManager
                     }
 
                     if (buildDateTime.Ticks > 0L)
-                        _build = _build + " (" + buildDateTime.Date.ToShortDateString() + " " + buildDateTime.TimeOfDay +
-                                ")";
+                        _build = _build + " (" + buildDateTime.Date.ToShortDateString() + " " +
+                                 buildDateTime.TimeOfDay +
+                                 ")";
                     //windowTitle = "Bat Log File Processor " + Build;
                     Title = _windowTitle + " " + _build;
 
@@ -503,8 +521,7 @@ Do you wish to update that database to the latest specification?", "Out of Date 
         /// <param name="e"></param>
         private void miAnalyseFiles_Click(object sender, RoutedEventArgs e)
         {
-            _runKaleidoscope = false;
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) _runKaleidoscope = true;
+            _runKaleidoscope = false || Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
             if (_analyseAndImport == null)
             {
                 _importPictureDialog = new ImportPictureDialog();
@@ -575,9 +592,8 @@ Do you wish to update that database to the latest specification?", "Out of Date 
 
         private void SetImportImageCaption(string caption)
         {
-            if (_importPictureDialog != null)
-                _importPictureDialog.Dispatcher.BeginInvoke(DispatcherPriority.Background,
-                    new Action(() => { _importPictureDialog.SetCaption(caption); }));
+            _importPictureDialog?.Dispatcher.BeginInvoke(DispatcherPriority.Background,
+                new Action(() => { _importPictureDialog.SetCaption(caption); }));
         }
 
         /// <summary>
@@ -595,13 +611,12 @@ Do you wish to update that database to the latest specification?", "Out of Date 
                 _analyseAndImport = null;
             }
 
-            if (_importPictureDialog != null)
-                _importPictureDialog.Dispatcher.BeginInvoke(DispatcherPriority.Background,
-                    new Action(() =>
-                    {
-                        _importPictureDialog.Close();
-                        _importPictureDialog = null;
-                    }));
+            _importPictureDialog?.Dispatcher.BeginInvoke(DispatcherPriority.Background,
+                new Action(() =>
+                {
+                    _importPictureDialog.Close();
+                    _importPictureDialog = null;
+                }));
         }
 
         /// <summary>
@@ -613,7 +628,7 @@ Do you wish to update that database to the latest specification?", "Out of Date 
         {
             if (sender != null)
             {
-                if (recordingSessionListControl != null) recordingSessionListControl.RefreshData();
+                recordingSessionListControl?.RefreshData();
                 var sessionUpdated = (sender as AnalyseAndImportClass).SessionTag;
                 if (!string.IsNullOrWhiteSpace(sessionUpdated) && _runKaleidoscope)
                 {
@@ -688,7 +703,7 @@ Do you wish to update that database to the latest specification?", "Out of Date 
 
             try
             {
-                if (display != null) display.Show();
+                display?.Show();
             }
             catch (NullReferenceException nre)
             {

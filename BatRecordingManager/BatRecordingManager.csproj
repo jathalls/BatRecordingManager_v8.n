@@ -68,7 +68,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>0</WarningLevel>
     <DocumentationFile>bin\Release\BatRecordingManager.xml</DocumentationFile>
-    <RunCodeAnalysis>True</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisRuleSet>CodeAnalysisRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
     <PrimaryVersionType>AssemblyVersionAttribute</PrimaryVersionType>
@@ -78,6 +78,7 @@
     <AssemblyVersionSettings>IncrementOnDemand.Increment.DateStamp.TimeStamp</AssemblyVersionSettings>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisTreatWarningsAsErrors>True</CodeAnalysisTreatWarningsAsErrors>
+    <CodeAnalysisIgnoreGeneratedCode>true</CodeAnalysisIgnoreGeneratedCode>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>C90EB481B3E4BCC20D2454132BED98DEAD5147C1</ManifestCertificateThumbprint>
@@ -797,6 +798,7 @@
     <AdditionalFiles Include="Pelfusion-Flat-Folder-Tick-Folder.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
+    <Resource Include="License.txt" />
     <Content Include="Properties\AutoVersionUpdater.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>AutoVersionUpdater.txt</LastGenOutput>

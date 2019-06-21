@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.Data.Linq;
 using System.Linq;
 using System.Windows;
@@ -13,13 +30,13 @@ namespace BatRecordingManager
     /// </summary>
     public partial class EditBatForm : Window
     {
-        private int _selectedCallIndex;
-
         /// <summary>
         ///     This flag is set if the image scroller is to display images of the bate.  If clear then
         ///     the ImageScroller displays images for the selected BatCall
         /// </summary>
         private bool _imageScrollerDisplaysBatImages = true;
+
+        private int _selectedCallIndex;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="EditBatForm" /> class.
@@ -148,7 +165,7 @@ namespace BatRecordingManager
             }
 
             var view = CollectionViewSource.GetDefaultView(BatTagList.ItemsSource);
-            if (view != null) view.Refresh();
+            view?.Refresh();
         }
 
         private void AddTag(string text)
@@ -179,7 +196,7 @@ namespace BatRecordingManager
                 DataContext = NewBat;
 
                 var view = CollectionViewSource.GetDefaultView(BatTagList.ItemsSource);
-                if (view != null) view.Refresh();
+                view?.Refresh();
             }
         }
 
@@ -267,7 +284,7 @@ namespace BatRecordingManager
 
             DataContext = NewBat;
             var view = CollectionViewSource.GetDefaultView(BatTagList.ItemsSource);
-            if (view != null) view.Refresh();
+            view?.Refresh();
         }
 
         /// <summary>

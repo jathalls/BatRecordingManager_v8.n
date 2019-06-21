@@ -1,4 +1,22 @@
-﻿using System.Collections.Generic;
+﻿/*
+ *  Copyright 2015 Magnus Montin
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -7,54 +25,53 @@ namespace Mm.ExportableDataGrid
 {
     public class ExportableDataGrid : DataGrid
     {
-        public ExportableDataGrid()
-            : base()
-        {
-            this.CommandBindings.Add(new CommandBinding(_exportCommand, ExecutedExportCommand,
-                CanExecuteExportCommand));
-            this.Loaded += ExportableDataGrid_Loaded;
-        }
-
         private readonly ICommand _exportCommand = new RoutedCommand();
         private readonly IExporter _exporter = new CsvExporter(';');
 
-        private void CanExecuteExportCommand(object sender, CanExecuteRoutedEventArgs e)
+        public ExportableDataGrid()
         {
-            e.CanExecute = this.Items.Count > 0;
+            CommandBindings.Add(new CommandBinding(_exportCommand, ExecutedExportCommand,
+                CanExecuteExportCommand));
+            Loaded += ExportableDataGrid_Loaded;
         }
 
-        private void ContextMenu_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        private void CanExecuteExportCommand(object sender, CanExecuteRoutedEventArgs e)
         {
-            MenuItem mi = new MenuItem();
+            e.CanExecute = Items.Count > 0;
+        }
+
+        private void ContextMenu_Loaded(object sender, RoutedEventArgs e)
+        {
+            var mi = new MenuItem();
             mi.Header = "Export to CSV";
             mi.Command = _exportCommand;
 
-            if (this.ContextMenu.ItemsSource != null)
+            if (ContextMenu.ItemsSource != null)
             {
-                CompositeCollection cc = new CompositeCollection();
+                var cc = new CompositeCollection();
 
-                CollectionContainer boundCollection = new CollectionContainer();
-                boundCollection.Collection = this.ContextMenu.ItemsSource;
+                var boundCollection = new CollectionContainer();
+                boundCollection.Collection = ContextMenu.ItemsSource;
                 cc.Add(boundCollection);
 
-                CollectionContainer exportCollection = new CollectionContainer();
-                List<Control> exportMenuItems = new List<Control>(2);
+                var exportCollection = new CollectionContainer();
+                var exportMenuItems = new List<Control>(2);
                 exportMenuItems.Add(new Separator());
                 exportMenuItems.Add(mi);
                 exportCollection.Collection = exportMenuItems;
                 cc.Add(exportCollection);
 
-                this.ContextMenu.ItemsSource = cc;
+                ContextMenu.ItemsSource = cc;
             }
             else
             {
-                if (this.ContextMenu.HasItems)
-                    this.ContextMenu.Items.Add(new Separator());
+                if (ContextMenu.HasItems)
+                    ContextMenu.Items.Add(new Separator());
 
-                this.ContextMenu.Items.Add(mi);
+                ContextMenu.Items.Add(mi);
             }
 
-            this.ContextMenu.Loaded -= ContextMenu_Loaded;
+            ContextMenu.Loaded -= ContextMenu_Loaded;
         }
 
         private void ExecutedExportCommand(object sender, ExecutedRoutedEventArgs e)
@@ -62,12 +79,12 @@ namespace Mm.ExportableDataGrid
             this.ExportUsingRefection(_exporter, string.Empty);
         }
 
-        private void ExportableDataGrid_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        private void ExportableDataGrid_Loaded(object sender, RoutedEventArgs e)
         {
-            if (this.ContextMenu == null)
-                this.ContextMenu = new ContextMenu();
+            if (ContextMenu == null)
+                ContextMenu = new ContextMenu();
 
-            this.ContextMenu.Loaded += ContextMenu_Loaded;
+            ContextMenu.Loaded += ContextMenu_Loaded;
         }
     }
 }

@@ -48,7 +48,9 @@
 
             <Label
                 Style="{StaticResource SimpleLabel}"
-                Grid.Row="1" Content="Session Start:-" />
+                Grid.Row="1" 
+                Grid.Column="0"
+                Content="Session Start:-" />
             <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1">
                 <xctk:DateTimePicker
                     x:Name="SessionStartDateTime"
@@ -70,39 +72,19 @@
                     IsReadOnly="true"
                     CultureInfo="en-GB"
                     Minimum="01/01/1950 01:01:00" />
-                <!--<TextBox
-                Background="{StaticResource WindowBackgroundBrush}"
-                x:Name="SessionDatePicker"
-                MinWidth="150"
-                IsReadOnly="True"
-                    Margin="0,0,5,0"
-                    Style="{StaticResource SimpleTextBox}"
-                Grid.Row="1" Grid.Column="1" />
-
-                <Label Content="Start Time:-" Style="{StaticResource SimpleLabel}" />
-
-                <TextBox
-                Background="{StaticResource WindowBackgroundBrush}"
-                x:Name="StartTimePicker"
-                    Margin="5,0"
-                    IsReadOnly="True"
-                    Style="{StaticResource SimpleTextBox}"
-                MinWidth="100" />
-
-                <Label Content="End Time:-" Style="{StaticResource SimpleLabel}" />
-
-                <TextBox
-                    Background="{StaticResource WindowBackgroundBrush}"
-                    x:Name="EndTimePicker"
-                    Style="{StaticResource SimpleTextBox}"
-                    Margin="5,0"
-                    IsReadOnly="True"
-                    MinWidth="100" />-->
+                
             </StackPanel>
 
-            <Label Grid.Row="2" Content="Folder:- " Style="{StaticResource SimpleLabel}" />
+            <Label 
+                Grid.Row="2" 
+                Grid.Column="0"
+                Content="Folder:- " 
+                Style="{StaticResource SimpleLabel}" />
 
-            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+            <StackPanel 
+                Grid.Row="2" 
+                Grid.Column="1" 
+                Orientation="Horizontal">
 
                 <TextBox
                     x:Name="FolderTextBox"
@@ -117,6 +99,7 @@
             <Label
                 Style="{StaticResource SimpleLabel}"
                 Grid.Row="3"
+                Grid.Column="0"
                 Content="Recording Device:-" />
 
             <TextBox
@@ -128,30 +111,39 @@
                 Background="{StaticResource WindowBackgroundBrush}" />
 
             <Label
-                Grid.Row="4" Content="Microphone" Style="{StaticResource SimpleLabel}" />
+                Grid.Row="4" 
+                Grid.Column="0"
+                Content="Microphone" 
+                Style="{StaticResource SimpleLabel}" />
 
             <TextBox
                 Style="{StaticResource SimpleTextBox}"
                 x:Name="MicrophoneComboBox"
-                Grid.Row="4" Grid.Column="1"
+                Grid.Row="4" 
+                Grid.Column="1"
                 IsReadOnly="True"
                 Background="{StaticResource WindowBackgroundBrush}" />
 
             <Label
                 Style="{StaticResource SimpleLabel}"
-                Grid.Row="5" Content="Operator:-" />
+                Grid.Row="5" 
+                Grid.Column="0"
+                Content="Operator:-" />
 
             <TextBox
                 Style="{StaticResource SimpleTextBox}"
                 x:Name="OperatorComboBox"
                 Background="{StaticResource WindowBackgroundBrush}"
 
-                Grid.Row="5" Grid.Column="1"
+                Grid.Row="5" 
+                Grid.Column="1"
                 IsReadOnly="True" />
 
             <Label
                 Style="{StaticResource SimpleLabel}"
-                Grid.Row="6" Content="Location:-" />
+                Grid.Row="6" 
+                Grid.Column="0"
+                Content="Location:-" />
             <TextBox
                 Style="{StaticResource SimpleTextBox}"
                 x:Name="LocationComboBox"
@@ -162,7 +154,9 @@
 
             <Label
                 Style="{StaticResource SimpleLabel}"
-                Grid.Row="7" Content="GPS Co-ordinates:-" />
+                Grid.Row="7" 
+                Grid.Column="0"
+                Content="GPS Co-ordinates:-" />
 
             <StackPanel
                 Orientation="Horizontal"
@@ -198,7 +192,10 @@
             </StackPanel>
 
             <Label
-                Grid.Row="8" Content="Weather" Style="{StaticResource SimpleLabel}" />
+                Grid.Row="8" 
+                Grid.Column="0"
+                Content="Weather" 
+                Style="{StaticResource SimpleLabel}" />
             <TextBox
                 Grid.Row="8"
                 Grid.Column="1"
@@ -208,9 +205,14 @@
                 x:Name="WeatherTextBox" />
 
             <Label
-                Grid.Row="9" Content="Temperature:-" Style="{StaticResource SimpleLabel}" />
+                Grid.Row="9" 
+                Grid.Column="0"
+                Content="Temperature:-" 
+                Style="{StaticResource SimpleLabel}" />
             <StackPanel
-                Grid.Row="9" Grid.Column="10" Orientation="Horizontal">
+                Grid.Row="9" 
+                Grid.Column="10" 
+                Orientation="Horizontal">
                 <TextBox
 
                     x:Name="TemperatureIntegerUpDown"
@@ -229,9 +231,14 @@
             </StackPanel>
 
             <Label
-                Grid.Row="10" Content="Notes:-" Style="{StaticResource SimpleLabel}" />
+                Grid.Row="10" 
+                Grid.Column="0"
+                Content="Notes:-" 
+                Style="{StaticResource SimpleLabel}" />
 
-            <ScrollViewer Grid.Row="10" Grid.Column="1">
+            <ScrollViewer 
+                Grid.Row="10"
+                Grid.Column="1">
                 <TextBox
                     x:Name="SessionNotesRichtextBox"
                     Style="{StaticResource SimpleTextBox}"

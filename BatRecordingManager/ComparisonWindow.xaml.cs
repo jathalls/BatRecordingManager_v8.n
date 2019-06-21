@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -39,11 +56,7 @@ namespace BatRecordingManager
         internal StoredImage GetSelectedImage()
         {
             StoredImage result = null;
-            if (ComparisonStackPanel.SelectedItem != null)
-            {
-                var selectedImageControl = ComparisonStackPanel.SelectedItem as DisplayStoredImageControl;
-                if (selectedImageControl != null) result = selectedImageControl.storedImage;
-            }
+            if (ComparisonStackPanel.SelectedItem is DisplayStoredImageControl selectedImageControl) result = selectedImageControl.storedImage;
 
             if (result == null)
                 if (storedImageList != null && storedImageList.Count > 0)
@@ -68,8 +81,7 @@ namespace BatRecordingManager
             displayImage.IsModified = asModified;
             //DisplayImage.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
 
-            var binding = new MultiBinding();
-            binding.Converter = new MultiscaleConverter();
+            var binding = new MultiBinding {Converter = new MultiscaleConverter()};
             binding.Bindings.Add(new Binding("ActualHeight") {Source = this});
             binding.Bindings.Add(new Binding("scaleValue") {Source = displayImage});
 
@@ -81,15 +93,14 @@ namespace BatRecordingManager
             //binding.ConverterParameter = "0.5";
             displayImage.SetBinding(HeightProperty, binding);
 
-            binding = new MultiBinding();
-            binding.Converter = new MultiscaleConverter();
+            binding = new MultiBinding {Converter = new MultiscaleConverter()};
             binding.Bindings.Add(new Binding("ActualWidth") {Source = this});
             binding.Bindings.Add(new Binding("scaleValue") {Source = displayImage});
             displayImage.SetBinding(WidthProperty, binding);
             storedImageList.Add(displayImage);
 
             var view = CollectionViewSource.GetDefaultView(ComparisonStackPanel.ItemsSource);
-            if (view != null) view.Refresh();
+            view?.Refresh();
             if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
             Focus();
         }
@@ -108,10 +119,10 @@ namespace BatRecordingManager
                 using (new WaitCursor("Enabling Fiducial Lines"))
                 {
                     foreach (var item in storedImageList)
-                        if (item is DisplayStoredImageControl)
+                        if (item!=null && item is DisplayStoredImageControl)
                         {
                             var dsic = item;
-                            if (dsic != null) dsic.SetImageFids(toChecked);
+                            dsic?.SetImageFids(toChecked);
                         }
                 }
         }
@@ -131,8 +142,11 @@ namespace BatRecordingManager
                 using (new WaitCursor("Copying Grid to Fiducial Lines"))
                 {
                     foreach (var item in storedImageList)
-                        if (item is DisplayStoredImageControl)
-                            item.DuplicateThis(e as DuplicateEventArgs);
+                    {
+                        var control = item as DisplayStoredImageControl;
+                        if (control != null)
+                            control.DuplicateThis(e as DuplicateEventArgs);
+                    }
                 }
         }
 
@@ -142,10 +156,10 @@ namespace BatRecordingManager
             var toFull = thisButton.Content as string == "FULL";
             if (storedImageList != null && storedImageList.Count > 0)
                 foreach (var item in storedImageList)
-                    if (item is DisplayStoredImageControl)
+                    if (item != null)
                     {
                         var dsic = item;
-                        if (dsic != null) dsic.SetImageFull(toFull);
+                        dsic?.SetImageFull(toFull);
                     }
         }
 
@@ -210,10 +224,9 @@ namespace BatRecordingManager
         private void ComparisonStackPanel_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             var move = e.Delta;
-            if (!(sender is DisplayStoredImageControl)) return;
             var dsic = sender as DisplayStoredImageControl;
 
-            if (dsic.Parent == null || !(dsic.Parent is ScrollViewer)) return;
+            if (!(dsic?.Parent is ScrollViewer)) return;
             var sv = dsic.Parent as ScrollViewer;
             if (move > 0) sv.PageUp();
             if (move < 0) sv.PageDown();
@@ -326,9 +339,10 @@ namespace BatRecordingManager
             if (!e.Handled)
             {
                 e.Handled = true;
-                var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta);
-                eventArg.RoutedEvent = MouseWheelEvent;
-                eventArg.Source = sender;
+                var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
+                {
+                    RoutedEvent = MouseWheelEvent, Source = sender
+                };
                 var parent = ((Control) sender).Parent as UIElement;
                 parent.RaiseEvent(eventArg);
             }
@@ -364,8 +378,8 @@ namespace BatRecordingManager
         /// </summary>
         private void RemoveLeadingNumbersFromDescriptions()
         {
-            for (var i = 0; i < storedImageList.Count; i++)
-                storedImageList[i].storedImage.description = Denumber(storedImageList[i].storedImage.description);
+            foreach (var t in storedImageList)
+                t.storedImage.description = Denumber(t.storedImage.description);
         }
 
         /// <summary>

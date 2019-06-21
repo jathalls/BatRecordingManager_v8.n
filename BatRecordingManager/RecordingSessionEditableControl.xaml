@@ -51,7 +51,7 @@
 
             <Label
                 Style="{StaticResource SimpleLabel}"
-                Grid.Row="1" Content="Session Start:-" />
+                Grid.Row="1" Grid.Column="0" Content="Session Start:-" />
             <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1">
                 <xctk:DateTimePicker
                     x:Name="SessionStartDateTime"
@@ -71,40 +71,11 @@
                     AutoCloseCalendar="True"
                     CultureInfo="en-GB"
                     Minimum="01/01/1950 01:01:00" />
-                <!--
-                <DatePicker
-                Background="{StaticResource WindowBackgroundBrushLight}"
-                x:Name="SessionStartDatePicker"
-                MinWidth="150"
-                Grid.Row="1" Grid.Column="1" />
-                <Label Content=" - " Style="{StaticResource SimpleLabel}" />
-                <xctk:TimePicker
-                Background="{StaticResource WindowBackgroundBrushLight}"
-                x:Name="StartTimePicker"
-                    Margin="5,0"
-                MinWidth="100" />-->
-                <!--
-                <local:TimePicker
-                    x:Name="StartTimePicker"
-                    Width="80"
-                    Value="{Binding Path=startTime}"
-                    ></local:TimePicker>-->
-                <!--<Label Content="End :-" Style="{StaticResource SimpleLabel}" Margin="10,0,0,0" />
-                <DatePicker
-                Background="{StaticResource WindowBackgroundBrushLight}"
-                x:Name="SessionEndDatePicker"
-                MinWidth="150"
-                Grid.Row="1" Grid.Column="1" />
-                <Label Content=" - " Style="{StaticResource SimpleLabel}" />
-                <xctk:TimePicker
-                    Background="{StaticResource WindowBackgroundBrushLight}"
-                    x:Name="EndTimePicker"
-                    Margin="5,0"
-                    MinWidth="100" />-->
+                
             </StackPanel>
 
             <Label
-                Grid.Row="2" Content="Folder:-" Style="{StaticResource SimpleLabel}" />
+                Grid.Row="2" Grid.Column="0" Content="Folder:-" Style="{StaticResource SimpleLabel}" />
             <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
 
                 <TextBox
@@ -124,7 +95,7 @@
 
             <Label
                 Style="{StaticResource SimpleLabel}"
-                Grid.Row="3"
+                Grid.Row="3" Grid.Column="0"
                 Content="Recording Device:-" />
             <ComboBox
                 Style="{StaticResource SimpleComboBox}"
@@ -137,7 +108,7 @@
                 ToolTip="Select an existing device if possible, or type in a name and sampling characteristics" />
 
             <Label
-                Grid.Row="4" Content="Microphone" Style="{StaticResource SimpleLabel}" />
+                Grid.Row="4" Grid.Column="0" Content="Microphone" Style="{StaticResource SimpleLabel}" />
             <ComboBox
                 Style="{StaticResource SimpleComboBox}"
                 x:Name="MicrophoneComboBox"
@@ -148,7 +119,7 @@
 
             <Label
                 Style="{StaticResource SimpleLabel}"
-                Grid.Row="5" Content="Operator:-" />
+                Grid.Row="5" Grid.Column="0" Content="Operator:-" />
             <ComboBox
                 Style="{StaticResource SimpleComboBox}"
                 x:Name="OperatorComboBox"
@@ -159,7 +130,7 @@
 
             <Label
                 Style="{StaticResource SimpleLabel}"
-                Grid.Row="6" Content="Location:-" />
+                Grid.Row="6" Grid.Column="0" Content="Location:-" />
             <ComboBox
                 Style="{StaticResource SimpleComboBox}"
                 x:Name="LocationComboBox"
@@ -170,7 +141,7 @@
 
             <Label
                 Style="{StaticResource SimpleLabel}"
-                Grid.Row="7" Content="GPS Co-ordinates:-" />
+                Grid.Row="7" Grid.Column="0" Content="GPS Co-ordinates:-" />
 
             <StackPanel
                 Orientation="Horizontal"
@@ -194,7 +165,7 @@
                     Content="Map" Click="GPSMapButton_Click" />
             </StackPanel>
             <Label
-                Grid.Row="8" Content="Weather" Style="{StaticResource SimpleLabel}" />
+                Grid.Row="8" Grid.Column="0" Content="Weather" Style="{StaticResource SimpleLabel}" />
             <TextBox
                 Grid.Row="8"
                 Grid.Column="1"
@@ -203,9 +174,9 @@
                 x:Name="WeatherTextBox" />
 
             <Label
-                Grid.Row="9" Content="Temperature:-" Style="{StaticResource SimpleLabel}" />
+                Grid.Row="9" Grid.Column="0" Content="Temperature:-" Style="{StaticResource SimpleLabel}" />
             <StackPanel
-                Grid.Row="9" Grid.Column="10" Orientation="Horizontal">
+                Grid.Row="9" Grid.Column="1" Orientation="Horizontal">
                 <xctk:IntegerUpDown
 
                     x:Name="TemperatureIntegerUpDown"
@@ -228,7 +199,7 @@
             </StackPanel>
 
             <Label
-                Grid.Row="10" Content="Notes:-" Style="{StaticResource SimpleLabel}" />
+                Grid.Row="10" Grid.Column="0" Content="Notes:-" Style="{StaticResource SimpleLabel}" />
 
             <ScrollViewer Grid.Row="10" Grid.Column="1">
                 <TextBox

@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ *  Copyright 2016 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -34,7 +51,6 @@ namespace BatRecordingManager
 
         private readonly object _fidsButtonRClickedEventLock = new object();
         private readonly object _upButtonPressedEventLock = new object();
-        private StoredImage _storedImage = new StoredImage(null, "", "", -1);
         private Canvas _axisGrid = new Canvas();
 
         private EventHandler<EventArgs> _delButtonPressedEvent;
@@ -45,22 +61,23 @@ namespace BatRecordingManager
 
         private int _gridToShow;
 
-        /// <summary>
-        ///     Simple boolean to indicate if the storedImage has has grid lines added, deleted or changed and thus to
-        ///     indicate if the gridlines need to be resaved
-        /// </summary>
-        public bool IsModified;
 
-
-        private bool _isPlacingFiducialLines = false;
+        //private bool _isPlacingFiducialLines = false;
 
         private bool _linesDrawn;
 
         private int _selectedLine = -1;
 
         private bool _showGrid;
+        private StoredImage _storedImage = new StoredImage(null, "", "", -1);
 
         private EventHandler<EventArgs> _upButtonPressedEvent;
+
+        /// <summary>
+        ///     Simple boolean to indicate if the storedImage has has grid lines added, deleted or changed and thus to
+        ///     indicate if the gridlines need to be resaved
+        /// </summary>
+        public bool IsModified;
 
 
         /// <summary>
@@ -98,10 +115,7 @@ namespace BatRecordingManager
             set
             {
                 SetValue(storedImageProperty, DBAccess.GetImage(value));
-                if (value.isPlayable)
-                    PlayButton.IsEnabled = true;
-                else
-                    PlayButton.IsEnabled = false;
+                PlayButton.IsEnabled = value.isPlayable;
             }
         }
 
@@ -859,10 +873,8 @@ namespace BatRecordingManager
         /// <param name="direction"></param>
         private void DrawLine(int indexToGridLine, Orientation direction)
         {
-            var line = new Line();
+            var line = new Line {Stroke = Brushes.Black, StrokeThickness = 1};
 
-            line.Stroke = Brushes.Black;
-            line.StrokeThickness = 1;
 
             if (direction == Orientation.HORIZONTAL && indexToGridLine >= 0 &&
                 indexToGridLine <= storedImage.image.Height)
@@ -877,8 +889,7 @@ namespace BatRecordingManager
                 //binding.Path = new PropertyPath("ActualWidth");
                 //BindingOperations.SetBinding(line, Line.X2Property, binding);
 
-                var mbXBinding = new MultiBinding();
-                mbXBinding.Converter = new LeftMarginConverter();
+                var mbXBinding = new MultiBinding {Converter = new LeftMarginConverter()};
                 var binding = new Binding();
 
                 //binding.Source = this;
@@ -886,69 +897,72 @@ namespace BatRecordingManager
                 binding.Path = new PropertyPath("ActualWidth");
                 mbXBinding.Bindings.Add(binding);
 
-                binding = new Binding();
+                binding = new Binding
+                {
+                    RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
+                    Path = new PropertyPath("ActualHeight")
+                };
                 //binding.Source = this;
-                binding.RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1);
-                binding.Path = new PropertyPath("ActualHeight");
                 mbXBinding.Bindings.Add(binding);
 
-                binding = new Binding();
-                binding.Source = this;
-                binding.Path = new PropertyPath("storedImage");
+                binding = new Binding {Source = this, Path = new PropertyPath("storedImage")};
                 mbXBinding.Bindings.Add(binding);
 
                 BindingOperations.SetBinding(line, Line.X1Property, mbXBinding);
 
-                mbXBinding = new MultiBinding();
-                mbXBinding.Converter = new RightMarginConverter();
-                binding = new Binding();
+                mbXBinding = new MultiBinding {Converter = new RightMarginConverter()};
+                binding = new Binding
+                {
+                    RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
+                    Path = new PropertyPath("ActualWidth")
+                };
 
                 //binding.Source = this;
-                binding.RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1);
-                binding.Path = new PropertyPath("ActualWidth");
                 mbXBinding.Bindings.Add(binding);
 
-                binding = new Binding();
+                binding = new Binding
+                {
+                    RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
+                    Path = new PropertyPath("ActualHeight")
+                };
                 //binding.Source = this;
-                binding.RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1);
-                binding.Path = new PropertyPath("ActualHeight");
                 mbXBinding.Bindings.Add(binding);
 
-                binding = new Binding();
-                binding.Source = this;
-                binding.Path = new PropertyPath("storedImage");
+                binding = new Binding {Source = this, Path = new PropertyPath("storedImage")};
                 mbXBinding.Bindings.Add(binding);
 
                 BindingOperations.SetBinding(line, Line.X2Property, mbXBinding);
 
 
-                var mBinding = new MultiBinding();
-                mBinding.Converter = new HGridLineConverter();
+                var mBinding = new MultiBinding {Converter = new HGridLineConverter()};
 
-                binding = new Binding();
+                binding = new Binding {Source = indexToGridLine.ToString()};
                 //double proportion = FindHScaleProportion(gridline);
-                binding.Source = indexToGridLine.ToString();
                 mBinding.Bindings.Add(binding);
 
-                binding = new Binding();
+                binding = new Binding
+                {
+                    RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
+                    Path = new PropertyPath("ActualWidth")
+                };
                 //binding.Source = this;
-                binding.RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1);
-                binding.Path = new PropertyPath("ActualWidth");
                 mBinding.Bindings.Add(binding);
 
-                binding = new Binding();
+                binding = new Binding
+                {
+                    RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
+                    Path = new PropertyPath("ActualHeight")
+                };
                 //binding.Source = this;
-                binding.RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1);
-                binding.Path = new PropertyPath("ActualHeight");
                 mBinding.Bindings.Add(binding);
 
                 /*binding = new Binding();
                 binding.Source = this;
                 binding.Path = new PropertyPath("storedImage");*/
-                binding = new Binding();
-                binding.Source = storedImage;
-                binding.BindsDirectlyToSource = true;
-                binding.NotifyOnSourceUpdated = true;
+                binding = new Binding
+                {
+                    Source = storedImage, BindsDirectlyToSource = true, NotifyOnSourceUpdated = true
+                };
                 mBinding.Bindings.Add(binding);
 
                 BindingOperations.SetBinding(line, Line.Y1Property, mBinding);
@@ -966,73 +980,75 @@ namespace BatRecordingManager
                 //binding.Path = new PropertyPath("ActualHeight");
                 //BindingOperations.SetBinding(line, Line.Y2Property, binding);
 
-                var mbXBinding = new MultiBinding();
-                mbXBinding.Converter = new TopMarginConverter();
-                var binding = new Binding();
+                var mbXBinding = new MultiBinding {Converter = new TopMarginConverter()};
+                var binding = new Binding
+                {
+                    RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
+                    Path = new PropertyPath("ActualWidth")
+                };
 
                 //binding.Source = this;
-                binding.RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1);
-                binding.Path = new PropertyPath("ActualWidth");
                 mbXBinding.Bindings.Add(binding);
 
-                binding = new Binding();
+                binding = new Binding
+                {
+                    RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
+                    Path = new PropertyPath("ActualHeight")
+                };
                 //binding.Source = this;
-                binding.RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1);
-                binding.Path = new PropertyPath("ActualHeight");
                 mbXBinding.Bindings.Add(binding);
 
-                binding = new Binding();
-                binding.Source = this;
-                binding.Path = new PropertyPath("storedImage");
+                binding = new Binding {Source = this, Path = new PropertyPath("storedImage")};
                 mbXBinding.Bindings.Add(binding);
 
                 BindingOperations.SetBinding(line, Line.Y1Property, mbXBinding);
 
-                mbXBinding = new MultiBinding();
-                mbXBinding.Converter = new BottomMarginConverter();
-                binding = new Binding();
+                mbXBinding = new MultiBinding {Converter = new BottomMarginConverter()};
+                binding = new Binding
+                {
+                    RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
+                    Path = new PropertyPath("ActualWidth")
+                };
 
                 //binding.Source = this;
-                binding.RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1);
-                binding.Path = new PropertyPath("ActualWidth");
                 mbXBinding.Bindings.Add(binding);
 
-                binding = new Binding();
+                binding = new Binding
+                {
+                    RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
+                    Path = new PropertyPath("ActualHeight")
+                };
                 //binding.Source = this;
-                binding.RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1);
-                binding.Path = new PropertyPath("ActualHeight");
                 mbXBinding.Bindings.Add(binding);
 
-                binding = new Binding();
-                binding.Source = this;
-                binding.Path = new PropertyPath("storedImage");
+                binding = new Binding {Source = this, Path = new PropertyPath("storedImage")};
                 mbXBinding.Bindings.Add(binding);
 
                 BindingOperations.SetBinding(line, Line.Y2Property, mbXBinding);
 
 
-                var mBinding = new MultiBinding();
-                mBinding.Converter = new VGridLineConverter();
-                binding = new Binding();
+                var mBinding = new MultiBinding {Converter = new VGridLineConverter()};
+                binding = new Binding {Source = indexToGridLine.ToString()};
                 //double proportion = FindHScaleProportion(gridline);
-                binding.Source = indexToGridLine.ToString();
                 mBinding.Bindings.Add(binding);
 
-                binding = new Binding();
+                binding = new Binding
+                {
+                    RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
+                    Path = new PropertyPath("ActualWidth")
+                };
                 //binding.Source = this;
-                binding.RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1);
-                binding.Path = new PropertyPath("ActualWidth");
                 mBinding.Bindings.Add(binding);
 
-                binding = new Binding();
+                binding = new Binding
+                {
+                    RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
+                    Path = new PropertyPath("ActualHeight")
+                };
                 //binding.Source = this;
-                binding.RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1);
-                binding.Path = new PropertyPath("ActualHeight");
                 mBinding.Bindings.Add(binding);
 
-                binding = new Binding();
-                binding.Source = this;
-                binding.Path = new PropertyPath("storedImage");
+                binding = new Binding {Source = this, Path = new PropertyPath("storedImage")};
                 mBinding.Bindings.Add(binding);
 
                 BindingOperations.SetBinding(line, Line.X1Property, mBinding);
