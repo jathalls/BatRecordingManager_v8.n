@@ -793,7 +793,7 @@ namespace BatRecordingManager
                 if (fileName.ToUpper().EndsWith(".TXT"))
                 {
                     allLines = File.ReadAllLines(fileName);
-                    if (!allLines.Any() || !string.IsNullOrWhiteSpace(allLines[0]))
+                    if (!allLines.Any() || string.IsNullOrWhiteSpace(allLines[0]))
                         allLines = new[] {"Start - End \t No Bats"};
                 }
             }
