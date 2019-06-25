@@ -10,7 +10,7 @@
         <DockPanel
             Grid.Row="0"
             Grid.Column="0"
-            
+
             x:Name="ImageEntryPanel"
             Visibility="Visible"
             HorizontalAlignment="Stretch"

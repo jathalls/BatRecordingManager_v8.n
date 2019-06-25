@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -65,10 +64,11 @@ namespace BatRecordingManager
         /// <returns></returns>
         internal static SegmentAndBatList Create(LabelledSegment segment)
         {
-            var segBatList = new SegmentAndBatList();
-            segBatList.Segment = segment;
+            var segBatList = new SegmentAndBatList
+            {
+                Segment = segment, BatList = DBAccess.GetDescribedBats(segment.Comment)
+            };
 
-            segBatList.BatList = DBAccess.GetDescribedBats(segment.Comment);
 
             //DBAccess.InsertParamsFromComment(segment.Comment, null);
             var listOfSegmentImages = segment.GetImageList();
@@ -217,9 +217,8 @@ namespace BatRecordingManager
         /// <returns></returns>
         public static bool IsLabelFileLine(string line, out TimeSpan start, out TimeSpan end, out string comment)
         {
-            var startStr = "";
             var endStr = "";
-            if (!IsLabelFileLine(line, out startStr, out endStr, out comment))
+            if (!IsLabelFileLine(line, out var startStr, out endStr, out comment))
             {
                 start = new TimeSpan();
                 end = new TimeSpan();
@@ -794,13 +793,14 @@ namespace BatRecordingManager
                 if (fileName.ToUpper().EndsWith(".TXT"))
                 {
                     allLines = File.ReadAllLines(fileName);
-                    if (allLines.Any() || string.IsNullOrWhiteSpace(allLines[0]))
+                    if (!allLines.Any() || !string.IsNullOrWhiteSpace(allLines[0]))
                         allLines = new[] {"Start - End \t No Bats"};
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine(ex+"\n  ******** Assuming empty text file and no bats");
+                allLines = new[] { "Start - End \t No Bats" };
             }
 
             outputString = ProcessText(allLines, duration, ref listOfsegmentAndBatLists, mode, ref batsFound);
@@ -991,12 +991,12 @@ namespace BatRecordingManager
 
                     if (char.IsDigit(parts[1].Trim()[0]) && parts[1].Contains(",")) return line;
 
-                    line = string.Format("{0}s={1:F2},e={2:F2},{3}", parts[0] + "{", fmax, fmin, parts[1]);
+                    line = $"{parts[0] + "{"}s={fmax:F2},e={fmin:F2},{parts[1]}";
                 }
             }
             else
             {
-                line = string.Format("{0}s={1:F2},e={2:F2}{3}", line + " {", fmax, fmin, "}");
+                line = $"{line + " {"}s={fmax:F2},e={fmin:F2}{"}"}";
             }
 
             return line;

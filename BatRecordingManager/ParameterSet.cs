@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Linq;
@@ -81,13 +80,9 @@ namespace BatRecordingManager
             {
                 parts[0] = parts[0].Substring(0, parts[0].Length - 1).Trim();
                 parts[1] = parts[1].Substring(1).Trim();
-                var mean = 0.0;
-                var variation = 0.0;
-                double.TryParse(parts[0], out mean);
-                double.TryParse(parts[1], out variation);
-                result = new Parameter();
-                result.Mean = mean;
-                result.Variation = variation;
+                double.TryParse(parts[0], out var mean);
+                double.TryParse(parts[1], out var variation);
+                result = new Parameter {Mean = mean, Variation = variation};
             }
 
             return result;
@@ -105,10 +100,8 @@ namespace BatRecordingManager
             var parts = v.Split('-');
             if (parts.Length > 1)
             {
-                var min = 0.0;
-                double.TryParse(parts[0].Trim(), out min);
-                var max = 0.0;
-                double.TryParse(parts[1].Trim(), out max);
+                double.TryParse(parts[0].Trim(), out var min);
+                double.TryParse(parts[1].Trim(), out var max);
                 result = new Parameter();
                 result.SetMaxMin(max, min);
             }
@@ -125,12 +118,9 @@ namespace BatRecordingManager
         private static Parameter GetSingleNumericFromString(string v)
         {
             Parameter result = null;
-            var value = 0.0;
-            if (double.TryParse(v.Trim(), out value))
+            if (double.TryParse(v.Trim(), out var value))
             {
-                result = new Parameter();
-                result.Mean = value;
-                result.Variation = 0.0;
+                result = new Parameter {Mean = value, Variation = 0.0};
             }
 
             return result;

@@ -92,7 +92,8 @@
 
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel
+                    <Border BorderThickness="1,1,1,1" BorderBrush="Black">
+                        <StackPanel
                         Orientation="Vertical"
                         x:Name="RecordingStackPanel"
                         Background="{StaticResource WindowBackgroundBrush}"
@@ -100,12 +101,43 @@
 
                         Focusable="True">
 
-                        <Label
+                        <!--<Label
                             Style="{StaticResource SimpleLabel}"
                             x:Name="RecordingNameLabel"
                             BorderThickness="0,2,0,0"
                             Content="{Binding Converter={StaticResource RecordingDetailsConverter}}"
-                            BorderBrush="Black" MouseDoubleClick="RecordingNameLabel_MouseDoubleClick" />
+                            BorderBrush="Black" 
+                            MouseDoubleClick="RecordingNameLabel_MouseDoubleClick" />-->
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox
+                                Style="{StaticResource SimpleTextBox}"
+                                x:Name="RecordingNameLabel"
+                                IsReadOnly="True"
+                                BorderThickness="0,2,0,0"
+                                Text="{Binding Path=RecordingName}"
+                                VerticalContentAlignment="Center"
+                                BorderBrush="Black" 
+                                MouseDoubleClick="RecordingNameLabel_MouseDoubleClick" FontSize="17" FontWeight="Normal" />
+                            <Label Content=" On "/>
+                            <TextBox
+                                Style="{StaticResource SimpleTextBox}"
+                                x:Name="RecordingDateLabel"
+                                IsReadOnly="True"
+                                VerticalContentAlignment="Center"
+                                BorderThickness="0,2,0,0"
+                                Text="{Binding Path=RecordingDate, Converter={StaticResource ShortDateConverter}}"
+                                BorderBrush="Black" FontSize="16" />
+                            <Label Content=" for "/>
+                            <TextBox
+                                Style="{StaticResource SimpleTextBox}"
+                                x:Name="RecordingDurationLabel"
+                                IsReadOnly="True"
+                                VerticalContentAlignment="Center"
+                                BorderThickness="0,2,0,0"
+                                Text="{Binding Path=., Converter={StaticResource RecordingDurationConverter}}"
+                                BorderBrush="Black" FontSize="16" />
+                        </StackPanel>
+
                         <Label
                             Style="{StaticResource SimpleLabel}"
                             x:Name="GPSLabel"
@@ -162,7 +194,8 @@
                                 </ListView>
                             </StackPanel>
                         </Border>
-                    </StackPanel>
+                        </StackPanel>
+                    </Border>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -107,11 +106,9 @@ namespace BatRecordingManager
             RecordingSession result = null;
             if (RecordingSessionListView?.SelectedItems != null && RecordingSessionListView.SelectedItems.Count > 0)
             {
-                var sessionData = RecordingSessionListView.SelectedItems[0] as RecordingSessionData;
-                if (sessionData != null)
-                    result = DBAccess.GetRecordingSession(sessionData.Id);
-                else
-                    result = null;
+                result = RecordingSessionListView.SelectedItems[0] is RecordingSessionData sessionData
+                    ? DBAccess.GetRecordingSession(sessionData.Id)
+                    : null;
             }
 
             return result;
@@ -200,8 +197,7 @@ namespace BatRecordingManager
             if (RecordingSessionListView.Items != null)
                 foreach (var item in RecordingSessionListView.Items)
                 {
-                    var rs = item as RecordingSessionData;
-                    if (rs != null && rs.SessionTag == sessionUpdated)
+                    if (item is RecordingSessionData rs && rs.SessionTag == sessionUpdated)
                     {
                         RecordingSessionListView.SelectedItem = rs;
                         RecordingSessionListView.ScrollIntoView(item);
@@ -237,10 +233,10 @@ Mouse.OverrideCursor = null;*/
             var recordingSessionForm = new RecordingSessionForm();
 
             recordingSessionForm.Clear();
-            var newSession = new RecordingSession();
-            newSession.LocationGPSLatitude = null;
-            newSession.LocationGPSLongitude = null;
-            newSession.SessionDate = DateTime.Today;
+            var newSession = new RecordingSession
+            {
+                LocationGPSLatitude = null, LocationGPSLongitude = null, SessionDate = DateTime.Today
+            };
             newSession.EndDate = newSession.SessionDate;
             newSession.SessionStartTime = new TimeSpan(18, 0, 0);
             newSession.SessionEndTime = new TimeSpan(24, 0, 0);
@@ -253,10 +249,8 @@ Mouse.OverrideCursor = null;*/
         {
             using (new WaitCursor("Add all images to the comparison window..."))
             {
-                var sessionData = RecordingSessionListView.SelectedItem as RecordingSessionData;
-
                 //BulkObservableCollection<StoredImage> images = DBAccess.GetAllImagesForSession(session);
-                if (sessionData != null)
+                if (RecordingSessionListView.SelectedItem is RecordingSessionData sessionData)
                 {
                     var session = DBAccess.GetRecordingSession(sessionData.Id);
                     if (session != null)
@@ -340,8 +334,7 @@ Mouse.OverrideCursor = null;*/
                 if (RecordingSessionListView.SelectedItems.Count > 0)
                     foreach (var item in RecordingSessionListView.SelectedItems)
                     {
-                        var sessionData = item as RecordingSessionData;
-                        var session = DBAccess.GetRecordingSession(sessionData != null ? sessionData.Id : -1);
+                        var session = DBAccess.GetRecordingSession(item is RecordingSessionData sessionData ? sessionData.Id : -1);
                         if (session != null)
                         {
                             var statsForSession = session.GetStats();
@@ -660,8 +653,7 @@ Mouse.OverrideCursor = null;*/
                     var sessionSummary = Tools.GetSessionSummary(RecordingSessionControl.recordingSession);
                     foreach (var item in sessionSummary)
                     {
-                        var batPassSummary = new BatPassSummaryControl();
-                        batPassSummary.Content = item;
+                        var batPassSummary = new BatPassSummaryControl {Content = item};
                         SessionSummaryStackPanel.Children.Add(batPassSummary);
                     }
 
@@ -718,8 +710,7 @@ Mouse.OverrideCursor = null;*/
                 {
                     foreach (var item in RecordingSessionListView.SelectedItems)
                     {
-                        var sessionData = item as RecordingSessionData;
-                        if (sessionData == null) return;
+                        if (!(item is RecordingSessionData sessionData)) return;
                         var session = DBAccess.GetRecordingSession(sessionData.Id);
                         if (session == null) return;
                         statsForAllSessions.AddRange(session.GetStats());
@@ -732,8 +723,7 @@ Mouse.OverrideCursor = null;*/
                     if (RecordingSessionListView.Items != null && RecordingSessionListView.Items.Count > 0)
                         foreach (var item in RecordingSessionListView.Items)
                         {
-                            var sessionData = item as RecordingSessionData;
-                            if (sessionData == null) return;
+                            if (!(item is RecordingSessionData sessionData)) return;
                             var session = DBAccess.GetRecordingSession(sessionData.Id);
                             if (session == null) return;
                             statsForAllSessions.AddRange(session.GetStats());
@@ -816,13 +806,13 @@ Mouse.OverrideCursor = null;*/
         {
             get
             {
-                if (recordingSessionDataList is AsyncVirtualizingCollection<RecordingSessionData>)
+                if (recordingSessionDataList != null)
                     return recordingSessionDataList.IsLoading;
                 return false;
             }
             set
             {
-                if (recordingSessionDataList is AsyncVirtualizingCollection<RecordingSessionData>)
+                if (recordingSessionDataList != null)
                     recordingSessionDataList.IsLoading = value;
             }
         }

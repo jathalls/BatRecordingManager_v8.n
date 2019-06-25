@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Diagnostics;
@@ -92,15 +91,12 @@ namespace BatRecordingManager
         private void GPSLatitudeTextBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             Location coordinates;
-            var lat = 200.0d;
-            var longit = 200.0d;
-            if (!double.TryParse(GpsLatitudeTextBox.Text, out lat)) return;
-            if (!double.TryParse(GpsLongitudeTextBox.Text, out longit)) return;
+            if (!double.TryParse(GpsLatitudeTextBox.Text, out var lat)) return;
+            if (!double.TryParse(GpsLongitudeTextBox.Text, out var longit)) return;
             if (Math.Abs(lat) > 90.0 || Math.Abs(longit) > 180.0d) return;
             coordinates = new Location(lat, longit);
 
-            var mapWindow = new MapWindow(false);
-            mapWindow.MapControl.coordinates = coordinates;
+            var mapWindow = new MapWindow(false) {MapControl = {coordinates = coordinates}};
             mapWindow.Show();
             if (recordingSession?.Recordings != null && recordingSession.Recordings.Count > 0)
             {
@@ -108,10 +104,8 @@ namespace BatRecordingManager
                 foreach (var rec in recordingSession.Recordings)
                 {
                     i++;
-                    double latitude = 100;
-                    double longitude = 200;
-                    if (double.TryParse(rec.RecordingGPSLatitude, out latitude))
-                        if (double.TryParse(rec.RecordingGPSLongitude, out longitude))
+                    if (double.TryParse(rec.RecordingGPSLatitude, out var latitude))
+                        if (double.TryParse(rec.RecordingGPSLongitude, out var longitude))
                             if (latitude <= 90.0 && latitude >= -90.0 && longitude <= 180.0 && longitude >= -180.0 &&
                                 !(latitude == 0.0 && longitude == 0.0))
                                 mapWindow.MapControl.AddPushPin(new Location(latitude, longitude), i.ToString());
@@ -135,10 +129,8 @@ namespace BatRecordingManager
             if (!string.IsNullOrWhiteSpace(GpsLatitudeTextBox.Text) &&
                 !string.IsNullOrWhiteSpace(GpsLongitudeTextBox.Text))
             {
-                double lat = 200;
-                double longit = 200;
-                double.TryParse(GpsLatitudeTextBox.Text, out lat);
-                double.TryParse(GpsLongitudeTextBox.Text, out longit);
+                double.TryParse(GpsLatitudeTextBox.Text, out var lat);
+                double.TryParse(GpsLongitudeTextBox.Text, out var longit);
                 if (Math.Abs(lat) <= 90.0d && Math.Abs(longit) <= 180.0d && !(lat == 0.0d && longit == 0.0d))
                 {
                     var oldLocation = new Location(lat, longit);
@@ -164,10 +156,8 @@ namespace BatRecordingManager
         {
             //DateTime? sessionDate = SessionDatePicker.SelectedDate;
             var sessionDate = SessionStartDateTime.Value;
-            double lat = 200;
-            double longit = 200;
-            double.TryParse(GpsLatitudeTextBox.Text, out lat);
-            double.TryParse(GpsLongitudeTextBox.Text, out longit);
+            double.TryParse(GpsLatitudeTextBox.Text, out var lat);
+            double.TryParse(GpsLongitudeTextBox.Text, out var longit);
 
             if (sessionDate != null && sessionDate.Value.Year > 1970)
                 if (lat < 200 && longit < 200 && !(lat == 0.0 && longit == 0.0))

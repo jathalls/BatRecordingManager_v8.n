@@ -229,7 +229,7 @@ Updating existing elements:-
 Adding new elements:
 
 			  var callsToAdd = newCallList.Where(newcall => newcall.Id == 0);// ??<=0, or <0 ??
-				if (callsToAdd != null && callsToAdd.Any() > 0)
+				if (callsToAdd != null && callsToAdd.Any())
 				{
 					Bat linkBat = (from b in dc.Bats
 								   where b.Id == bat.Id

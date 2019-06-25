@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Diagnostics;
@@ -74,16 +73,14 @@ namespace BatRecordingManager
         /// <returns></returns>
         private DataGridColumn CreateBatColumn()
         {
-            var headerColumn = new DataGridTextColumn();
-            headerColumn.Header = "Sessions";
-            headerColumn.Binding = new Binding("sessionHeader");
-            headerColumn.Visibility = Visibility.Hidden;
+            var headerColumn = new DataGridTextColumn
+            {
+                Header = "Sessions", Binding = new Binding("sessionHeader"), Visibility = Visibility.Hidden
+            };
             ReportDataGrid.Columns.Add(headerColumn);
 
-            var batColumn = new DataGridTextColumn();
+            var batColumn = new DataGridTextColumn {Header = "Bat", Binding = new Binding("bat.Name")};
             //var a=reportDataByFrequencyList.First().OccurrencesPerPeriod
-            batColumn.Header = "Bat";
-            batColumn.Binding = new Binding("bat.Name");
             return batColumn;
         }
 
@@ -114,11 +111,12 @@ namespace BatRecordingManager
         private DataGridColumn CreateOccurrencesColumn(int aggregationperiod, int i)
         {
             var time = new TimeSpan(12, aggregationperiod * i, 0);
-            var strTime = string.Format("{0}:{1}", time.Hours, time.Minutes);
-            var valueColumn = new DataGridTextColumn();
-            valueColumn.Header = strTime;
+            var strTime = $"{time.Hours}:{time.Minutes}";
+            var valueColumn = new DataGridTextColumn
+            {
+                Header = strTime, Binding = new Binding("OccurrencesPerPeriod[" + i + "]")
+            };
 
-            valueColumn.Binding = new Binding("OccurrencesPerPeriod[" + i + "]");
 
             return valueColumn;
         }
@@ -194,14 +192,14 @@ namespace BatRecordingManager
             {
                 Debug.WriteLine("Period " + sampleStart.ToShortTimeString());
                 //foreach(var batData in result)
-                for (var j = 0; j < result.Count; j++)
+                foreach (var t in result)
                 {
-                    Debug.WriteLine("Bat=" + result[j].bat.Name);
+                    Debug.WriteLine("Bat=" + t.bat.Name);
                     try
                     {
-                        result[j].OccurrencesPerPeriod[
+                        t.OccurrencesPerPeriod[
                                 (i + indexForRecordingStartAndNumberOfPeriods.Item1) % periodsPerDay] +=
-                            DBAccess.GetOccurrencesInWindow(session, result[j].bat, sampleStart, aggregationPeriod);
+                            DBAccess.GetOccurrencesInWindow(session, t.bat, sampleStart, aggregationPeriod);
                         //0; 3,2,1 - CP
                         //1, 0,2,0 - P50
                         //2, 0,3,1 - SP
@@ -256,8 +254,7 @@ namespace BatRecordingManager
             HeaderTextBox.Text = "";
             foreach (var session in reportSessionList)
             {
-                var data = new FrequencyData(1, null, null);
-                data.sessionHeader = SetHeaderText(session);
+                var data = new FrequencyData(1, null, null) {sessionHeader = SetHeaderText(session)};
                 result.Add(data);
             }
 

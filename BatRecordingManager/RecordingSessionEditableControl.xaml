@@ -71,7 +71,7 @@
                     AutoCloseCalendar="True"
                     CultureInfo="en-GB"
                     Minimum="01/01/1950 01:01:00" />
-                
+
             </StackPanel>
 
             <Label

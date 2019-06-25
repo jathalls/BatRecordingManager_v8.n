@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -178,9 +177,7 @@ namespace BatRecordingManager
                 var hgls = new List<int>();
                 var vgls = new List<int>();
                 si = new StoredImage(ConvertBinaryPngToBitmapImage(blob.BinaryData1, out hgls, out vgls), "", "",
-                    blob.Id);
-                si.HorizontalGridlines = hgls;
-                si.VerticalGridLines = vgls;
+                    blob.Id) {HorizontalGridlines = hgls, VerticalGridLines = vgls};
             }
             else
             {
@@ -477,15 +474,17 @@ namespace BatRecordingManager
             {
                 var items = pngTextMetadata.Split(',');
                 if (!items.IsNullOrEmpty())
+                {
+                    var val = 0;
                     foreach (var item in items)
                     {
-                        var val = 0;
                         var direction = item.Trim().Substring(0, 1);
                         int.TryParse(item.Trim().Substring(1), out val);
                         if (direction.ToUpper() == "H")
                             HGLs.Add(val);
                         else if (direction.ToUpper() == "V") VGLs.Add(val);
                     }
+                }
             }
 
             horizontalgridLines = HGLs;
@@ -740,11 +739,14 @@ namespace BatRecordingManager
         /// <returns></returns>
         public BinaryData GetAsBinaryData()
         {
-            var blob = new BinaryData();
-            blob.BinaryData1 = ConvertBitmapImageToPngBinary(image, HorizontalGridlines, VerticalGridLines);
-            blob.BinaryDataType = Tools.BlobType.PNG.ToString();
-            blob.Description = GetCombinedText();
-            blob.Id = ImageID;
+            var blob =
+                new BinaryData
+                {
+                    BinaryData1 = ConvertBitmapImageToPngBinary(image, HorizontalGridlines, VerticalGridLines),
+                    BinaryDataType = Tools.BlobType.PNG.ToString(),
+                    Description = GetCombinedText(),
+                    Id = ImageID
+                };
             return blob;
         }
 
@@ -796,12 +798,10 @@ namespace BatRecordingManager
                 if (match.Success)
                     if (match.Groups.Count > 1)
                     {
-                        var startSecs = 0;
-                        if (int.TryParse(match.Groups[1].Value, out startSecs)) start = TimeSpan.FromSeconds(startSecs);
+                        if (int.TryParse(match.Groups[1].Value, out var startSecs)) start = TimeSpan.FromSeconds(startSecs);
                         if (match.Groups.Count > 2)
                         {
-                            var endSecs = 0;
-                            if (int.TryParse(match.Groups[2].Value, out endSecs)) end = TimeSpan.FromSeconds(endSecs);
+                            if (int.TryParse(match.Groups[2].Value, out var endSecs)) end = TimeSpan.FromSeconds(endSecs);
                         }
                         else
                         {
@@ -828,8 +828,10 @@ namespace BatRecordingManager
         public static void SaveJpeg(this Image img, string filePath, long quality)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
-            var encoderParameters = new EncoderParameters(1);
-            encoderParameters.Param[0] = new EncoderParameter(Encoder.Quality, quality);
+            var encoderParameters = new EncoderParameters(1)
+            {
+                Param = {[0] = new EncoderParameter(Encoder.Quality, quality)}
+            };
             img.Save(filePath, GetEncoder(ImageFormat.Jpeg), encoderParameters);
         }
 
@@ -838,8 +840,10 @@ namespace BatRecordingManager
         public static void SavePng(this Image img, string filePath, long quality)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
-            var encoderParameters = new EncoderParameters(1);
-            encoderParameters.Param[0] = new EncoderParameter(Encoder.Quality, quality);
+            var encoderParameters = new EncoderParameters(1)
+            {
+                Param = {[0] = new EncoderParameter(Encoder.Quality, quality)}
+            };
             img.Save(filePath, GetEncoder(ImageFormat.Png), encoderParameters);
         }
 
@@ -875,8 +879,10 @@ namespace BatRecordingManager
                 img.SetPropertyItem(pi);
             }
 
-            var encoderParameters = new EncoderParameters(1);
-            encoderParameters.Param[0] = new EncoderParameter(Encoder.Quality, quality);
+            var encoderParameters = new EncoderParameters(1)
+            {
+                Param = {[0] = new EncoderParameter(Encoder.Quality, quality)}
+            };
             if (File.Exists(filePath))
             {
                 var backfile = filePath.Substring(0, filePath.Length - 3) + "bak";
@@ -893,8 +899,10 @@ namespace BatRecordingManager
         public static void SaveJpeg(this Image img, Stream stream, long quality)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
-            var encoderParameters = new EncoderParameters(1);
-            encoderParameters.Param[0] = new EncoderParameter(Encoder.Quality, quality);
+            var encoderParameters = new EncoderParameters(1)
+            {
+                Param = {[0] = new EncoderParameter(Encoder.Quality, quality)}
+            };
             img.Save(stream, GetEncoder(ImageFormat.Jpeg), encoderParameters);
         }
 
@@ -903,8 +911,10 @@ namespace BatRecordingManager
         public static void SavePng(this Image img, Stream stream, long quality)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
-            var encoderParameters = new EncoderParameters(1);
-            encoderParameters.Param[0] = new EncoderParameter(Encoder.Quality, quality);
+            var encoderParameters = new EncoderParameters(1)
+            {
+                Param = {[0] = new EncoderParameter(Encoder.Quality, quality)}
+            };
             img.Save(stream, GetEncoder(ImageFormat.Png), encoderParameters);
         }
 

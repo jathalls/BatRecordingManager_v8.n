@@ -1156,7 +1156,8 @@
                                               ContentSource="Icon" />
 
                             <!-- Glyph is a checkmark if needed for a checkable menu -->
-                            <Grid Grid.Column="0" Visibility="Hidden" Margin="4,0,6,0" x:Name="GlyphPanel" VerticalAlignment="Center">
+                            <Grid Grid.Column="0" Visibility="Hidden" Margin="4,0,6,0" x:Name="GlyphPanel"
+                                  VerticalAlignment="Center">
                                 <Path x:Name="GlyphPanelpath" VerticalAlignment="Center"
                                       Fill="{TemplateBinding Foreground}"
                                       Data="M0,2 L0,4.8 L2.5,7.4 L7.1,2.8 L7.1,0 L2.5,4.6 z"
@@ -1523,7 +1524,8 @@
                         <ToggleButton x:Name="Expander" Style="{DynamicResource SimpleTreeViewItemToggleButton}"
                                       IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"
                                       ClickMode="Press" />
-                        <Border Grid.Column="1" Grid.Row="0" x:Name="Selection_Border" Background="{TemplateBinding Background}"
+                        <Border Grid.Column="1" Grid.Row="0" x:Name="Selection_Border"
+                                Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"

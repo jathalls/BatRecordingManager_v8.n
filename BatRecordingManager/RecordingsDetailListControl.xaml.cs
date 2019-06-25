@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -49,22 +48,6 @@ namespace BatRecordingManager
         private LabelledSegment _selectedSegment;
         private RecordingSession _selectedSession;
 
-        //private double vo = -1.0;
-
-        //-----------------------------------------------------------------------------------
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RecordingsDetailListControl" /> class.
-        /// </summary>
-        public RecordingsDetailListControl()
-        {
-            recordingsList = new BulkObservableCollection<Recording>();
-            selectedSession = null;
-            InitializeComponent();
-            DataContext = this;
-            RecordingsListView.ItemsSource = recordingsList;
-            CreateSearchDialog();
-        }
-
         /// <summary>
         ///     Gets or sets the recordings list.
         /// </summary>
@@ -89,6 +72,24 @@ namespace BatRecordingManager
             }
         }
 
+        //private double vo = -1.0;
+
+        //-----------------------------------------------------------------------------------
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RecordingsDetailListControl" /> class.
+        /// </summary>
+        public RecordingsDetailListControl()
+        {
+            recordingsList = new BulkObservableCollection<Recording>();
+            selectedSession = null;
+            InitializeComponent();
+            DataContext = this;
+            RecordingsListView.ItemsSource = recordingsList;
+            CreateSearchDialog();
+        }
+
+        
+
         private void SearchDialog_Closed(object sender, EventArgs e)
         {
             //CreateSearchDialog();
@@ -109,10 +110,7 @@ namespace BatRecordingManager
 
             if (SearchButton != null)
             {
-                if (recordingsList.Count <= 0)
-                    SearchButton.IsEnabled = false;
-                else
-                    SearchButton.IsEnabled = true;
+                SearchButton.IsEnabled = recordingsList.Count > 0;
             }
         }
 
@@ -233,8 +231,7 @@ namespace BatRecordingManager
             if (recording == null) recording = new Recording();
             if (recording.RecordingSession == null) recording.RecordingSessionId = selectedSession.Id;
 
-            var recordingForm = new RecordingForm();
-            recordingForm.recording = recording;
+            var recordingForm = new RecordingForm {recording = recording};
 
             if (recordingForm.ShowDialog() ?? false)
                 if (recordingForm.DialogResult ?? false)
@@ -245,10 +242,7 @@ namespace BatRecordingManager
             PopulateRecordingsList();
             if (oldIndex > 0 && oldIndex < RecordingsListView.Items.Count) RecordingsListView.SelectedIndex = oldIndex;
 
-            if (recordingsList.Count <= 0)
-                SearchButton.IsEnabled = false;
-            else
-                SearchButton.IsEnabled = true;
+            SearchButton.IsEnabled = recordingsList.Count > 0;
         }
 
         private void AddRecordingButton_Click(object sender, RoutedEventArgs e)
@@ -275,10 +269,7 @@ namespace BatRecordingManager
                 DBAccess.DeleteRecording(RecordingsListView.SelectedItem as Recording);
             PopulateRecordingsList();
             if (oldIndex >= 0 && oldIndex < RecordingsListView.Items.Count) RecordingsListView.SelectedIndex = oldIndex;
-            if (recordingsList.Count <= 0)
-                SearchButton.IsEnabled = false;
-            else
-                SearchButton.IsEnabled = true;
+            SearchButton.IsEnabled = recordingsList.Count > 0;
             OnRecordingChanged(new EventArgs());
         }
 
@@ -352,10 +343,7 @@ namespace BatRecordingManager
                 //if (view != null) { view.Refresh(); }
             }
 
-            if (recordingsList.Count > 0)
-                SearchButton.IsEnabled = true;
-            else
-                SearchButton.IsEnabled = false;
+            SearchButton.IsEnabled = recordingsList.Count > 0;
         }
 
         private void RecordingsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -374,10 +362,7 @@ namespace BatRecordingManager
                             foreach (var item in RecordingsListView.Items)
                                 if (item is ListView view)
                                 {
-                                    if (view.SelectedIndex >= 0)
-                                        _isSegmentSelected = true;
-                                    else
-                                        _isSegmentSelected = false;
+                                    _isSegmentSelected = view.SelectedIndex >= 0;
                                 }
 
                         if (!_isSegmentSelected)
@@ -430,10 +415,8 @@ namespace BatRecordingManager
                     var numbers = labelContent.Split(',');
                     if (numbers.Length >= 2)
                     {
-                        var lat = -200.0d;
-                        var longit = -200.0d;
-                        double.TryParse(numbers[0].Trim(), out lat);
-                        double.TryParse(numbers[1].Trim(), out longit);
+                        double.TryParse(numbers[0].Trim(), out var lat);
+                        double.TryParse(numbers[1].Trim(), out var longit);
                         if (Math.Abs(lat) <= 90.0d && Math.Abs(longit) <= 180.0d)
                         {
                             var oldLocation = new Location(lat, longit);
@@ -629,9 +612,8 @@ namespace BatRecordingManager
 
             if (button != null && button.Content as string == "Add Segment")
             {
-                var segmentForm = new LabelledSegmentForm();
+                var segmentForm = new LabelledSegmentForm {labelledSegment = new LabelledSegment()};
 
-                segmentForm.labelledSegment = new LabelledSegment();
 
                 var result = segmentForm.ShowDialog();
                 {
@@ -667,7 +649,7 @@ namespace BatRecordingManager
             }
             else
             {
-                if (RecordingsListView.SelectedItem as Recording != null)
+                if (RecordingsListView.SelectedItem is Recording)
                     selectedRecording = RecordingsListView.SelectedItem as Recording;
             }
 
@@ -753,9 +735,10 @@ namespace BatRecordingManager
             if (!e.Handled)
             {
                 e.Handled = true;
-                var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta);
-                eventArg.RoutedEvent = MouseWheelEvent;
-                eventArg.Source = sender;
+                var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
+                {
+                    RoutedEvent = MouseWheelEvent, Source = sender
+                };
                 var parent = ((Control) sender).Parent as UIElement;
                 parent.RaiseEvent(eventArg);
             }
@@ -990,24 +973,25 @@ namespace BatRecordingManager
             }
         }
 
-        /// <summary>
-        ///     ConvertBack not implemented
-        /// </summary>
-        /// <param name="value">
-        ///     The value.
-        /// </param>
-        /// <param name="targetType">
-        ///     Type of the target.
-        /// </param>
-        /// <param name="parameter">
-        ///     The parameter.
-        /// </param>
-        /// <param name="culture">
-        ///     The culture.
-        /// </param>
-        /// <returns>
-        /// </returns>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+
+            /// <summary>
+            ///     ConvertBack not implemented
+            /// </summary>
+            /// <param name="value">
+            ///     The value.
+            /// </param>
+            /// <param name="targetType">
+            ///     Type of the target.
+            /// </param>
+            /// <param name="parameter">
+            ///     The parameter.
+            /// </param>
+            /// <param name="culture">
+            ///     The culture.
+            /// </param>
+            /// <returns>
+            /// </returns>
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             // Not implemented
             return null;
@@ -1015,6 +999,77 @@ namespace BatRecordingManager
     }
 
     #endregion RecordingDetailsConverter (ValueConverter)
+
+
+    #region RecordingDurationConverter (ValueConverter)
+
+    /// <summary>
+    ///     Converts the essential details of a Recording instance to a string
+    /// </summary>
+    public class RecordingDurationConverter : IValueConverter
+    {
+        /// <summary>
+        /// Converts a value.
+        /// </summary>
+        /// <param name="value">The value produced by the binding source.</param>
+        /// <param name="targetType">The type of the binding target property.</param>
+        /// <param name="parameter">The converter parameter to use.</param>
+        /// <param name="culture">The culture to use in the converter.</param>
+        /// <returns>
+        /// A converted value. If the method returns <see langword="null" />, the valid null value is used.
+        /// </returns>
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.
+                var result = "";
+
+                if (value is Recording recording)
+                {
+                    var dur = new TimeSpan();
+
+                    dur = Tools.GetRecordingDuration(recording);
+
+                    var durStr = dur.ToString(@"dd\:hh\:mm\:ss");
+                    while (durStr.StartsWith("00:")) durStr = durStr.Substring(3);
+                    var recDate = "";
+                    if (recording.RecordingDate != null)
+                    {
+                        recDate = recording.RecordingDate.Value.ToShortDateString();
+                        if (recording.RecordingDate.Value.Hour > 0 || recording.RecordingDate.Value.Minute > 0 ||
+                            recording.RecordingDate.Value.Second > 0)
+                            recDate = recDate + " " + recording.RecordingDate.Value.ToShortTimeString();
+                    }
+
+                    result = durStr;
+                }
+
+                return result;
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Converts a value.
+        /// </summary>
+        /// <param name="value">The value that is produced by the binding target.</param>
+        /// <param name="targetType">The type to convert to.</param>
+        /// <param name="parameter">The converter parameter to use.</param>
+        /// <param name="culture">The culture to use in the converter.</param>
+        /// <returns>
+        /// A converted value. If the method returns <see langword="null" />, the valid null value is used.
+        /// </returns>
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+    #endregion RecordingDurationConverter (ValueConverter)
 
     #region RecordingPassSummaryConverter (ValueConverter)
 

@@ -87,6 +87,8 @@
 
     <local:ShortDateConverter x:Key="ShortDateConverter" />
 
+    <local:RecordingDurationConverter x:Key="RecordingDurationConverter"/>
+
     <local:ShortTimeConverter x:Key="ShortTimeConverter" />
 
     <local:RecordingToGpsConverter x:Key="RecordingToGpsConverter" />

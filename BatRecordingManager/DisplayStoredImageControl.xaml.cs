@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -890,11 +889,13 @@ namespace BatRecordingManager
                 //BindingOperations.SetBinding(line, Line.X2Property, binding);
 
                 var mbXBinding = new MultiBinding {Converter = new LeftMarginConverter()};
-                var binding = new Binding();
+                var binding = new Binding
+                {
+                    RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
+                    Path = new PropertyPath("ActualWidth")
+                };
 
                 //binding.Source = this;
-                binding.RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1);
-                binding.Path = new PropertyPath("ActualWidth");
                 mbXBinding.Bindings.Add(binding);
 
                 binding = new Binding
@@ -1356,8 +1357,8 @@ namespace BatRecordingManager
             if (DisplayImageCanvas.Children != null)
             {
                 foreach (var child in DisplayImageCanvas.Children)
-                    if (child is Line)
-                        (child as Line).StrokeThickness = 1;
+                    if (child is Line line)
+                        line.StrokeThickness = 1;
                 if (_selectedLine >= 0)
                     if (DisplayImageCanvas.Children[_selectedLine] is Line)
                         (DisplayImageCanvas.Children[_selectedLine] as Line).StrokeThickness = 2;

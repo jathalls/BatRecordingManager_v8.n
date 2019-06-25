@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.IO;
@@ -181,11 +180,7 @@ namespace BatRecordingManager
                 //DBAccess.UpdateRecordingSession(sessionForFolder);
                 sessionTag = newSession.SessionTag;
                 var existingSession = DBAccess.GetRecordingSession(sessionTag);
-                if (existingSession != null)
-                    //DBAccess.DeleteSession(existingSession);
-                    newSession.Id = existingSession.Id;
-                else
-                    newSession.Id = 0;
+                newSession.Id = existingSession != null ? existingSession.Id : 0;
             }
             else
             {
@@ -205,8 +200,7 @@ namespace BatRecordingManager
         internal static RecordingSession CreateSession(string folderPath, string sessionTag, GpxHandler gpxHandler)
         {
             if (gpxHandler == null) gpxHandler = new GpxHandler(folderPath);
-            var folderList = new BulkObservableCollection<string>();
-            folderList.Add(folderPath);
+            var folderList = new BulkObservableCollection<string> {folderPath};
             var newSession = new RecordingSession();
             var headerFile = GetHeaderFile(folderPath);
             if (string.IsNullOrWhiteSpace(sessionTag)) sessionTag = CreateTag(folderPath);
@@ -291,8 +285,7 @@ namespace BatRecordingManager
         public static RecordingSession FillSessionFromHeader(string headerFile, string sessionTag,
             BulkObservableCollection<string> wavFileFolders = null)
         {
-            var recordingSession = new RecordingSession();
-            recordingSession.SessionTag = sessionTag;
+            var recordingSession = new RecordingSession {SessionTag = sessionTag};
             if (!string.IsNullOrWhiteSpace(headerFile) && File.Exists(headerFile))
                 recordingSession = PopulateSession(recordingSession, headerFile, sessionTag, wavFileFolders);
 
@@ -351,8 +344,7 @@ namespace BatRecordingManager
                 if (File.Exists(wavFile))
                     wfmd = new WavFileMetaData(wavFile);
 
-            var session = new RecordingSession();
-            session.SessionTag = sessionTag;
+            var session = new RecordingSession {SessionTag = sessionTag};
             //Tuple<DateTime, DateTime?> sessionDatesAndTimes = SessionManager.GetDateAndTimes(headerFile, sessionTag);
             //session.SessionDate = SessionManager.GetDate(headerFile, sessionTag);
             var startTime = new TimeSpan();
@@ -371,9 +363,7 @@ namespace BatRecordingManager
             session.Microphone = GetMicrophone(headerFile, wfmd);
             session.Operator = GetOperator(headerFile);
             session.Location = GetLocation(headerFile);
-            decimal? longitude = null;
-            decimal? latitude = null;
-            if (GetGpsCoOrdinates(headerFile, wfmd, out latitude, out longitude))
+            if (GetGpsCoOrdinates(headerFile, wfmd, out var latitude, out var longitude))
             {
                 session.LocationGPSLongitude = longitude;
                 session.LocationGPSLatitude = latitude;
@@ -435,12 +425,9 @@ namespace BatRecordingManager
         {
             if (string.IsNullOrWhiteSpace(group)) return new DateTime();
             if (group.Length != 8) return new DateTime();
-            var year = 0;
-            var month = 0;
-            var day = 0;
-            int.TryParse(group.Substring(0, 4), out year);
-            int.TryParse(group.Substring(4, 2), out month);
-            int.TryParse(group.Substring(6, 2), out day);
+            int.TryParse(group.Substring(0, 4), out var year);
+            int.TryParse(group.Substring(4, 2), out var month);
+            int.TryParse(group.Substring(6, 2), out var day);
             if (year < DateTime.Now.Year && month > 0 && month <= 12 && day > 0 && day <= 31)
                 return new DateTime(year, month, day);
             return new DateTime();
@@ -560,8 +547,7 @@ namespace BatRecordingManager
                 var match = Regex.Match(line, pattern);
                 if (match.Success && match.Groups.Count > 2)
                 {
-                    var value = 0.0m;
-                    if (decimal.TryParse(match.Groups[1].Value, out value)) latitude = value;
+                    if (decimal.TryParse(match.Groups[1].Value, out var value)) latitude = value;
 
                     value = 0.0m;
                     if (decimal.TryParse(match.Groups[2].Value, out value)) longitude = value;
@@ -760,12 +746,9 @@ namespace BatRecordingManager
 
             if (match.Success)
             {
-                var year = -1;
-                var month = -1;
-                var day = -1;
-                int.TryParse(match.Groups[1].Value, out year);
-                int.TryParse(match.Groups[2].Value, out month);
-                int.TryParse(match.Groups[3].Value, out day);
+                int.TryParse(match.Groups[1].Value, out var year);
+                int.TryParse(match.Groups[2].Value, out var month);
+                int.TryParse(match.Groups[3].Value, out var day);
                 return new DateTime(year, month, day);
             }
 

@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -186,10 +185,12 @@ namespace BatRecordingManager
                 var textFiles = new BulkObservableCollection<TextBox>();
                 foreach (var file in _fileBrowser.TextFileNames)
                 {
-                    var tb = new TextBox();
-                    tb.AcceptsReturn = true;
-                    tb.AcceptsTab = true;
-                    tb.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+                    var tb = new TextBox
+                    {
+                        AcceptsReturn = true,
+                        AcceptsTab = true,
+                        VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+                    };
                     if (File.Exists(file))
                         using (var sr = File.OpenText(file))
                         {
@@ -340,10 +341,7 @@ namespace BatRecordingManager
                 {
                     DBAccess.UpdateRecordingSession(_sessionForFolder);
                     var existingSession = DBAccess.GetRecordingSession(_sessionForFolder.SessionTag);
-                    if (existingSession != null)
-                        CurrentSessionId = existingSession.Id;
-                    else
-                        CurrentSessionId = 0;
+                    CurrentSessionId = existingSession != null ? existingSession.Id : 0;
                 }
 
                 // Tools.SetFolderIconTick(fileBrowser.WorkingFolder);
@@ -397,9 +395,7 @@ namespace BatRecordingManager
 
         private RecordingSession GetNewRecordingSession(FileBrowser fileBrowser)
         {
-            var newSession = new RecordingSession();
-            newSession.LocationGPSLatitude = null;
-            newSession.LocationGPSLongitude = null;
+            var newSession = new RecordingSession {LocationGPSLatitude = null, LocationGPSLongitude = null};
 
             newSession = SessionManager.PopulateSession(newSession, fileBrowser);
             return newSession;
@@ -513,14 +509,8 @@ namespace BatRecordingManager
                 SortFileOrderButton.IsEnabled = true;
                 ProcessFilesButton.IsEnabled = true;
                 FilesToProcessLabel.Content = _fileBrowser.WavFileFolders.Count + " Folders to Process";
-                if (_fileBrowser.WavFileFolders.Count <= 1)
-                    SelectFoldersButton.IsEnabled = false;
-                else
-                    SelectFoldersButton.IsEnabled = true;
-                if (_fileBrowser.WavFileFolders.Count > 0)
-                    NextFolderButton.IsEnabled = true;
-                else
-                    NextFolderButton.IsEnabled = false;
+                SelectFoldersButton.IsEnabled = _fileBrowser.WavFileFolders.Count > 1;
+                NextFolderButton.IsEnabled = _fileBrowser.WavFileFolders.Count > 0;
             }
             else
             {
@@ -621,8 +611,7 @@ namespace BatRecordingManager
         {
             if (_fileBrowser?.WavFileFolders != null && _fileBrowser.WavFileFolders.Count > 1)
             {
-                var fsd = new FolderSelectionDialog();
-                fsd.FolderList = _fileBrowser.WavFileFolders;
+                var fsd = new FolderSelectionDialog {FolderList = _fileBrowser.WavFileFolders};
                 fsd.ShowDialog();
                 if (fsd.DialogResult ?? false)
                 {

@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -96,7 +95,7 @@ namespace BatRecordingManager
                 if (time.Hours > 0) result = result + time.Hours + "h";
                 if (time.Hours > 0 || time.Minutes > 0) result = result + time.Minutes + "'";
                 var seconds = time.Seconds + time.Milliseconds / 1000.0m;
-                result = result + string.Format("{0:0.0#}\"", seconds);
+                result = result + $"{seconds:0.0#}\"";
             }
 
             return result;
@@ -142,8 +141,8 @@ namespace BatRecordingManager
 
         {
             // Check if this object is the specified type
-            if (obj is T)
-                return obj as T;
+            if (obj is T dependencyObject)
+                return dependencyObject;
 
             // Check for children
             var childrenCount = VisualTreeHelper.GetChildrenCount(obj);
@@ -154,8 +153,8 @@ namespace BatRecordingManager
             for (var i = 0; i < childrenCount; i++)
             {
                 var child = VisualTreeHelper.GetChild(obj, i);
-                if (child is T)
-                    return child as T;
+                if (child is T o)
+                    return o;
             }
 
             // Then check the childrens children
@@ -376,8 +375,8 @@ namespace BatRecordingManager
         {
             var result = "";
             if (value == null || value <= 0.0d) return "";
-            result = string.Format("{0:##0.0}", value);
-            if (variation != null && variation >= 0.0) result = result + "+/-" + string.Format("{0:##0.0}", variation);
+            result = $"{value:##0.0}";
+            if (variation != null && variation >= 0.0) result = result + "+/-" + $"{variation:##0.0}";
 
             return result;
         }
@@ -651,7 +650,7 @@ namespace BatRecordingManager
                 Application.Current.MainWindow.Focus();
             }
             catch (InvalidOperationException)
-            {
+            {// may get an InvalidOperationException which can be ignored
             }
 
             while (externalProcess.MainWindowHandle == (IntPtr) 0L)
@@ -1463,10 +1462,8 @@ namespace BatRecordingManager
             Location result = null;
             if (!string.IsNullOrWhiteSpace(latit) && !string.IsNullOrWhiteSpace(longit))
             {
-                double dLat = 200;
-                double dlong = 200;
-                double.TryParse(latit, out dLat);
-                double.TryParse(longit, out dlong);
+                double.TryParse(latit, out var dLat);
+                double.TryParse(longit, out var dlong);
                 result = ValidCoordinates(new Location(dLat, dlong));
             }
 
@@ -1518,8 +1515,7 @@ namespace BatRecordingManager
                 for (var i = 1; i < match.Groups.Count; i++)
                 {
                     if (i == 0) continue;
-                    var v = 0.0d;
-                    double.TryParse(match.Groups[i].Value, out v);
+                    double.TryParse(match.Groups[i].Value, out var v);
                     switch (i)
                     {
                         case 1:
@@ -1586,7 +1582,7 @@ namespace BatRecordingManager
         public static BitmapSource CreateBitmapSourceFromBitmap(Bitmap bitmap)
         {
             if (bitmap == null)
-                throw new ArgumentNullException("bitmap");
+                throw new ArgumentNullException(nameof(bitmap));
 
             var hBitmap = bitmap.GetHbitmap();
             try
@@ -1620,7 +1616,7 @@ namespace BatRecordingManager
             {
                 // Here's where you put the code do handle the value conversion.
                 var str = "";
-                str = string.Format("{0,5:N1}", value);
+                str = $"{value,5:N1}";
 
                 return str;
             }
@@ -1636,8 +1632,7 @@ namespace BatRecordingManager
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             // Not implemented
-            var d = -1.0d;
-            double.TryParse((string) value, out d);
+            double.TryParse((string) value, out var d);
             if (d < 0) return null;
 
             return d;
@@ -1779,8 +1774,7 @@ namespace BatRecordingManager
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var text = value as string;
-            var modifiedSegment = new LabelledSegment();
-            modifiedSegment.Comment = text;
+            var modifiedSegment = new LabelledSegment {Comment = text};
 
             return modifiedSegment;
         }
@@ -1852,10 +1846,7 @@ namespace BatRecordingManager
                     bmp = value as Bitmap;
                 }
 
-                if (bmp != null)
-                    //Use existing Interop functionality to perform conversion
-
-                    return bmp.ToBitmapSource();
+                return bmp?.ToBitmapSource();
                 /*IntPtr HBitmap = bmp.GetHbitmap();
                     try
                     {
@@ -1870,7 +1861,6 @@ namespace BatRecordingManager
                         DeleteObject(HBitmap);
                     }
                     */
-                return null;
             }
             catch
             {
@@ -2235,8 +2225,7 @@ namespace BatRecordingManager
             try
             {
                 // Here's where you put the code do handle the value conversion.
-                var factor = 1.0d;
-                double.TryParse(parameter as string, out factor);
+                double.TryParse(parameter as string, out var factor);
                 return (double) value * factor;
             }
             catch
@@ -2312,7 +2301,7 @@ namespace BatRecordingManager
                         double.TryParse(strHeight, out height);
                     }
 
-                    if (values[0] is double) height = (values[0] as double?).Value;
+                    if (values[0] is double) height = ((double?) values[0]).Value;
 
                     if (values[1] is string)
                     {
@@ -2320,7 +2309,7 @@ namespace BatRecordingManager
                         double.TryParse(strFactor, out factor);
                     }
 
-                    if (values[1] is double) factor = (values[1] as double?).Value;
+                    if (values[1] is double) factor = ((double?) values[1]).Value;
 
                     return height * factor;
                 }
@@ -2373,8 +2362,7 @@ namespace BatRecordingManager
         {
             try
             {
-                var indexToGridline = -1;
-                int.TryParse(values[0] as string, out indexToGridline);
+                int.TryParse(values[0] as string, out var indexToGridline);
                 var width = values[1] as double?;
                 var height = values[2] as double?;
 
@@ -2438,8 +2426,7 @@ namespace BatRecordingManager
         {
             try
             {
-                var indexToGridline = -1;
-                int.TryParse(values[0] as string, out indexToGridline);
+                int.TryParse(values[0] as string, out var indexToGridline);
                 var width = values[1] as double?;
                 var height = values[2] as double?;
 
@@ -2504,9 +2491,7 @@ namespace BatRecordingManager
                 var width = values[0] as double?;
                 var height = values[1] as double?;
 
-                var si = values[2] as StoredImage;
-
-                if (width != null && height != null && si != null)
+                if (width != null && height != null && values[2] is StoredImage si)
                 {
                     //Debug.WriteLine("============================================================================================");
                     var hscale = width.Value / si.image.Width;
@@ -2570,9 +2555,7 @@ namespace BatRecordingManager
                 var width = values[0] as double?;
                 var height = values[1] as double?;
 
-                var si = values[2] as StoredImage;
-
-                if (width != null && height != null && si != null)
+                if (width != null && height != null && values[2] is StoredImage si)
                 {
                     //Debug.WriteLine("============================================================================================");
                     var hscale = width.Value / si.image.Width;
@@ -2636,9 +2619,7 @@ namespace BatRecordingManager
                 var width = values[0] as double?;
                 var height = values[1] as double?;
 
-                var si = values[2] as StoredImage;
-
-                if (width != null && height != null && si != null)
+                if (width != null && height != null && values[2] is StoredImage si)
                 {
                     //Debug.WriteLine("============================================================================================");
                     var hscale = width.Value / si.image.Width;
@@ -2703,9 +2684,7 @@ namespace BatRecordingManager
                 var width = values[0] as double?;
                 var height = values[1] as double?;
 
-                var si = values[2] as StoredImage;
-
-                if (width != null && height != null && si != null)
+                if (width != null && height != null && values[2] is StoredImage si)
                 {
                     //Debug.WriteLine("============================================================================================");
                     var hscale = width.Value / si.image.Width;
@@ -2872,8 +2851,7 @@ namespace BatRecordingManager
                 var numberOfImages = 0;
                 if (values[1] == null) return "-";
                 var bat = values[1] as Bat;
-                var recordings = values[0] as BulkObservableCollection<Recording>;
-                if (recordings == null || recordings.Count <= 0) return "-";
+                if (!(values[0] is BulkObservableCollection<Recording> recordings) || recordings.Count <= 0) return "-";
 
                 numberOfImages = (from rec in recordings.AsParallel()
                     from seg in rec.LabelledSegments.AsParallel()
@@ -3062,8 +3040,7 @@ namespace BatRecordingManager
                 var result = new Call();
                 if (value is LabelledSegment segment)
                 {
-                    result = DBAccess.GetSegmentCall(segment);
-                    if (result == null) result = new Call();
+                    result = DBAccess.GetSegmentCall(segment) ?? new Call();
                 }
 
                 return result;
@@ -3238,8 +3215,7 @@ namespace BatRecordingManager
             if (parentObject == null) return null;
 
             // check if the parent matches the type we’re looking for
-            var parent = parentObject as T;
-            if (parent != null)
+            if (parentObject is T parent)
                 return parent;
             return FindVisualParent<T>(parentObject);
         }

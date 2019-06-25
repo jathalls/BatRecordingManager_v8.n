@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -36,35 +35,15 @@ namespace BatRecordingManager
     /// </summary>
     public static class DBAccess
     {
-        private static readonly string DbVersion = "v5.31";
+        public enum BracketedText
+        {
+            INCLUDE,
+            EXCLUDE
+        }
 
-        private static readonly string DBFileName = "BatReferenceDBv5.31.mdf";
+        private static BatReferenceDBLinqDataContext _persistentbatReferenceDataContext;
 
-        private static readonly string DBLocation = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            @"Echolocation\WinBLP\");
-
-        /// <summary>
-        ///     dbVersionDec is the decimal format version of the currently expected database
-        ///     This is the database version, not the program version.
-        ///     v5.31 Original base format
-        ///     v6.0 :-
-        ///     @"ALTER TABLE [dbo].[RecordingSession] ADD[EndDate] DATETIME NULL;"
-        ///     @"ALTER TABLE [dbo].[Recording] ADD[RecordingDate] DATETIME NULL;"
-        ///     v6.1 :-
-        ///     @"ALTER TABLE [dbo].[BinaryData] ALTER COLUMN [Description] NVARCHAR(MAX) NULL;"
-        ///     v6.2 :- add two new link tables and update the existing data
-        ///     @"CREATE TABLE [dbo].[BatSession]  (
-        ///     [Id] INT NOT NULL PRIMARY KEY,     [SessionID] INT NOT NULL DEFAULT -1,    [BatID] INT NOT NULL DEFAULT -1
-        ///     CONSTRAINT[Bat_BatSession] FOREIGN KEY([BatID]) REFERENCES[dbo].[Bat] ([Id]),
-        ///     CONSTRAINT[RecordingSession_BatSession] FOREIGN KEY([SessionID]) REFERENCES[dbo].[RecordingSession] ([Id])
-        ///     )
-        ///     CREATE TABLE[dbo].[BatRecording] (
-        ///     [Id] INT NOT NULL PRIMARY KEY,     [BatID] INT NOT NULL DEFAULT -1,    [RecordingID] INT NOT NULL DEFAULT -1,
-        ///     CONSTRAINT[Bat_BatRecording] FOREIGN KEY([BatID]) REFERENCES[dbo].[Bat] ([Id]),
-        ///     CONSTRAINT[Recording_BatRecording] FOREIGN KEY([RecordingID]) REFERENCES[dbo].[Recording] ([Id])"
-        /// </summary>
-        private static readonly decimal DbVersionDec = 6.2m;
+        private static bool _isDataContextUpToDate;
 
 
         /// <summary>
@@ -4040,12 +4019,14 @@ namespace BatRecordingManager
                     return; // can't do anything in this case
 
                 var newLinkList = (from bat in segmentAndBatList.BatList
-                                      select new BatSegmentLink {BatID = bat.Id, LabelledSegmentID = existingSegment.Id}) ??
+                                      select new BatSegmentLink
+                                          {BatID = bat.Id, LabelledSegmentID = existingSegment.Id}) ??
                                   Enumerable.Empty<BatSegmentLink>();
 
                 // 2 - get existingBatSegment links
 
-                var existingLinks = existingSegment.BatSegmentLinks.Select(lnk => lnk) ?? Enumerable.Empty<BatSegmentLink>();
+                var existingLinks = existingSegment.BatSegmentLinks.Select(lnk => lnk) ??
+                                    Enumerable.Empty<BatSegmentLink>();
 
                 // 3 - delete existing links not in new links
                 if (!existingLinks.IsNullOrEmpty())
@@ -4789,7 +4770,9 @@ namespace BatRecordingManager
                 topOfScreen = 0;
             }
 
-            result = string.IsNullOrWhiteSpace(field) ? dc.RecordingSessions.Skip(topOfScreen).Take(pageSize).AsQueryable() : dc.RecordingSessions.OrderBy(field).Skip(topOfScreen).Take(pageSize);
+            result = string.IsNullOrWhiteSpace(field)
+                ? dc.RecordingSessions.Skip(topOfScreen).Take(pageSize).AsQueryable()
+                : dc.RecordingSessions.OrderBy(field).Skip(topOfScreen).Take(pageSize);
 
             /*
 
@@ -5632,7 +5615,7 @@ namespace BatRecordingManager
                 {
                     foreach (var seg in segs)
                     {
-                        if (seg.Recording.RecordingStartTime.Value > sampleStart + oneMinute) continue;
+                        if (seg.Recording.RecordingStartTime != null && seg.Recording.RecordingStartTime.Value > sampleStart + oneMinute) continue;
                         if (seg.Recording.RecordingEndTime != null && seg.Recording.RecordingEndTime < sampleStart)
                             continue;
                         var realStartTime = seg.Recording.RecordingStartTime.Value + seg.StartOffset;
@@ -5942,15 +5925,35 @@ namespace BatRecordingManager
             return MergeBat(bat, dataContext, out var newBat);
         }
 
-        public enum BracketedText
-        {
-            INCLUDE,
-            EXCLUDE
-        }
+        private static readonly string DbVersion = "v5.31";
 
-        private static BatReferenceDBLinqDataContext _persistentbatReferenceDataContext;
+        private static readonly string DBFileName = "BatReferenceDBv5.31.mdf";
 
-        private static bool _isDataContextUpToDate;
+        private static readonly string DBLocation = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            @"Echolocation\WinBLP\");
+
+        /// <summary>
+        ///     dbVersionDec is the decimal format version of the currently expected database
+        ///     This is the database version, not the program version.
+        ///     v5.31 Original base format
+        ///     v6.0 :-
+        ///     @"ALTER TABLE [dbo].[RecordingSession] ADD[EndDate] DATETIME NULL;"
+        ///     @"ALTER TABLE [dbo].[Recording] ADD[RecordingDate] DATETIME NULL;"
+        ///     v6.1 :-
+        ///     @"ALTER TABLE [dbo].[BinaryData] ALTER COLUMN [Description] NVARCHAR(MAX) NULL;"
+        ///     v6.2 :- add two new link tables and update the existing data
+        ///     @"CREATE TABLE [dbo].[BatSession]  (
+        ///     [Id] INT NOT NULL PRIMARY KEY,     [SessionID] INT NOT NULL DEFAULT -1,    [BatID] INT NOT NULL DEFAULT -1
+        ///     CONSTRAINT[Bat_BatSession] FOREIGN KEY([BatID]) REFERENCES[dbo].[Bat] ([Id]),
+        ///     CONSTRAINT[RecordingSession_BatSession] FOREIGN KEY([SessionID]) REFERENCES[dbo].[RecordingSession] ([Id])
+        ///     )
+        ///     CREATE TABLE[dbo].[BatRecording] (
+        ///     [Id] INT NOT NULL PRIMARY KEY,     [BatID] INT NOT NULL DEFAULT -1,    [RecordingID] INT NOT NULL DEFAULT -1,
+        ///     CONSTRAINT[Bat_BatRecording] FOREIGN KEY([BatID]) REFERENCES[dbo].[Bat] ([Id]),
+        ///     CONSTRAINT[Recording_BatRecording] FOREIGN KEY([RecordingID]) REFERENCES[dbo].[Recording] ([Id])"
+        /// </summary>
+        private static readonly decimal DbVersionDec = 6.2m;
     } // end DBAccess
 
     //###########################################################################################################################################
@@ -5995,7 +5998,9 @@ namespace BatRecordingManager
             var result = "";
             if (s.ToUpper().Contains(endingwith.ToUpper()))
             {
-                result = !string.IsNullOrEmpty(endingwith) ? s.Substring(0, s.ToUpper().IndexOf(endingwith.ToUpper()) + endingwith.Length) : s;
+                result = !string.IsNullOrEmpty(endingwith)
+                    ? s.Substring(0, s.ToUpper().IndexOf(endingwith.ToUpper()) + endingwith.Length)
+                    : s;
                 if (result.Contains(@"\")) result = result.Substring(result.LastIndexOf(@"\") + 1);
             }
 

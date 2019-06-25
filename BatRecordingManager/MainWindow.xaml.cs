@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.ComponentModel;
@@ -92,10 +91,8 @@ namespace BatRecordingManager
                     var buildParts = _build.Split('.');
                     if (buildParts.Length >= 4)
                     {
-                        var days = 0;
-                        var seconds = 0;
-                        int.TryParse(buildParts[2], out days);
-                        int.TryParse(buildParts[3], out seconds);
+                        int.TryParse(buildParts[2], out var days);
+                        int.TryParse(buildParts[3], out var seconds);
                         if (days > 0) buildDateTime = buildDateTime.AddDays(days);
                         if (seconds > 0) buildDateTime = buildDateTime.AddSeconds(seconds * 2);
                     }
@@ -166,8 +163,7 @@ namespace BatRecordingManager
         /// </param>
         private void miAbout_Click(object sender, RoutedEventArgs e)
         {
-            var about = new AboutScreen();
-            about.Version.Content = "v " + _build;
+            var about = new AboutScreen {Version = {Content = "v " + _build}};
             about.ShowDialog();
         }
 
@@ -262,10 +258,12 @@ namespace BatRecordingManager
 
         private void miCreateDatabase_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new SaveFileDialog();
-            dialog.InitialDirectory = DBAccess.GetWorkingDatabaseLocation();
-            dialog.FileName = "_BatReferenceDB.mdf";
-            dialog.DefaultExt = ".mdf";
+            var dialog = new SaveFileDialog
+            {
+                InitialDirectory = DBAccess.GetWorkingDatabaseLocation(),
+                FileName = "_BatReferenceDB.mdf",
+                DefaultExt = ".mdf"
+            };
             var result = dialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
