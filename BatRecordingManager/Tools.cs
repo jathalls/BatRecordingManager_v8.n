@@ -2109,18 +2109,20 @@ namespace BatRecordingManager
         {
             try
             {
+                
                 if (status != "null")
                     //(App.Current.MainWindow as MainWindow).Dispatcher.Invoke((Action)delegate
                     Application.Current.Dispatcher.Invoke(delegate
                     {
-                        var mw = Application.Current.MainWindow;
-                        if (mw is MainWindow)
-                            _oldStatus = (mw as MainWindow).SetStatusText(status);
+                        var currentMainWindow = Application.Current.MainWindow;
+                        if (currentMainWindow is MainWindow)
+                            _oldStatus = (currentMainWindow as MainWindow).SetStatusText(status);
                         //Debug.WriteLine("old Status=" + oldStatus);
                         _previousCursor = Mouse.OverrideCursor;
                         //Debug.WriteLine("old cursor saved");
                         Mouse.OverrideCursor = Cursors.Wait;
                         //Debug.WriteLine("Wait cursor set");
+                        
                     });
                 else
                     Application.Current.Dispatcher.Invoke(delegate
@@ -2128,6 +2130,8 @@ namespace BatRecordingManager
                         _previousCursor = Mouse.OverrideCursor;
                         Mouse.OverrideCursor = Cursors.Wait;
                     });
+                Application.Current.MainWindow.Dispatcher.InvokeAsync(() => { Mouse.OverrideCursor = null; },
+                    System.Windows.Threading.DispatcherPriority.ApplicationIdle);
             }
             catch (Exception ex)
             {

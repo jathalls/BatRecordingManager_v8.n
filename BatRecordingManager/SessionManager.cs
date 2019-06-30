@@ -152,13 +152,18 @@ namespace BatRecordingManager
         public static RecordingSession EditSession(RecordingSession newSession, string sessionTag, string folderPath)
         {
             if (string.IsNullOrWhiteSpace(newSession.SessionTag)) newSession.SessionTag = sessionTag;
-            if (newSession.SessionDate == null || newSession.SessionDate.Year < 2000)
+            if (newSession.SessionDate == null || newSession.SessionDate.Year < 1900)
             {
                 newSession.SessionDate = GetDateFromTag(sessionTag);
+                if (newSession.SessionDate == null || newSession.SessionDate.Year < 1900)
+                {
+                    newSession.SessionDate = GetDateFromFileOrFolder(newSession, folderPath);
+                    
+                }
                 newSession.SessionStartTime = new TimeSpan(18, 0, 0);
             }
 
-            if (newSession.EndDate == null || newSession.EndDate.Value.Year < 2000)
+            if (newSession.EndDate == null || newSession.EndDate.Value.Year < 1900)
             {
                 newSession.EndDate = newSession.SessionDate;
                 newSession.SessionEndTime = new TimeSpan(23, 59, 59);
@@ -188,6 +193,41 @@ namespace BatRecordingManager
             }
 
             return newSession;
+        }
+
+        /// <summary>
+        /// Gets the date from file or folder.  Is guranteed to return a valid datetime.
+        /// First tries to get the date and time from a .wav file in the folder.  If that fails
+        /// the tries to get the date from the folder (unreliable - probably not the recording date)
+        /// and if all alse fails returns a date of 1/1/2000
+        /// </summary>
+        /// <param name="newSession">The new session.</param>
+        /// <param name="folderPath">The folder path.</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        private static DateTime GetDateFromFileOrFolder(RecordingSession newSession, string folderPath)
+        {
+            DateTime result=new DateTime(1900,1,1,0,0,0,0);
+            if (!string.IsNullOrWhiteSpace(folderPath))
+            {
+                if (Directory.Exists((folderPath)))
+                {
+                    var wavFiles=Directory.EnumerateFiles(folderPath, "*.wav");
+                    if (wavFiles != null && wavFiles.Any())
+                    {
+                        result = File.GetCreationTime(wavFiles.First());
+                        if (result != null && result.Year > 1900) return (result);
+                    }
+
+                    result = Directory.GetCreationTime(folderPath);
+                    if (result != null && result.Year > 1900)
+                    {
+                        return (result);
+                    }
+                }
+            }
+
+            return (new DateTime(1900, 1, 1, 0, 0, 0, 0));
         }
 
         /// <summary>
@@ -476,6 +516,7 @@ namespace BatRecordingManager
             var result = new DateTime();
             var match = tagRegex.Match(sessionTag);
             if (match.Success)
+            {
                 if (match.Groups.Count == 6)
                 {
                     int.TryParse(match.Groups[5].Value, out var day);
@@ -483,6 +524,8 @@ namespace BatRecordingManager
                     int.TryParse(match.Groups[3].Value, out var year);
                     result = new DateTime(year, month, day);
                 }
+            }
+           
 
             return result;
         }
@@ -743,7 +786,7 @@ namespace BatRecordingManager
                             if (match.Success) break;
                         }
                 }
-
+            
             if (match.Success)
             {
                 int.TryParse(match.Groups[1].Value, out var year);
@@ -782,7 +825,7 @@ namespace BatRecordingManager
                 // wavFiles = wavFiles.Concat(WAVFiles);
 
 
-                if (sessiondate != null && sessiondate.Year > 2000)
+                if (sessiondate != null && sessiondate.Year > 1900)
                     wavFiles = from file in wavFiles
                         where File.GetLastWriteTime(file).Date == sessiondate.Date
                         select file;

@@ -53,7 +53,7 @@ namespace BatRecordingManager
                 if (arg.Contains("debug"))
                     ShowDatabase = true;
 #if DEBUG
-            ShowDatabase = true;
+            ShowDatabase = true; 
 #endif
             foreach (var arg in e.Args)
                 if (arg.Contains("nodebug") || arg.Contains("undebug"))

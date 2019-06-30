@@ -678,41 +678,44 @@ namespace BatRecordingManager
 
         private void Refresh()
         {
-            var oldIndex = -1;
-            if (RecordingsListView != null) oldIndex = RecordingsListView.SelectedIndex;
-            if (selectedSession != null)
+            using (new WaitCursor())
             {
-                recordingsList.Clear();
-                //recordingsList.AddRange(DBAccess.GetRecordingsForSession(value));
-                recordingsList.AddRange(selectedSession.Recordings);
-                if (AddRecordingButton != null && DeleteRecordingButton != null && EditRecordingButton != null)
+                var oldIndex = -1;
+                if (RecordingsListView != null) oldIndex = RecordingsListView.SelectedIndex;
+                if (selectedSession != null)
                 {
-                    AddRecordingButton.IsEnabled = true;
-                    DeleteRecordingButton.IsEnabled = false;
-                    EditRecordingButton.IsEnabled = false;
-                    SearchButton.IsEnabled = false;
+                    recordingsList.Clear();
+                    //recordingsList.AddRange(DBAccess.GetRecordingsForSession(value));
+                    recordingsList.AddRange(selectedSession.Recordings);
+                    if (AddRecordingButton != null && DeleteRecordingButton != null && EditRecordingButton != null)
+                    {
+                        AddRecordingButton.IsEnabled = true;
+                        DeleteRecordingButton.IsEnabled = false;
+                        EditRecordingButton.IsEnabled = false;
+                        SearchButton.IsEnabled = false;
+                    }
                 }
-            }
-            else
-            {
-                recordingsList.Clear();
-                if (AddRecordingButton != null && DeleteRecordingButton != null && EditRecordingButton != null)
+                else
                 {
-                    AddRecordingButton.IsEnabled = false;
-                    DeleteRecordingButton.IsEnabled = false;
-                    EditRecordingButton.IsEnabled = false;
+                    recordingsList.Clear();
+                    if (AddRecordingButton != null && DeleteRecordingButton != null && EditRecordingButton != null)
+                    {
+                        AddRecordingButton.IsEnabled = false;
+                        DeleteRecordingButton.IsEnabled = false;
+                        EditRecordingButton.IsEnabled = false;
+                    }
                 }
-            }
 
-            if (RecordingsListView != null)
-            {
-                RecordingsListView.SelectedIndex = oldIndex >= 0 && oldIndex < recordingsList.Count ? oldIndex : -1;
-                RecordingsListView.ItemsSource = recordingsList;
-                var view = CollectionViewSource.GetDefaultView(RecordingsListView.ItemsSource);
-                view?.Refresh();
-            }
+                if (RecordingsListView != null)
+                {
+                    RecordingsListView.SelectedIndex = oldIndex >= 0 && oldIndex < recordingsList.Count ? oldIndex : -1;
+                    RecordingsListView.ItemsSource = recordingsList;
+                    var view = CollectionViewSource.GetDefaultView(RecordingsListView.ItemsSource);
+                    view?.Refresh();
+                }
 
-            CreateSearchDialog();
+                CreateSearchDialog();
+            }
         }
 
         private void LabelledSegmentTextBlock_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
