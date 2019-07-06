@@ -685,6 +685,11 @@ namespace BatRecordingManager
 
                             recording.RecordingNotes = wfmd.FormattedText();
                         }
+
+                        if (wfmd != null)
+                        {
+                            recording.RecordingNotes = wfmd.FormattedText();
+                        }
                     }
 
                     recording.RecordingStartTime = fileStart.TimeOfDay;

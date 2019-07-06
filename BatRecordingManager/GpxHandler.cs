@@ -50,6 +50,8 @@ namespace BatRecordingManager
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="GpxHandler" /> class.
+        /// Tries the location as aGPX filename or if not, if it is folder containing a .gpx file.
+        /// If a GPX file is found loads the GPX data as an XDocument.
         /// </summary>
         /// <param name="location">
         ///     The location.

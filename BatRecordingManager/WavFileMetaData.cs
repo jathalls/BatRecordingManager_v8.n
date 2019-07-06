@@ -479,8 +479,8 @@ namespace BatRecordingManager
                     case 0x0001:
                         m_Device = entry.Value;
                         result = true;
-                        if (entries.ContainsKey(0x0003)) m_Device = m_Device + " " + entries[0x0002];
-                        if (entries.ContainsKey(0x0004)) m_Device = m_Device + " " + entries[0x0004];
+                        if (entries.ContainsKey(0x0002)) m_Device = m_Device + " " + entries[0x0002];
+                        if (entries.ContainsKey(0x0003)) m_Device = m_Device + " " + entries[0x0003];
                         break;
 
                     case 0x0012:
@@ -605,7 +605,7 @@ namespace BatRecordingManager
             var result = false;
             latitude = 200.0d;
             longitude = 200.0d;
-            var pattern = @".*([0-9\.-]*),([NS]),?([0-9.-]*),?([WE])"; // e.g. WGS84,51.74607,N,0.26183,W
+            var pattern = @"WGS84,([0-9.-]*),([NS]),([0-9.-]*),([WE])"; // e.g. WGS84,51.74607,N,0.26183,W
             var match = Regex.Match(WGS84AsciiLocation, pattern);
             if (match.Success && match.Groups.Count >= 5)
             {
