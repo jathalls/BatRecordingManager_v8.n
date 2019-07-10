@@ -141,40 +141,64 @@ namespace BatRecordingManager
 
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
+            string filename = "";
             var looped = (sender as Button).Content as string == "LOOP";
+            if ((sender as Button).Content as String == "SAVE")
+            {
+                filename = Tools.GetFileToWriteTo("", ".wav");
+            }
             if (PlayButton.Content as string == "PLAY")
             {
-                PlayListItem itemToPlay = null;
-                if (!PlayList.IsNullOrEmpty())
-                {
-                    if (PlayListDatagrid.SelectedItem != null)
-                        itemToPlay = PlayListDatagrid.SelectedItem as PlayListItem;
-                    else
-                        itemToPlay = PlayList.First();
-                }
+                PlayListItem itemToPlay = GetItemToPlay();
 
                 if (itemToPlay != null)
                 {
-                    PlayItem(itemToPlay, looped);
-                    PlayButton.Content = "STOP";
+                    PlayItem(itemToPlay, looped,filename);
+                    if (string.IsNullOrWhiteSpace(filename))
+                    {
+                        PlayButton.Content = "STOP";
+                    }
+                    else
+                    {
+                        StopPlaying();
+                    }
                 }
             }
             else
             {
-                if (_wrapper != null)
+                StopPlaying();
+            }
+        }
+
+        private void StopPlaying()
+        {
+            if (_wrapper != null)
+            {
+                _wrapper.Stop();
+                if (_wrapper.playBackState == PlaybackState.Stopped)
                 {
-                    _wrapper.Stop();
-                    if (_wrapper.playBackState == PlaybackState.Stopped)
-                    {
-                        _wrapper.Dispose();
-                        _wrapper = null;
-                        PlayButton.Content = "PLAY";
-                    }
+                    _wrapper.Dispose();
+                    _wrapper = null;
+                    PlayButton.Content = "PLAY";
                 }
             }
         }
 
-        private void PlayItem(PlayListItem itemToPlay, bool playLooped)
+        private PlayListItem GetItemToPlay()
+        {
+            PlayListItem item = null;
+            if (!PlayList.IsNullOrEmpty())
+            {
+                if (PlayListDatagrid.SelectedItem != null)
+                    item = PlayListDatagrid.SelectedItem as PlayListItem;
+                else
+                    item = PlayList.First();
+            }
+
+            return (item);
+        }
+
+        private void PlayItem(PlayListItem itemToPlay, bool playLooped,string filename)
         {
             _wrapper = new NaudioWrapper {Frequency = (decimal) Frequency};
             _wrapper.e_Stopped += Wrapper_Stopped;
@@ -185,11 +209,12 @@ namespace BatRecordingManager
                 if (TenthButton.IsChecked ?? false) rate = 0.1m;
                 if (FifthButton.IsChecked ?? false) rate = 0.2m;
                 if (TwentiethButton.IsChecked ?? false) rate = 0.05m;
-                _wrapper.Play(itemToPlay, rate, playLooped);
+                
+                _wrapper.Play(itemToPlay, rate, playLooped,filename);
             }
             else
             {
-                _wrapper.Heterodyne(itemToPlay, @"X:\test.wav");
+                _wrapper.Heterodyne(itemToPlay, filename);
             }
         }
 
@@ -265,6 +290,8 @@ namespace BatRecordingManager
         }
 
         #endregion
+
+       
     }
 
     /// <summary>

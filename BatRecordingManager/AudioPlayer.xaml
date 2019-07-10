@@ -38,6 +38,11 @@
                     Style="{StaticResource SimpleButton}"
                     Content="LOOP" Click="PlayButton_Click" />
                 <Button
+                    x:Name="SaveButton"
+                    Style="{StaticResource SimpleButton}"
+                    Content="SAVE" Click="PlayButton_Click"
+                    />
+                <Button
                     x:Name="ForwardButton"
                     Visibility="Hidden"
                     Style="{StaticResource SimpleButton}"

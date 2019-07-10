@@ -207,6 +207,54 @@ namespace BatRecordingManager
         }
 
         /// <summary>
+        /// Displays a file save dialog to the user to allow them to select a location and filename to
+        /// write to.  Parameters give an prefferred location, which can be null, and a prefferred file
+        /// extension which can be null.  The function checks if the requested file already exists and
+        /// takes appropriate actions.  The file extension can be changed by the user.
+        /// If the dialog is cancelled an empty string is returned.
+        /// Defaults to MyDocuments and .wav
+        /// </summary>
+        /// <param name="initialLocaltion"></param>
+        /// <param name="desiredExtension"></param>
+        /// <returns></returns>
+        public static string GetFileToWriteTo(string initialLocaltion, string desiredExtension)
+        {
+            string result = "";
+            if (string.IsNullOrWhiteSpace(initialLocaltion))
+            {
+                initialLocaltion = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            }
+
+            if (!Directory.Exists(initialLocaltion))
+            {
+                initialLocaltion = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            }
+
+            if (string.IsNullOrWhiteSpace(desiredExtension))
+            {
+                desiredExtension = ".wav";
+            }
+
+            using (SaveFileDialog sfd = new SaveFileDialog())
+            {
+                sfd.OverwritePrompt = true;
+                sfd.AddExtension = true;
+                sfd.CheckFileExists = false;
+                sfd.CheckPathExists = true;
+                sfd.DefaultExt = desiredExtension;
+                sfd.InitialDirectory = initialLocaltion;
+                var outcome = sfd.ShowDialog();
+                if (outcome == DialogResult.OK)
+                {
+                    result = sfd.FileName;
+                }
+            }
+
+
+            return (result);
+        }
+
+        /// <summary>
         ///     Uses the recording start and end times to calculate the recording duration
         ///     and if the end time is earlier than the start time adds 1 day to the end time
         ///     to allow for recordings starting before midnight and ending after midnight.

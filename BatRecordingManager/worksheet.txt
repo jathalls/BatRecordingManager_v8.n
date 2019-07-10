@@ -433,4 +433,13 @@ DONEish
 	Remaining problems with the data virtualization are in sorting - the datagrids will sort the entire tables by reading every page which can be slow.  We allow
 	small tables of complex returned data to be sorted this way, but large tables of raw table data can e sorted at the database level.
 	Recording session (and presumably othr datagrids) do not refresh after modification.  Deleting a displayed item in a datagrid crashes as the virtualized collection
-	does not support Remove.
+	does not support Remove. - FIXED
+
+8 July 2019
+
+	Desire is to be able to save .wav files either of slowed down snippets or of heterodyned snippets.  The existing functions under 'play' should already be able to do all the work, 
+	just need to replace the play button with a save button (or add a save button) and generate the sound in the same way but send it to a file instead of to the speakers.
+	First step is to define a static function to get a filename to save to.  The function should accept a desired initial location and a desired file extension (both optional)
+	and should query if an existing file of the selected name should be overwritten or shunted to backup or a new name selected.  If the user supplies a filename without an extension
+	the desired extension is used and appended.  If they specify any other 3-character extension, then that is used instead, regardless of the file type being written, with a displayed warning,
+	if the extension is other than 3-characters then the desired extension is appended.  This function is available for generic use from anywhere. and is located in Tools.
