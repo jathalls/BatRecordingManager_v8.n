@@ -88,9 +88,11 @@
             ScrollViewer.CanContentScroll="False"
 
             ItemsSource="{Binding Path=recordingsList}"
-            ScrollViewer.VerticalScrollBarVisibility="Visible" IsSynchronizedWithCurrentItem="True">
+            ScrollViewer.VerticalScrollBarVisibility="Visible" 
+            IsSynchronizedWithCurrentItem="True">
 
             <ListBox.ItemTemplate>
+                
                 <DataTemplate>
                     <Border BorderThickness="1,1,1,1" BorderBrush="Black">
                         <StackPanel
@@ -101,27 +103,21 @@
 
                         Focusable="True">
 
-                        <!--<Label
-                            Style="{StaticResource SimpleLabel}"
-                            x:Name="RecordingNameLabel"
-                            BorderThickness="0,2,0,0"
-                            Content="{Binding Converter={StaticResource RecordingDetailsConverter}}"
-                            BorderBrush="Black" 
-                            MouseDoubleClick="RecordingNameLabel_MouseDoubleClick" />-->
+                        
                         <StackPanel Orientation="Horizontal">
                             <TextBox
                                 Style="{StaticResource SimpleTextBox}"
-                                x:Name="RecordingNameLabel"
+                                x:Name="RecordingNameTextBox"
                                 IsReadOnly="True"
                                 BorderThickness="0,2,0,0"
                                 Text="{Binding Path=RecordingName}"
                                 VerticalContentAlignment="Center"
                                 BorderBrush="Black" 
-                                MouseDoubleClick="RecordingNameLabel_MouseDoubleClick" FontSize="17" FontWeight="Normal" />
+                                MouseDoubleClick="RecordingNameTextBox_MouseDoubleClick" FontSize="17" FontWeight="Normal" />
                             <Label Content=" On "/>
                             <TextBox
                                 Style="{StaticResource SimpleTextBox}"
-                                x:Name="RecordingDateLabel"
+                                x:Name="RecordingDateTextBox"
                                 IsReadOnly="True"
                                 VerticalContentAlignment="Center"
                                 BorderThickness="0,2,0,0"
@@ -130,7 +126,7 @@
                             <Label Content=" for "/>
                             <TextBox
                                 Style="{StaticResource SimpleTextBox}"
-                                x:Name="RecordingDurationLabel"
+                                x:Name="RecordingDurationTextBox"
                                 IsReadOnly="True"
                                 VerticalContentAlignment="Center"
                                 BorderThickness="0,2,0,0"
@@ -160,7 +156,7 @@
                                     ScrollViewer.CanContentScroll="False"
                                     SelectionChanged="LabelledSegmentListView_SelectionChanged"
                                     PreviewMouseWheel="LabelledSegmentListView_PreviewMouseWheel"
-                                    SelectionMode="Single">
+                                    SelectionMode="Single" VerticalContentAlignment="Center" HorizontalContentAlignment="Left">
 
                                     <ListView.ItemTemplate>
                                         <DataTemplate>

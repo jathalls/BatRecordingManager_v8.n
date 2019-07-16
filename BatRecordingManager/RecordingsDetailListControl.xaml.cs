@@ -389,11 +389,11 @@ namespace BatRecordingManager
             }
         }
 
-        private void RecordingNameLabel_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void RecordingNameTextBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var thisLabel = sender as Label;
+            var thisTextBox = sender as TextBox;
             var recording = RecordingsListView.SelectedItem as Recording;
-            var labelContent = thisLabel.Content as string;
+            var labelContent = thisTextBox.Text as string;
             if (!string.IsNullOrWhiteSpace(labelContent))
                 if (labelContent.ToUpper().Contains(".WAV"))
                 {

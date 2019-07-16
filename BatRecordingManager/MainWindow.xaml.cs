@@ -612,6 +612,7 @@ Do you wish to update that database to the latest specification?", "Out of Date 
             _importPictureDialog?.Dispatcher.BeginInvoke(DispatcherPriority.Background,
                 new Action(() =>
                 {
+                    DBAccess.ResolveOrphanImages();
                     _importPictureDialog.Close();
                     _importPictureDialog = null;
                 }));

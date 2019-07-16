@@ -169,6 +169,8 @@
                         ItemsSource="{Binding recordingSessionDataList,IsAsync=true}"
                         AutoGenerateColumns="False"
 
+                        HeadersVisibility="Column"
+                        AreRowDetailsFrozen="True"
                         CanUserAddRows="False"
                         CanUserResizeRows="False" IsReadOnly="True" IsTextSearchEnabled="True" Grid.ColumnSpan="3">
 

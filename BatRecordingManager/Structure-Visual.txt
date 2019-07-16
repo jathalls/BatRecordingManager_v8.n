@@ -471,3 +471,45 @@ ProcessFile(filename,gpxHandler,currentRecordingSessionId,ref batsFound)
 			foreach batFound outputString+=Tools.GetFormattedBatStats(bat,true)
 			DBAccess.UpdateRecording(recording,listOfSegmentAndBatLists,null)
 
+#############################################################################################################################################
+Analyse and Import
+miAnalyseFiles_Click()
+	create _importPictureDialog
+	create _analyseAndImport with callbacks
+		Presents folder selection dialog
+	show _importPictureDialog
+	if(_runKaleidoscope)
+		_analyseAndImport.ImportFromKaleidoscope
+	else
+		_analyseAndImport.AnalyseNextFile()
+			GetNextFile()
+				return null if no file left
+				Analyse(file)
+					if(file doesnt exist) FAIL
+					raise OnAnalysing
+						@@@@@@@@@@@@@@@@@@@@@@@@@@@@ caller class
+						AnalyseAndImport_Analysing(filename)
+						SetImportImageCaption(filename)
+						@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+					OpenWavFile
+						Create Audacity externalprocess with ExternalProcessExited Eventhandler
+						Start Audacity
+						############################# callback when Audacity Exits
+							Close and tidy external process
+							If(IsCurrentMatchingTextFile())
+								SaveRecording()
+								AnalyseNextFile() == filename, null or "" ->line 485
+								if(null or "")
+									raise OnAnalysingFinished
+							else
+								raise OnAnalysingFinished
+								@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ caller class
+								AnalyseAndImport_AnalysingFinished()
+									close and tidy _analyseAndImport
+									close and tidy _importPictureDialog
+								@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+						###############################
+					(AnalyseFile returns true or false)
+				(GetNextFile returns filename or null)
+			if OK return Sessiontag
+			if FAIL return ""

@@ -549,10 +549,22 @@ namespace BatRecordingManager
             if (IsCurrentMatchingTextFile())
             {
                 SaveRecording();
-                AnalyseNextFile();
+                string result=AnalyseNextFile();
+                if (string.IsNullOrWhiteSpace(result))
+                {
+                    if (FilesRemaining <= 0)
+                    {
+                        Tools.SetFolderIconTick(FolderPath);
+                    }
+                    OnAnalysingFinished(new EventArgs());
+                }
             }
             else
             {
+                if (FilesRemaining <= 0)
+                {
+                    Tools.SetFolderIconTick(FolderPath);
+                }
                 OnAnalysingFinished(new EventArgs());
             }
         }
@@ -617,43 +629,93 @@ namespace BatRecordingManager
             return SessionManager.GetHeaderFile(FolderPath);
         }
 
+        /// <summary>
+        /// At start, wavFileList contains a list of .wav files to analyse, which may be empty
+        /// FileToAnalyse is the previous file that was selected from the list to analyse
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private string GetNextFile()
         {
-            if (!WavFileList.IsNullOrEmpty())
+            if (!WavFileList.IsNullOrEmpty()) // if the list is empty, no more files to analyse
             {
-                if (!string.IsNullOrWhiteSpace(FileToAnalyse))
+                if (!string.IsNullOrWhiteSpace(FileToAnalyse)) // if we have a file that we have been analysing...
                 {
-                    var matchingTextFile = FileToAnalyse.Substring(0, FileToAnalyse.LastIndexOf(".")) + ".txt";
-                    if (WavFileList.Contains(FileToAnalyse) && File.Exists(matchingTextFile))
+                    
+                    if (IsCurrentMatchingTextFile()) // if so...
                     {
-                        WavFileList.Remove(FileToAnalyse);
-                        FileToAnalyse = "";
-                        if (WavFileList.IsNullOrEmpty()) return null;
+                        WavFileList.Remove(FileToAnalyse); // remove the .wav file from the list
+                        FileToAnalyse = ""; // neutralise the current file
+                        if (WavFileList.IsNullOrEmpty())
+                        {
+                            // if so.. we had a file that was being analysed and it produced a matching .txt file and there are no more .wav files, SO
+                            // we can mark the folder with a Tick
+                            Tools.SetFolderIconTick(FolderPath);
+                            return null; // and if there are no more files in the list, return a null
+                        }
+
                     }
                 }
 
-                if (string.IsNullOrWhiteSpace(SessionTag))
+                /*
+
+                // if we get here we have removed the last analysed file (if any) and there are still items inn the list
+                if (string.IsNullOrWhiteSpace(SessionTag)) // if we do not have a valid sessiontag...
                 {
-                    FileToAnalyse = WavFileList.First();
-                    if (File.Exists(FileToAnalyse))
+                    FileToAnalyse = WavFileList.First(); // get the first file from the list
+                    if (File.Exists(FileToAnalyse)) // if it exists make it the fileToAnalyse
                     {
-                        FilesRemaining--;
-                        return FileToAnalyse;
+                        FilesRemaining--;       // decrement the files remaining counter
+                        return FileToAnalyse;   // and return the file name
                     }
 
-                    FileToAnalyse = "";
-                    return null;
-                }
+                    FileToAnalyse = "";         // if the file does not exist, neutralise the FileTo Analyse
+                    return null;                // and return a null
+                }*/
 
+                // iterate through the wavfile list
+                // any file that has a matching .txt file is removed from the list
+                // if any files remain, the first one become the FileToAnalyse and the FilesRemaining
+                // equals the size of the list
+                List<String> filesToRemove=new List<string>();
                 foreach (var file in WavFileList)
+                {
                     if (File.Exists(file))
                     {
-                        FileToAnalyse = file;
-                        FilesRemaining--;
-                        if (IsCurrentMatchingTextFile()) continue;
 
-                        return file;
+                        if (IsCurrentMatchingTextFile(file))
+                        {
+                            filesToRemove.Add(file);
+                            
+                        }
+
+                        
                     }
+                    else
+                    {
+                        filesToRemove.Add(file);
+                    }
+                }
+
+                foreach (var file in filesToRemove )
+                {
+                    if (WavFileList.Contains(file))
+                    {
+                        WavFileList.Remove(file);
+                    }
+                }
+
+                FilesRemaining = WavFileList.Count;
+                if (FilesRemaining > 0)
+                {
+                    FileToAnalyse = WavFileList.First();
+                    return (FileToAnalyse);
+                }
+                else
+                {
+                    Tools.SetFolderIconTick(FolderPath);
+                    return (null);
+                }
             }
 
             return null;
@@ -692,12 +754,16 @@ namespace BatRecordingManager
         ///     returns true if there is a current file to analyse and it has a matching text file
         /// </summary>
         /// <returns></returns>
-        private bool IsCurrentMatchingTextFile()
+        private bool IsCurrentMatchingTextFile(string wavFile=null)
         {
-            var result = false;
-            if (!string.IsNullOrWhiteSpace(FileToAnalyse) && File.Exists(FileToAnalyse))
+            if (string.IsNullOrWhiteSpace(wavFile))
             {
-                var matchingTextFile = FileToAnalyse.Substring(0, FileToAnalyse.LastIndexOf(".")) + ".txt";
+                wavFile = FileToAnalyse;
+            }
+            var result = false;
+            if (!string.IsNullOrWhiteSpace(wavFile) && File.Exists(wavFile))
+            {
+                var matchingTextFile = wavFile.Substring(0, wavFile.LastIndexOf(".")) + ".txt";
                 if (File.Exists(matchingTextFile)) result = true;
             }
 
