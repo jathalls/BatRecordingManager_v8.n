@@ -22,6 +22,7 @@ using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Threading;
 using DataVirtualizationLibrary;
 using Microsoft.VisualStudio.Language.Intellisense;
 
@@ -304,13 +305,56 @@ namespace BatRecordingManager
             return result;
         }
 
+        private Recording thisRecording { get; set; } = null;
+        private AnalyseAndImportClass aai = null;
         private void RecordingsDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var dg = sender as DataGrid;
             var selectedItem = dg.SelectedItem as BatSessionRecordingData;
+            thisRecording = DBAccess.GetRecording(selectedItem.RecordingId??-1);
+            if (thisRecording != null)
+            {
+                var aai=new AnalyseAndImportClass(thisRecording);
+                aai.e_DataUpdated += Aai_e_DataUpdated;
+                aai.AnalyseRecording();
+            }
 
 
-            Tools.OpenWavFile(DBAccess.GetRecording(selectedItem.RecordingId ?? -1));
+            //Tools.OpenWavFile(DBAccess.GetRecording(selectedItem.RecordingId ?? -1));
+        }
+
+        private void Aai_e_DataUpdated(object sender, EventArgs e)
+        {
+            if (thisRecording != null && aai!=null)
+            {
+                if (Tools.IsTextFileModified(aai.startedAt??DateTime.Now,thisRecording))
+                {
+                    if (!Dispatcher.CheckAccess())
+                    {
+
+
+                        Dispatcher.BeginInvoke(DispatcherPriority.Background,
+                            new Action(() => { RefreshParentData(); }));
+
+                    }
+                    else
+                    {
+                        RefreshParentData();
+                    }
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// Locates the top level parent window (ListByBats) and refreshes the data in that
+        /// window, forcing a SelectionChanged event which will cascade down and refresh this
+        /// window.
+        /// </summary>
+        private void RefreshParentData()
+        {
+            var topParent=Tools.FindParent<BatRecordingsListDetailControl>(this);
+            topParent.RefreshData();
         }
 
         private void SessionsDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)

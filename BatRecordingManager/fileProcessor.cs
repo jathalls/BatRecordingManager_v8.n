@@ -21,7 +21,9 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Threading;
 using Microsoft.VisualStudio.Language.Intellisense;
+using ThicknessConverter = Xceed.Wpf.DataGrid.Converters.ThicknessConverter;
 
 namespace BatRecordingManager
 {
@@ -611,11 +613,16 @@ namespace BatRecordingManager
         /// </summary>
         /// <param name="recording"></param>
         /// <param name="labelFileName"></param>
-        internal void UpdateRecording(Recording recording, string labelFileName)
+        public static string UpdateRecording(Recording recording, string labelFileName)
         {
+            string result = "";
             var batsFound = new Dictionary<string, BatStats>();
-            ProcessLabelOrManualFile(labelFileName, new GpxHandler(recording.RecordingSession.Location),
-                recording.RecordingSession.Id, ref batsFound);
+            DBAccess.DeleteAllSegmentsForRecording(recording.Id);
+            result=ProcessLabelOrManualFile(labelFileName, new GpxHandler(recording.RecordingSession.Location),
+                recording.RecordingSession.Id,recording, ref batsFound);
+           
+            
+            return (result);
         }
 
         /// <summary>

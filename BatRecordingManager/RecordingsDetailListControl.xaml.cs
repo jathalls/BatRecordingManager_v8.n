@@ -25,6 +25,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Threading;
 using Microsoft.Maps.MapControl.WPF;
 using Microsoft.VisualStudio.Language.Intellisense;
 
@@ -336,12 +338,7 @@ namespace BatRecordingManager
                 recordingsList.Clear();
             }
 
-            if (RecordingsListView != null)
-            {
-                //RecordingsListView.ItemsSource = recordingsList;
-                //var view = CollectionViewSource.GetDefaultView(RecordingsListView.ItemsSource);
-                //if (view != null) { view.Refresh(); }
-            }
+            
 
             SearchButton.IsEnabled = recordingsList.Count > 0;
         }
@@ -358,6 +355,7 @@ namespace BatRecordingManager
                     {
                         EditRecordingButton.IsEnabled = true;
                         DeleteRecordingButton.IsEnabled = true;
+                        
                         if (RecordingsListView.Items != null)
                             foreach (var item in RecordingsListView.Items)
                                 if (item is ListView view)
@@ -381,6 +379,7 @@ namespace BatRecordingManager
                     {
                         EditRecordingButton.IsEnabled = false;
                         DeleteRecordingButton.IsEnabled = false;
+                        
                         AddSegImgButton.IsEnabled = false;
                         Debug.WriteLine("Recording De-Selected");
                         _isSegmentSelected = false;
@@ -389,11 +388,12 @@ namespace BatRecordingManager
             }
         }
 
+        private AnalyseAndImportClass aai;
         private void RecordingNameTextBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var thisTextBox = sender as TextBox;
             var recording = RecordingsListView.SelectedItem as Recording;
-            var labelContent = thisTextBox.Text as string;
+            /*var labelContent = thisTextBox.Text as string;
             if (!string.IsNullOrWhiteSpace(labelContent))
                 if (labelContent.ToUpper().Contains(".WAV"))
                 {
@@ -401,8 +401,62 @@ namespace BatRecordingManager
                     labelContent = labelContent.Substring(0, pos) + ".wav";
                     labelContent = selectedSession.OriginalFilePath + labelContent;
 
-                    Tools.OpenWavFile(recording);
+                    //Tools.OpenWavFile(recording);*/
+                    aai=new AnalyseAndImportClass(recording);
+                    aai.e_DataUpdated += Aai_e_DataUpdated;
+                    aai.AnalyseRecording();
+               // }
+        }
+
+        private void Aai_e_DataUpdated(object sender, EventArgs e)
+        {
+            
+            //Tools.FindParent<RecordingSessionListDetailControl>(this).RefreshData();
+            if (aai.ThisRecording != null && Tools.IsTextFileModified(aai.startedAt??DateTime.Now,aai.ThisRecording))
+            {
+                DependencyObject d = this;
+                while (true)
+                {
+                    if (d == null) break;
+                    if (d.Dispatcher.CheckAccess())
+                    {
+                        d = VisualTreeHelper.GetParent(d);
+                    }
+                    else
+                    {
+                        d.Dispatcher.Invoke(DispatcherPriority.Background,
+                            new Action(() => { d = VisualTreeHelper.GetParent(d); }));
+                    }
+
+                    if (d == null) break;
+                    if (d is RecordingSessionListDetailControl t)
+                    {
+                        if (t.Dispatcher.CheckAccess())
+                        {
+                            t.RefreshData();
+                        }
+                        else
+                        {
+                            t.Dispatcher.Invoke(DispatcherPriority.Background,
+                                new Action(() => { t.RefreshData(); }));
+                        }
+
+                        break;
+                    }
+
                 }
+
+                /* Unnecessary as RefreshData does a SelectionChanged which forces a refresh of this
+                if (Dispatcher.CheckAccess())
+                {
+                    Refresh();
+                }
+                else
+                {
+                    Dispatcher.BeginInvoke(DispatcherPriority.Background,
+                        new Action(() => { Refresh(); }));
+                }*/
+            }
         }
 
         private void GPSLabel_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -789,6 +843,18 @@ namespace BatRecordingManager
                 LabelledSegmentTextBlock_MouseRightButtonUp((sender as ContentControl).Content, e);
                 e.Handled = true;
             }
+        }
+
+        /// <summary>
+        /// Allows the user to revise one or more labels in this recording by opening the recording in Audacity
+        /// On completion, if the .txt file has been modified in the last n mintes, call OnRecordingChanged in order
+        /// to update the entire page.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ReviseRecordingButton_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     } // End of Class RecordingDetailListControl
 

@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -121,6 +122,7 @@ namespace BatRecordingManager
                 new Action(() => { RefreshData(PageSize, CurrentTopOfScreen); }));
         }
 
+        internal int oldSelectionIndex { get; set; } = -1;
         /// <summary>
         ///     Refreshes the data in the display when this pane is made visible; It might slow down
         ///     context switches, but is necessary if other panes have changed the data. A more
@@ -135,16 +137,19 @@ namespace BatRecordingManager
             using (new WaitCursor("Refresh screen data"))
             {
                 //  Stopwatch overallWatch = Stopwatch.StartNew();
-                var oldSelection = -1;
-                oldSelection = RecordingSessionListView.SelectedIndex;
+                oldSelectionIndex = -1;
+                oldSelectionIndex = RecordingSessionListView.SelectedIndex;
                 //recordingSessionDataList.Clear();
                 //recordingSessionDataList.AddRange(DBAccess.GetPagedRecordingSessionDataList(pageSize, topOfScreen, field));
                 recordingSessionDataList = null;
                 recordingSessionDataList =
                     new AsyncVirtualizingCollection<RecordingSessionData>(new RecordingSessionDataProvider(), 50, 100);
+                recordingSessionDataList.CollectionChanged += RecordingSessionDataList_CollectionChanged;
+                
+
                 if (!recordingSessionDataList.IsLoading) recordingSessionDataList.Refresh();
-                if (oldSelection >= 0 && oldSelection < recordingSessionDataList.Count)
-                    RecordingSessionListView.SelectedIndex = oldSelection;
+                if (oldSelectionIndex >= 0 && oldSelectionIndex < recordingSessionDataList.Count)
+                    RecordingSessionListView.SelectedIndex = oldSelectionIndex;
 
 
                 SegmentImageScroller.Clear();
@@ -164,9 +169,25 @@ namespace BatRecordingManager
                             .Recordings);
                     }
                 }
+                RecordingSessionListView_SelectionChanged(this,null);
             }
 
             //CollectionViewSource.GetDefaultView(RecordingSessionListView.ItemsSource).Refresh();
+        }
+
+        private void RecordingSessionDataList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (oldSelectionIndex >= 0 && oldSelectionIndex < RecordingSessionListView.Items.Count)
+            {
+                if (RecordingSessionListView.SelectedIndex != oldSelectionIndex)
+                {
+                    RecordingSessionListView.SelectedIndex = oldSelectionIndex;
+                }
+                else
+                {
+                    RecordingSessionListView_SelectionChanged(this,null);
+                }
+            }
         }
 
         /// <summary>
@@ -666,6 +687,8 @@ Mouse.OverrideCursor = null;*/
                     CompareImagesButton.IsEnabled = true;
                 }
             }
+
+            oldSelectionIndex = RecordingSessionListView.SelectedIndex;
         }
 
         private void RecordingsListControl_RecordingChanged(object sender, EventArgs e)

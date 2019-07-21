@@ -34,6 +34,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using WindowsInput;
 using WindowsInput.Native;
 using Microsoft.Maps.MapControl.WPF;
@@ -173,6 +174,7 @@ namespace BatRecordingManager
         public static T FindParent<T>(DependencyObject child) where T : DependencyObject
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
+
             // get parent item
             var parentObject = VisualTreeHelper.GetParent(child);
 
@@ -183,6 +185,8 @@ namespace BatRecordingManager
             if (parentObject is T parent)
                 return parent;
             return FindParent<T>(parentObject);
+
+
         }
 
         /// <summary>
@@ -339,6 +343,24 @@ namespace BatRecordingManager
         }
 
         /// <summary>
+        /// given an instance of a Recording, looks for a .txt file of the same name and returns true if
+        /// the file modified date and time are within 10s of Now.  Otherwise returns false;
+        /// </summary>
+        /// <param name="thisRecording"></param>
+        /// <returns></returns>
+        internal static bool IsTextFileModified(DateTime since,Recording thisRecording)
+        {
+            if (thisRecording == null) return false;
+            string filename = (thisRecording.RecordingSession.OriginalFilePath ?? "") + thisRecording.RecordingName;
+            filename = Tools.GetMatchingTextFile(filename);
+            if (!File.Exists(filename)) return false;
+            DateTime whenModified = File.GetLastWriteTime(filename);
+            if (whenModified>=since) return true;
+            return false;
+
+        }
+
+        /// <summary>
         ///     Writes an information string to the Error Log without the additional burden of a stack trace
         /// </summary>
         /// <param name="v"></param>
@@ -458,7 +480,7 @@ namespace BatRecordingManager
             stat.Add(segment.EndOffset - segment.StartOffset);
             return stat.passes;
         }
-
+/*
         internal static void OpenWavFile(Recording selectedRecording)
         {
             if (selectedRecording?.RecordingSession == null) return;
@@ -486,11 +508,18 @@ namespace BatRecordingManager
                     if (folder[1] != ':') return; // we didn't find a drive with the folder path so give up
                 }
 
+            if (!Directory.Exists(folder))
+            {
+                // if after trying the folder still doesnt exist, give up
+                return;
+            }
+
+            
             if (selectedRecording.RecordingName.StartsWith(@"\"))
                 selectedRecording.RecordingName = selectedRecording.RecordingName.Substring(1);
             folder = folder + @"\" + selectedRecording.RecordingName;
             OpenWavFile(folder);
-        }
+        }*/
 
         /// <summary>
         ///     Given a recording Session, returns a list of strings each of which contains a summary

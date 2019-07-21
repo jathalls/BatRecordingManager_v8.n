@@ -68,6 +68,8 @@ namespace BatRecordingManager
         internal void RefreshData()
         {
             var oldSelection = BatStatsDataGrid.SelectedIndex;
+            var multiSelection = BatStatsDataGrid.SelectedItems;
+            
             BatStatisticsList.Clear();
             //BatStatisticsList.AddRange(DBAccess.GetBatStatistics());
             // Stopwatch watch = Stopwatch.StartNew();
@@ -76,7 +78,25 @@ namespace BatRecordingManager
             // Debug.WriteLine("GetBatStatistics took " + watch.ElapsedMilliseconds + "ms");
 
             //BatStatsDataGrid.ItemsSource = BatStatisticsList;
-            if (oldSelection < BatStatisticsList.Count) BatStatsDataGrid.SelectedIndex = oldSelection;
+            if ( multiSelection.Count > 0)
+            {
+                foreach (var item in multiSelection)
+                {
+                    BatStatsDataGrid.SelectedItems.Add(item);
+                }
+            }
+            else
+            {
+                if (BatStatsDataGrid.SelectedIndex != oldSelection)
+                {
+                    if (oldSelection < BatStatisticsList.Count) BatStatsDataGrid.SelectedIndex = oldSelection;
+                }
+                else
+                {
+                    BatStatsDataGrid_SelectionChanged(this, null);
+                }
+            }
+
             //  watch.Reset();
             //  watch.Start();
             BatStatsDataGrid.Items.Refresh();
@@ -145,9 +165,11 @@ namespace BatRecordingManager
             {
                 //DataGrid bsdg = sender as DataGrid;
                 ListByBatsImageScroller.Clear();
-
-                if (e.AddedItems == null || e.RemovedItems == null) return;
-                if (e.AddedItems.Count <= 0 && e.RemovedItems.Count <= 0) return; // nothing has changed
+                if (e != null)
+                {
+                    if (e.AddedItems == null || e.RemovedItems == null) return;
+                    if (e.AddedItems.Count <= 0 && e.RemovedItems.Count <= 0) return; // nothing has changed
+                }
 
                 var selectedBatDetailsList = new List<BatStatistics>();
                 foreach (var item in BatStatsDataGrid.SelectedItems) selectedBatDetailsList.Add(item as BatStatistics);

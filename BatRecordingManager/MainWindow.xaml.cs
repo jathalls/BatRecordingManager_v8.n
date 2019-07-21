@@ -623,7 +623,7 @@ Do you wish to update that database to the latest specification?", "Out of Date 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void AnalyseAndImport_DataUpdated(object sender, EventArgs e)
+        public void AnalyseAndImport_DataUpdated(object sender, EventArgs e)
         {
             if (sender != null)
             {

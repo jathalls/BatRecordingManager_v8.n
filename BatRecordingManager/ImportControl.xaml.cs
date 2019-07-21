@@ -651,11 +651,9 @@ namespace BatRecordingManager
                         var recording = DBAccess.GetRecordingForWavFile(filename);
                         var labelFileName = _fileBrowser.GetLabelFileForRecording(recording);
                         if (!string.IsNullOrWhiteSpace(labelFileName))
-                            if (_fileProcessor == null)
-                            {
-                                _fileProcessor = new FileProcessor();
-                                _fileProcessor.UpdateRecording(recording, labelFileName);
-                            }
+
+                            FileProcessor.UpdateRecording(recording, labelFileName);
+
                     }
             }
             else

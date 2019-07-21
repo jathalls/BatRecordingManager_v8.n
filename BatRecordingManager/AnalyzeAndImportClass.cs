@@ -75,6 +75,7 @@ namespace BatRecordingManager
         private EventHandler _analysingEvent;
         private EventHandler _analysingFinishedEvent;
         private EventHandler<EventArgs> _dataUpdatedEvent;
+        public Recording ThisRecording { get; set; } = null;
 
         private string _kaleidoscopeFolderPath = "";
 
@@ -88,9 +89,67 @@ namespace BatRecordingManager
         {
             FolderSelected = false;
             FilesRemaining = 0;
+            ThisRecording = null;
             FolderPath = SelectFolder();
             if (!string.IsNullOrWhiteSpace(FolderPath) && Directory.Exists(FolderPath) && !WavFileList.IsNullOrEmpty())
                 FolderSelected = true;
+        }
+
+        public AnalyseAndImportClass(Recording recordingToAnalyse)
+        {
+            FolderSelected = false;
+            FilesRemaining = 0;
+            FolderPath = "";
+            ThisRecording = recordingToAnalyse;
+
+            if (recordingToAnalyse != null)
+            {
+                FolderPath = recordingToAnalyse.RecordingSession.OriginalFilePath;
+                if (!FolderPath.EndsWith(@"\"))
+                {
+                    FolderPath += @"\";
+                }
+                if (Directory.Exists(FolderPath))
+                {
+                    FolderSelected = true;
+                    SetAudacityExportFolder(FolderPath);
+                    SessionTag = recordingToAnalyse.RecordingSession.SessionTag;
+                    FileToAnalyse = FolderPath+recordingToAnalyse.RecordingName;
+                    ThisRecordingSession = recordingToAnalyse.RecordingSession;
+                    ThisGpxHandler = new GpxHandler(FolderPath);
+                    //Analyse(FileToAnalyse);
+                }
+            }
+        }
+
+        public void AnalyseRecording()
+        {
+            if (ThisRecording != null && !string.IsNullOrWhiteSpace(FileToAnalyse))
+            {
+                Analyse(FileToAnalyse);
+            }
+        }
+
+        /// <summary>
+        /// Opens the C:\Audacity Config file and edits the export labels folder to
+        /// the current selected folder;
+        /// </summary>
+        /// <param name="folderPath"></param>
+        private void SetAudacityExportFolder(string folderPath)
+        {
+            string configFile = @"C:\audacity-win-portable\Portable Settings\audacity.cfg";
+            if (File.Exists(configFile))
+            {
+                var lines = File.ReadAllLines(configFile);
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    if (lines[i].StartsWith("DefaultExportPath"))
+                    {
+                        lines[i] = "DefaultExportPath=" + folderPath;
+                    }
+                }
+                File.WriteAllLines(configFile,lines);
+            }
         }
 
         public string SessionTag { get; set; }
@@ -99,6 +158,8 @@ namespace BatRecordingManager
         private string FolderPath { get; set; }
         private GpxHandler ThisGpxHandler { get; set; }
         private RecordingSession ThisRecordingSession { get; set; }
+
+        public DateTime? startedAt { get; set; } = null;
 
         /// <summary>
         ///     wavFileList is a list of all .wav files in the current folder which
@@ -369,7 +430,8 @@ namespace BatRecordingManager
 
             ExternalProcess.EnableRaisingEvents = true;
             ExternalProcess.Exited += ExternalProcess_Exited;
-
+            startedAt=DateTime.Now;
+            
             ExternalProcess = Tools.OpenWavAndTextFile(folder, ExternalProcess);
 
             try
@@ -779,10 +841,24 @@ namespace BatRecordingManager
         {
             var batsFound = new Dictionary<string, BatStats>();
             var result = "Text File does not exist";
+            if (ThisGpxHandler == null)
+            {
+                ThisGpxHandler=new GpxHandler(FolderPath);
+            }
             var textFileToProcess = FileToAnalyse.Substring(0, FileToAnalyse.Length - 4) + ".txt";
             if (File.Exists(textFileToProcess))
-                result = FileProcessor.ProcessFile(textFileToProcess, ThisGpxHandler, ThisRecordingSession.Id,
-                    ref batsFound);
+            {
+                if (ThisRecording == null)
+                {
+                    result = FileProcessor.ProcessFile(textFileToProcess, ThisGpxHandler, ThisRecordingSession.Id,
+                        ref batsFound);
+                }
+                else
+                {
+                    result = FileProcessor.UpdateRecording(ThisRecording, textFileToProcess);
+                }
+            }
+
             Debug.WriteLine("AnalyseAndImport.SaveRecording:-" + FileToAnalyse + "\n" + result + "\n~~~~~~~~~~~~\n");
 
             OnDataUpdated(new EventArgs());
