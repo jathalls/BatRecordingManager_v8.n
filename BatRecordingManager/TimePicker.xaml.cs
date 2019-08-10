@@ -30,28 +30,28 @@ namespace BatRecordingManager
         ///     The hours property
         /// </summary>
         public static readonly DependencyProperty HoursProperty =
-            DependencyProperty.Register("Hours", typeof(int), typeof(TimePicker),
+            DependencyProperty.Register(nameof(Hours), typeof(int), typeof(TimePicker),
                 new UIPropertyMetadata(0, OnTimeChanged));
 
         /// <summary>
         ///     The minutes property
         /// </summary>
         public static readonly DependencyProperty MinutesProperty =
-            DependencyProperty.Register("Minutes", typeof(int), typeof(TimePicker),
+            DependencyProperty.Register(nameof(Minutes), typeof(int), typeof(TimePicker),
                 new UIPropertyMetadata(0, OnTimeChanged));
 
         /// <summary>
         ///     The seconds property
         /// </summary>
         public static readonly DependencyProperty SecondsProperty =
-            DependencyProperty.Register("Seconds", typeof(int), typeof(TimePicker),
+            DependencyProperty.Register(nameof(Seconds), typeof(int), typeof(TimePicker),
                 new UIPropertyMetadata(0, OnTimeChanged));
 
         /// <summary>
         ///     The value property
         /// </summary>
         public static readonly DependencyProperty ValueProperty =
-            DependencyProperty.Register("Value", typeof(TimeSpan), typeof(TimePicker),
+            DependencyProperty.Register(nameof(Value), typeof(TimeSpan), typeof(TimePicker),
                 new UIPropertyMetadata(DateTime.Now.TimeOfDay, OnValueChanged));
 
         /// <summary>

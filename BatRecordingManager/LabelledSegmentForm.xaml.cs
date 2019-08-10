@@ -43,7 +43,7 @@ namespace BatRecordingManager
         ///     labelledSegment Dependency Property
         /// </summary>
         public static readonly DependencyProperty labelledSegmentProperty =
-            DependencyProperty.Register("labelledSegment", typeof(LabelledSegment), typeof(LabelledSegmentForm),
+            DependencyProperty.Register(nameof(labelledSegment), typeof(LabelledSegment), typeof(LabelledSegmentForm),
                 new FrameworkPropertyMetadata(new LabelledSegment()));
 
         /// <summary>

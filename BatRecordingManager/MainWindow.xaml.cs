@@ -68,6 +68,7 @@ namespace BatRecordingManager
         {
             try
             {
+                Application.Current.MainWindow = this;
                 try
                 {
                     Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
@@ -84,8 +85,8 @@ namespace BatRecordingManager
                 {
                     ShowDatabase = App.ShowDatabase;
                     DataContext = this;
-                    statusText = "Starting Up";
-
+                    //statusText = "Starting Up";
+                    //SetStatusText("Starting Up");
                     _build = Assembly.GetExecutingAssembly().GetName().Version.ToString();
                     var buildDateTime = new DateTime(2000, 1, 1);
                     var buildParts = _build.Split('.');
@@ -103,6 +104,7 @@ namespace BatRecordingManager
                                  ")";
                     //windowTitle = "Bat Log File Processor " + Build;
                     Title = _windowTitle + " " + _build;
+                    Console.WriteLine(Title);
 
                     InvalidateArrange();
                     //DBAccess.InitializeDatabase();
@@ -110,7 +112,7 @@ namespace BatRecordingManager
                     BatRecordingListDetailControl.SessionsAndRecordings.e_SessionAction +=
                         SessionsAndRecordings_SessionAction;
                     miRecordingSearch_Click(this, new RoutedEventArgs());
-                    statusText = "";
+                    //SetStatusText("");
                 }
                 catch (Exception ex)
                 {
@@ -167,20 +169,38 @@ namespace BatRecordingManager
             about.ShowDialog();
         }
 
-        public string SetStatusText(string newStatusText)
+        /*
+        public static string SetStatusText(string newStatusText)
         {
+            string result = "";
             /*
             string result = statusText;
             statusText = newStatusText;
-            return (result);*/
-            var result = StatusText.Text;
-            StatusText.Text = newStatusText;
-            InvalidateArrange();
-            UpdateLayout();
+            return (result);
+            var Topwindow = App.Current.MainWindow;
+            MainWindow window = Topwindow as MainWindow;
+            if (window != null)
+            {
+                //result = window.StatusText.Text;
+                DialogResult = "";
+                //Debug.WriteLine("Old status="+window.statusText);
+                //Debug.WriteLine("Old text="+window.StatusText.Text);
 
-            Debug.WriteLine("========== set status to \"" + newStatusText + "\"");
+
+                window.Dispatcher.Invoke(() =>
+                {
+
+                    window.StatusText.Text = newStatusText;
+                    
+                    Debug.WriteLine("========== set status to \"" + newStatusText + "\"");
+                    window.InvalidateArrange();
+                    window.UpdateLayout();
+                },DispatcherPriority.Send);
+            }
+
+            Debug.WriteLine($"New displayed text={window.StatusText.Text}");
             return result;
-        }
+        }*/
 
         /// <summary>
         ///     Handles the Click event of the miBatReference control.
@@ -711,12 +731,12 @@ Do you wish to update that database to the latest specification?", "Out of Date 
         }
 
         #region statusText
-
+        /*
         /// <summary>
         ///     statusText Dependency Property
         /// </summary>
         public static readonly DependencyProperty statusTextProperty =
-            DependencyProperty.Register("statusText", typeof(string), typeof(MainWindow),
+            DependencyProperty.Register(nameof(statusText), typeof(string), typeof(MainWindow),
                 new FrameworkPropertyMetadata(""));
 
         /// <summary>
@@ -727,8 +747,15 @@ Do you wish to update that database to the latest specification?", "Out of Date 
         {
             get => (string) GetValue(statusTextProperty);
             set => SetValue(statusTextProperty, value);
-        }
+        }*/
+
+        public string statusText { get; set; }
 
         #endregion
+
+        private void StatusText_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            Debug.WriteLine($"Status text changed to:-{StatusText.Text}");
+        }
     }
 }

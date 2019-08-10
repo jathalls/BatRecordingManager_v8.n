@@ -20,12 +20,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using DataVirtualizationLibrary;
 using Microsoft.VisualStudio.Language.Intellisense;
+using Task = Microsoft.Build.Utilities.Task;
 
 namespace BatRecordingManager
 {
@@ -122,6 +124,7 @@ namespace BatRecordingManager
                 new Action(() => { RefreshData(PageSize, CurrentTopOfScreen); }));
         }
 
+        //private WaitCursor storedWaitCursor = null;
         internal int oldSelectionIndex { get; set; } = -1;
         /// <summary>
         ///     Refreshes the data in the display when this pane is made visible; It might slow down
@@ -134,6 +137,7 @@ namespace BatRecordingManager
         internal void RefreshData(int pageSize, int topOfScreen)
         {
             if (RecordingSessionListView == null) return;
+            //storedWaitCursor=new WaitCursor();
             using (new WaitCursor("Refresh screen data"))
             {
                 //  Stopwatch overallWatch = Stopwatch.StartNew();
@@ -143,11 +147,12 @@ namespace BatRecordingManager
                 //recordingSessionDataList.AddRange(DBAccess.GetPagedRecordingSessionDataList(pageSize, topOfScreen, field));
                 recordingSessionDataList = null;
                 recordingSessionDataList =
-                    new AsyncVirtualizingCollection<RecordingSessionData>(new RecordingSessionDataProvider(), 50, 100);
-                recordingSessionDataList.CollectionChanged += RecordingSessionDataList_CollectionChanged;
+                    new VirtualizingCollection<RecordingSessionData>(new RecordingSessionDataProvider(), 50, 100);
+                //recordingSessionDataList.CollectionChanged += RecordingSessionDataList_CollectionChanged;
                 
 
-                if (!recordingSessionDataList.IsLoading) recordingSessionDataList.Refresh();
+
+                //if (!recordingSessionDataList.IsLoading) recordingSessionDataList.Refresh();
                 if (oldSelectionIndex >= 0 && oldSelectionIndex < recordingSessionDataList.Count)
                     RecordingSessionListView.SelectedIndex = oldSelectionIndex;
 
@@ -169,7 +174,8 @@ namespace BatRecordingManager
                             .Recordings);
                     }
                 }
-                RecordingSessionListView_SelectionChanged(this,null);
+
+                RecordingSessionListView_SelectionChanged(this, null);
             }
 
             //CollectionViewSource.GetDefaultView(RecordingSessionListView.ItemsSource).Refresh();
@@ -188,6 +194,8 @@ namespace BatRecordingManager
                     RecordingSessionListView_SelectionChanged(this,null);
                 }
             }
+
+            
         }
 
         /// <summary>
@@ -229,17 +237,20 @@ namespace BatRecordingManager
 
         private void AddEditRecordingSession(RecordingSessionForm recordingSessionForm)
         {
-            Mouse.OverrideCursor = Cursors.Wait;
-            var selectedIndex = RecordingSessionListView.SelectedIndex;
+            using (new WaitCursor())
+            {
+                var selectedIndex = RecordingSessionListView.SelectedIndex;
 
-            var error = "No Data Entered";
-            Mouse.OverrideCursor = null;
-            if (!recordingSessionForm.ShowDialog() ?? false)
-                if (recordingSessionForm.DialogResult ?? false)
-                    if (!string.IsNullOrWhiteSpace(error))
-                        MessageBox.Show(error);
+                var error = "No Data Entered";
+                Mouse.OverrideCursor = null;
+                if (!recordingSessionForm.ShowDialog() ?? false)
+                    if (recordingSessionForm.DialogResult ?? false)
+                        if (!string.IsNullOrWhiteSpace(error))
+                            MessageBox.Show(error);
 
-            RefreshData(PageSize, CurrentTopOfScreen);
+                RefreshData(PageSize, CurrentTopOfScreen);
+            }
+
             /*this.recordingSessionList = DBAccess.GetRecordingSessionList();
 if (selectedIndex >= 0 && selectedIndex <= this.RecordingSessionListView.Items.Count)
 {
@@ -250,20 +261,22 @@ Mouse.OverrideCursor = null;*/
 
         private void AddRecordingSessionButton_Click(object sender, RoutedEventArgs e)
         {
-            Mouse.OverrideCursor = Cursors.Wait;
-            var recordingSessionForm = new RecordingSessionForm();
-
-            recordingSessionForm.Clear();
-            var newSession = new RecordingSession
+            using (new WaitCursor())
             {
-                LocationGPSLatitude = null, LocationGPSLongitude = null, SessionDate = DateTime.Today
-            };
-            newSession.EndDate = newSession.SessionDate;
-            newSession.SessionStartTime = new TimeSpan(18, 0, 0);
-            newSession.SessionEndTime = new TimeSpan(24, 0, 0);
-            recordingSessionForm.SetRecordingSession(newSession);
-            Mouse.OverrideCursor = null;
-            AddEditRecordingSession(recordingSessionForm);
+                var recordingSessionForm = new RecordingSessionForm();
+
+                recordingSessionForm.Clear();
+                var newSession = new RecordingSession
+                {
+                    LocationGPSLatitude = null, LocationGPSLongitude = null, SessionDate = DateTime.Today
+                };
+                newSession.EndDate = newSession.SessionDate;
+                newSession.SessionStartTime = new TimeSpan(18, 0, 0);
+                newSession.SessionEndTime = new TimeSpan(24, 0, 0);
+                recordingSessionForm.SetRecordingSession(newSession);
+                Mouse.OverrideCursor = null;
+                AddEditRecordingSession(recordingSessionForm);
+            }
         }
 
         private void CompareImagesButton_Click(object sender, RoutedEventArgs e)
@@ -720,45 +733,67 @@ Mouse.OverrideCursor = null;*/
         /// <param name="e"></param>
         public void ReportSessionDataButton_Click(object sender, RoutedEventArgs e)
         {
-            var doFullExport = false || sender is AnalyseAndImportClass;
+            using (new WaitCursor("Generating Report"))
+            {
+                GenerateReportSet(sender, e);
+            }
+
+
+        }
+
+        public Task<bool> GenerateReportSetAsync(object sender, RoutedEventArgs e)
+        {
+            return Task<bool>.Run(() => GenerateReportSet(sender, e));
+        }
+
+        public bool GenerateReportSet(object sender,RoutedEventArgs e)
+        { 
+        var doFullExport = false || sender is AnalyseAndImportClass;
             var reportBatStatsList = new List<BatStatistics>();
             var reportSessionList = new List<RecordingSession>();
             var reportRecordingList = new List<Recording>();
             var reportWindow = new ReportMainWindow();
             var statsForAllSessions = new BulkObservableCollection<BatStats>();
-
-            using (new WaitCursor("Generate Report Data"))
+            Debug.WriteLine("GenerateReport at"+DateTime.Now.ToLongTimeString());
+            try
             {
                 if (RecordingSessionListView.SelectedItems != null && RecordingSessionListView.SelectedItems.Count > 0)
                 {
+                    Debug.WriteLine("Get Data for "+RecordingSessionListView.SelectedItems.Count+" items at "+DateTime.Now.ToLongTimeString());
                     foreach (var item in RecordingSessionListView.SelectedItems)
                     {
-                        if (!(item is RecordingSessionData sessionData)) return;
+                        
+                        if (!(item is RecordingSessionData sessionData)) return (false);
+                        Debug.WriteLine("Get Data for Session "+sessionData.SessionTag+" at "+DateTime.Now.ToLongTimeString());
                         var session = DBAccess.GetRecordingSession(sessionData.Id);
-                        if (session == null) return;
+                        if (session == null) return (false);
+                        Debug.WriteLine("GetStats for Session at "+DateTime.Now.ToLongTimeString());
                         statsForAllSessions.AddRange(session.GetStats());
 
                         reportSessionList.Add(session);
+                        Debug.WriteLine(reportSessionList.Count+" items in the sessionList at "+DateTime.Now.ToLongTimeString());
                     }
                 }
                 else
                 {
+                    Debug.WriteLine("No selection made so reporting for all sessions!!!!!!! at "+DateTime.Now.ToLongTimeString());
                     if (RecordingSessionListView.Items != null && RecordingSessionListView.Items.Count > 0)
                         foreach (var item in RecordingSessionListView.Items)
                         {
-                            if (!(item is RecordingSessionData sessionData)) return;
+                            if (!(item is RecordingSessionData sessionData)) return (false);
                             var session = DBAccess.GetRecordingSession(sessionData.Id);
-                            if (session == null) return;
+                            if (session == null) return (false);
                             statsForAllSessions.AddRange(session.GetStats());
 
                             reportSessionList.Add(session);
                         }
                 }
-
+                Debug.WriteLine("Condensing Stats List at "+DateTime.Now.ToLongTimeString());
                 statsForAllSessions = Tools.CondenseStatsList(statsForAllSessions);
-
+                Debug.WriteLine("collating stats for "+statsForAllSessions.Count+" at "+DateTime.Now.ToLongTimeString());
                 foreach (var bs in statsForAllSessions)
                 {
+                    Debug.WriteLine("Processing next stat at "+DateTime.Now.ToLongTimeString());
                     var bstat = new BatStatistics(DBAccess.GetNamedBat(bs.batCommonName));
                     reportBatStatsList.Add(bstat);
                     var recordingsToreport = (from brLink in bstat.bat.BatRecordingLinks
@@ -771,12 +806,18 @@ Mouse.OverrideCursor = null;*/
                                 reportRecordingList.Add(rec);
                     //ReportRecordingList.AddRange(recordingsToreport);
                 }
-
+                Debug.WriteLine("Setting ReportData at "+DateTime.Now.ToLongTimeString());
                 reportWindow.SetReportData(reportBatStatsList, reportSessionList, reportRecordingList);
+                Debug.WriteLine("Completed at "+DateTime.Now.ToLongTimeString());
                 if (doFullExport) reportWindow.ExportAll();
             }
-
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error generating Report:-"+ex.Message);
+                return (false);
+            }
             reportWindow.ShowDialog();
+            return (true);
         }
 
         #region recordingSessionList
@@ -791,17 +832,17 @@ Mouse.OverrideCursor = null;*/
         ///     recordingSessiondataList Dependency Property
         /// </summary>
         public static readonly DependencyProperty recordingSessionDataListProperty =
-            DependencyProperty.Register("recordingSessionDataList",
-                typeof(AsyncVirtualizingCollection<RecordingSessionData>), typeof(RecordingSessionListDetailControl),
+            DependencyProperty.Register(nameof(recordingSessionDataList),
+                typeof(VirtualizingCollection<RecordingSessionData>), typeof(RecordingSessionListDetailControl),
                 new FrameworkPropertyMetadata(null));
 
         /// <summary>
         ///     Gets or sets the recordingSessiondataList property.  This dependency property
         ///     indicates ....
         /// </summary>
-        public AsyncVirtualizingCollection<RecordingSessionData> recordingSessionDataList
+        public VirtualizingCollection<RecordingSessionData> recordingSessionDataList
         {
-            get => (AsyncVirtualizingCollection<RecordingSessionData>) GetValue(recordingSessionDataListProperty);
+            get => (VirtualizingCollection<RecordingSessionData>) GetValue(recordingSessionDataListProperty);
             set => SetValue(recordingSessionDataListProperty, value);
         }
 
@@ -818,7 +859,7 @@ Mouse.OverrideCursor = null;*/
         ///     IsLoading Dependency Property
         /// </summary>
         public static readonly DependencyProperty IsLoadingProperty =
-            DependencyProperty.Register("IsLoading", typeof(bool), typeof(RecordingSessionListDetailControl),
+            DependencyProperty.Register(nameof(IsLoading), typeof(bool), typeof(RecordingSessionListDetailControl),
                 new FrameworkPropertyMetadata(false));
 
         /// <summary>

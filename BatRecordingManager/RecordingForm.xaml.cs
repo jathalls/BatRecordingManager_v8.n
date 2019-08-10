@@ -554,7 +554,7 @@ namespace BatRecordingManager
         ///     LabelledSegmentsList Dependency Property
         /// </summary>
         public static readonly DependencyProperty LabelledSegmentsListProperty =
-            DependencyProperty.Register("LabelledSegmentsList", typeof(BulkObservableCollection<LabelledSegment>),
+            DependencyProperty.Register(nameof(LabelledSegmentsList), typeof(BulkObservableCollection<LabelledSegment>),
                 typeof(RecordingForm),
                 new FrameworkPropertyMetadata(new BulkObservableCollection<LabelledSegment>()));
 
@@ -586,7 +586,7 @@ namespace BatRecordingManager
         ///     recording Dependency Property
         /// </summary>
         public static readonly DependencyProperty recordingProperty =
-            DependencyProperty.Register("recording", typeof(Recording), typeof(RecordingForm),
+            DependencyProperty.Register(nameof(recording), typeof(Recording), typeof(RecordingForm),
                 new FrameworkPropertyMetadata(new Recording()));
 
         /// <summary>

@@ -42,7 +42,7 @@ namespace BatRecordingManager
         ///     labelledSegment Dependency Property
         /// </summary>
         public static readonly DependencyProperty labelledSegmentProperty =
-            DependencyProperty.Register("labelledSegment", typeof(LabelledSegment), typeof(LabelledSegmentControl),
+            DependencyProperty.Register(nameof(labelledSegment), typeof(LabelledSegment), typeof(LabelledSegmentControl),
                 new FrameworkPropertyMetadata(new LabelledSegment()));
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace BatRecordingManager
         ///     startTime Dependency Property
         /// </summary>
         public static readonly DependencyProperty startTimeProperty =
-            DependencyProperty.Register("startTime", typeof(TimeSpan), typeof(LabelledSegmentControl),
+            DependencyProperty.Register(nameof(startTime), typeof(TimeSpan), typeof(LabelledSegmentControl),
                 new FrameworkPropertyMetadata(new TimeSpan()));
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace BatRecordingManager
         ///     endTime Dependency Property
         /// </summary>
         public static readonly DependencyProperty endTimeProperty =
-            DependencyProperty.Register("endTime", typeof(TimeSpan), typeof(LabelledSegmentControl),
+            DependencyProperty.Register(nameof(endTime), typeof(TimeSpan), typeof(LabelledSegmentControl),
                 new FrameworkPropertyMetadata(new TimeSpan()));
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace BatRecordingManager
         ///     duration Dependency Property
         /// </summary>
         public static readonly DependencyProperty durationProperty =
-            DependencyProperty.Register("duration", typeof(TimeSpan), typeof(LabelledSegmentControl),
+            DependencyProperty.Register(nameof(duration), typeof(TimeSpan), typeof(LabelledSegmentControl),
                 new FrameworkPropertyMetadata(new TimeSpan()));
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace BatRecordingManager
         ///     comment Dependency Property
         /// </summary>
         public static readonly DependencyProperty commentProperty =
-            DependencyProperty.Register("comment", typeof(string), typeof(LabelledSegmentControl),
+            DependencyProperty.Register(nameof(comment), typeof(string), typeof(LabelledSegmentControl),
                 new FrameworkPropertyMetadata(""));
 
         /// <summary>

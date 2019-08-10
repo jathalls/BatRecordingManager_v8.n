@@ -98,7 +98,7 @@ namespace BatRecordingManager
         ///     FolderList Dependency Property
         /// </summary>
         public static readonly DependencyProperty FolderListProperty =
-            DependencyProperty.Register("FolderList", typeof(BulkObservableCollection<string>),
+            DependencyProperty.Register(nameof(FolderList), typeof(BulkObservableCollection<string>),
                 typeof(FolderSelectionDialog),
                 new FrameworkPropertyMetadata(new BulkObservableCollection<string>()));
 

@@ -45,7 +45,7 @@ namespace BatRecordingManager
 
         private bool _isSegmentSelected;
         private EventHandler<EventArgs> _recordingChangedEvent;
-        private SearchDialog _searchDialog = new SearchDialog();
+        private SearchDialog _searchDialog;
         private EventHandler<EventArgs> _segmentSelectionChangedEvent;
         private LabelledSegment _selectedSegment;
         private RecordingSession _selectedSession;
@@ -300,6 +300,10 @@ namespace BatRecordingManager
         /// <param name="e"></param>
         private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
+            if (_searchDialog == null)
+            {
+                CreateSearchDialog();
+            }
             if (_searchDialog.IsLoaded)
             {
                 _searchDialog.Visibility = Visibility.Visible;
@@ -770,6 +774,7 @@ namespace BatRecordingManager
 
                 CreateSearchDialog();
             }
+
         }
 
         private void LabelledSegmentTextBlock_MouseRightButtonUp(object sender, MouseButtonEventArgs e)

@@ -6,7 +6,8 @@
              xmlns:m="clr-namespace:Microsoft.Maps.MapControl.WPF;assembly=Microsoft.Maps.MapControl.WPF"
              xmlns:local="clr-namespace:BatRecordingManager"
              mc:Ignorable="d"
-             d:DesignHeight="600" d:DesignWidth="600">
+             d:DesignHeight="600" d:DesignWidth="600" Margin="10,0,0,0">
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30" />
@@ -20,27 +21,55 @@
         <m:Map
             x:Name="ThisMap"
             Grid.Row="1"
-            CredentialsProvider="AhhVL9x6bq6w0NbyqlwjmXDh3Qd64GbWowQQlFzrqx0ChD1MvaLkMTDQxuh2bhzh"
             ZoomLevel="16"
             Center="51.789845,-0.225125"
 
-            Mode="AerialWithLabels" MouseDoubleClick="mapControl_MouseDoubleClick" />
+            
+            Mode="AerialWithLabels" MouseDoubleClick="mapControl_MouseDoubleClick" CredentialsProvider="{DynamicResource CredentialsProvider1}" />
 
-        <StackPanel
+        <Grid
+            Grid.Row="2"
+            >
+            <StackPanel
             Orientation="Horizontal"
             Background="{StaticResource ButtonBarBackground}"
-            Grid.Row="2">
-            <Button
+            Grid.Column="0">
+                <Button
                 x:Name="OkButton"
                 Content="OK"
                 Width="50"
                 Height="25"
                 Style="{StaticResource SimpleButton}" IsDefault="True" />
-            <Button
+                <Button
                 Content="Cancel"
                 Width="50"
                 Height="25"
                 Style="{StaticResource SimpleButton}" IsCancel="True" />
-        </StackPanel>
+
+            </StackPanel>
+            <StackPanel
+                Orientation="Horizontal" HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+
+            >
+                <RadioButton 
+                    x:Name="AerialButton"
+                    Style="{StaticResource SimpleRadioButton}"
+                    Content="Aerial" Margin="10,0,0,0" Checked="AerialButton_Checked"
+
+                ></RadioButton>
+                <RadioButton
+                    x:Name="AerialLabelButton"
+                    Style="{StaticResource SimpleRadioButton}"
+                    Content="Aerial with Labels" Margin="10,0,0,0" IsChecked="True" Checked="AerialLabelButton_Checked"
+                ></RadioButton>
+                <RadioButton
+                    x:Name="RoadButton"
+                    Style="{StaticResource SimpleRadioButton}"
+                    Content="Road" Margin="10,0" Checked="RoadButton_Checked"
+                ></RadioButton>
+
+            </StackPanel>
+        </Grid>
     </Grid>
 </UserControl>

@@ -35,8 +35,16 @@ namespace BatRecordingManager
         ///     The bat list property
         /// </summary>
         public static readonly DependencyProperty BatListProperty =
-            DependencyProperty.Register("BatList", typeof(BulkObservableCollection<Bat>), typeof(BatEditor),
+            DependencyProperty.Register(nameof(BatList), typeof(BulkObservableCollection<Bat>), typeof(BatEditor),
                 new PropertyMetadata(new BulkObservableCollection<Bat>()));
+
+        /// <summary>
+        ///     Gets or sets the bat list.
+        /// </summary>
+        /// <value>
+        ///     The bat list.
+        /// </value>
+        public BulkObservableCollection<Bat> BatList => (BulkObservableCollection<Bat>)GetValue(BatListProperty);
 
         /// <summary>
         ///     The changing
@@ -59,13 +67,7 @@ namespace BatRecordingManager
             BatNameListBox.ItemsSource = BatList;
         }
 
-        /// <summary>
-        ///     Gets or sets the bat list.
-        /// </summary>
-        /// <value>
-        ///     The bat list.
-        /// </value>
-        public BulkObservableCollection<Bat> BatList => (BulkObservableCollection<Bat>) GetValue(BatListProperty);
+        
 
         /// <summary>
         ///     Handles the Click event of the AddRecordButton control.

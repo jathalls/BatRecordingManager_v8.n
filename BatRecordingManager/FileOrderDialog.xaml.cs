@@ -150,7 +150,7 @@ namespace BatRecordingManager
         ///     fileList Dependency Property
         /// </summary>
         public static readonly DependencyProperty fileListProperty =
-            DependencyProperty.Register("fileList", typeof(BulkObservableCollection<string>), typeof(FileOrderDialog),
+            DependencyProperty.Register(nameof(fileList), typeof(BulkObservableCollection<string>), typeof(FileOrderDialog),
                 new FrameworkPropertyMetadata(new BulkObservableCollection<string>()));
 
         /// <summary>

@@ -235,7 +235,7 @@ namespace BatRecordingManager
         ///     selectedBat Dependency Property
         /// </summary>
         public static readonly DependencyProperty selectedBatProperty =
-            DependencyProperty.Register("selectedBat", typeof(Bat), typeof(BatDetailControl),
+            DependencyProperty.Register(nameof(selectedBat), typeof(Bat), typeof(BatDetailControl),
                 new FrameworkPropertyMetadata(new Bat()));
 
         /// <summary>

@@ -166,7 +166,7 @@ namespace BatRecordingManager
         ///     BatCall Dependency Property
         /// </summary>
         public static readonly DependencyProperty BatCallProperty =
-            DependencyProperty.Register("BatCall", typeof(Call), typeof(BatCallControl),
+            DependencyProperty.Register(nameof(BatCall), typeof(Call), typeof(BatCallControl),
                 new FrameworkPropertyMetadata(new Call()));
 
         /// <summary>

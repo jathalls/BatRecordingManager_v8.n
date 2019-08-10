@@ -44,7 +44,7 @@ namespace BatRecordingManager
         ///     AssemblyVersion Dependency Property
         /// </summary>
         public static readonly DependencyProperty AssemblyVersionProperty =
-            DependencyProperty.Register("AssemblyVersion", typeof(string), typeof(AboutScreen),
+            DependencyProperty.Register(nameof(AssemblyVersion), typeof(string), typeof(AboutScreen),
                 new FrameworkPropertyMetadata(""));
 
         /// <summary>

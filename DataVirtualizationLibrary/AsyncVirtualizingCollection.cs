@@ -154,8 +154,12 @@ namespace DataVirtualizationLibrary
             get => _isLoading;
             set
             {
-                if (value != _isLoading) _isLoading = value;
-                FirePropertyChanged(nameof(IsLoading));
+                if (value != _isLoading)
+                {
+                    _isLoading = value;
+
+                    FirePropertyChanged(nameof(IsLoading));
+                }
             }
         }
 

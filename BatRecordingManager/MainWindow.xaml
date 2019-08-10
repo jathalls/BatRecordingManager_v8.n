@@ -64,8 +64,8 @@
             </Menu>
             <Label x:Name="OutputLocationLabel" HorizontalContentAlignment="Stretch"
                    Style="{StaticResource SimpleLabel}" />
-            <TextBox x:Name="StatusText" Text="" Width="800" HorizontalContentAlignment="Stretch"
-                     Style="{StaticResource SimpleTextBox}" IsReadOnly="True" />
+            <TextBox x:Name="StatusText" Text="{Binding Path=statusText}"  Width="800" HorizontalContentAlignment="Stretch"
+                     Style="{StaticResource SimpleTextBox}" IsReadOnly="True" TextChanged="StatusText_TextChanged" />
         </StackPanel>
         <Grid x:Name="MainWindowPaneGrid" Background="{StaticResource WindowBackgroundBrush}">
 

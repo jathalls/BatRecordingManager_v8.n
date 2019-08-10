@@ -280,11 +280,22 @@ namespace BatRecordingManager
         {
             var result = new List<Recording>();
             if (RecordingsDataGrid.SelectedItems != null && RecordingsDataGrid.SelectedItems.Count > 0)
+            {
                 foreach (var item in RecordingsDataGrid.SelectedItems)
-                    result.Add(DBAccess.GetRecording((item as BatSessionRecordingData).RecordingId ?? 0));
+                {
+                    if (item == null || ((item as BatSessionRecordingData).RecordingId ?? -1) < 0) continue;
+                    result.Add(DBAccess.GetRecording((item as BatSessionRecordingData).RecordingId ?? -1));
+                }
+            }
             else
+            {
                 foreach (var item in RecordingsDataGrid.Items)
-                    result.Add(DBAccess.GetRecording((item as BatSessionRecordingData).RecordingId ?? 0));
+                {
+                    if (item == null || ((item as BatSessionRecordingData).RecordingId ?? -1) < 0) continue;
+                    result.Add(DBAccess.GetRecording((item as BatSessionRecordingData).RecordingId ?? -1));
+                }
+            }
+
             return result;
         }
 
@@ -297,11 +308,22 @@ namespace BatRecordingManager
         {
             var result = new List<RecordingSession>();
             if (SessionsDataGrid.SelectedItems != null && SessionsDataGrid.SelectedItems.Count > 0)
+            {
                 foreach (var item in SessionsDataGrid.SelectedItems)
+                {
+                    if (item == null || ((item as BatSessionData).id) < 0) continue;
                     result.Add(DBAccess.GetRecordingSession((item as BatSessionData).id));
+                }
+            }
             else
+            {
                 foreach (var item in SessionsDataGrid.Items)
+                {
+                    if (item == null || ((item as BatSessionData).id) < 0) continue;
                     result.Add(DBAccess.GetRecordingSession((item as BatSessionData).id));
+                }
+            }
+
             return result;
         }
 
@@ -409,17 +431,17 @@ namespace BatRecordingManager
         private void MatchingRecordingData_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             Debug.WriteLine("recording data changed:-" + e.PropertyName);
-            if (e.PropertyName == "IsLoading")
+            if (e.PropertyName == nameof(IsLoading))
             {
                 if (matchingRecordingData.IsLoading)
                 {
                     Debug.WriteLine("Set wait cursor");
-                    RecordingsDataGrid.Cursor = Cursors.Wait;
+                    //RecordingsDataGrid.Cursor = Cursors.Wait;
                 }
                 else
                 {
                     Debug.WriteLine("Clear wait cursor");
-                    RecordingsDataGrid.Cursor = Cursors.Arrow;
+                   // RecordingsDataGrid.Cursor = Cursors.Arrow;
                 }
             }
         }

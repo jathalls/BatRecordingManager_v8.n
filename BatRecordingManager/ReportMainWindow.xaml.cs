@@ -185,19 +185,19 @@ namespace BatRecordingManager
                 if (reportBatList != null)
                 {
                     ReportBatStatsList = new BulkObservableCollection<BatStatistics>();
-                    ReportBatStatsList.AddRange(reportBatList.Distinct());
+                    ReportBatStatsList.AddRange(reportBatList.Where(rbl=>rbl!=null).Distinct());
                 }
 
                 if (reportSessionList != null)
                 {
                     ReportSessionList = new BulkObservableCollection<RecordingSession>();
-                    ReportSessionList.AddRange(reportSessionList.Distinct());
+                    ReportSessionList.AddRange(reportSessionList.Where(rsl=>rsl!=null).Distinct());
                 }
 
                 if (reportRecordingList != null)
                 {
                     ReportRecordingList = new BulkObservableCollection<Recording>();
-                    ReportRecordingList.AddRange(reportRecordingList.Distinct());
+                    ReportRecordingList.AddRange(reportRecordingList.Where(rrl=>rrl!=null).Distinct());
                 }
 
                 // Set data for the Test Frequency Tab

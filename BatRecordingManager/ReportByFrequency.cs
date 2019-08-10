@@ -37,6 +37,8 @@ namespace BatRecordingManager
         public BulkObservableCollection<FrequencyData> reportDataList { get; set; } =
             new BulkObservableCollection<FrequencyData>();
 
+        private BulkObservableCollection<Bat> batList { get; set; }=new BulkObservableCollection<Bat>();
+
         /// <summary>
         ///     Read only string for the label in the tab to identify this report type
         /// </summary>
@@ -58,8 +60,10 @@ namespace BatRecordingManager
 
             //binding.Source = new FrequencyData(10,new Bat(),new BulkObservableCollection<int>());
             //ReportDataGrid.SetBinding(DataGrid.ItemsSourceProperty, binding);
-
-            var aggregationPeriod = 10;
+            var bats = (from b in reportBatStatsList
+                select b.bat).Distinct();
+            batList.AddRange(bats);
+                 var aggregationPeriod = 10;
             reportDataList = SetFrequencyData(aggregationPeriod, reportSessionList);
             CreateFrequencyTable();
             ReportDataGrid.ItemsSource = reportDataList;
@@ -180,7 +184,7 @@ namespace BatRecordingManager
             recordingPeriod =
                 FrequencyData.NormalizePeriod(aggregationPeriod,
                     recordingPeriod); // 20/6/2018 22:00 - 21/6/2018 06:10:00
-
+            if ((recordingPeriod.Item2 - recordingPeriod.Item1).TotalDays > 30) return (result);// quit if we have an excessively long period i.e. greater than one month
             var indexForRecordingStartAndNumberOfPeriods =
                 GetAggregationIndeces(aggregationPeriod, recordingPeriod); //60,49
             DateTime sampleStart;
@@ -235,7 +239,8 @@ namespace BatRecordingManager
 
             if (reportSessionList != null && !reportSessionList.IsNullOrEmpty())
             {
-                var batList = DBAccess.GetBatsForTheseSessions(reportSessionList);
+                
+               // var batList = DBAccess.GetBatsForTheseSessions(reportSessionList);
                 if (batList != null)
                     // First establishes a row for each bat and fills every Occurrences/Period across the row with 0
                     foreach (var bat in batList)

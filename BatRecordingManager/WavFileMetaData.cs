@@ -218,7 +218,7 @@ namespace BatRecordingManager
                     }
 
                     var header = new byte[4];
-                    byte[] data;
+                    byte[] data = null;
                     var dataBytes = 0;
                     // WAMD_Data wamd_data = new WAMD_Data();
 
@@ -234,11 +234,26 @@ namespace BatRecordingManager
                                 header = reader.ReadBytes(4);
                                 if (header == null || header.Length != 4) break;
                                 var size = reader.ReadInt32();
+                                try
+                                {
+                                    data = reader.ReadBytes(size);
 
-                                data = reader.ReadBytes(size);
-                                if ((size & 0x0001) != 0)
-                                    // we have an odd number of bytes for size, so read the xtra null byte of padding
-                                    reader.ReadByte();
+                                }
+                                catch (Exception ex)
+                                {
+                                    Debug.WriteLine($"Tried to read to much data - {size}:-{ex}");
+                                }
+
+                                try
+                                {
+                                    if ((size & 0x0001) != 0 && reader.BaseStream.Position < reader.BaseStream.Length)
+                                        // we have an odd number of bytes for size, so read the xtra null byte of padding
+                                        reader.ReadByte();
+                                }
+                                catch (Exception) // just in case it overflows the data file
+                                {
+                                }
+
                                 var strHeader = Encoding.UTF8.GetString(header);
                                 if (strHeader == "data") dataBytes = size;
                                 if (strHeader == "wamd" && data != null)

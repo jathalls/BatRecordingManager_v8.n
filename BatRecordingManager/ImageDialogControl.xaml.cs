@@ -336,7 +336,7 @@ namespace BatRecordingManager
         ///     storedImage Dependency Property
         /// </summary>
         public static readonly DependencyProperty storedImageProperty =
-            DependencyProperty.Register("storedImage", typeof(StoredImage), typeof(ImageDialogControl),
+            DependencyProperty.Register(nameof(storedImage), typeof(StoredImage), typeof(ImageDialogControl),
                 new FrameworkPropertyMetadata(new StoredImage(null, "", "", -1)));
 
         /// <summary>

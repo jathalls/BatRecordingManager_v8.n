@@ -504,7 +504,7 @@ namespace BatRecordingManager
         ///     selectedImageProperty Dependency Property
         /// </summary>
         public static readonly DependencyProperty selectedImageProperty =
-            DependencyProperty.Register("selectedImageProperty", typeof(StoredImage), typeof(ImageScrollerControl),
+            DependencyProperty.Register(nameof(selectedImage), typeof(StoredImage), typeof(ImageScrollerControl),
                 new FrameworkPropertyMetadata(null));
 
 
@@ -563,7 +563,7 @@ namespace BatRecordingManager
         ///     IsReadOnly Dependency Property
         /// </summary>
         public static readonly DependencyProperty IsReadOnlyProperty =
-            DependencyProperty.Register("IsReadOnly", typeof(bool), typeof(ImageScrollerControl),
+            DependencyProperty.Register(nameof(IsReadOnly), typeof(bool), typeof(ImageScrollerControl),
                 new FrameworkPropertyMetadata(false));
 
         /// <summary>

@@ -92,7 +92,12 @@ namespace BatRecordingManager
             ThisRecording = null;
             FolderPath = SelectFolder();
             if (!string.IsNullOrWhiteSpace(FolderPath) && Directory.Exists(FolderPath) && !WavFileList.IsNullOrEmpty())
+            {
+
+
                 FolderSelected = true;
+                SetAudacityExportFolder(FolderPath);
+            }
         }
 
         public AnalyseAndImportClass(Recording recordingToAnalyse)
@@ -137,6 +142,8 @@ namespace BatRecordingManager
         /// <param name="folderPath"></param>
         private void SetAudacityExportFolder(string folderPath)
         {
+            string moddedFolderPath = folderPath.Replace(@"\\", @"\"); // first ensure that hte path only contains single backslashes - which it should
+            moddedFolderPath = moddedFolderPath.Replace(@"\", @"\\"); // then ensure that all backslashes are doubled for insertion into the config file
             string configFile = @"C:\audacity-win-portable\Portable Settings\audacity.cfg";
             if (File.Exists(configFile))
             {
@@ -145,7 +152,7 @@ namespace BatRecordingManager
                 {
                     if (lines[i].StartsWith("DefaultExportPath"))
                     {
-                        lines[i] = "DefaultExportPath=" + folderPath;
+                        lines[i] = "DefaultExportPath=" + moddedFolderPath;
                     }
                 }
                 File.WriteAllLines(configFile,lines);

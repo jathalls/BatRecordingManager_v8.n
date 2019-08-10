@@ -52,10 +52,14 @@ namespace BatRecordingManager
 
             foreach (var session in reportSessionList)
             {
+                if (session == null) continue;
                 var isHeaderWritten = false;
                 var allStatsForSession = session.GetStats();
                 if (!allStatsForSession.IsNullOrEmpty())
+                {
                     foreach (var batStats in reportBatStatsList)
+                    {
+                        if (batStats == null) continue;
                         if (batStats.bat != null)
                         {
                             var thisBatStatsForSession = from bs in allStatsForSession
@@ -67,6 +71,8 @@ namespace BatRecordingManager
                                 foreach (var bs in thisBatStatsForSession) statsForAllSessions.Add(bs);
                                 sessionList.Add(recnum);
                                 foreach (var recording in reportRecordingList)
+                                {
+                                    if (recording == null) continue;
                                     if (recording.RecordingSession.Id == session.Id)
                                     {
                                         var allSTatsForRecording = recording.GetStats();
@@ -74,6 +80,7 @@ namespace BatRecordingManager
                                             where bs.batCommonName == batStats.Name
                                             select bs;
                                         if (!thisBatStatsForRecording.IsNullOrEmpty())
+                                        {
                                             if (statsForAllSessions.passes > 0 &&
                                                 thisBatStatsForRecording.First().passes > 0)
                                             {
@@ -96,9 +103,13 @@ namespace BatRecordingManager
                                                 reportDataList.Add(reportData);
                                                 recnum++;
                                             }
+                                        }
                                     }
+                                }
                             }
                         }
+                    }
+                }
             }
 
             CreateTable();

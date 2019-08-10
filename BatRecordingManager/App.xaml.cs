@@ -58,6 +58,7 @@ namespace BatRecordingManager
             foreach (var arg in e.Args)
                 if (arg.Contains("nodebug") || arg.Contains("undebug"))
                     ShowDatabase = false;
+            
             base.OnStartup(e);
         }
     }

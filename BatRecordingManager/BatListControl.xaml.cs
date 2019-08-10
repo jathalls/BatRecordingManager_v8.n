@@ -213,7 +213,7 @@ namespace BatRecordingManager
         ///     SortedBatList Dependency Property
         /// </summary>
         public static readonly DependencyProperty SortedBatListProperty =
-            DependencyProperty.Register("SortedBatList", typeof(BulkObservableCollection<Bat>), typeof(BatListControl),
+            DependencyProperty.Register(nameof(SortedBatList), typeof(BulkObservableCollection<Bat>), typeof(BatListControl),
                 new FrameworkPropertyMetadata(new BulkObservableCollection<Bat>()));
 
         /// <summary>

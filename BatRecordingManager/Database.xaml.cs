@@ -27,5 +27,33 @@ namespace BatRecordingManager
         {
             InitializeComponent();
         }
+
+        /// <summary>
+        /// Scans through all RecordingSessions and Recordings and ensures that the
+        /// end time is later than the start time
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FixTimesButton_Click(object sender, RoutedEventArgs e)
+        {
+            using (new WaitCursor())
+            {
+                DBAccess.FixSessionAndRecordingTimes();
+            }
+        }
+
+        /// <summary>
+        /// Checks each recording that does not have location data and if so tries to find it in
+        /// either metadata for the recording or a related GPX file
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FixMDataButton_Click(object sender, RoutedEventArgs e)
+        {
+            using (new WaitCursor())
+            {
+                DBAccess.FixRecordingLocationData();
+            }
+        }
     }
 }

@@ -20,12 +20,17 @@ using Microsoft.Maps.MapControl.WPF;
 
 namespace BatRecordingManager
 {
+    
     /// <summary>
     ///     Interaction logic for MapControl.xaml
     /// </summary>
     public partial class MapControl : UserControl
     {
         private Location _coordinates;
+
+        private MapMode LabelMode { get; set; } = null;
+        private MapMode AerialMode { get; set; } = null;
+        private MapMode RoadMode { get; set; } = null;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="MapControl" /> class.
@@ -35,6 +40,7 @@ namespace BatRecordingManager
             InitializeComponent();
             ThisMap.Focus();
             lastInsertedPinLocation = null;
+           LabelMode = ThisMap.Mode;
         }
 
         /// <summary>
@@ -68,7 +74,7 @@ namespace BatRecordingManager
         /// </param>
         public void AddPushPin(Location pinCoordinates, string text)
         {
-            var pin = new Pushpin {Location = pinCoordinates, Content = text};
+            var pin = new Pushpin {Location = pinCoordinates, Content = text,PositionOrigin = PositionOrigin.BottomCenter};
             ThisMap.Children.Add(pin);
         }
 
@@ -77,7 +83,7 @@ namespace BatRecordingManager
         public void AddPushPin(Location location)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
-            var pin = new Pushpin {Location = location};
+            var pin = new Pushpin {Location = location,PositionOrigin = PositionOrigin.BottomCenter};
             ThisMap.Children.Add(pin);
         }
 
@@ -88,9 +94,27 @@ namespace BatRecordingManager
             var mousePosition = e.GetPosition(this);
             var pinLocation = ThisMap.ViewportPointToLocation(mousePosition);
 
-            var pin = new Pushpin {Location = pinLocation};
+            var pin = new Pushpin {Location = pinLocation,PositionOrigin = PositionOrigin.BottomCenter};
             lastInsertedPinLocation = pinLocation;
             ThisMap.Children.Add(pin);
+        }
+
+        private void AerialButton_Checked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            
+            ThisMap.Mode = new AerialMode();
+        }
+
+        private void AerialLabelButton_Checked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            
+            ThisMap.Mode = new AerialMode(true);
+        }
+
+        private void RoadButton_Checked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            
+            ThisMap.Mode = new RoadMode();
         }
     }
 }

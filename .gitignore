@@ -16,3 +16,4 @@ Properties
 *.exe
 *.mdf
 *.ldf
+/BatRecordingManager/MapResourceDictionary.xaml

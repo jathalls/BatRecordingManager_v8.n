@@ -65,7 +65,7 @@ namespace BatRecordingManager
         ///     recordingItem Dependency Property
         /// </summary>
         public static readonly DependencyProperty recordingItemProperty =
-            DependencyProperty.Register("recordingItem", typeof(Recording), typeof(RecordingItemControl),
+            DependencyProperty.Register(nameof(RecordingItem), typeof(Recording), typeof(RecordingItemControl),
                 new FrameworkPropertyMetadata(new Recording()));
 
         /// <summary>

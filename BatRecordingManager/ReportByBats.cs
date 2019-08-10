@@ -49,54 +49,69 @@ namespace BatRecordingManager
             var isHeaderWritten = false;
             reportDataList.Clear();
             foreach (var batStats in reportBatStatsList)
-            foreach (var session in reportSessionList)
             {
-                isHeaderWritten = headersWritten.Contains(session.SessionTag);
-                var allStatsForSession = session.GetStats();
-                if (!allStatsForSession.IsNullOrEmpty())
-                    if (batStats.bat != null)
+                if (batStats == null) continue;
+                foreach (var session in reportSessionList)
+                {
+                    if (session == null) continue;
+                    isHeaderWritten = headersWritten.Contains(session.SessionTag);
+                    var allStatsForSession = session.GetStats();
+                    if (!allStatsForSession.IsNullOrEmpty())
                     {
-                        var thisBatStatsForSession = from bs in allStatsForSession
-                            where bs.batCommonName == batStats.bat.Name
-                            select bs;
-                        if (!thisBatStatsForSession.IsNullOrEmpty())
+                        if (batStats.bat != null)
                         {
-                            var statsForAllSessions = new BatStats();
-                            foreach (var bs in thisBatStatsForSession) statsForAllSessions.Add(bs);
+                            var thisBatStatsForSession = from bs in allStatsForSession
+                                where bs.batCommonName == batStats.bat.Name
+                                select bs;
+                            if (!thisBatStatsForSession.IsNullOrEmpty())
+                            {
+                                var statsForAllSessions = new BatStats();
+                                foreach (var bs in thisBatStatsForSession) statsForAllSessions.Add(bs);
 
-                            foreach (var recording in reportRecordingList.Distinct())
-                                if (recording.RecordingSession.Id == session.Id)
+                                foreach (var recording in reportRecordingList.Distinct())
                                 {
-                                    var allStatsForRecording = recording.GetStats();
-                                    if (allStatsForRecording != null && allStatsForRecording.Count > 0)
+                                    if (recording == null)
                                     {
-                                        var thisBatStatsForRecording = from bs in allStatsForRecording
-                                            where bs.batCommonName == batStats.Name
-                                            select bs;
-                                        if (!thisBatStatsForRecording.IsNullOrEmpty())
-                                            if (statsForAllSessions.passes > 0 &&
-                                                thisBatStatsForRecording.First().passes > 0)
+                                        continue;
+                                    }
+
+                                    if (recording.RecordingSession.Id == session.Id)
+                                    {
+                                        var allStatsForRecording = recording.GetStats();
+                                        if (allStatsForRecording != null && allStatsForRecording.Count > 0)
+                                        {
+                                            var thisBatStatsForRecording = from bs in allStatsForRecording
+                                                where bs.batCommonName == batStats.Name
+                                                select bs;
+                                            if (!thisBatStatsForRecording.IsNullOrEmpty())
                                             {
-                                                var reportData = new ReportData();
-                                                if (!isHeaderWritten)
+                                                if (statsForAllSessions.passes > 0 &&
+                                                    thisBatStatsForRecording.First().passes > 0)
                                                 {
-                                                    reportData.sessionHeader = SetHeaderText(session);
-                                                    headersWritten.Add(session.SessionTag);
-                                                    isHeaderWritten = true;
+                                                    var reportData = new ReportData();
+                                                    if (!isHeaderWritten)
+                                                    {
+                                                        reportData.sessionHeader = SetHeaderText(session);
+                                                        headersWritten.Add(session.SessionTag);
+                                                        isHeaderWritten = true;
+                                                    }
+
+                                                    reportData.bat = batStats.bat;
+                                                    reportData.session = session;
+                                                    reportData.sessionStats = statsForAllSessions;
+                                                    reportData.recording = recording;
+
+                                                    reportData.recordingStats = thisBatStatsForRecording.First();
+                                                    reportDataList.Add(reportData);
                                                 }
-
-                                                reportData.bat = batStats.bat;
-                                                reportData.session = session;
-                                                reportData.sessionStats = statsForAllSessions;
-                                                reportData.recording = recording;
-
-                                                reportData.recordingStats = thisBatStatsForRecording.First();
-                                                reportDataList.Add(reportData);
                                             }
+                                        }
                                     }
                                 }
+                            }
                         }
                     }
+                }
             }
 
             var tmp = new BulkObservableCollection<ReportData>();

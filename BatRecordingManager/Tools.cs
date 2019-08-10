@@ -23,6 +23,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -2177,42 +2178,66 @@ namespace BatRecordingManager
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
         private string _oldStatus = "null";
-        private Cursor _previousCursor;
+        private Cursor _previousCursor = Cursors.Arrow;
+        private int Depth = 0;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
-        public WaitCursor(string status = "null")
+        public WaitCursor(string status = "null",[CallerMemberName] string caller=null,[CallerLineNumber] int linenumber=0)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             try
             {
-                
-                if (status != "null")
-                    //(App.Current.MainWindow as MainWindow).Dispatcher.Invoke((Action)delegate
-                    Application.Current.Dispatcher.Invoke(delegate
+
+                /* if (status != "null")
+                 {
+                     //(App.Current.MainWindow as MainWindow).Dispatcher.Invoke((Action)delegate
+                     //var currentMainWindow = Application.Current.MainWindow;
+                     //MainWindow window = (currentMainWindow as MainWindow);
+                     //window.Dispatcher.Invoke(delegate
+                     //{
+
+                         Debug.WriteLine("-=-=-=-=-=-=-=-=- "+status+" -=-=-=-=-=-=-=-=-");
+                         _oldStatus = MainWindow.SetStatusText(status);
+                         //Debug.WriteLine("old Status=" + oldStatus);
+                         _previousCursor = Mouse.OverrideCursor;
+                         //Debug.WriteLine("old cursor saved");
+                         Mouse.OverrideCursor = Cursors.Wait;
+                         //Debug.WriteLine("Wait cursor set");
+
+                     //});
+                 }
+                 else
+                 {*/
+
+                if (Mouse.OverrideCursor == null)
+                {
+                    var mw = (App.Current.MainWindow as MainWindow);
+                    if (mw != null)
                     {
-                        var currentMainWindow = Application.Current.MainWindow;
-                        if (currentMainWindow is MainWindow)
-                            _oldStatus = (currentMainWindow as MainWindow).SetStatusText(status);
-                        //Debug.WriteLine("old Status=" + oldStatus);
-                        _previousCursor = Mouse.OverrideCursor;
-                        //Debug.WriteLine("old cursor saved");
-                        Mouse.OverrideCursor = Cursors.Wait;
-                        //Debug.WriteLine("Wait cursor set");
-                        
-                    });
+                        mw.Dispatcher.Invoke(delegate
+                        {
+                            _previousCursor = Mouse.OverrideCursor;
+                            Mouse.OverrideCursor = Cursors.Wait;
+                            Debug.WriteLine(
+                                $"%%%%%%%%%%%%%%%%%%%%%%%%%    WAIT - from {caller} at {linenumber} - {DateTime.Now.ToLongTimeString()}");
+                        });
+                    }
+                }
                 else
-                    Application.Current.Dispatcher.Invoke(delegate
-                    {
-                        _previousCursor = Mouse.OverrideCursor;
-                        Mouse.OverrideCursor = Cursors.Wait;
-                    });
-                Application.Current.MainWindow.Dispatcher.InvokeAsync(() => { Mouse.OverrideCursor = null; },
-                    System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+                {
+                    Depth = 1;
+                    Debug.WriteLine($"No wait cursor set from {caller}");
+                }
+
+
+                //Application.Current.MainWindow.Dispatcher.InvokeAsync(() => { Mouse.OverrideCursor = _previousCursor; },
+                //System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+                //}
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("WaitCursor failed for \"" + status + "\":-" + ex.Message);
+                Debug.WriteLine("%%%%%%%%%%%%%%%%%  WaitCursor failed for \"" + status + "\":-" + ex.Message);
             }
         }
 
@@ -2232,16 +2257,36 @@ namespace BatRecordingManager
         {
             try
             {
-                Application.Current.Dispatcher.Invoke(delegate
+                if (Depth == 0)
                 {
-                    Mouse.OverrideCursor = _previousCursor ?? Cursors.Arrow;
-                });
+                    var mw = (App.Current.MainWindow as MainWindow);
+                    if (mw != null)
+                    {
+                        mw.Dispatcher.Invoke(delegate
+                        {
+                            //Mouse.OverrideCursor = _previousCursor ?? Cursors.Arrow;
+                            Mouse.OverrideCursor = null;
+                            Debug.WriteLine(
+                                $"%-%-%-%-%-%-%_%-%-%-%-%-%-- RESUME {Mouse.OverrideCursor} at {DateTime.Now.ToLongTimeString()}");
+                        });
+
+                    }
+                    else
+                    {
+                        Debug.WriteLine("No Main Window, failed to reset cursor");
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("No cursor reset");
+                }
+                /*
                 if (_oldStatus != "null")
                     //(App.Current.MainWindow as MainWindow).Dispatcher.Invoke((Action)delegate
-                    Application.Current.Dispatcher.Invoke(delegate
-                    {
-                        _oldStatus = (Application.Current.MainWindow as MainWindow).SetStatusText(_oldStatus);
-                    });
+
+                    MainWindow.SetStatusText(_oldStatus);*/
+
+
             }
             catch (Exception ex)
             {

@@ -43,6 +43,16 @@ namespace BatRecordingManager
 
         private static BatReferenceDBLinqDataContext _persistentbatReferenceDataContext;
 
+        internal static void FixSessionAndRecordingTimes()
+        {
+
+            BatReferenceDBLinqDataContext dc = GetDataContext();
+            foreach (var session in dc.RecordingSessions)
+            {
+                UpdateRecordingSession(session,dc);
+            }
+        }
+
         private static bool _isDataContextUpToDate;
 
 
@@ -73,6 +83,12 @@ namespace BatRecordingManager
             newBat = existingBat;
 
             return result;
+        }
+
+        internal static void FixRecordingLocationData()
+        {
+            /// TODO
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -2839,16 +2855,62 @@ namespace BatRecordingManager
         /// <returns></returns>
         private static Recording NormalizeRecordingTimes(Recording recording, RecordingSession session)
         {
-            if (session.SessionEndTime != null && session.SessionStartTime != null &&
-                session.SessionStartTime < session.SessionEndTime)
+            DateTime sessionStart = session.SessionDate.Date;
+            sessionStart+= session.SessionStartTime??new TimeSpan();
+
+            DateTime recordStart = (recording.RecordingDate ?? sessionStart).Date;
+            recordStart += recording.RecordingStartTime ?? sessionStart.TimeOfDay;
+
+            DateTime sessionEnd = (session.EndDate ?? sessionStart).Date;
+            sessionEnd += session.SessionEndTime ?? sessionStart.TimeOfDay.Add(recordStart.TimeOfDay+new TimeSpan(1,0,0));
+
+            
+            DateTime recordEnd = recordStart.Date;
+            if (recording.RecordingEndTime != null)
             {
-                if (!(recording.RecordingStartTime != null && recording.RecordingStartTime <= session.SessionEndTime &&
-                      recording.RecordingStartTime >= session.SessionStartTime))
-                    recording.RecordingStartTime = session.SessionStartTime;
-                if (!(recording.RecordingEndTime != null && recording.RecordingEndTime <= session.SessionEndTime &&
-                      recording.RecordingEndTime >= session.SessionStartTime))
-                    recording.RecordingEndTime = session.SessionEndTime;
+                if (recordStart.TimeOfDay.TotalMinutes > (12.0d * 60.0d) &&
+                    recording.RecordingEndTime.Value.TotalMinutes < (12.0d * 60.0d)) // starts after midday but ends before midday, so add 1 day to the date
+                {
+                    recordEnd = recordEnd.AddDays(1);
+                }
+
+                recordEnd += recording.RecordingEndTime.Value;
             }
+            else
+            {
+                recordEnd += recordStart.TimeOfDay.Add(new TimeSpan(0,4,0));
+            }
+
+            if (sessionStart > sessionEnd)
+            {
+                DateTime temp = sessionStart;
+                sessionStart = sessionEnd;
+                sessionEnd = temp;
+            }
+
+            if (recordStart > recordEnd)
+            {
+                DateTime temp = recordStart;
+                recordStart = recordEnd;
+                recordEnd = temp;
+            }
+
+            if (recordStart < sessionStart)
+            {
+                recordStart = sessionStart;
+            }
+
+            if (recordEnd > sessionEnd)
+            {
+                recordEnd = sessionEnd;
+            }
+
+
+            recording.RecordingDate = recordStart.Date;
+            recording.RecordingStartTime = recordStart.TimeOfDay;
+            recording.RecordingEndTime = recordEnd - recordStart;
+
+            
 
             return recording;
         }
@@ -2861,7 +2923,7 @@ namespace BatRecordingManager
         /// </param>
         /// <exception cref="System.NotImplementedException">
         /// </exception>
-        internal static void UpdateRecordingSession(RecordingSession sessionForFolder)
+        internal static void UpdateRecordingSession(RecordingSession sessionForFolder,BatReferenceDBLinqDataContext dc=null)
         {
             if (sessionForFolder == null)
             {
@@ -2871,8 +2933,8 @@ namespace BatRecordingManager
 
             try
             {
-                var dc = GetFastDataContext();
 
+                if (dc == null) dc = GetDataContext();
                 RecordingSession existingSession = null;
 
                 var existingSessions = from sess in dc.RecordingSessions
@@ -2888,6 +2950,7 @@ namespace BatRecordingManager
                     sessionForFolder.Weather = sessionForFolder.Weather.Truncate(120);
                     sessionForFolder.Location = sessionForFolder.Location.Truncate(120);
                     sessionForFolder.Operator = sessionForFolder.Operator.Truncate(120);
+                    NormalizeSessionDateTimes(ref sessionForFolder);
                     dc.RecordingSessions.InsertOnSubmit(sessionForFolder);
                 }
                 else
@@ -2908,6 +2971,7 @@ namespace BatRecordingManager
                     existingSession.LocationGPSLatitude = sessionForFolder.LocationGPSLatitude;
                     existingSession.LocationGPSLongitude = sessionForFolder.LocationGPSLongitude;
                     existingSession.OriginalFilePath = sessionForFolder.OriginalFilePath;
+                    NormalizeSessionDateTimes(ref existingSession);
                 }
 
                 dc.SubmitChanges();
@@ -2916,6 +2980,30 @@ namespace BatRecordingManager
             {
                 Tools.ErrorLog("Updating Session <" + sessionForFolder.SessionTag + "> - " + ex);
             }
+        }
+
+        /// <summary>
+        /// Checks validity and ordering of session dates and times
+        /// </summary>
+        /// <param name="session"></param>
+        private static void NormalizeSessionDateTimes(ref RecordingSession session)
+        {
+            if (session.EndDate == null) session.EndDate = session.SessionDate;
+            if(session.SessionStartTime==null) session.SessionStartTime=new TimeSpan(18,0,0);
+            if(session.SessionEndTime==null) session.SessionEndTime=new TimeSpan(23,59,59);
+            DateTime start = session.SessionDate.Date + session.SessionStartTime.Value;
+            DateTime end = session.EndDate.Value.Date + session.SessionEndTime.Value;
+            if (start > end)
+            {
+                DateTime temp = start;
+                start = end;
+                end = temp;
+            }
+
+            session.SessionDate = start;
+            session.EndDate = end;
+            session.SessionStartTime = start.TimeOfDay;
+            session.SessionEndTime = end.TimeOfDay;
         }
 
         /// <summary>

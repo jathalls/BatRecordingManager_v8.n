@@ -498,7 +498,7 @@ namespace BatRecordingManager
         ///     parent with the currently selected bat.
         /// </summary>
         public static readonly DependencyProperty CurrentBatProperty =
-            DependencyProperty.Register("CurrentBat", typeof(Bat), typeof(BatAndCallImageScrollerControl),
+            DependencyProperty.Register(nameof(CurrentBat), typeof(Bat), typeof(BatAndCallImageScrollerControl),
                 new FrameworkPropertyMetadata((Bat) null));
 
         /// <summary>

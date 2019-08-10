@@ -180,7 +180,7 @@ namespace BatRecordingManager
         ///     recordingSession Dependency Property
         /// </summary>
         public static readonly DependencyProperty recordingSessionProperty =
-            DependencyProperty.Register("recordingSession", typeof(RecordingSession),
+            DependencyProperty.Register(nameof(recordingSession), typeof(RecordingSession),
                 typeof(RecordingSessionEditableControl),
                 new FrameworkPropertyMetadata(new RecordingSession()));
 
@@ -323,7 +323,7 @@ namespace BatRecordingManager
         ///     selectedFolder Dependency Property
         /// </summary>
         public static readonly DependencyProperty selectedFolderProperty =
-            DependencyProperty.Register("selectedFolder", typeof(string), typeof(RecordingSessionEditableControl),
+            DependencyProperty.Register(nameof(selectedFolder), typeof(string), typeof(RecordingSessionEditableControl),
                 new FrameworkPropertyMetadata(""));
 
         /// <summary>

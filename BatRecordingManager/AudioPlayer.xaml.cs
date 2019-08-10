@@ -272,7 +272,7 @@ namespace BatRecordingManager
         ///     Frequency Dependency Property
         /// </summary>
         public static readonly DependencyProperty FrequencyProperty =
-            DependencyProperty.Register("Frequency", typeof(double), typeof(AudioPlayer),
+            DependencyProperty.Register(nameof(Frequency), typeof(double), typeof(AudioPlayer),
                 new FrameworkPropertyMetadata(50.0d));
 
         /// <summary>

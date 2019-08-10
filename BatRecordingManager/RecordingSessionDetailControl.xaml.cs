@@ -71,7 +71,7 @@ namespace BatRecordingManager
         ///     recordingSession Dependency Property
         /// </summary>
         public static readonly DependencyProperty SelectedSessionProperty =
-            DependencyProperty.Register("recordingSession", typeof(RecordingSession),
+            DependencyProperty.Register(nameof(recordingSession), typeof(RecordingSession),
                 typeof(RecordingSessionDetailControl),
                 new FrameworkPropertyMetadata(new RecordingSession()));
 

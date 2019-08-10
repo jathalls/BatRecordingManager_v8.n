@@ -349,7 +349,7 @@ namespace BatRecordingManager
         ///     newBat Dependency Property
         /// </summary>
         public static readonly DependencyProperty newBatProperty =
-            DependencyProperty.Register("newBat", typeof(Bat), typeof(EditBatForm),
+            DependencyProperty.Register(nameof(NewBat), typeof(Bat), typeof(EditBatForm),
                 new FrameworkPropertyMetadata(new Bat()));
 
         /// <summary>
