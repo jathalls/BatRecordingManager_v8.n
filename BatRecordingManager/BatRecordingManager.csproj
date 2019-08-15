@@ -802,6 +802,7 @@
     <AdditionalFiles Include="Pelfusion-Flat-Folder-Tick-Folder.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
+    <Resource Include="README-BingMaps.txt" />
     <Resource Include="License.txt" />
     <Content Include="Properties\AutoVersionUpdater.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

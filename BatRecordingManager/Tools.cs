@@ -29,6 +29,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -90,14 +91,20 @@ namespace BatRecordingManager
         /// </returns>
         public static string FormattedTimeSpan(TimeSpan time)
         {
+            TimeSpan absTime = time;
             var result = "";
             if (time != null && time.Ticks >= 0)
             {
-                time = time.Duration();
-                if (time.Hours > 0) result = result + time.Hours + "h";
-                if (time.Hours > 0 || time.Minutes > 0) result = result + time.Minutes + "'";
-                var seconds = time.Seconds + time.Milliseconds / 1000.0m;
+                absTime = time.Duration();
+                if (absTime.Hours > 0) result = result + absTime.Hours + "h";
+                if (absTime.Hours > 0 || absTime.Minutes > 0) result = result + absTime.Minutes + "'";
+                var seconds = absTime.Seconds + absTime.Milliseconds / 1000.0m;
                 result = result + $"{seconds:0.0#}\"";
+            }
+
+            if (time.Ticks<0L)
+            {
+                result = "-" + result;
             }
 
             return result;
@@ -417,11 +424,35 @@ namespace BatRecordingManager
         /// </returns>
         /// <exception cref="System.NotImplementedException">
         /// </exception>
-        internal static string FormattedSegmentLine(LabelledSegment segment)
+        internal static string FormattedSegmentLine(LabelledSegment segment,bool offsets=true)
         {
             if (segment == null) return "";
-            var result = FormattedTimeSpan(segment.StartOffset) + " - " +
-                         FormattedTimeSpan(segment.EndOffset) + " = " +
+
+            TimeSpan start = segment.StartOffset;
+            TimeSpan end = segment.EndOffset;
+            if (!offsets)
+            {
+                try
+                {
+                    var sunset = segment.Recording.RecordingSession.Sunset;
+                    if (sunset != null && segment.Recording.RecordingStartTime!=null && segment.Recording.RecordingEndTime!=null)
+                    {
+                        start = (segment.Recording.RecordingSession.SessionDate.Date+segment.Recording.RecordingStartTime.Value + segment.StartOffset - sunset.Value).TimeOfDay;
+                        end = ((segment.Recording.RecordingSession.EndDate??segment.Recording.RecordingSession.SessionDate).Date+segment.Recording.RecordingEndTime.Value + segment.StartOffset - sunset.Value).TimeOfDay;
+                    }
+                }
+                catch (Exception)
+                {
+                    start = segment.StartOffset;
+                    end = segment.EndOffset;
+                }
+            }
+            
+
+            
+            var result = (!offsets?"SS + ":"")+
+                         FormattedTimeSpan(start) + " - " +
+                         FormattedTimeSpan(end) + " = " +
                          FormattedTimeSpan(segment.EndOffset - segment.StartOffset) + "; " +
                          segment.Comment;
             var calls = DBAccess.GetCallParametersForSegment(segment);
@@ -3066,7 +3097,7 @@ namespace BatRecordingManager
     /// <summary>
     ///     Converts a LabelledSegment instance to an intelligible string for display
     /// </summary>
-    public class LabelledSegmentConverter : IValueConverter
+    public class LabelledSegmentConverter : IMultiValueConverter
     {
         /// <summary>
         ///     Converts the specified value.
@@ -3085,20 +3116,47 @@ namespace BatRecordingManager
         /// </param>
         /// <returns>
         /// </returns>
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             try
             {
                 // Here's where you put the code do handle the value conversion.
                 var result = "";
-                if (value is LabelledSegment segment)
+                bool offsets = true;
+                LabelledSegment segment = null;
+                if (values == null) return (result);
+                if (values.Length < 2) return (result);
+
+                if (values[0] != null)
                 {
-                    result = Tools.FormattedSegmentLine(segment);
-                    while (result.Trim().EndsWith("*")) result = result.Substring(0, result.Length - 1);
-                    result = result.Trim();
-                    if (!result.EndsWith(")") && segment.SegmentDatas.Count > 0)
-                        result = result + " (" + segment.SegmentDatas.Count + " images )";
+                    if (values[0] is ToggleButton)
+                    {
+                        var bt = values[0] as ToggleButton;
+                        if (bt.IsEnabled)
+                        {
+                            offsets = !bt.IsChecked ?? true;
+                        }
+                        else
+                        {
+                            offsets = true;
+                        }
+                    }
                 }
+
+                if (values[1] is LabelledSegment)
+                {
+                    segment=(LabelledSegment)values[1];
+                }
+                
+                    if (segment!=null)
+                    {
+                        result = Tools.FormattedSegmentLine(segment,offsets);
+                        while (result.Trim().EndsWith("*")) result = result.Substring(0, result.Length - 1);
+                        result = result.Trim();
+                        if (!result.EndsWith(")") && segment.SegmentDatas.Count > 0)
+                            result = result + " (" + segment.SegmentDatas.Count + " images )";
+                    }
+                
 
                 return result;
             }
@@ -3125,7 +3183,7 @@ namespace BatRecordingManager
         /// </param>
         /// <returns>
         /// </returns>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object[] ConvertBack(object value, Type[] targetType, object parameter, CultureInfo culture)
         {
             // Not implemented
             return null;

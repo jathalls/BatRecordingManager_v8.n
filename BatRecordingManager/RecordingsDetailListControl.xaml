@@ -74,6 +74,14 @@
                     Style="{StaticResource SimpleButton}"
                     ToolTip="Opens a player window and adds the selected segment to the play list"
                     Click="PlayButton_Click" />
+                <ToggleButton
+                    x:Name="OffsetsButton"
+                    Content="Re SS"
+                    Width="50"
+                    Style="{StaticResource ToggleButton}"
+                    ToolTip="Displays segment times as time after sunset instead of offset into file"
+                    IsEnabled="False" Click="OffsetsButton_Click" 
+                    />
             </StackPanel>
         </Border>
 
@@ -167,7 +175,7 @@
                                                     and the Calls button has been clicked-->
                                                     <ContentControl MouseDoubleClick="ContentControl_MouseDoubleClick">
                                                         <TextBlock
-                                                            Text="{Binding Converter={StaticResource LabelledSegmentConverter}}"
+                                                            
                                                             x:Name="LabelledSegmentTextBlock"
                                                             TextWrapping="Wrap"
                                                             Background="{Binding Path=Comment, Converter={StaticResource TextColourConverter}}"
@@ -182,6 +190,20 @@
                                                                     </TextBlock>
                                                                 </ToolTip>
                                                             </TextBlock.ToolTip>
+                                                        
+                                                            <TextBlock.Text>
+                                                                <MultiBinding Converter="{StaticResource LabelledSegmentConverter}">
+                                                                    <MultiBinding.Bindings>
+                                                                        
+                                                                        <Binding ElementName="OffsetsButton" Path="." ></Binding>
+                                                                        <Binding Path="."></Binding>
+                                                                       
+                                                                    </MultiBinding.Bindings>
+                                                                </MultiBinding>
+                                                            </TextBlock.Text>
+                                                        
+                                                            
+
                                                         </TextBlock>
                                                     </ContentControl>
                                                 </StackPanel>
@@ -197,6 +219,17 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
+        <!-- <TextBlock.Text>
+                                                                
+                                                                <MultiBinding Converter="{StaticResource LabelledSegmentConverter}">
+                                                                   <MultiBinding.Bindings>
+                                                                        
+                                                                            <Binding ElementName="OffsetsButton" Path="." ></Binding>
+                                                                            <Binding Path="."></Binding>
+                                                                       
+                                                                   </MultiBinding.Bindings>
+                                                                </MultiBinding>
+                                                            </TextBlock.Text>-->
         <!-- The recordings list is populated from code -->
     </Grid>
 </UserControl>

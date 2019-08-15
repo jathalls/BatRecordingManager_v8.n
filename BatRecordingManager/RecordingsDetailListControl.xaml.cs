@@ -70,7 +70,55 @@ namespace BatRecordingManager
             set
             {
                 _selectedSession = value;
-                Refresh();
+                if (OffsetsButton != null)
+                {
+                    OffsetsButton.IsEnabled = false;
+                    Refresh();
+                    if (_selectedSession != null)
+                    {
+                        if (_selectedSession.Sunset != null)
+                        {
+                            OffsetsButton.IsEnabled = true;
+                        }
+                        else
+                        {
+                            var sunset = SessionManager.CalculateSunset(value.SessionDate, value.LocationGPSLatitude,
+                                value.LocationGPSLongitude);
+                            _selectedSession.Sunset = sunset;
+                            if (sunset != null)
+                            {
+                                OffsetsButton.IsEnabled = true;
+                            }
+                            else
+                            {
+                                if (!recordingsList.IsNullOrEmpty())
+                                {
+                                    var rec = recordingsList.First();
+                                    if (!string.IsNullOrWhiteSpace(rec.RecordingGPSLatitude) &&
+                                        !string.IsNullOrWhiteSpace(rec.RecordingGPSLongitude))
+                                    {
+                                        if (decimal.TryParse(rec.RecordingGPSLatitude, out decimal lat) &&
+                                            decimal.TryParse(rec.RecordingGPSLongitude, out decimal longit))
+                                        {
+                                            sunset = SessionManager.CalculateSunset(value.SessionDate, (decimal?) lat,
+                                                (decimal?) longit);
+                                            if (sunset != null)
+                                            {
+                                                _selectedSession.Sunset = sunset;
+                                                OffsetsButton.IsEnabled = true;
+                                            }
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Refresh();
+                }
             }
         }
 
@@ -860,6 +908,11 @@ namespace BatRecordingManager
         private void ReviseRecordingButton_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void OffsetsButton_Click(object sender, RoutedEventArgs e)
+        {
+            Refresh();
         }
     } // End of Class RecordingDetailListControl
 
