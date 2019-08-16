@@ -15,7 +15,9 @@
 //         limitations under the License.
 
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Windows.Forms.Design;
 using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
@@ -171,6 +173,174 @@ namespace BatRecordingManager
 
 
             return result;
+        }
+    }
+
+    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+    public partial class Recording
+    {
+        private TimeSpan? _sunset = null;
+        private TimeSpan? _startAfterSunset = null;
+        private TimeSpan? _endAfterSunset = null;
+        /// <summary>
+        /// If the parent recording session has a sunset time or has a location, then this will return a timespan that is the time
+        /// after sunset on the date of the recording.  If the parent has a location but no sunset then sunset will be calculated
+        /// from the parent start date and the location.  The calculated time will be stored and returned in future to save doing
+        /// multiple calculations and checks. If the parent has no location, but the recordingdoes, then sunset will be calculated
+        /// for that location instead. If the time after sunset cannot be determined then the getter will return the normal start of
+        /// recording.
+        /// </summary>
+        public TimeSpan? startTimeAfterSunset
+        {
+            get
+            {
+                
+                if (_startAfterSunset != null) return _startAfterSunset.Value;
+                if (RecordingStartTime == null)
+                {
+                    if (RecordingSession != null)
+                    {
+                        RecordingStartTime = RecordingSession.SessionStartTime;
+                    }
+                }
+
+                if (RecordingStartTime == null) return (null);
+
+                if (sunset == null)
+                {
+                    return (RecordingStartTime.Value);
+                }
+                else
+                {
+                    if (RecordingStartTime.Value.TotalHours < 12.0d)
+                    {
+                        // the recording starts after midnight, so add the start time to (midnight-sunset)
+                        _startAfterSunset = RecordingStartTime.Value + (new TimeSpan(24, 0, 0) - sunset.Value);
+                    }
+                    else
+                    {
+                        _startAfterSunset = RecordingStartTime.Value - sunset.Value;
+                    }
+
+                    
+                    
+                    
+                }
+
+                return _startAfterSunset ?? RecordingStartTime;
+            }
+            
+        }
+
+        public TimeSpan? endAfterSunset
+        {
+            get
+            {
+                if (_endAfterSunset != null) return _endAfterSunset.Value;
+                if (RecordingEndTime == null) return (null);
+
+                if (sunset == null)
+                {
+                    return (RecordingEndTime.Value);
+                }
+                else
+                {
+
+                    if (RecordingEndTime.Value.TotalHours < 12.0d)
+                    {
+                        _endAfterSunset = RecordingEndTime.Value + (new TimeSpan(24, 0, 0) - sunset.Value);
+                    }
+                    else
+                    {
+                        _endAfterSunset = (RecordingEndTime.Value - sunset.Value);
+                    }
+
+                }
+
+                return _endAfterSunset ?? RecordingEndTime;
+            }
+        }
+
+        public TimeSpan? sunset
+        {
+            get
+            {
+                if (_sunset == null)
+                {
+                    if (RecordingSession != null)
+                    {
+                        if (RecordingSession.Sunset != null && RecordingSession.Sunset.Value.TotalMinutes>0.0d)
+                        {
+                            _sunset = RecordingSession.Sunset;
+                        }
+                        else if (RecordingSession.hasGPSLocation)
+                        {
+                            _sunset = SessionManager.CalculateSunset(RecordingSession.SessionDate.Date,
+                                RecordingSession.LocationGPSLatitude, RecordingSession.LocationGPSLongitude);
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrWhiteSpace(RecordingGPSLatitude) &&
+                                !string.IsNullOrWhiteSpace(RecordingGPSLongitude))
+                            {
+                                if (decimal.TryParse(RecordingGPSLatitude, out decimal latit) &&
+                                    decimal.TryParse(RecordingGPSLongitude, out decimal longit))
+                                {
+                                    _sunset = SessionManager.CalculateSunset(RecordingSession.SessionDate.Date, latit,
+                                        longit);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrWhiteSpace(RecordingGPSLatitude) &&
+                            !string.IsNullOrWhiteSpace(RecordingGPSLongitude))
+                        {
+                            if (decimal.TryParse(RecordingGPSLatitude, out decimal latit) &&
+                                decimal.TryParse(RecordingGPSLongitude, out decimal longit) && RecordingDate != null)
+                            {
+                                _sunset = SessionManager.CalculateSunset(RecordingDate.Value.Date, latit,
+                                    longit);
+                            }
+                        }
+                    }
+                }
+
+                return (_sunset);
+            }
+        }
+    }
+
+    //##################################################################################################################################
+
+    public partial class RecordingSession
+    {
+        private bool? _hasGPSLocation = null;
+
+        public bool hasGPSLocation
+        {
+            get
+            {
+                if (_hasGPSLocation != null) return _hasGPSLocation.Value;
+                else
+                {
+                    if (LocationGPSLatitude == null || LocationGPSLongitude == null ||
+                        (LocationGPSLatitude <= 0.0001m && LocationGPSLongitude <= 0.0001m) ||
+                        LocationGPSLatitude > 90.0m || LocationGPSLatitude < -90.0m || LocationGPSLongitude < -180.0m ||
+                        LocationGPSLongitude > 180.0m)
+                    {
+                        _hasGPSLocation = false;
+                    }
+                    else
+                    {
+                        _hasGPSLocation = true;
+                    }
+                }
+
+                return (_hasGPSLocation.Value);
+            }
         }
     }
 }

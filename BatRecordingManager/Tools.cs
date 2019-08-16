@@ -93,7 +93,7 @@ namespace BatRecordingManager
         {
             TimeSpan absTime = time;
             var result = "";
-            if (time != null && time.Ticks >= 0)
+            if (time != null )
             {
                 absTime = time.Duration();
                 if (absTime.Hours > 0) result = result + absTime.Hours + "h";
@@ -104,7 +104,7 @@ namespace BatRecordingManager
 
             if (time.Ticks<0L)
             {
-                result = "-" + result;
+                result = "(-" + result+")";
             }
 
             return result;
@@ -433,13 +433,20 @@ namespace BatRecordingManager
             if (!offsets)
             {
                 try
-                {
+                {/*
                     var sunset = segment.Recording.RecordingSession.Sunset;
                     if (sunset != null && segment.Recording.RecordingStartTime!=null && segment.Recording.RecordingEndTime!=null)
                     {
                         start = (segment.Recording.RecordingSession.SessionDate.Date+segment.Recording.RecordingStartTime.Value + segment.StartOffset - sunset.Value).TimeOfDay;
                         end = ((segment.Recording.RecordingSession.EndDate??segment.Recording.RecordingSession.SessionDate).Date+segment.Recording.RecordingEndTime.Value + segment.StartOffset - sunset.Value).TimeOfDay;
+                    }*/
+                    var recordingStartTimeAfterSunset = segment.Recording.startTimeAfterSunset;
+                    if (recordingStartTimeAfterSunset != null )
+                    {
+                        start = recordingStartTimeAfterSunset.Value + segment.StartOffset;
+                        end = recordingStartTimeAfterSunset.Value + segment.EndOffset;
                     }
+                    
                 }
                 catch (Exception)
                 {
