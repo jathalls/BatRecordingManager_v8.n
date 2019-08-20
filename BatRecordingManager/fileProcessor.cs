@@ -21,9 +21,9 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Threading;
+
 using Microsoft.VisualStudio.Language.Intellisense;
-using ThicknessConverter = Xceed.Wpf.DataGrid.Converters.ThicknessConverter;
+
 
 namespace BatRecordingManager
 {

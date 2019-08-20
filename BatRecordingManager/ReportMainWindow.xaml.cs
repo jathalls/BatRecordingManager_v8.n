@@ -48,10 +48,10 @@ namespace BatRecordingManager
         public FrequencyData(int aggregationPeriod, Bat bat, BulkObservableCollection<int> occurrencesPerPeriod)
         {
             AggregationPeriod = aggregationPeriod;
-            var periods = (int) Math.Floor(1440.0m / aggregationPeriod);
+            var periods = (int) Math.Floor(1440.0m / aggregationPeriod);// periods per daya
             this.bat = bat;
-            OccurrencesPerPeriod = occurrencesPerPeriod ?? new BulkObservableCollection<int>();
-            while (OccurrencesPerPeriod.Count < periods) OccurrencesPerPeriod.Add(0);
+            OccurrencesPerPeriod = occurrencesPerPeriod ?? new BulkObservableCollection<int>();// set internal array to that provided or an empty one
+            while (OccurrencesPerPeriod.Count < periods) OccurrencesPerPeriod.Add(0); // pad the internal array to the correct size if necessary
         }
 
         /// <summary>
@@ -72,41 +72,7 @@ namespace BatRecordingManager
 
         public string sessionHeader { get; set; } = "";
 
-        /// <summary>
-        ///     given a period in the form of two dateTimes, adjusts those values to start and end at exact
-        ///     multiples of the Aggregation period in seconds, starting at midday;
-        /// </summary>
-        /// <param name="aggregationPeriod"></param>
-        /// <param name="recordingPeriod"></param>
-        internal static Tuple<DateTime, DateTime> NormalizePeriod(int aggregationPeriod, Tuple<DateTime, DateTime> rp)
-        {
-            var result = rp;
-            var normalizedItem1 = false;
-            var normalizedItem2 = false;
-            for (var dt = new DateTime();
-                dt < new DateTime() + new TimeSpan(24, 0, 0);
-                dt = dt + new TimeSpan(0, aggregationPeriod, 0))
-            {
-                //from midnight for 24 hours insteps of AggregationPeriod
-                if (!normalizedItem1 && rp.Item1.TimeOfDay < dt.TimeOfDay)
-                {
-                    // have gone past start time
-                    result = new Tuple<DateTime, DateTime>(
-                        rp.Item1.Date + (dt.TimeOfDay - new TimeSpan(0, aggregationPeriod, 0)), result.Item2);
-                    normalizedItem1 = true;
-                }
-
-                if (!normalizedItem2 && rp.Item2.TimeOfDay < dt.TimeOfDay)
-                {
-                    result = new Tuple<DateTime, DateTime>(result.Item1, rp.Item2.Date + dt.TimeOfDay);
-                    normalizedItem2 = true;
-                }
-
-                if (normalizedItem1 && normalizedItem2) return result;
-            }
-
-            return result;
-        }
+        
     }
 
     /************************************************************************************************************************************/

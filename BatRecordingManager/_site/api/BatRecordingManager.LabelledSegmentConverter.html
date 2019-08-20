@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class LabelledSegmentConverter
    ">
-    <meta name="generator" content="docfx 2.29.1.0">
+    <meta name="generator" content="docfx 2.44.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -22,7 +22,7 @@
     
     
   </head>
-  <body data-spy="scroll" data-target="#affix">
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
     <div id="wrapper">
       <header>
         
@@ -83,7 +83,7 @@
   </div>
   <div classs="implements">
     <h5>Implements</h5>
-    <div><span class="xref">System.Windows.Data.IValueConverter</span></div>
+    <div><span class="xref">System.Windows.Data.IMultiValueConverter</span></div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
@@ -113,25 +113,25 @@
   <h6><strong>Assembly</strong>: BatRecordingManager.dll</h6>
   <h5 id="BatRecordingManager_LabelledSegmentConverter_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class LabelledSegmentConverter : IValueConverter</code></pre>
+    <pre><code class="lang-csharp hljs">public class LabelledSegmentConverter : IMultiValueConverter</code></pre>
   </div>
   <h3 id="methods">Methods
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_LabelledSegmentConverter_Convert_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_.md&amp;value=---%0Auid%3A%20BatRecordingManager.LabelledSegmentConverter.Convert(System.Object%2CSystem.Type%2CSystem.Object%2CSystem.Globalization.CultureInfo)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_LabelledSegmentConverter_Convert_System_Object___System_Type_System_Object_System_Globalization_CultureInfo_.md&amp;value=---%0Auid%3A%20BatRecordingManager.LabelledSegmentConverter.Convert(System.Object%5B%5D%2CSystem.Type%2CSystem.Object%2CSystem.Globalization.CultureInfo)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/Tools.cs/#L2906">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/Tools.cs/#L3126">View Source</a>
   </span>
   <a id="BatRecordingManager_LabelledSegmentConverter_Convert_" data-uid="BatRecordingManager.LabelledSegmentConverter.Convert*"></a>
-  <h4 id="BatRecordingManager_LabelledSegmentConverter_Convert_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_" data-uid="BatRecordingManager.LabelledSegmentConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">Convert(Object, Type, Object, CultureInfo)</h4>
+  <h4 id="BatRecordingManager_LabelledSegmentConverter_Convert_System_Object___System_Type_System_Object_System_Globalization_CultureInfo_" data-uid="BatRecordingManager.LabelledSegmentConverter.Convert(System.Object[],System.Type,System.Object,System.Globalization.CultureInfo)">Convert(Object[], Type, Object, CultureInfo)</h4>
   <div class="markdown level1 summary"><p>Converts the specified value.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public object Convert(object value, Type targetType, object parameter, CultureInfo culture)</code></pre>
+    <pre><code class="lang-csharp hljs">public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -144,10 +144,9 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Object</span></td>
-        <td><span class="parametername">value</span></td>
-        <td><p>The value.</p>
-</td>
+        <td><span class="xref">System.Object</span>[]</td>
+        <td><span class="parametername">values</span></td>
+        <td></td>
       </tr>
       <tr>
         <td><span class="xref">System.Type</span></td>
@@ -186,19 +185,19 @@
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_LabelledSegmentConverter_ConvertBack_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_.md&amp;value=---%0Auid%3A%20BatRecordingManager.LabelledSegmentConverter.ConvertBack(System.Object%2CSystem.Type%2CSystem.Object%2CSystem.Globalization.CultureInfo)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_LabelledSegmentConverter_ConvertBack_System_Object_System_Type___System_Object_System_Globalization_CultureInfo_.md&amp;value=---%0Auid%3A%20BatRecordingManager.LabelledSegmentConverter.ConvertBack(System.Object%2CSystem.Type%5B%5D%2CSystem.Object%2CSystem.Globalization.CultureInfo)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/Tools.cs/#L2951">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/Tools.cs/#L3193">View Source</a>
   </span>
   <a id="BatRecordingManager_LabelledSegmentConverter_ConvertBack_" data-uid="BatRecordingManager.LabelledSegmentConverter.ConvertBack*"></a>
-  <h4 id="BatRecordingManager_LabelledSegmentConverter_ConvertBack_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_" data-uid="BatRecordingManager.LabelledSegmentConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">ConvertBack(Object, Type, Object, CultureInfo)</h4>
+  <h4 id="BatRecordingManager_LabelledSegmentConverter_ConvertBack_System_Object_System_Type___System_Object_System_Globalization_CultureInfo_" data-uid="BatRecordingManager.LabelledSegmentConverter.ConvertBack(System.Object,System.Type[],System.Object,System.Globalization.CultureInfo)">ConvertBack(Object, Type[], Object, CultureInfo)</h4>
   <div class="markdown level1 summary"><p>ConvertBack not implemented</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)</code></pre>
+    <pre><code class="lang-csharp hljs">public object[] ConvertBack(object value, Type[] targetType, object parameter, CultureInfo culture)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -217,7 +216,7 @@
 </td>
       </tr>
       <tr>
-        <td><span class="xref">System.Type</span></td>
+        <td><span class="xref">System.Type</span>[]</td>
         <td><span class="parametername">targetType</span></td>
         <td><p>Type of the target.</p>
 </td>
@@ -246,14 +245,14 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Object</span></td>
+        <td><span class="xref">System.Object</span>[]</td>
         <td></td>
       </tr>
     </tbody>
   </table>
   <h3 id="implements">Implements</h3>
   <div>
-      <span class="xref">System.Windows.Data.IValueConverter</span>
+      <span class="xref">System.Windows.Data.IMultiValueConverter</span>
   </div>
 </article>
           </div>
@@ -263,10 +262,10 @@
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_LabelledSegmentConverter.md&amp;value=---%0Auid%3A%20BatRecordingManager.LabelledSegmentConverter%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_LabelledSegmentConverter.md&amp;value=---%0Auid%3A%20BatRecordingManager.LabelledSegmentConverter%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/Tools.cs/#L2887" class="contribution-link">View Source</a>
+                    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/Tools.cs/#L3107" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>
@@ -286,7 +285,7 @@
               <a href="#top">Back to top</a>
             </span>
             
-            <span>Copyright © 2015-2017 Microsoft<br>Generated by <strong>DocFX</strong></span>
+            <span>Generated by <strong>DocFX</strong></span>
           </div>
         </div>
       </footer>

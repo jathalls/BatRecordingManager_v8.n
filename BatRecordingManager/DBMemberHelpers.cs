@@ -15,6 +15,7 @@
 //         limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms.Design;
@@ -53,6 +54,57 @@ namespace BatRecordingManager
 
 
             return filename;
+        }
+
+        public static bool FrequencyContributions(this LabelledSegment segment,out int FirstBlock,out List<int> OccupiedMinutesPerBlock,
+            double startTimeInMinutes=12.0d*60.0d, int BlockSize = 10)
+        {
+            FirstBlock = -1;
+            int BlockSizeSeconds = BlockSize * 60;
+            int startTimeInSeconds = (int) (startTimeInMinutes * 60.0d);
+            OccupiedMinutesPerBlock=new List<int>();
+            if ((segment.Duration() ?? new TimeSpan()).TotalSeconds <= 0.0d) return (false);
+
+            if (segment.Recording == null) return false;
+            if (segment.Recording.RecordingStartTime == null) return false;
+            var segmentStartSeconds = (int)((segment.Recording.RecordingStartTime.Value + segment.StartOffset).TotalSeconds) -
+                               startTimeInSeconds;
+            FirstBlock = ((int) (segmentStartSeconds)) / BlockSizeSeconds;
+
+            int segStart = segmentStartSeconds;
+            if (segStart < 0) segStart += 24 * 60*60;
+            var segEnd = segStart + (int)(segment.Duration().Value.TotalSeconds);
+            Debug.WriteLine($"\nFrom {segStart} to {segEnd}");
+
+            int thisBlockStartSeconds = FirstBlock * BlockSizeSeconds;
+            int thisBlockEndSeconds = thisBlockStartSeconds + BlockSizeSeconds;
+            while(
+                segStart < segEnd)
+                
+            {
+                Debug.WriteLine($"blockstart={thisBlockStartSeconds}, segStart={segStart}");
+                if (thisBlockStartSeconds > segStart) break;
+                int diff =  thisBlockEndSeconds-segStart;// ie segstart to the end of the block
+                Debug.WriteLine($"diff = {diff}");
+                if (thisBlockEndSeconds >= segEnd)
+                {
+                    diff -= thisBlockEndSeconds - segEnd;// minus the end of the segment to the end of the block
+                }
+
+                int wholeMinutes = diff / 60;
+                int surplusSeconds = diff % 60;
+                diff = wholeMinutes + (surplusSeconds > 0 ? 1 : 0);
+                
+                if (diff <= 0) diff = 1;
+                Debug.WriteLine($"Corrected diff={diff}");
+                OccupiedMinutesPerBlock.Add(diff);
+                Debug.WriteLine("Added to OccupiedMinutes\n");
+                thisBlockStartSeconds = thisBlockEndSeconds;
+                thisBlockEndSeconds += BlockSizeSeconds;
+                segStart = thisBlockStartSeconds;
+            }
+
+            return (true);
         }
 
 

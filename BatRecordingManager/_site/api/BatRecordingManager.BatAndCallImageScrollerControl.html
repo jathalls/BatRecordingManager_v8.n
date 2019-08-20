@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class BatAndCallImageScrollerControl
    ">
-    <meta name="generator" content="docfx 2.29.1.0">
+    <meta name="generator" content="docfx 2.44.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -22,7 +22,7 @@
     
     
   </head>
-  <body data-spy="scroll" data-target="#affix">
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
     <div id="wrapper">
       <header>
         
@@ -77,18 +77,18 @@
 designed to handle the images associated with a specific bat
 in the form of a list of bat images and a several lists of images
 each associated with a specific call type of that bat.  The bat
-images are storedin a list called BatImages and there is a 
+images are storedin a list called BatImages and there is a
 list of lists of images for the associated call images.
 The constructor is parameterless and the spcific bat instance
 should be set usig the CurrentBat property.  Image lists and handling
-are then handeled internally and the parent class only needs to 
+are then handeled internally and the parent class only needs to
 ensure that the CurrentBat is kept up to date.  The parent class
 is responsible for saving the bat and its images to the database
-if required.</p>
-<p>More generally the control is used widely and simply contains two sets of images.
+if required.
+More generally the control is used widely and simply contains two sets of images.
 BatImages are displayed if ImageScrollerDisplaysBatImages is true
-CallImageList is displayed if ImageScrollerDisplaysBatImages is false</p>
-<p>The control may be set to be readonly in which case the add/edit/delete
+CallImageList is displayed if ImageScrollerDisplaysBatImages is false
+The control may be set to be readonly in which case the add/edit/delete
 buttons will not be visible.</p>
 </div>
   <div class="markdown level0 conceptual"></div>
@@ -114,27 +114,17 @@ buttons will not be visible.</p>
     <div><span class="xref">System.ComponentModel.ISupportInitialize</span></div>
     <div><span class="xref">System.Windows.Markup.IQueryAmbient</span></div>
     <div><span class="xref">System.Windows.Markup.IAddChild</span></div>
-    <div><span class="xref">System.Windows.Markup.IComponentConnector</span></div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
     <div>
-      <a class="xref" href="BatRecordingManager.ImageScrollerControl.html#BatRecordingManager_ImageScrollerControl_selectedImageProperty">ImageScrollerControl.selectedImageProperty</a>
-    </div>
-    <div>
-      <a class="xref" href="BatRecordingManager.ImageScrollerControl.html#BatRecordingManager_ImageScrollerControl_selectedImage">ImageScrollerControl.selectedImage</a>
-    </div>
-    <div>
       <a class="xref" href="BatRecordingManager.ImageScrollerControl.html#BatRecordingManager_ImageScrollerControl_imageList">ImageScrollerControl.imageList</a>
     </div>
     <div>
-      <a class="xref" href="BatRecordingManager.ImageScrollerControl.html#BatRecordingManager_ImageScrollerControl_IsReadOnlyProperty">ImageScrollerControl.IsReadOnlyProperty</a>
-    </div>
-    <div>
-      <a class="xref" href="BatRecordingManager.ImageScrollerControl.html#BatRecordingManager_ImageScrollerControl_IsReadOnly">ImageScrollerControl.IsReadOnly</a>
-    </div>
-    <div>
       <a class="xref" href="BatRecordingManager.ImageScrollerControl.html#BatRecordingManager_ImageScrollerControl_IsEditable">ImageScrollerControl.IsEditable</a>
+    </div>
+    <div>
+      <a class="xref" href="BatRecordingManager.ImageScrollerControl.html#BatRecordingManager_ImageScrollerControl_Title">ImageScrollerControl.Title</a>
     </div>
     <div>
       <a class="xref" href="BatRecordingManager.ImageScrollerControl.html#BatRecordingManager_ImageScrollerControl_imageIndex">ImageScrollerControl.imageIndex</a>
@@ -146,13 +136,28 @@ buttons will not be visible.</p>
       <a class="xref" href="BatRecordingManager.ImageScrollerControl.html#BatRecordingManager_ImageScrollerControl_DeleteImage">ImageScrollerControl.DeleteImage()</a>
     </div>
     <div>
-      <a class="xref" href="BatRecordingManager.ImageScrollerControl.html#BatRecordingManager_ImageScrollerControl_ButtonPressed">ImageScrollerControl.ButtonPressed</a>
+      <a class="xref" href="BatRecordingManager.ImageScrollerControl.html#BatRecordingManager_ImageScrollerControl_e_ButtonPressed">ImageScrollerControl.e_ButtonPressed</a>
     </div>
     <div>
       <a class="xref" href="BatRecordingManager.ImageScrollerControl.html#BatRecordingManager_ImageScrollerControl_OnButtonPressed_BatRecordingManager_ButtonPressedEventArgs_">ImageScrollerControl.OnButtonPressed(ButtonPressedEventArgs)</a>
     </div>
     <div>
-      <a class="xref" href="BatRecordingManager.ImageScrollerControl.html#BatRecordingManager_ImageScrollerControl_InitializeComponent">ImageScrollerControl.InitializeComponent()</a>
+      <a class="xref" href="BatRecordingManager.ImageScrollerControl.html#BatRecordingManager_ImageScrollerControl_e_ImageDeleted">ImageScrollerControl.e_ImageDeleted</a>
+    </div>
+    <div>
+      <a class="xref" href="BatRecordingManager.ImageScrollerControl.html#BatRecordingManager_ImageScrollerControl_OnImageDeleted_System_EventArgs_">ImageScrollerControl.OnImageDeleted(EventArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="BatRecordingManager.ImageScrollerControl.html#BatRecordingManager_ImageScrollerControl_selectedImageProperty">ImageScrollerControl.selectedImageProperty</a>
+    </div>
+    <div>
+      <a class="xref" href="BatRecordingManager.ImageScrollerControl.html#BatRecordingManager_ImageScrollerControl_selectedImage">ImageScrollerControl.selectedImage</a>
+    </div>
+    <div>
+      <a class="xref" href="BatRecordingManager.ImageScrollerControl.html#BatRecordingManager_ImageScrollerControl_IsReadOnlyProperty">ImageScrollerControl.IsReadOnlyProperty</a>
+    </div>
+    <div>
+      <a class="xref" href="BatRecordingManager.ImageScrollerControl.html#BatRecordingManager_ImageScrollerControl_IsReadOnly">ImageScrollerControl.IsReadOnly</a>
     </div>
     <div>
       <span class="xref">System.Windows.Controls.UserControl.OnCreateAutomationPeer()</span>
@@ -2028,16 +2033,16 @@ buttons will not be visible.</p>
   <h6><strong>Assembly</strong>: BatRecordingManager.dll</h6>
   <h5 id="BatRecordingManager_BatAndCallImageScrollerControl_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class BatAndCallImageScrollerControl : ImageScrollerControl, DUCE.IResource, IAnimatable, IFrameworkInputElement, IInputElement, ISupportInitialize, IHaveResources, IQueryAmbient, IAddChild, IComponentConnector</code></pre>
+    <pre><code class="lang-csharp hljs">public class BatAndCallImageScrollerControl : ImageScrollerControl, DUCE.IResource, IAnimatable, IFrameworkInputElement, IInputElement, ISupportInitialize, IHaveResources, IQueryAmbient, IAddChild</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl__ctor.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.%23ctor%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl__ctor.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.%23ctor%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L335">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L63">View Source</a>
   </span>
   <a id="BatRecordingManager_BatAndCallImageScrollerControl__ctor_" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.#ctor*"></a>
   <h4 id="BatRecordingManager_BatAndCallImageScrollerControl__ctor" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.#ctor">BatAndCallImageScrollerControl()</h4>
@@ -2056,10 +2061,10 @@ operation buttons.</p>
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_CurrentBatProperty.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.CurrentBatProperty%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_CurrentBatProperty.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.CurrentBatProperty%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L42">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L500">View Source</a>
   </span>
   <h4 id="BatRecordingManager_BatAndCallImageScrollerControl_CurrentBatProperty" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.CurrentBatProperty">CurrentBatProperty</h4>
   <div class="markdown level1 summary"><p>CurrentBat Dependency Property.  This property must be updated by the
@@ -2085,78 +2090,18 @@ parent with the currently selected bat.</p>
       </tr>
     </tbody>
   </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_defaultCaption.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.defaultCaption%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L133">View Source</a>
-  </span>
-  <h4 id="BatRecordingManager_BatAndCallImageScrollerControl_defaultCaption" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.defaultCaption">defaultCaption</h4>
-  <div class="markdown level1 summary"><p>default caption to be displayed if no other is available</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string defaultCaption</code></pre>
-  </div>
-  <h5 class="fieldValue">Field Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.String</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_defaultDescription.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.defaultDescription%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L138">View Source</a>
-  </span>
-  <h4 id="BatRecordingManager_BatAndCallImageScrollerControl_defaultDescription" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.defaultDescription">defaultDescription</h4>
-  <div class="markdown level1 summary"><p>default description to be displayed if no other is available</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string defaultDescription</code></pre>
-  </div>
-  <h5 class="fieldValue">Field Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.String</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
   <h3 id="properties">Properties
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_BatImages.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.BatImages%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_BatImages.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.BatImages%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L112">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L83">View Source</a>
   </span>
   <a id="BatRecordingManager_BatAndCallImageScrollerControl_BatImages_" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.BatImages*"></a>
   <h4 id="BatRecordingManager_BatAndCallImageScrollerControl_BatImages" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.BatImages">BatImages</h4>
-  <div class="markdown level1 summary"><p>The set of images to be displayed if ImageScrollerDisplaysBatImages is true  </p>
+  <div class="markdown level1 summary"><p>The set of images to be displayed if ImageScrollerDisplaysBatImages is true</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -2180,10 +2125,10 @@ parent with the currently selected bat.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_CallImageList.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.CallImageList%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_CallImageList.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.CallImageList%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L118">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L89">View Source</a>
   </span>
   <a id="BatRecordingManager_BatAndCallImageScrollerControl_CallImageList_" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.CallImageList*"></a>
   <h4 id="BatRecordingManager_BatAndCallImageScrollerControl_CallImageList" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.CallImageList">CallImageList</h4>
@@ -2212,10 +2157,10 @@ ListOfCallImageLists and the index into that list in SelectedCallIndex</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_CallList.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.CallList%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_CallList.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.CallList%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L299">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L95">View Source</a>
   </span>
   <a id="BatRecordingManager_BatAndCallImageScrollerControl_CallList_" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.CallList*"></a>
   <h4 id="BatRecordingManager_BatAndCallImageScrollerControl_CallList" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.CallList">CallList</h4>
@@ -2243,10 +2188,10 @@ ListOfCallImageLists and the index into that list in SelectedCallIndex</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_CanAdd.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.CanAdd%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_CanAdd.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.CanAdd%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L306">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L101">View Source</a>
   </span>
   <a id="BatRecordingManager_BatAndCallImageScrollerControl_CanAdd_" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.CanAdd*"></a>
   <h4 id="BatRecordingManager_BatAndCallImageScrollerControl_CanAdd" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.CanAdd">CanAdd</h4>
@@ -2275,14 +2220,14 @@ Controls the visibility of the AddImageButton</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_CurrentBat.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.CurrentBat%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_CurrentBat.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.CurrentBat%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L50">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L508">View Source</a>
   </span>
   <a id="BatRecordingManager_BatAndCallImageScrollerControl_CurrentBat_" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.CurrentBat*"></a>
   <h4 id="BatRecordingManager_BatAndCallImageScrollerControl_CurrentBat" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.CurrentBat">CurrentBat</h4>
-  <div class="markdown level1 summary"><p>Gets or sets the CurrentBat property.  This dependency property 
+  <div class="markdown level1 summary"><p>Gets or sets the CurrentBat property.  This dependency property
 indicates ....</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -2307,10 +2252,72 @@ indicates ....</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_ImageScrollerDisplaysBatImages.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.ImageScrollerDisplaysBatImages%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_defaultCaption.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.defaultCaption%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L251">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L73">View Source</a>
+  </span>
+  <a id="BatRecordingManager_BatAndCallImageScrollerControl_defaultCaption_" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.defaultCaption*"></a>
+  <h4 id="BatRecordingManager_BatAndCallImageScrollerControl_defaultCaption" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.defaultCaption">defaultCaption</h4>
+  <div class="markdown level1 summary"><p>default caption to be displayed if no other is available</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string defaultCaption { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_defaultDescription.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.defaultDescription%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L78">View Source</a>
+  </span>
+  <a id="BatRecordingManager_BatAndCallImageScrollerControl_defaultDescription_" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.defaultDescription*"></a>
+  <h4 id="BatRecordingManager_BatAndCallImageScrollerControl_defaultDescription" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.defaultDescription">defaultDescription</h4>
+  <div class="markdown level1 summary"><p>default description to be displayed if no other is available</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string defaultDescription { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_ImageScrollerDisplaysBatImages.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.ImageScrollerDisplaysBatImages%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L125">View Source</a>
   </span>
   <a id="BatRecordingManager_BatAndCallImageScrollerControl_ImageScrollerDisplaysBatImages_" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.ImageScrollerDisplaysBatImages*"></a>
   <h4 id="BatRecordingManager_BatAndCallImageScrollerControl_ImageScrollerDisplaysBatImages" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.ImageScrollerDisplaysBatImages">ImageScrollerDisplaysBatImages</h4>
@@ -2339,10 +2346,10 @@ from the ListOfCallImageLists by Selected CallList</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_ListofCallImageLists.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.ListofCallImageLists%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_ListofCallImageLists.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.ListofCallImageLists%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L123">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L179">View Source</a>
   </span>
   <a id="BatRecordingManager_BatAndCallImageScrollerControl_ListofCallImageLists_" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.ListofCallImageLists*"></a>
   <h4 id="BatRecordingManager_BatAndCallImageScrollerControl_ListofCallImageLists" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.ListofCallImageLists">ListofCallImageLists</h4>
@@ -2370,10 +2377,10 @@ from the ListOfCallImageLists by Selected CallList</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_ListOfCaptionAndDescription.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.ListOfCaptionAndDescription%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_ListOfCaptionAndDescription.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.ListOfCaptionAndDescription%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L128">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L185">View Source</a>
   </span>
   <a id="BatRecordingManager_BatAndCallImageScrollerControl_ListOfCaptionAndDescription_" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.ListOfCaptionAndDescription*"></a>
   <h4 id="BatRecordingManager_BatAndCallImageScrollerControl_ListOfCaptionAndDescription" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.ListOfCaptionAndDescription">ListOfCaptionAndDescription</h4>
@@ -2401,10 +2408,10 @@ from the ListOfCallImageLists by Selected CallList</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_SelectedCallIndex.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.SelectedCallIndex%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_SelectedCallIndex.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.SelectedCallIndex%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L153">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L195">View Source</a>
   </span>
   <a id="BatRecordingManager_BatAndCallImageScrollerControl_SelectedCallIndex_" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.SelectedCallIndex*"></a>
   <h4 id="BatRecordingManager_BatAndCallImageScrollerControl_SelectedCallIndex" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.SelectedCallIndex">SelectedCallIndex</h4>
@@ -2439,10 +2446,10 @@ as well as setting the states of the Prev and Next  Call Buttons</p>
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_Clear.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.Clear%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_Clear.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.Clear%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L374">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L274">View Source</a>
   </span>
   <a id="BatRecordingManager_BatAndCallImageScrollerControl_Clear_" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.Clear*"></a>
   <h4 id="BatRecordingManager_BatAndCallImageScrollerControl_Clear" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.Clear">Clear()</h4>
@@ -2455,10 +2462,44 @@ as well as setting the states of the Prev and Next  Call Buttons</p>
   </div>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_Update.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.Update%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_OnUnassociatedImage_System_EventArgs_.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.OnUnassociatedImage(System.EventArgs)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L497">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L591">View Source</a>
+  </span>
+  <a id="BatRecordingManager_BatAndCallImageScrollerControl_OnUnassociatedImage_" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.OnUnassociatedImage*"></a>
+  <h4 id="BatRecordingManager_BatAndCallImageScrollerControl_OnUnassociatedImage_System_EventArgs_" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.OnUnassociatedImage(System.EventArgs)">OnUnassociatedImage(EventArgs)</h4>
+  <div class="markdown level1 summary"><p>Raises the <a class="xref" href="BatRecordingManager.BatAndCallImageScrollerControl.html#BatRecordingManager_BatAndCallImageScrollerControl_e_UnassociatedImage">e_UnassociatedImage</a> event.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected virtual void OnUnassociatedImage(EventArgs e)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventArgs</span></td>
+        <td><span class="parametername">e</span></td>
+        <td><p><span class="xref">System.EventArgs</span> object that provides the arguments for the event.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_Update.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.Update%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L291">View Source</a>
   </span>
   <a id="BatRecordingManager_BatAndCallImageScrollerControl_Update_" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.Update*"></a>
   <h4 id="BatRecordingManager_BatAndCallImageScrollerControl_Update" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.Update">Update()</h4>
@@ -2471,6 +2512,38 @@ the base ImageScroller&apos;s imageList.</p>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public void Update()</code></pre>
   </div>
+  <h3 id="events">Events
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl_e_UnassociatedImage.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl.e_UnassociatedImage%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L569">View Source</a>
+  </span>
+  <h4 id="BatRecordingManager_BatAndCallImageScrollerControl_e_UnassociatedImage" data-uid="BatRecordingManager.BatAndCallImageScrollerControl.e_UnassociatedImage">e_UnassociatedImage</h4>
+  <div class="markdown level1 summary"><p>Event raised after the  property value has changed.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;EventArgs&gt; e_UnassociatedImage</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventHandler</span>&lt;<span class="xref">System.EventArgs</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
   <h3 id="implements">Implements</h3>
   <div>
       <span class="xref">System.Windows.Media.Animation.IAnimatable</span>
@@ -2490,8 +2563,9 @@ the base ImageScroller&apos;s imageList.</p>
   <div>
       <span class="xref">System.Windows.Markup.IAddChild</span>
   </div>
+  <h3 id="extensionmethods">Extension Methods</h3>
   <div>
-      <span class="xref">System.Windows.Markup.IComponentConnector</span>
+      <a class="xref" href="BatRecordingManager.ImageExtensions.html#BatRecordingManager_ImageExtensions_Refresh_System_Windows_UIElement_">ImageExtensions.Refresh(UIElement)</a>
   </div>
 </article>
           </div>
@@ -2501,10 +2575,10 @@ the base ImageScroller&apos;s imageList.</p>
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_BatAndCallImageScrollerControl.md&amp;value=---%0Auid%3A%20BatRecordingManager.BatAndCallImageScrollerControl%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L34" class="contribution-link">View Source</a>
+                    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/BatAndCallImageScrollerControl.cs/#L45" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>
@@ -2524,7 +2598,7 @@ the base ImageScroller&apos;s imageList.</p>
               <a href="#top">Back to top</a>
             </span>
             
-            <span>Copyright © 2015-2017 Microsoft<br>Generated by <strong>DocFX</strong></span>
+            <span>Generated by <strong>DocFX</strong></span>
           </div>
         </div>
       </footer>

@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Namespace BatRecordingManager
    ">
-    <meta name="generator" content="docfx 2.29.1.0">
+    <meta name="generator" content="docfx 2.44.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -22,7 +22,7 @@
     
     
   </head>
-  <body data-spy="scroll" data-target="#affix">
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
     <div id="wrapper">
       <header>
         
@@ -86,6 +86,12 @@
       <h4><a class="xref" href="BatRecordingManager.App.html">App</a></h4>
       <section><p>Interaction logic for App.xaml</p>
 </section>
+      <h4><a class="xref" href="BatRecordingManager.AudioHost.html">AudioHost</a></h4>
+      <section><p>Host class for the AudioPlayer window</p>
+</section>
+      <h4><a class="xref" href="BatRecordingManager.AudioPlayer.html">AudioPlayer</a></h4>
+      <section><p>Interaction logic for AudioPlayerIK.xaml</p>
+</section>
       <h4><a class="xref" href="BatRecordingManager.Bat.html">Bat</a></h4>
       <section></section>
       <h4><a class="xref" href="BatRecordingManager.BatAndCallImageScrollerControl.html">BatAndCallImageScrollerControl</a></h4>
@@ -93,18 +99,18 @@
 designed to handle the images associated with a specific bat
 in the form of a list of bat images and a several lists of images
 each associated with a specific call type of that bat.  The bat
-images are storedin a list called BatImages and there is a 
+images are storedin a list called BatImages and there is a
 list of lists of images for the associated call images.
 The constructor is parameterless and the spcific bat instance
 should be set usig the CurrentBat property.  Image lists and handling
-are then handeled internally and the parent class only needs to 
+are then handeled internally and the parent class only needs to
 ensure that the CurrentBat is kept up to date.  The parent class
 is responsible for saving the bat and its images to the database
-if required.</p>
-<p>More generally the control is used widely and simply contains two sets of images.
+if required.
+More generally the control is used widely and simply contains two sets of images.
 BatImages are displayed if ImageScrollerDisplaysBatImages is true
-CallImageList is displayed if ImageScrollerDisplaysBatImages is false</p>
-<p>The control may be set to be readonly in which case the add/edit/delete
+CallImageList is displayed if ImageScrollerDisplaysBatImages is false
+The control may be set to be readonly in which case the add/edit/delete
 buttons will not be visible.</p>
 </section>
       <h4><a class="xref" href="BatRecordingManager.BatCall.html">BatCall</a></h4>
@@ -139,6 +145,8 @@ buttons will not be visible.</p>
 that the combined object can be the source fot a datagrid and elements of the
 recording that refer to the named bat can be displayed in the grid</p>
 </section>
+      <h4><a class="xref" href="BatRecordingManager.BatRecordingLink.html">BatRecordingLink</a></h4>
+      <section></section>
       <h4><a class="xref" href="BatRecordingManager.BatRecordingsListDetailControl.html">BatRecordingsListDetailControl</a></h4>
       <section><p>Interaction logic for BatRecordingsListDetailControl.xaml</p>
 </section>
@@ -151,7 +159,17 @@ recording that refer to the named bat can be displayed in the grid</p>
 so that the the combination can be used as the ItemSource for a DataGrid and
 that datagrid can display only infomration relevant to the selected bat.</p>
 </section>
+      <h4><a class="xref" href="BatRecordingManager.BatSessionData.html">BatSessionData</a></h4>
+      <section><p>Data to display in the SessionsAndRecordingsControl Sessions data grid</p>
+</section>
+      <h4><a class="xref" href="BatRecordingManager.BatSessionLink.html">BatSessionLink</a></h4>
+      <section></section>
+      <h4><a class="xref" href="BatRecordingManager.BatSessionRecordingData.html">BatSessionRecordingData</a></h4>
+      <section><p>Class to hold display specific data for the RecordingsDataGrid in SessionsAndRecordings control</p>
+</section>
       <h4><a class="xref" href="BatRecordingManager.BatStatistics.html">BatStatistics</a></h4>
+      <section></section>
+      <h4><a class="xref" href="BatRecordingManager.BatStatistics.Displayable.html">BatStatistics.Displayable</a></h4>
       <section></section>
       <h4><a class="xref" href="BatRecordingManager.BatStats.html">BatStats</a></h4>
       <section></section>
@@ -161,6 +179,11 @@ that datagrid can display only infomration relevant to the selected bat.</p>
       <section></section>
       <h4><a class="xref" href="BatRecordingManager.BinaryData.html">BinaryData</a></h4>
       <section></section>
+      <h4><a class="xref" href="BatRecordingManager.BottomMarginConverter.html">BottomMarginConverter</a></h4>
+      <section><p>Converter class for scaling height or width of an image
+It is passed the location of the line in the stored image and a copy of
+the displayImageCanvas it is to be written and the storedImage it relates to</p>
+</section>
       <h4><a class="xref" href="BatRecordingManager.ButtonBarControl.html">ButtonBarControl</a></h4>
       <section><p>Interaction logic for ButtonBarControl.xaml</p>
 </section>
@@ -184,8 +207,17 @@ that datagrid can display only infomration relevant to the selected bat.</p>
       <section><p>Converter to get the number of images associated with a bat and return that value
 as a string for display in a DataItem Text Column</p>
 </section>
+      <h4><a class="xref" href="BatRecordingManager.Database.html">Database</a></h4>
+      <section><p>Interaction logic for Database.xaml</p>
+</section>
+      <h4><a class="xref" href="BatRecordingManager.DatabaseTableControl.html">DatabaseTableControl</a></h4>
+      <section></section>
       <h4><a class="xref" href="BatRecordingManager.DBAccess.html">DBAccess</a></h4>
       <section><p>Static class of Database interface functions</p>
+</section>
+      <h4><a class="xref" href="BatRecordingManager.DbMemberHelpers.html">DbMemberHelpers</a></h4>
+      <section><p>Helper functions for various database member classes which are auto-generated and therefore
+cannot be modified directly</p>
 </section>
       <h4><a class="xref" href="BatRecordingManager.DebugBreak.html">DebugBreak</a></h4>
       <section></section>
@@ -199,6 +231,9 @@ as a string for display in a DataItem Text Column</p>
       <section></section>
       <h4><a class="xref" href="BatRecordingManager.DoubleStringConverter.html">DoubleStringConverter</a></h4>
       <section></section>
+      <h4><a class="xref" href="BatRecordingManager.DuplicateEventArgs.html">DuplicateEventArgs</a></h4>
+      <section><p>Provides arguments for aDuplicate Lines event.</p>
+</section>
       <h4><a class="xref" href="BatRecordingManager.EditBatForm.html">EditBatForm</a></h4>
       <section><p>Interaction logic for EditBatForm.xaml</p>
 </section>
@@ -219,7 +254,13 @@ contains an instance of a bat species, and an array of values corresponding to i
 time periods throughout the session.  The values range from 0 to the number of minutes in
 the aggregation period.</p>
 </section>
-      <h4><a class="xref" href="BatRecordingManager.Guano.html">Guano</a></h4>
+      <h4><a class="xref" href="BatRecordingManager.GPSLocation.html">GPSLocation</a></h4>
+      <section><p>A class to hold details of a particular location</p>
+</section>
+      <h4><a class="xref" href="BatRecordingManager.GrabRegionForm.html">GrabRegionForm</a></h4>
+      <section><p>Interaction logic for GrabRegionForm.xaml</p>
+</section>
+      <h4><a class="xref" href="BatRecordingManager.GuanoDeprecated.html">GuanoDeprecated</a></h4>
       <section><p>A class to represent a Guano metadata chunk included in a .wav file.
 The guano data should be extracted with Tools.Get_WAV_MetaData(wavfilename)
 and the string can be parsed with ParseGuanoChunk(string chunk) which will
@@ -228,10 +269,18 @@ The class copes with a number of known fields for GUANO data according to
 specification 1.0 but is intended to work with GUANO data embedded by
 the Android App BatRecorder.</p>
 </section>
+      <h4><a class="xref" href="BatRecordingManager.HGridLineConverter.html">HGridLineConverter</a></h4>
+      <section><p>Converter class for scaling height or width of an image
+It is passed the location of the line in the stored image and a copy of
+the displayImageCanvas it is to be written and the storedImage it relates to</p>
+</section>
       <h4><a class="xref" href="BatRecordingManager.ImageConverter.html">ImageConverter</a></h4>
       <section><p>ImageConverter converts either a Bitmap or a BitmapImage to a BitmapSource suitable for
 display in a wpf Image control.  The BitmapImage is first converted to a Bitmap then to
 a BitmapSource.</p>
+</section>
+      <h4><a class="xref" href="BatRecordingManager.ImageDeletedEventArgs.html">ImageDeletedEventArgs</a></h4>
+      <section><p>ImageDeletedEventArgs</p>
 </section>
       <h4><a class="xref" href="BatRecordingManager.ImageDialog.html">ImageDialog</a></h4>
       <section><p>Interaction logic for ImageDialog.xaml</p>
@@ -255,7 +304,7 @@ is used as a base class by BatAndCallImageScroller</p>
       <section><p>Converter which takes a StoredImage and returns the image component overlaid with horizontal and vertical
 grid lines as defined in the StoredImage lists.</p>
 </section>
-      <h4><a class="xref" href="BatRecordingManager.Imaging.html">Imaging</a></h4>
+      <h4><a class="xref" href="BatRecordingManager.ImagingConverterClass.html">ImagingConverterClass</a></h4>
       <section></section>
       <h4><a class="xref" href="BatRecordingManager.ImportControl.html">ImportControl</a></h4>
       <section><p>Interaction logic for ImportControl.xaml</p>
@@ -277,6 +326,11 @@ grid lines as defined in the StoredImage lists.</p>
       <h4><a class="xref" href="BatRecordingManager.LabelledSegmentForm.html">LabelledSegmentForm</a></h4>
       <section><p>Interaction logic for LabelledSegmentForm.xaml</p>
 </section>
+      <h4><a class="xref" href="BatRecordingManager.LeftMarginConverter.html">LeftMarginConverter</a></h4>
+      <section><p>Converter class for scaling height or width of an image
+It is passed the location of the line in the stored image and a copy of
+the displayImageCanvas it is to be written and the storedImage it relates to</p>
+</section>
       <h4><a class="xref" href="BatRecordingManager.MainWindow.html">MainWindow</a></h4>
       <section><p>Interaction logic for MainWindow.xaml</p>
 </section>
@@ -286,21 +340,35 @@ grid lines as defined in the StoredImage lists.</p>
       <h4><a class="xref" href="BatRecordingManager.MapWindow.html">MapWindow</a></h4>
       <section><p>Interaction logic for MapWindow.xaml</p>
 </section>
-      <h4><a class="xref" href="BatRecordingManager.multiscaleConverter.html">multiscaleConverter</a></h4>
+      <h4><a class="xref" href="BatRecordingManager.MultiscaleConverter.html">MultiscaleConverter</a></h4>
       <section><p>Converter class for scaling height or width of an image</p>
 </section>
-      <h4><a class="xref" href="BatRecordingManager.MyNewObject.html">MyNewObject</a></h4>
+      <h4><a class="xref" href="BatRecordingManager.MyBiQuadFilter.html">MyBiQuadFilter</a></h4>
       <section></section>
+      <h4><a class="xref" href="BatRecordingManager.NaudioWrapper.html">NaudioWrapper</a></h4>
+      <section><p>A class to hold all interface functions between the application and the Naudio system</p>
+</section>
       <h4><a class="xref" href="BatRecordingManager.NewTagForm.html">NewTagForm</a></h4>
       <section><p>Interaction logic for NewTagForm.xaml</p>
 </section>
+      <h4><a class="xref" href="BatRecordingManager.NMEA2OSG.html">NMEA2OSG</a></h4>
+      <section></section>
       <h4><a class="xref" href="BatRecordingManager.NumberOfImagesConverter.html">NumberOfImagesConverter</a></h4>
       <section><p>Is passed an EntitySet of Recordings and calculates the total number of images
 associated with those recordings, returning the value as a string</p>
 </section>
+      <h4><a class="xref" href="BatRecordingManager.OpenWindowGetter.html">OpenWindowGetter</a></h4>
+      <section><p>Contains functionality to get all the open windows.</p>
+</section>
+      <h4><a class="xref" href="BatRecordingManager.PlayListItem.html">PlayListItem</a></h4>
+      <section><p>A class to hold items to be displayed in the AudioPlayer playlist</p>
+</section>
       <h4><a class="xref" href="BatRecordingManager.Recording.html">Recording</a></h4>
       <section></section>
       <h4><a class="xref" href="BatRecordingManager.RecordingDetailsConverter.html">RecordingDetailsConverter</a></h4>
+      <section><p>Converts the essential details of a Recording instance to a string</p>
+</section>
+      <h4><a class="xref" href="BatRecordingManager.RecordingDurationConverter.html">RecordingDurationConverter</a></h4>
       <section><p>Converts the essential details of a Recording instance to a string</p>
 </section>
       <h4><a class="xref" href="BatRecordingManager.RecordingForm.html">RecordingForm</a></h4>
@@ -320,8 +388,15 @@ passes organised by type of bat</p>
 </section>
       <h4><a class="xref" href="BatRecordingManager.RecordingSession.html">RecordingSession</a></h4>
       <section></section>
-      <h4><a class="xref" href="BatRecordingManager.RecordingSessionControl.html">RecordingSessionControl</a></h4>
-      <section><p>Interaction logic for RecordingSessionControl.xaml</p>
+      <h4><a class="xref" href="BatRecordingManager.RecordingSessionData.html">RecordingSessionData</a></h4>
+      <section><p>Specialised class to hold the data displayed by RecordingSessionListDetailControl.
+Contains just the necessary items to display to allow for fast loading</p>
+</section>
+      <h4><a class="xref" href="BatRecordingManager.RecordingSessionDetailControl.html">RecordingSessionDetailControl</a></h4>
+      <section><p>Interaction logic for RecordingSessionDetailControl.xaml</p>
+</section>
+      <h4><a class="xref" href="BatRecordingManager.RecordingSessionEditableControl.html">RecordingSessionEditableControl</a></h4>
+      <section><p>Interaction logic for RecordingSessionEditableControl.xaml</p>
 </section>
       <h4><a class="xref" href="BatRecordingManager.RecordingSessionForm.html">RecordingSessionForm</a></h4>
       <section><p>Interaction logic for RecordingSessionForm.xaml</p>
@@ -329,10 +404,11 @@ passes organised by type of bat</p>
       <h4><a class="xref" href="BatRecordingManager.RecordingSessionListDetailControl.html">RecordingSessionListDetailControl</a></h4>
       <section><p>Interaction logic for RecordingSessionListDetailControl.xaml</p>
 </section>
-      <h4><a class="xref" href="BatRecordingManager.RecordingSessionViewControl.html">RecordingSessionViewControl</a></h4>
-      <section><p>Interaction logic for RecordingSessionViewControl.xaml</p>
-</section>
-      <h4><a class="xref" href="BatRecordingManager.RecordingToGPSConverter.html">RecordingToGPSConverter</a></h4>
+      <h4><a class="xref" href="BatRecordingManager.RecordingSessionTableControl.html">RecordingSessionTableControl</a></h4>
+      <section></section>
+      <h4><a class="xref" href="BatRecordingManager.RecordingTableControl.html">RecordingTableControl</a></h4>
+      <section></section>
+      <h4><a class="xref" href="BatRecordingManager.RecordingToGpsConverter.html">RecordingToGpsConverter</a></h4>
       <section><p>Converter to extract GPS data from a recording instance and format it into a string</p>
 </section>
       <h4><a class="xref" href="BatRecordingManager.ReportByFrequency.html">ReportByFrequency</a></h4>
@@ -341,7 +417,7 @@ while using the ReportMaster TextBox/DataGrid layout and support
 functions.</p>
 </section>
       <h4><a class="xref" href="BatRecordingManager.ReportData.html">ReportData</a></h4>
-      <section><p>Dedicated class to hold the specific data for a report in which many fields may be 
+      <section><p>Dedicated class to hold the specific data for a report in which many fields may be
 duplicated</p>
 </section>
       <h4><a class="xref" href="BatRecordingManager.ReportMainWindow.html">ReportMainWindow</a></h4>
@@ -350,6 +426,11 @@ duplicated</p>
       <h4><a class="xref" href="BatRecordingManager.ReportMaster.html">ReportMaster</a></h4>
       <section><p>Interaction logic for ReportMaster.xaml
 This class is the base class for specific report types.</p>
+</section>
+      <h4><a class="xref" href="BatRecordingManager.RightMarginConverter.html">RightMarginConverter</a></h4>
+      <section><p>Converter class for scaling height or width of an image
+It is passed the location of the line in the stored image and a copy of
+the displayImageCanvas it is to be written and the storedImage it relates to</p>
 </section>
       <h4><a class="xref" href="BatRecordingManager.SearchDialog.html">SearchDialog</a></h4>
       <section><p>Interaction logic for SearchDialog.xaml
@@ -402,6 +483,11 @@ and appends an asterisk if the segnent has associated images</p>
 </section>
       <h4><a class="xref" href="BatRecordingManager.Times2Converter.html">Times2Converter</a></h4>
       <section></section>
+      <h4><a class="xref" href="BatRecordingManager.Times2Converter.GridScaleConverter.html">Times2Converter.GridScaleConverter</a></h4>
+      <section><p>Used to set the height of a scale grid inside a canvas of variable size.
+The converter is passed to bound values the height of the parent canvas and a
+scale factor.  it returns a value of the height multiplied by the scale factor.</p>
+</section>
       <h4><a class="xref" href="BatRecordingManager.TimeSpanConverter.html">TimeSpanConverter</a></h4>
       <section><p>Converter class for displaying a timespan object as a string</p>
 </section>
@@ -412,8 +498,21 @@ DateTime.Now if it is null</p>
       <h4><a class="xref" href="BatRecordingManager.Tools.html">Tools</a></h4>
       <section><p>Class of miscellaneous, multi access functions - all static for ease of re-use</p>
 </section>
+      <h4><a class="xref" href="BatRecordingManager.TopMarginConverter.html">TopMarginConverter</a></h4>
+      <section><p>Converter class for scaling height or width of an image
+It is passed the location of the line in the stored image and a copy of
+the displayImageCanvas it is to be written and the storedImage it relates to</p>
+</section>
+      <h4><a class="xref" href="BatRecordingManager.UiHelper.html">UiHelper</a></h4>
+      <section><p>static functions to operate on visual UI elements</p>
+</section>
       <h4><a class="xref" href="BatRecordingManager.Version.html">Version</a></h4>
       <section></section>
+      <h4><a class="xref" href="BatRecordingManager.VGridLineConverter.html">VGridLineConverter</a></h4>
+      <section><p>Converter class for scaling height or width of an image
+It is passed the location of the line in the stored image and a copy of
+the displayImageCanvas it is to be written and the storedImage it relates to</p>
+</section>
       <h4><a class="xref" href="BatRecordingManager.WaitCursor.html">WaitCursor</a></h4>
       <section></section>
       <h4><a class="xref" href="BatRecordingManager.WAMD_Data.html">WAMD_Data</a></h4>
@@ -425,16 +524,26 @@ contents by type.</p>
 </section>
     <h3 id="enums">Enums
   </h3>
+      <h4><a class="xref" href="BatRecordingManager.DBAccess.BracketedText.html">DBAccess.BracketedText</a></h4>
+      <section></section>
+      <h4><a class="xref" href="BatRecordingManager.DuplicateEventArgs.Grid.html">DuplicateEventArgs.Grid</a></h4>
+      <section></section>
       <h4><a class="xref" href="BatRecordingManager.Tools.BlobType.html">Tools.BlobType</a></h4>
       <section><p>BlobTypes are used to identify the type of binary data object stored in the database.
 The enum types are 3 or 4 char strings that are stored as string literals in the database
 but the enum allows simple internal handling.  The enum is converted to a string to be
-stored in the database and is converted back to an enum on retrieval.  enum names must be limited 
+stored in the database and is converted back to an enum on retrieval.  enum names must be limited
 to 4 chars to fit into the database type field.
 BMP is a raw bitmap
 BMPS is a BitmapSource object
 WAV is a snippet of waveform read from a .wav file.</p>
 </section>
+    <h3 id="delegates">Delegates
+  </h3>
+      <h4><a class="xref" href="BatRecordingManager.NMEA2OSG.NatGridRefReceivedEventHandler.html">NMEA2OSG.NatGridRefReceivedEventHandler</a></h4>
+      <section></section>
+      <h4><a class="xref" href="BatRecordingManager.NMEA2OSG.NorthingEastingReceivedEventHandler.html">NMEA2OSG.NorthingEastingReceivedEventHandler</a></h4>
+      <section></section>
 </article>
           </div>
           
@@ -460,7 +569,7 @@ WAV is a snippet of waveform read from a .wav file.</p>
               <a href="#top">Back to top</a>
             </span>
             
-            <span>Copyright © 2015-2017 Microsoft<br>Generated by <strong>DocFX</strong></span>
+            <span>Generated by <strong>DocFX</strong></span>
           </div>
         </div>
       </footer>
