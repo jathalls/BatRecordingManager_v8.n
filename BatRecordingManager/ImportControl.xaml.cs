@@ -479,11 +479,13 @@ namespace BatRecordingManager
             {
                 ProcessFilesButton.IsEnabled = false;
                 _processWavFiles = false;
+                Debug.WriteLine("Non wav files");
             }
             else
             {
                 ProcessFilesButton.IsEnabled = true;
                 _processWavFiles = true;
+                Debug.WriteLine("Process wav files");
             }
         }
 
@@ -538,7 +540,17 @@ namespace BatRecordingManager
 
             try
             {
+                _gpxHandler = new GpxHandler(_fileBrowser.WorkingFolder);
+                //sessionForFolder = GetNewRecordingSession(fileBrowser);
+                if (_sessionForFolder == null)
+                {
+                    _sessionForFolder = SessionManager.CreateSession(_fileBrowser.WorkingFolder,
+                        SessionManager.GetSessionTag(_fileBrowser), _gpxHandler);
+                }
+
                 var wavFiles = Directory.EnumerateFiles(_fileBrowser.WorkingFolder, "*.wav");
+                
+
                 //var WAVFilesEnum = Directory.EnumerateFiles(fileBrowser.WorkingFolder, "*.WAV");
                 //var wavFiles = wavFilesEnum.Concat<string>(WAVFilesEnum).ToList<string>();
                 if (wavFiles != null && wavFiles.Any())
@@ -562,7 +574,7 @@ namespace BatRecordingManager
                         else
                         {
                             TbkOutputText.Text = TbkOutputText.Text + "***\n\n" + FileProcessor.ProcessFile(filename,
-                                                     _gpxHandler, CurrentSessionId, ref _fileProcessor.BatsFound) +
+                                                     _gpxHandler, _sessionForFolder.Id, ref _fileProcessor.BatsFound) +
                                                  "\n";
                             totalBatsFound = BatsConcatenate(totalBatsFound, _fileProcessor.BatsFound);
                         }

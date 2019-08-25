@@ -61,5 +61,7 @@ namespace BatRecordingManager
             
             base.OnStartup(e);
         }
+
+        
     }
 }

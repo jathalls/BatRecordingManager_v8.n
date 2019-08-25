@@ -139,45 +139,44 @@ namespace BatRecordingManager
         public void SetReportData(List<BatStatistics> reportBatList, List<RecordingSession> reportSessionList,
             List<Recording> reportRecordingList)
         {
-            using (new WaitCursor("Set report data"))
+
+            Debug.WriteLine(reportRecordingList.ToString());
+
+            // Generic operations to set up the data
+            ReportBatStatsList.Clear();
+            ReportSessionList.Clear();
+            ReportRecordingList.Clear();
+
+            if (reportBatList != null)
             {
-                Debug.WriteLine(reportRecordingList.ToString());
-
-                // Generic operations to set up the data
-                ReportBatStatsList.Clear();
-                ReportSessionList.Clear();
-                ReportRecordingList.Clear();
-
-                if (reportBatList != null)
-                {
-                    ReportBatStatsList = new BulkObservableCollection<BatStatistics>();
-                    ReportBatStatsList.AddRange(reportBatList.Where(rbl=>rbl!=null).Distinct());
-                }
-
-                if (reportSessionList != null)
-                {
-                    ReportSessionList = new BulkObservableCollection<RecordingSession>();
-                    ReportSessionList.AddRange(reportSessionList.Where(rsl=>rsl!=null).Distinct());
-                }
-
-                if (reportRecordingList != null)
-                {
-                    ReportRecordingList = new BulkObservableCollection<Recording>();
-                    ReportRecordingList.AddRange(reportRecordingList.Where(rrl=>rrl!=null).Distinct());
-                }
-
-                // Set data for the Test Frequency Tab
-                foreach (var tabitem in MainWindowTabControl.Items)
-                    if ((tabitem as TabItem).Content is ReportMaster)
-                    {
-                        var tabReportMaster = (tabitem as TabItem).Content as ReportMaster;
-                        tabReportMaster.SetData(ReportBatStatsList, ReportSessionList, ReportRecordingList);
-                        (tabitem as TabItem).Header = tabReportMaster.tabHeader;
-                    }
-
-
-                SortSessionHeaders();
+                ReportBatStatsList = new BulkObservableCollection<BatStatistics>();
+                ReportBatStatsList.AddRange(reportBatList.Where(rbl => rbl != null).Distinct());
             }
+
+            if (reportSessionList != null)
+            {
+                ReportSessionList = new BulkObservableCollection<RecordingSession>();
+                ReportSessionList.AddRange(reportSessionList.Where(rsl => rsl != null).Distinct());
+            }
+
+            if (reportRecordingList != null)
+            {
+                ReportRecordingList = new BulkObservableCollection<Recording>();
+                ReportRecordingList.AddRange(reportRecordingList.Where(rrl => rrl != null).Distinct());
+            }
+
+            // Set data for the Test Frequency Tab
+            foreach (var tabitem in MainWindowTabControl.Items)
+                if ((tabitem as TabItem).Content is ReportMaster)
+                {
+                    var tabReportMaster = (tabitem as TabItem).Content as ReportMaster;
+                    tabReportMaster.SetData(ReportBatStatsList, ReportSessionList, ReportRecordingList);
+                    (tabitem as TabItem).Header = tabReportMaster.tabHeader;
+                }
+
+
+            SortSessionHeaders();
+
         }
 
 

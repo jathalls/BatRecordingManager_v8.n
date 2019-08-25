@@ -102,7 +102,7 @@ namespace BatRecordingManager
         {
             if (itemToPlay == null) return;
             if (string.IsNullOrWhiteSpace(itemToPlay.filename)) return;
-            if (!File.Exists(itemToPlay.filename)) return;
+            if (!File.Exists(itemToPlay.filename) || (new FileInfo(itemToPlay.filename).Length<=0L)) return;
 
             Open(itemToPlay, _device);
             _waveSource.SetPosition(itemToPlay.startOffset);

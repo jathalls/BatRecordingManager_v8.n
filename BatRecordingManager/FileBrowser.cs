@@ -403,6 +403,7 @@ namespace BatRecordingManager
             //folderPath = Path.GetDirectoryName(dialog.FileName);
             //folderPath = Tools.GetPath(dialog.FileName);
             RootFolder = folderPath;
+            WorkingFolder = folderPath;
             WavFileFolders = GenerateFolderList(RootFolder);
             /* }
              else
@@ -478,7 +479,7 @@ namespace BatRecordingManager
                     if (!string.IsNullOrWhiteSpace(file))
                     {
                         var wavfile = file.Substring(0, file.Length - 4) + ".wav";
-                        if (!File.Exists(wavfile) && !file.Contains(".log.txt") && file.ToUpper().EndsWith(".TXT") &&
+                        if ((!File.Exists(wavfile) || (new FileInfo(wavfile).Length<=0)) && !file.Contains(".log.txt") && file.ToUpper().EndsWith(".TXT") &&
                             File.Exists(file))
                         {
                             var lines = File.ReadAllLines(file);

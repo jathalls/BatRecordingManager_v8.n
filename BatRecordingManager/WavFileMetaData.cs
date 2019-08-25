@@ -40,7 +40,7 @@ namespace BatRecordingManager
         {
             // set a default start date as the file creation or modified date
             if (m_Start == null)
-                if (File.Exists(filename))
+                if (File.Exists(filename) && (new FileInfo(filename).Length>0L))
                 {
                     if (DBAccess.GetDateTimeFromFilename(filename, out var dt))
                     {
@@ -188,7 +188,7 @@ namespace BatRecordingManager
 
             if (string.IsNullOrWhiteSpace(wavFilename)) return result;
             if (!wavFilename.Trim().ToUpper().EndsWith(".WAV")) return result;
-            if (!File.Exists(wavFilename)) return result;
+            if (!File.Exists(wavFilename) || (new FileInfo(wavFilename).Length<=0L)) return result;
             try
             {
                 using (var fs = File.Open(wavFilename, FileMode.Open))

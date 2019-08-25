@@ -39,7 +39,7 @@ namespace BatRecordingManager
         public BulkObservableCollection<FrequencyData> reportDataList { get; set; } =
             new BulkObservableCollection<FrequencyData>();
 
-        private BulkObservableCollection<Bat> batList { get; set; }=new BulkObservableCollection<Bat>();
+        private BulkObservableCollection<Bat> batList { get; set; } = new BulkObservableCollection<Bat>();
 
         private int _aggregationPeriod = 10;
 
@@ -62,11 +62,12 @@ namespace BatRecordingManager
                     _aggregationPeriod = value;
                 }
 
-                
+
             }
         }
 
         private int _tableStartTimeInMinutesFromMidnight = 720;
+
         public int TableStartTimeInMinutesFromMidnight
         {
             get { return (_tableStartTimeInMinutesFromMidnight); }
@@ -91,7 +92,7 @@ namespace BatRecordingManager
 
                 }
 
-                
+
             }
         }
 
@@ -102,9 +103,10 @@ namespace BatRecordingManager
             get { return (1440 / AggegrationPeriodInMinutes); }
         }
 
-        private BulkObservableCollection<FrequencyData> OccurrencesPerPeriod=new BulkObservableCollection<FrequencyData>();
+        private BulkObservableCollection<FrequencyData> OccurrencesPerPeriod =
+            new BulkObservableCollection<FrequencyData>();
 
-        
+
 
         /// <summary>
         ///     Read only string for the label in the tab to identify this report type
@@ -122,56 +124,96 @@ namespace BatRecordingManager
             BulkObservableCollection<RecordingSession> reportSessionList,
             BulkObservableCollection<Recording> reportRecordingList)
         {
-            ReportDataGrid.DataContext = this;
-            if(reportDataList==null) reportDataList=new BulkObservableCollection<FrequencyData>();
-            reportDataList.Clear();
-            var binding = new Binding("reportDataList");
-
-            binding.Source = new FrequencyData(10,new Bat(),new BulkObservableCollection<int>());
-            ReportDataGrid.SetBinding(DataGrid.ItemsSourceProperty, binding);
-
-            var bats = (from b in reportBatStatsList
-                select b.bat).Distinct();
-            batList.AddRange(bats);
-
-            //CreateFrequencyTable();
-            // aggregation period and start time for table and number of periods have been set or defaulted globally
-            foreach (var bat in batList)
+            try
             {
-                List<int> OccurrencesPerPeriodForBat=new List<int>();
-                for(int i=0;i<NumberOfPeriods;i++) OccurrencesPerPeriodForBat.Add(0);
-                var segments = from seg in (reportRecordingList.SelectMany(rec => rec.LabelledSegments))
-                    from lnk in seg.BatSegmentLinks
-                    where lnk.BatID == bat.Id
-                    select seg;
-                foreach (var segment in segments)
+                ReportDataGrid.DataContext = this;
+                if (reportDataList == null) reportDataList = new BulkObservableCollection<FrequencyData>();
+                reportDataList.Clear();
+                var binding = new Binding("reportDataList");
+                binding.Source = new FrequencyData(10, new Bat(), new BulkObservableCollection<int>());
+                ReportDataGrid.SetBinding(DataGrid.ItemsSourceProperty, binding);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error in SetData(Frequency) creating data binding " + ex.Message);
+            }
+
+
+            try
+            {
+                var bats = (from b in reportBatStatsList
+                    select b.bat).Distinct();
+                batList.AddRange(bats);
+
+                //CreateFrequencyTable();
+                // aggregation period and start time for table and number of periods have been set or defaulted globally
+                foreach (var bat in batList)
                 {
-                    List<int> OccupiedPeriodsPerBlock=new List<int>();
-                    if (segment.FrequencyContributions(out int FirstBlock, out List<int> occupiedMinutesPerBlock,
-                        (double) TableStartTimeInMinutesFromMidnight, AggegrationPeriodInMinutes))
+                    List<int> OccurrencesPerPeriodForBat = new List<int>();
+                    for (int i = 0; i < NumberOfPeriods; i++) OccurrencesPerPeriodForBat.Add(0);
+                    var segments = from seg in (reportRecordingList.SelectMany(rec => rec.LabelledSegments))
+                        from lnk in seg.BatSegmentLinks
+                        where lnk.BatID == bat.Id
+                        select seg;
+                    foreach (var segment in segments)
                     {
-                        for (int i = FirstBlock,j=0; i < FirstBlock + occupiedMinutesPerBlock.Count; i++,j++)
+                        List<int> OccupiedPeriodsPerBlock = new List<int>();
+                        if (segment.FrequencyContributions(out int FirstBlock, out List<int> occupiedMinutesPerBlock,
+                            (double) TableStartTimeInMinutesFromMidnight, AggegrationPeriodInMinutes))
                         {
-                            OccurrencesPerPeriodForBat[i] += occupiedMinutesPerBlock[j];
+                            for (int i = FirstBlock, j = 0; i < FirstBlock + occupiedMinutesPerBlock.Count; i++, j++)
+                            {
+                                if (i >= OccurrencesPerPeriodForBat.Count || j >= occupiedMinutesPerBlock.Count)
+                                {
+                                    Debug.WriteLine($"Error OUT OF BOUNDS i={i} into OccurrencesPerPeriodForBat of length {OccurrencesPerPeriodForBat.Count},\n" +
+                                                    $"j={j} into OccupiedMinutesPerBlock of length {OccupiedPeriodsPerBlock.Count}");
+                                    break;
+                                }
+                                OccurrencesPerPeriodForBat[i] += occupiedMinutesPerBlock[j];
+                            }
                         }
+
                     }
 
+                    BulkObservableCollection<int> boc = new BulkObservableCollection<int>();
+                    boc.AddRange(OccurrencesPerPeriodForBat);
+                    FrequencyData fd = new FrequencyData(AggegrationPeriodInMinutes, bat, boc);
+                    reportDataList.Add(fd);
                 }
-                BulkObservableCollection<int> boc=new BulkObservableCollection<int>();
-                boc.AddRange(OccurrencesPerPeriodForBat);
-                FrequencyData fd=new FrequencyData(AggegrationPeriodInMinutes,bat,boc);
-                reportDataList.Add(fd);
             }
-            CreateFrequencyTable();
-
-            HeaderTextBox.Text = "";
-            foreach (var session in reportSessionList)
+            catch (Exception ex)
             {
-                var data = new FrequencyData(1, null, null) { sessionHeader = SetHeaderText(session) };
-                reportDataList.Add(data);
+                Debug.WriteLine("Error in SetData(Frequency) - processing each bat " + ex.Message);
             }
 
-            ReportDataGrid.ItemsSource = reportDataList;
+            try
+            {
+
+
+                CreateFrequencyTable();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error in SetData(Frequency) Creating Frequency Table " + ex.Message);
+            }
+
+            try
+            {
+                HeaderTextBox.Text = "";
+                foreach (var session in reportSessionList)
+                {
+                    var data = new FrequencyData(1, null, null) {sessionHeader = SetHeaderText(session)};
+                    reportDataList.Add(data);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error in SetData(Frequency) Processing sessions in list for header " + ex.Message);
+            }
+            finally
+            {
+                ReportDataGrid.ItemsSource = reportDataList;
+            }
 
 
             /* original method
@@ -180,6 +222,7 @@ namespace BatRecordingManager
             CreateFrequencyTable();
             ReportDataGrid.ItemsSource = reportDataList;*/
         }
+
 
         /// <summary>
         ///     Creates a single column in the reportDataGridByFrequency Datagrid which will hold the list of bats

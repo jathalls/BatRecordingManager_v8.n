@@ -411,7 +411,7 @@ namespace BatRecordingManager
             {
                 var wavfilename = fileName.Substring(0, fileName.Length - 4);
                 wavfilename = wavfilename + ".wav";
-                if (File.Exists(wavfilename))
+                if (File.Exists(wavfilename) && (new FileInfo(wavfilename).Length>0L))
                 {
                     var info = new FileInfo(wavfilename);
                     wavfile = wavfilename;
@@ -678,7 +678,7 @@ namespace BatRecordingManager
                 {
                     var wavfile = fileName.Substring(0, fileName.Length - 4) + ".wav";
                     duration = GetFileDuration(fileName, out wavfile, out var fileStart, out var fileEnd);
-                    if (File.Exists(wavfile))
+                    if (File.Exists(wavfile) && (new FileInfo(wavfile).Length>0L))
                     {
                         wfmd = new WavFileMetaData(wavfile);
                         //Guano GuanoData=new Guano(Guano.GetGuanoData(CurrentRecordingSessionId, wavfile));

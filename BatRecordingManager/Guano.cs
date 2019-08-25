@@ -830,7 +830,7 @@ Duration: " + new TimeSpan((long) (durationInSecs * 10000000L)).ToString(@"hh\:m
             var sessionNotes = DBAccess.GetRecordingSessionNotes(currentRecordingSessionId);
             if (string.IsNullOrWhiteSpace(sessionNotes)) return "";
             if (!sessionNotes.Contains("[GUANO]")) return "";
-            if (!File.Exists(wavfile)) return "";
+            if (!File.Exists(wavfile) || (new FileInfo(wavfile).Length<=0L)) return "";
             byte[] metadata = null;
             WAMD_Data wamdData = null;
             var guanoData = Get_WAVFile_MetaData(wavfile, out metadata, out wamdData);

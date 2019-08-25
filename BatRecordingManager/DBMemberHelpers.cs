@@ -50,39 +50,45 @@ namespace BatRecordingManager
             if (recording.RecordingName.StartsWith("\\"))
                 recording.RecordingName = recording.RecordingName.Substring(1);
             filename = path + recording.RecordingName;
-            if (!File.Exists(filename)) return null;
+            if (!File.Exists(filename) || (new FileInfo(filename).Length<=0L)) return null;
 
 
             return filename;
         }
 
         public static bool FrequencyContributions(this LabelledSegment segment,out int FirstBlock,out List<int> OccupiedMinutesPerBlock,
-            double startTimeInMinutes=12.0d*60.0d, int BlockSize = 10)
+            double tableStartTimeInMinutes=12.0d*60.0d, int BlockSize = 10)
         {
             FirstBlock = -1;
             int BlockSizeSeconds = BlockSize * 60;
-            int startTimeInSeconds = (int) (startTimeInMinutes * 60.0d);
+            int tableStartTimeInSeconds = (int) (tableStartTimeInMinutes * 60.0d);
             OccupiedMinutesPerBlock=new List<int>();
-            if ((segment.Duration() ?? new TimeSpan()).TotalSeconds <= 0.0d) return (false);
 
-            if (segment.Recording == null) return false;
-            if (segment.Recording.RecordingStartTime == null) return false;
+            if ((segment.Duration() ?? new TimeSpan()).TotalSeconds <= 0.0d) return (false);// give up as we don't have a segment Duration
+
+            if (segment.Recording == null) return false; //Give up as we don't have recording to be a parent to this segment
+
+            if (segment.Recording.RecordingStartTime == null) return false; //Give up as the recording for the segment does not have a start time
+
             var segmentStartSeconds = (int)((segment.Recording.RecordingStartTime.Value + segment.StartOffset).TotalSeconds) -
-                               startTimeInSeconds;
-            FirstBlock = ((int) (segmentStartSeconds)) / BlockSizeSeconds;
+                               tableStartTimeInSeconds; // time from the start of the table to the start of the segment in seconds
+            while (segmentStartSeconds > (24 * 60 * 60)) segmentStartSeconds-=(24 * 60 * 60);
+            while (segmentStartSeconds < 0) segmentStartSeconds += (24 * 60 * 60);
+
+            FirstBlock = ((int) (segmentStartSeconds)) / BlockSizeSeconds; 
 
             int segStart = segmentStartSeconds;
-            if (segStart < 0) segStart += 24 * 60*60;
+            
             var segEnd = segStart + (int)(segment.Duration().Value.TotalSeconds);
+            if (segEnd > (24 * 60 * 60)) segEnd = (24 * 60 * 60); // truncate the segment to the end of table
+
             Debug.WriteLine($"\nFrom {segStart} to {segEnd}");
 
             int thisBlockStartSeconds = FirstBlock * BlockSizeSeconds;
             int thisBlockEndSeconds = thisBlockStartSeconds + BlockSizeSeconds;
-            while(
-                segStart < segEnd)
-                
+            while(segStart < segEnd)
             {
-                Debug.WriteLine($"blockstart={thisBlockStartSeconds}, segStart={segStart}");
+                Debug.WriteLine($"blockstart={thisBlockStartSeconds}, segStart={segStart}, segEnd={segEnd}");
                 if (thisBlockStartSeconds > segStart) break;
                 int diff =  thisBlockEndSeconds-segStart;// ie segstart to the end of the block
                 Debug.WriteLine($"diff = {diff}");
@@ -102,6 +108,7 @@ namespace BatRecordingManager
                 thisBlockStartSeconds = thisBlockEndSeconds;
                 thisBlockEndSeconds += BlockSizeSeconds;
                 segStart = thisBlockStartSeconds;
+                Debug.WriteLine($"new segStart={segStart}");
             }
 
             return (true);
@@ -151,7 +158,7 @@ namespace BatRecordingManager
             //    note = note.Replace("\n", " ");
             //    note = note.Replace(@"\n", " ");
             //}
-            if (!File.Exists(file)) return;
+            if (!File.Exists(file) || (new FileInfo(file).Length<=0L)) return;
             var bareFilename = Tools.StripPath(file);
 
             var existingRecording = DBAccess.GetRecordingForWavFile(file);

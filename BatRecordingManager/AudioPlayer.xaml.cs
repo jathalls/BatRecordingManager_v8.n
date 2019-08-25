@@ -329,7 +329,7 @@ namespace BatRecordingManager
         public static PlayListItem Create(string filename, TimeSpan start, TimeSpan duration, string label)
         {
             if (string.IsNullOrWhiteSpace(filename)) return null;
-            if (!File.Exists(filename)) return null;
+            if (!File.Exists(filename) || (new FileInfo(filename).Length<=0L)) return null;
             var result = new PlayListItem
             {
                 filename = filename, startOffset = start, playLength = duration, label = label

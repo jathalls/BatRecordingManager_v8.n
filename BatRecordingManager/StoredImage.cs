@@ -515,7 +515,7 @@ namespace BatRecordingManager
             var caption = "";
             var description = "";
 
-            if (!string.IsNullOrWhiteSpace(file) && File.Exists(file))
+            if (!string.IsNullOrWhiteSpace(file) && File.Exists(file) && (new FileInfo(file).Length>0L))
             {
                 var img = Image.FromFile(file);
                 try

@@ -684,7 +684,7 @@ namespace BatRecordingManager
 
         internal static void OpenWavFile(string folder)
         {
-            if (string.IsNullOrWhiteSpace(folder) || !File.Exists(folder)) return;
+            if (string.IsNullOrWhiteSpace(folder) || !File.Exists(folder) || (new FileInfo(folder).Length<=0L)) return;
             //Process externalProcess = new Process();
 
             //externalProcess.StartInfo.FileName = folder;
@@ -700,7 +700,7 @@ namespace BatRecordingManager
             Debug.WriteLine("Selected wavFile=" + wavFile);
             wavFile = wavFile.Replace(@"\\", @"\");
             Debug.WriteLine("Corrected wavFile=" + wavFile);
-            if (!File.Exists(wavFile))
+            if (!File.Exists(wavFile) && (new FileInfo(wavFile).Length>0L))
             {
                 Debug.WriteLine("Wav file does not exist");
                 return null;
@@ -1200,7 +1200,7 @@ namespace BatRecordingManager
         /// <param name="endOffset"></param>
         internal static void OpenWavFile(string wavFile, TimeSpan startOffset, TimeSpan endOffset)
         {
-            if (string.IsNullOrWhiteSpace(wavFile) || !File.Exists(wavFile))
+            if (string.IsNullOrWhiteSpace(wavFile) || !File.Exists(wavFile) || (new FileInfo(wavFile).Length<=0L))
                 return; // since we don't have a valid file name to work with
             var startSeconds = (int) startOffset.TotalSeconds;
             var endSeconds = (int) endOffset.TotalSeconds;
@@ -2211,6 +2211,72 @@ namespace BatRecordingManager
     #endregion DebugBreak (ValueConverter)
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+    public static class UiServices
+    {
+        /// <summary>
+        ///   A value indicating whether the UI is currently busy
+        /// </summary>
+        private static bool IsBusy;
+
+       
+
+        /// <summary>
+        /// Sets the busystate as busy.
+        /// </summary>
+        public static void SetBusyState()
+        {
+            SetBusyState(true);
+        }
+
+        /// <summary>
+        /// Sets the busystate to busy or not busy.
+        /// </summary>
+        /// <param name="busy">if set to <c>true</c> the application is now busy.</param>
+        private static void SetBusyState(bool busy, [CallerMemberName] string caller = null, [CallerLineNumber] int linenumber = 0)
+        {
+            if (busy != IsBusy)
+            {
+                IsBusy = busy;
+                if (Mouse.OverrideCursor == null)
+                {
+                    var mw = (App.Current.MainWindow as MainWindow);
+                    if (mw != null)
+                    {
+                        mw.Dispatcher.Invoke(delegate
+                        {
+
+                            Mouse.OverrideCursor = busy ? Cursors.Wait : null;
+                            Debug.WriteLine(
+                                $"%%%%%%%%%%%%%%%%%%%%%%%%%    busy={busy} - from {caller} at {linenumber} - {DateTime.Now.ToLongTimeString()}");
+                        });
+                    }
+                }
+                
+
+                if (IsBusy)
+                {
+                    new DispatcherTimer(TimeSpan.FromSeconds(0), DispatcherPriority.ApplicationIdle, dispatcherTimer_Tick, Application.Current.Dispatcher);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handles the Tick event of the dispatcherTimer control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+        private static void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            var dispatcherTimer = sender as DispatcherTimer;
+            if (dispatcherTimer != null)
+            {
+                SetBusyState(false);
+                dispatcherTimer.Stop();
+            }
+        }
+
+    }
 
     public class WaitCursor : IDisposable
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

@@ -835,7 +835,7 @@ namespace BatRecordingManager
             var wavFile = selectedSegment.Recording.RecordingSession.OriginalFilePath +
                           selectedSegment.Recording.RecordingName;
             wavFile = wavFile.Replace(@"\\", @"\");
-            if (File.Exists(wavFile))
+            if (File.Exists(wavFile) && (new FileInfo(wavFile).Length>0L))
                 Tools.OpenWavFile(wavFile, selectedSegment.StartOffset, selectedSegment.EndOffset);
             e.Handled = true;
         }

@@ -381,7 +381,7 @@ namespace BatRecordingManager
             WavFileMetaData wfmd = null;
 
             if (!string.IsNullOrWhiteSpace(wavFile))
-                if (File.Exists(wavFile))
+                if (File.Exists(wavFile) && (new FileInfo(wavFile).Length>0L))
                     wfmd = new WavFileMetaData(wavFile);
 
             var session = new RecordingSession {SessionTag = sessionTag};

@@ -145,7 +145,7 @@ namespace BatRecordingManager
             string moddedFolderPath = folderPath.Replace(@"\\", @"\"); // first ensure that hte path only contains single backslashes - which it should
             moddedFolderPath = moddedFolderPath.Replace(@"\", @"\\"); // then ensure that all backslashes are doubled for insertion into the config file
             string configFile = @"C:\audacity-win-portable\Portable Settings\audacity.cfg";
-            if (File.Exists(configFile))
+            if (File.Exists(configFile) && (new FileInfo(configFile).Length>0L))
             {
                 var lines = File.ReadAllLines(configFile);
                 for (int i = 0; i < lines.Length; i++)
@@ -420,7 +420,7 @@ namespace BatRecordingManager
             if (bareFileName.LastIndexOf('.') > 0)
                 bareFileName = bareFileName.Substring(0, bareFileName.LastIndexOf('.'));
 
-            if (string.IsNullOrWhiteSpace(folder) || !File.Exists(folder)) return;
+            if (string.IsNullOrWhiteSpace(folder) || !File.Exists(folder)  || (new FileInfo(folder).Length<=0L)) return;
             if (ExternalProcess != null)
             {
                 MessageBox.Show("Close previous instance of Audacity First!");
@@ -577,7 +577,7 @@ namespace BatRecordingManager
         /// <returns></returns>
         private bool Analyse(string file)
         {
-            if (!File.Exists(file)) return false;
+            if (!File.Exists(file) || (new FileInfo(file).Length<=0L)) return false;
             var bareFilename = file;
             if (file.Contains(@"\") && !file.EndsWith(@"\")) bareFilename = file.Substring(file.LastIndexOf(@"\") + 1);
             OnAnalysing(new AnalysingEventArgs(bareFilename));
@@ -749,7 +749,7 @@ namespace BatRecordingManager
                 List<String> filesToRemove=new List<string>();
                 foreach (var file in WavFileList)
                 {
-                    if (File.Exists(file))
+                    if (File.Exists(file) && (new FileInfo(file).Length>0L))
                     {
 
                         if (IsCurrentMatchingTextFile(file))
@@ -830,7 +830,7 @@ namespace BatRecordingManager
                 wavFile = FileToAnalyse;
             }
             var result = false;
-            if (!string.IsNullOrWhiteSpace(wavFile) && File.Exists(wavFile))
+            if (!string.IsNullOrWhiteSpace(wavFile) && File.Exists(wavFile) && (new FileInfo(wavFile).Length>0L))
             {
                 var matchingTextFile = wavFile.Substring(0, wavFile.LastIndexOf(".")) + ".txt";
                 if (File.Exists(matchingTextFile)) result = true;

@@ -510,7 +510,7 @@ namespace BatRecordingManager
                 {
                     var si = StoredImage.CreateFromBinary(blob);
                     var filename = si.caption.ExtractFilename(".wav");
-                    if (!string.IsNullOrWhiteSpace(filename) && File.Exists(filename))
+                    if (!string.IsNullOrWhiteSpace(filename) && File.Exists(filename) && (new FileInfo(filename).Length>0L))
                         si.Uri = filename;
                     else
                         si.Uri = "";
@@ -2754,7 +2754,7 @@ namespace BatRecordingManager
         {
             if (recording == null) return null;
             var fullyQualifiedFileName = recording.GetFileName(session);
-            if (!string.IsNullOrWhiteSpace(fullyQualifiedFileName) && File.Exists(fullyQualifiedFileName))
+            if (!string.IsNullOrWhiteSpace(fullyQualifiedFileName) && File.Exists(fullyQualifiedFileName) && (new FileInfo(fullyQualifiedFileName).Length>0L))
             {
                 var creationDate = File.GetCreationTime(fullyQualifiedFileName);
                 if (creationDate.Date >= session.SessionDate.Date &&

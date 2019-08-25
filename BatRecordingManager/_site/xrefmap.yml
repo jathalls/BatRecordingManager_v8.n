@@ -10916,6 +10916,25 @@ references:
   fullName.vb: BatRecordingManager.UiHelper.FindVisualParent(Of T)(System.Windows.DependencyObject)
   nameWithType: UiHelper.FindVisualParent<T>(DependencyObject)
   nameWithType.vb: UiHelper.FindVisualParent(Of T)(DependencyObject)
+- uid: BatRecordingManager.UiServices
+  name: UiServices
+  href: api/BatRecordingManager.UiServices.html
+  commentId: T:BatRecordingManager.UiServices
+  fullName: BatRecordingManager.UiServices
+  nameWithType: UiServices
+- uid: BatRecordingManager.UiServices.SetBusyState
+  name: SetBusyState()
+  href: api/BatRecordingManager.UiServices.html#BatRecordingManager_UiServices_SetBusyState
+  commentId: M:BatRecordingManager.UiServices.SetBusyState
+  fullName: BatRecordingManager.UiServices.SetBusyState()
+  nameWithType: UiServices.SetBusyState()
+- uid: BatRecordingManager.UiServices.SetBusyState*
+  name: SetBusyState
+  href: api/BatRecordingManager.UiServices.html#BatRecordingManager_UiServices_SetBusyState_
+  commentId: Overload:BatRecordingManager.UiServices.SetBusyState
+  isSpec: "True"
+  fullName: BatRecordingManager.UiServices.SetBusyState
+  nameWithType: UiServices.SetBusyState
 - uid: BatRecordingManager.Version
   name: Version
   href: api/BatRecordingManager.Version.html

@@ -734,6 +734,7 @@ Mouse.OverrideCursor = null;*/
         public void ReportSessionDataButton_Click(object sender, RoutedEventArgs e)
         {
            
+            //UiServices.SetBusyState();
                 GenerateReportSet(sender, e);
             
 

@@ -265,7 +265,7 @@ namespace BatRecordingManager
             if (_player != null && _player.PlaybackState != PlaybackState.Stopped) return;
             if (itemToPlay == null) return;
             if (string.IsNullOrWhiteSpace(itemToPlay.filename)) return;
-            if (!File.Exists(itemToPlay.filename)) return;
+            if (!File.Exists(itemToPlay.filename) || (new FileInfo(itemToPlay.filename).Length<=0L)) return;
 
 
             using (var afr = new AudioFileReader(itemToPlay.filename))
