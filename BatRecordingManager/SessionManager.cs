@@ -239,14 +239,27 @@ namespace BatRecordingManager
         /// <returns></returns>
         internal static RecordingSession CreateSession(string folderPath, string sessionTag, GpxHandler gpxHandler)
         {
+            var newSession = new RecordingSession();
+            string headerFile = "";
             if (gpxHandler == null) gpxHandler = new GpxHandler(folderPath);
             var folderList = new BulkObservableCollection<string> {folderPath};
-            var newSession = new RecordingSession();
-            var headerFile = GetHeaderFile(folderPath);
-            if (string.IsNullOrWhiteSpace(sessionTag)) sessionTag = CreateTag(folderPath);
-            newSession = FillSessionFromHeader(headerFile, sessionTag, folderList);
+            if (!string.IsNullOrWhiteSpace(sessionTag))
+            {
+                var sess = DBAccess.GetRecordingSession(sessionTag);
+                if (sess != null) newSession = sess;
+            }
+            else
+            {
+                sessionTag = CreateTag(folderPath);
+                headerFile = GetHeaderFile(folderPath);
+                newSession = FillSessionFromHeader(headerFile, sessionTag, folderList);
+                newSession = SetGpsCoordinates(newSession, gpxHandler);
+            }
+            
+           
+            
             newSession.OriginalFilePath = folderPath;
-            newSession = SetGpsCoordinates(newSession, gpxHandler);
+            
             newSession = EditSession(newSession, sessionTag, folderPath);
             if (newSession == null) return null;
             newSession = SaveSession(newSession);

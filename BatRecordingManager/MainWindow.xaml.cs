@@ -645,11 +645,11 @@ Do you wish to update that database to the latest specification?", "Out of Date 
         /// <param name="e"></param>
         public void AnalyseAndImport_DataUpdated(object sender, EventArgs e)
         {
-            if (sender != null)
+            if (sender != null && (sender is AnalyseAndImportClass))
             {
                 recordingSessionListControl?.RefreshData();
-                var sessionUpdated = (sender as AnalyseAndImportClass).SessionTag;
-                if (!string.IsNullOrWhiteSpace(sessionUpdated) && _runKaleidoscope)
+                var UpdatedSessionTag = (sender as AnalyseAndImportClass).SessionTag;
+                if (!string.IsNullOrWhiteSpace(UpdatedSessionTag) && _runKaleidoscope)
                 {
                     var mbResult = MessageBox.Show("Do you wish to Generate a report for this dataset?",
                         "Generate Report?", MessageBoxButton.YesNo);
@@ -659,10 +659,12 @@ Do you wish to update that database to the latest specification?", "Out of Date 
                             new Action(() =>
                             {
                                 //recordingSessionListControl.RefreshData();
-                                recordingSessionListControl.SelectSession(sessionUpdated);
+                                //recordingSessionListControl.SelectSession(sessionUpdated);
 
-                                recordingSessionListControl.ReportSessionDataButton_Click(sender,
-                                    new RoutedEventArgs());
+                                //recordingSessionListControl.ReportSessionDataButton_Click(sender,
+                                    //new RoutedEventArgs());
+                                    RecordingSession upDatedSession = DBAccess.GetRecordingSession(UpdatedSessionTag);
+                                    recordingSessionListControl.GenerateReportSet(upDatedSession, true);
                             }));
                 }
             }

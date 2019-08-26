@@ -1029,7 +1029,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.MainWindow.html",
-          "hash": "ExLDXx3jNoSMMnH3gPtoSA=="
+          "hash": "ywHVoI2TrlVE09A7Y4dndQ=="
         }
       },
       "is_incremental": true,
@@ -1329,7 +1329,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.RecordingSessionListDetailControl.html",
-          "hash": "h+HZEODKcLJ4G8oUKBvSHw=="
+          "hash": "iK9d2gjHkp18GwF73xDJLA=="
         }
       },
       "is_incremental": true,
@@ -1533,7 +1533,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.SessionManager.html",
-          "hash": "JLv+EtrxPVkdKvUpcQYe8A=="
+          "hash": "wP97f/tkekCBOWUa+/yZXw=="
         }
       },
       "is_incremental": true,
@@ -1825,12 +1825,11 @@
         "skipped_file_count": 0
       },
       "processors": {
-        "TocDocumentProcessor": {
-          "can_incremental": false,
-          "details": "Processor TocDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 0,
-          "skipped_file_count": 0
+          "total_file_count": 145,
+          "skipped_file_count": 145
         },
         "ConceptualDocumentProcessor": {
           "can_incremental": true,
@@ -1838,11 +1837,12 @@
           "total_file_count": 3,
           "skipped_file_count": 3
         },
-        "ManagedReferenceDocumentProcessor": {
-          "can_incremental": true,
+        "TocDocumentProcessor": {
+          "can_incremental": false,
+          "details": "Processor TocDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
           "incrementalPhase": "build",
-          "total_file_count": 145,
-          "skipped_file_count": 145
+          "total_file_count": 0,
+          "skipped_file_count": 0
         }
       }
     },

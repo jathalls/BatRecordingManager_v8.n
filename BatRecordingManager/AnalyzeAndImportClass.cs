@@ -252,9 +252,9 @@ namespace BatRecordingManager
             //{
             using (var dialog = new OpenFileDialog
             {
-                DefaultExt = "*.*",
+                DefaultExt = ".wav",
                 Filter = "Text files (*.txt)|*.txt|Wav files (*.wav)|*.wav|All Files (*.*)|*.*",
-                FilterIndex = 2,
+                FilterIndex = 3,
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 Title = "Select Folder or WAV file",
                 ValidateNames = false,
@@ -318,14 +318,22 @@ namespace BatRecordingManager
         /// <param name="e"></param>
         private void Dialog_FileOk(object sender, CancelEventArgs e)
         {
-            e.Cancel = false;
-            var f = (sender as OpenFileDialog).FileName;
-            if (string.IsNullOrWhiteSpace(f)) e.Cancel = true;
-            var folder = Tools.GetPath(f);
-            if (string.IsNullOrWhiteSpace(folder)) e.Cancel = true;
-            if (!Directory.Exists(folder)) e.Cancel = true;
-            var files = Directory.EnumerateFiles(folder, "*.wav");
-            if ( !files.Any()) e.Cancel = true;
+            try
+            {
+                e.Cancel = false;
+                var f = (sender as OpenFileDialog).FileName;
+                if (string.IsNullOrWhiteSpace(f)) e.Cancel = true;
+                var folder = Tools.GetPath(f);
+                if (string.IsNullOrWhiteSpace(folder)) e.Cancel = true;
+                if (!Directory.Exists(folder)) e.Cancel = true;
+                var files = Directory.EnumerateFiles(folder ?? "", "*.wav");
+                if (!files.Any()) e.Cancel = true;
+            }
+            catch (Exception)
+            {
+                e.Cancel = true;
+            }
+
             if (e.Cancel) (sender as OpenFileDialog).FileName = "Select Folder";
         }
 

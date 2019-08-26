@@ -748,8 +748,22 @@ Mouse.OverrideCursor = null;*/
 
         public bool GenerateReportSet(object sender, RoutedEventArgs e)
         {
+            bool doFullExport = false;
+            if (sender is AnalyseAndImportClass) doFullExport = true;
+            return (GenerateReportSet(null, doFullExport));
+        }
 
-            var doFullExport = false || sender is AnalyseAndImportClass;
+        /// <summary>
+        /// Alternative GenerateReport which actually does allthe work aand can be called
+        /// directly without a sender or eventArgs.  doFullExport flags that all report formats
+        /// should be exported as .csv files.
+        /// </summary>
+        /// <param name="doFullExport"></param>
+        /// <returns></returns>
+        public bool GenerateReportSet(RecordingSession SpecificSession=null, bool doFullExport=false)
+        { 
+
+        
             var reportBatStatsList = new List<BatStatistics>();
             var reportSessionList = new List<RecordingSession>();
             var reportRecordingList = new List<Recording>();
@@ -760,41 +774,51 @@ Mouse.OverrideCursor = null;*/
                 Debug.WriteLine("GenerateReport at" + DateTime.Now.ToLongTimeString());
                 try
                 {
-                    if (RecordingSessionListView.SelectedItems != null &&
-                        RecordingSessionListView.SelectedItems.Count > 0)
+                    if (SpecificSession != null)
                     {
-                        Debug.WriteLine("Get Data for " + RecordingSessionListView.SelectedItems.Count + " items at " +
-                                        DateTime.Now.ToLongTimeString());
-                        foreach (var item in RecordingSessionListView.SelectedItems)
-                        {
+                        statsForAllSessions.AddRange(SpecificSession.GetStats());
 
-                            if (!(item is RecordingSessionData sessionData)) return (false);
-                            Debug.WriteLine("Get Data for Session " + sessionData.SessionTag + " at " +
-                                            DateTime.Now.ToLongTimeString());
-                            var session = DBAccess.GetRecordingSession(sessionData.Id);
-                            if (session == null) return (false);
-                            Debug.WriteLine("GetStats for Session at " + DateTime.Now.ToLongTimeString());
-                            statsForAllSessions.AddRange(session.GetStats());
-
-                            reportSessionList.Add(session);
-                            Debug.WriteLine(reportSessionList.Count + " items in the sessionList at " +
-                                            DateTime.Now.ToLongTimeString());
-                        }
+                        reportSessionList.Add(SpecificSession);
                     }
                     else
                     {
-                        Debug.WriteLine("No selection made so reporting for all sessions!!!!!!! at " +
-                                        DateTime.Now.ToLongTimeString());
-                        if (RecordingSessionListView.Items != null && RecordingSessionListView.Items.Count > 0)
-                            foreach (var item in RecordingSessionListView.Items)
+                        if (RecordingSessionListView.SelectedItems != null &&
+                            RecordingSessionListView.SelectedItems.Count > 0)
+                        {
+                            Debug.WriteLine("Get Data for " + RecordingSessionListView.SelectedItems.Count +
+                                            " items at " +
+                                            DateTime.Now.ToLongTimeString());
+                            foreach (var item in RecordingSessionListView.SelectedItems)
                             {
+
                                 if (!(item is RecordingSessionData sessionData)) return (false);
+                                Debug.WriteLine("Get Data for Session " + sessionData.SessionTag + " at " +
+                                                DateTime.Now.ToLongTimeString());
                                 var session = DBAccess.GetRecordingSession(sessionData.Id);
                                 if (session == null) return (false);
+                                Debug.WriteLine("GetStats for Session at " + DateTime.Now.ToLongTimeString());
                                 statsForAllSessions.AddRange(session.GetStats());
 
                                 reportSessionList.Add(session);
+                                Debug.WriteLine(reportSessionList.Count + " items in the sessionList at " +
+                                                DateTime.Now.ToLongTimeString());
                             }
+                        }
+                        else
+                        {
+                            Debug.WriteLine("No selection made so reporting for all sessions!!!!!!! at " +
+                                            DateTime.Now.ToLongTimeString());
+                            if (RecordingSessionListView.Items != null && RecordingSessionListView.Items.Count > 0)
+                                foreach (var item in RecordingSessionListView.Items)
+                                {
+                                    if (!(item is RecordingSessionData sessionData)) return (false);
+                                    var session = DBAccess.GetRecordingSession(sessionData.Id);
+                                    if (session == null) return (false);
+                                    statsForAllSessions.AddRange(session.GetStats());
+
+                                    reportSessionList.Add(session);
+                                }
+                        }
                     }
 
                     Debug.WriteLine("Condensing Stats List at " + DateTime.Now.ToLongTimeString());

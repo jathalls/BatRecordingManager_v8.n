@@ -8657,6 +8657,12 @@ references:
   commentId: F:BatRecordingManager.RecordingSessionListDetailControl.Field
   fullName: BatRecordingManager.RecordingSessionListDetailControl.Field
   nameWithType: RecordingSessionListDetailControl.Field
+- uid: BatRecordingManager.RecordingSessionListDetailControl.GenerateReportSet(BatRecordingManager.RecordingSession,System.Boolean)
+  name: GenerateReportSet(RecordingSession, Boolean)
+  href: api/BatRecordingManager.RecordingSessionListDetailControl.html#BatRecordingManager_RecordingSessionListDetailControl_GenerateReportSet_BatRecordingManager_RecordingSession_System_Boolean_
+  commentId: M:BatRecordingManager.RecordingSessionListDetailControl.GenerateReportSet(BatRecordingManager.RecordingSession,System.Boolean)
+  fullName: BatRecordingManager.RecordingSessionListDetailControl.GenerateReportSet(BatRecordingManager.RecordingSession, System.Boolean)
+  nameWithType: RecordingSessionListDetailControl.GenerateReportSet(RecordingSession, Boolean)
 - uid: BatRecordingManager.RecordingSessionListDetailControl.GenerateReportSet(System.Object,System.Windows.RoutedEventArgs)
   name: GenerateReportSet(Object, RoutedEventArgs)
   href: api/BatRecordingManager.RecordingSessionListDetailControl.html#BatRecordingManager_RecordingSessionListDetailControl_GenerateReportSet_System_Object_System_Windows_RoutedEventArgs_
