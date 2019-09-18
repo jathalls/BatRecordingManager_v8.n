@@ -6,9 +6,9 @@
              xmlns:local="clr-namespace:BatRecordingManager"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d"
-             Width="800" Height="500">
+             Width="800" Height="500" HorizontalAlignment="Stretch">
 
-    <Grid Background="{StaticResource WindowBackgroundBrush}">
+    <Grid Background="{StaticResource WindowBackgroundBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
         <Grid.RowDefinitions>
             <RowDefinition Height="1" />
@@ -22,6 +22,8 @@
 
         <Grid
             x:Name="MainPanelGrid"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
             Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="140" />
@@ -152,11 +154,13 @@
                     Background="{StaticResource WindowBackgroundBrushLight}"
                     x:Name="GpsLatitudeTextBox" Width="150" Style="{StaticResource SimpleTextBox}"
                     ToolTip="Give site latitude in decimal format e.g. 54.176354"
+                    Text="{Binding Path=recordingSession.LocationGPSLatitude, Converter={StaticResource DecimalToStringConverter}, ConverterParameter=0, Mode=TwoWay}"
                     MouseDoubleClick="GPSLatitudeTextBox_MouseDoubleClick" />
                 <Label Content=" Longitude:-" Style="{StaticResource SimpleLabel}" />
                 <TextBox
                     Background="{StaticResource WindowBackgroundBrushLight}"
                     x:Name="GpsLongitudeTextBox" Width="150" Style="{StaticResource SimpleTextBox}"
+                    Text="{Binding Path=recordingSession.LocationGPSLongitude,Converter={StaticResource DecimalToStringConverter},ConverterParameter=0, Mode=TwoWay}"
                     ToolTip="Give site longitude in decimal format e.g. -0.123456"
                     MouseDoubleClick="GPSLatitudeTextBox_MouseDoubleClick" />
                 <Button
@@ -166,13 +170,21 @@
             </StackPanel>
             <Label
                 Grid.Row="8" Grid.Column="0" Content="Weather" Style="{StaticResource SimpleLabel}" />
-            <TextBox
-                Grid.Row="8"
-                Grid.Column="1"
-                IsReadOnly="False"
-                Style="{StaticResource SimpleTextBox}"
-                x:Name="WeatherTextBox" />
-
+            <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal">
+                <TextBox
+                    
+                    IsReadOnly="False"
+                    Style="{StaticResource SimpleTextBox}"
+                    HorizontalAlignment="Stretch"
+                    Width="{Binding ElementName=LocationComboBox, Path=ActualWidth, Converter={StaticResource AddValueConverter}, ConverterParameter = -55}"
+                    x:Name="WeatherTextBox" ScrollViewer.CanContentScroll="True" />
+                <Button
+                    x:Name="WeatherButton"
+                    Style="{StaticResource SimpleButton}"
+                    Width="50"
+                    ToolTip="Gets weather history from DarkSky. SHIFT-Click to append Dark-Sky weather summary"
+                    Content="Get" Click="WeatherButton_Click"  />
+            </StackPanel>
             <Label
                 Grid.Row="9" Grid.Column="0" Content="Temperature:-" Style="{StaticResource SimpleLabel}" />
             <StackPanel

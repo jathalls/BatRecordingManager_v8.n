@@ -14,6 +14,7 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
 
@@ -58,5 +59,10 @@ namespace BatRecordingManager
         }
 
         #endregion AssemblyVersion
+
+        private void Weather_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            Process.Start("https://darksky.net/poweredby");
+        }
     }
 }

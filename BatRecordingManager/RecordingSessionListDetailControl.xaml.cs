@@ -658,6 +658,8 @@ Mouse.OverrideCursor = null;*/
             {
                 if (RecordingSessionListView.SelectedItems == null ||
                     RecordingSessionListView.SelectedItems.Count <= 0) return;
+                RecordingsListControl.recordingsList.Clear();
+                RecordingsListControl.Refresh();
                 var id = (RecordingSessionListView.SelectedItems[0] as RecordingSessionData).Id;
                 RecordingSessionControl.recordingSession = DBAccess.GetRecordingSession(id);
                 SegmentImageScroller.Clear();

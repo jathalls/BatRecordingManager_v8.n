@@ -72,6 +72,7 @@ namespace BatRecordingManager
                 try
                 {
                     Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+                    
                     DBAccess.InitializeDatabase();
                 }
                 catch (Exception ex)
@@ -81,6 +82,8 @@ namespace BatRecordingManager
                 }
 
                 InitializeComponent();
+                App.DarkSkyApiKey=Properties.Settings.Default.DarkSkyApiKey;
+                App.BingMapsLicenseKey = Properties.Settings.Default.BingMapsLicenseKey;
                 try
                 {
                     ShowDatabase = App.ShowDatabase;
@@ -758,6 +761,39 @@ Do you wish to update that database to the latest specification?", "Out of Date 
         private void StatusText_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             Debug.WriteLine($"Status text changed to:-{StatusText.Text}");
+        }
+
+        /// <summary>
+        /// Menu item to copy the database.  The user chooses a location from the save file dialog
+        /// and the current .mdf and .ldf files are copied to the new location.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MiCopyDatabase_Click(object sender, RoutedEventArgs e)
+        {
+            var dc = DBAccess.GetFastDataContext();
+            dc.Connection.Close();
+            var destination = Tools.GetFileToWriteTo("", ".mdf");
+            if (!destination.EndsWith(".mdf"))
+            {
+                destination += ".mdf";
+            }
+
+            var source = DBAccess.GetWorkingDatabaseLocation();
+            source = source+DBAccess.GetWorkingDatabaseName(source);
+            File.Copy(source,destination);
+
+        }
+
+        /// <summary>
+        /// Expors the entire contents of the database to an XML file in text format.
+        /// This will be a BIG file and will take a LONG time.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MiExportDatabase_Click(object sender, RoutedEventArgs e)
+        {
+            // Not yet implemented
         }
     }
 }

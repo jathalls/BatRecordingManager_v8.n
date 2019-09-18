@@ -75,6 +75,22 @@
         </Style.Triggers>
     </Style>
 
+    <Style 
+        x:Key="lviStyle"
+        TargetType="{x:Type ListViewItem}"
+        >
+        <Setter Property="HorizontalContentAlignment" Value="Left"></Setter>
+        <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+    </Style>
+
+    <Style 
+        x:Key="lbiStyle"
+        TargetType="{x:Type ListBoxItem}"
+    >
+        <Setter Property="HorizontalContentAlignment" Value="Left"></Setter>
+        <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+    </Style>
+
     <local:BatLatinNameConverter x:Key="ConvertLatinName" />
 
     <local:ConvertGetNumberOfImages x:Key="ConvertGetNumberOfImages" />
@@ -103,6 +119,8 @@
 
     <local:DoubleStringConverter x:Key="DoubleToStringConverter" />
 
+    <local:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
+
     <local:CallParametersConverter x:Key="CallParametersConverter" />
 
     <local:TextColourConverter x:Key="TextColourConverter" />
@@ -116,6 +134,8 @@
     <local:DivideBy2Converter x:Key="DivideBy2Converter" />
 
     <local:Times2Converter x:Key="Times2Converter" />
+
+    <local:AddValueConverter x:Key="AddValueConverter"/>
 
     <local:MultiscaleConverter x:Key="MultiscaleConverter" />
 

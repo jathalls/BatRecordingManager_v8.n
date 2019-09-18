@@ -56,6 +56,15 @@ namespace BatRecordingManager
             return filename;
         }
 
+        /// <summary>
+        /// Calculates the contributions to the frequency table due to this segment
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <param name="FirstBlock"></param>
+        /// <param name="OccupiedMinutesPerBlock"></param>
+        /// <param name="tableStartTimeInMinutes"></param>
+        /// <param name="BlockSize"></param>
+        /// <returns></returns>
         public static bool FrequencyContributions(this LabelledSegment segment,out int FirstBlock,out List<int> OccupiedMinutesPerBlock,
             double tableStartTimeInMinutes=12.0d*60.0d, int BlockSize = 10)
         {
@@ -130,6 +139,8 @@ namespace BatRecordingManager
             return result;
         }
 
+       
+
         /// <summary>
         ///     Given a labelled segment, adds it to the recording in the database
         /// </summary>
@@ -160,7 +171,7 @@ namespace BatRecordingManager
             //}
             if (!File.Exists(file) || (new FileInfo(file).Length<=0L)) return;
             var bareFilename = Tools.StripPath(file);
-
+            
             var existingRecording = DBAccess.GetRecordingForWavFile(file);
 
             var fileMetaData = new WavFileMetaData(file);
@@ -233,9 +244,79 @@ namespace BatRecordingManager
 
             return result;
         }
+
+        /// <summary>
+        /// Returns the timespan as a string in the format [-]HH:MM
+        /// </summary>
+        /// <param name="timespan"></param>
+        /// <returns></returns>
+        public static string ToHMString(this TimeSpan timespan)
+        {
+            string result = "";
+            if (timespan.Ticks < 0) result = "-";
+            result = result + timespan.Duration().ToString(@"hh\:mm");
+            return result;
+        }
     }
 
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+    public partial class LabelledSegment
+    {
+        private TimeSpan _startTime=new TimeSpan();
+        private TimeSpan _endTime=new TimeSpan();
+        
+
+        public TimeSpan startTime
+        {
+            get
+            {
+                if (_startTime.Ticks > 0L) return (_startTime);
+                if (Recording != null && Recording.RecordingStartTime != null)
+                {
+                    TimeSpan result = Recording.RecordingStartTime.Value + StartOffset;
+                    _startTime = result;
+                    return (result);
+                }
+
+                return (TimeSpan.FromMinutes(-1.0d));
+            }
+        }
+
+        public TimeSpan endTime
+        {
+            get
+            {
+                if (_endTime.Ticks >0L) return (_endTime);
+                if (Recording != null && Recording.RecordingStartTime != null)
+                {
+                    TimeSpan result = Recording.RecordingStartTime.Value + EndOffset;
+                    _endTime = result;
+                    return (result);
+                }
+
+                return (TimeSpan.FromMinutes(-1.0d));
+            }
+        }
+
+        public TimeSpan StartTime(int refTimeMinutesSinceMidnight)
+        {
+            if (startTime.Ticks <= 0) return (startTime); // we dont have a valid start time so give up
+
+            if (startTime.TotalMinutes < refTimeMinutesSinceMidnight)
+                return (startTime + new TimeSpan(1, 0, 0, 0) - TimeSpan.FromMinutes(refTimeMinutesSinceMidnight));
+            return (startTime - TimeSpan.FromMinutes(refTimeMinutesSinceMidnight));
+        }
+
+        public TimeSpan EndTime(int refTimeMinutesSinceMidnight)
+        {
+            if (endTime.Ticks <= 0) return (endTime); // we dont have a valid start time so give up
+
+            if (endTime.TotalMinutes < refTimeMinutesSinceMidnight)
+                return (endTime + new TimeSpan(1, 0, 0, 0) - TimeSpan.FromMinutes(refTimeMinutesSinceMidnight));
+            return (endTime - TimeSpan.FromMinutes(refTimeMinutesSinceMidnight));
+        }
+    }
 
     public partial class Recording
     {
@@ -364,7 +445,13 @@ namespace BatRecordingManager
                                     longit);
                             }
                         }
+                        else
+                        {
+                            _sunset = SessionManager.CalculateSunset(RecordingDate.Value.Date, 51.9178783m,
+                                -1.1448518m);
+                        }
                     }
+
                 }
 
                 return (_sunset);
@@ -382,9 +469,9 @@ namespace BatRecordingManager
         {
             get
             {
-                if (_hasGPSLocation != null) return _hasGPSLocation.Value;
-                else
-                {
+                //if (_hasGPSLocation != null) return _hasGPSLocation.Value;
+                //else
+                //{
                     if (LocationGPSLatitude == null || LocationGPSLongitude == null ||
                         (LocationGPSLatitude <= 0.0001m && LocationGPSLongitude <= 0.0001m) ||
                         LocationGPSLatitude > 90.0m || LocationGPSLatitude < -90.0m || LocationGPSLongitude < -180.0m ||
@@ -396,7 +483,7 @@ namespace BatRecordingManager
                     {
                         _hasGPSLocation = true;
                     }
-                }
+                //}
 
                 return (_hasGPSLocation.Value);
             }

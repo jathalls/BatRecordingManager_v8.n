@@ -47,6 +47,7 @@ using Cursor = System.Windows.Input.Cursor;
 using Cursors = System.Windows.Input.Cursors;
 using DataGrid = System.Windows.Controls.DataGrid;
 using MessageBox = System.Windows.Forms.MessageBox;
+using StringAlignment = System.Drawing.StringAlignment;
 
 namespace BatRecordingManager
 {
@@ -254,6 +255,7 @@ namespace BatRecordingManager
                 sfd.CheckFileExists = false;
                 sfd.CheckPathExists = true;
                 sfd.DefaultExt = desiredExtension;
+                
                 sfd.InitialDirectory = initialLocaltion;
                 var outcome = sfd.ShowDialog();
                 if (outcome == DialogResult.OK)
@@ -1730,15 +1732,24 @@ namespace BatRecordingManager
         {
             try
             {
+                double dblValue=(double)value;
+                
+
+                string format = "{0.00}";
+                if (!string.IsNullOrWhiteSpace((parameter as String)))
+                {
+                    format = "{"+(parameter as String)+"}";
+                }
                 // Here's where you put the code do handle the value conversion.
                 var str = "";
-                str = $"{value,5:N1}";
+
+                str = String.Format(format, dblValue);
 
                 return str;
             }
             catch
             {
-                return value;
+                return value.ToString();
             }
         }
 
@@ -1750,6 +1761,68 @@ namespace BatRecordingManager
             // Not implemented
             double.TryParse((string) value, out var d);
             if (d < 0) return null;
+
+            return d;
+        }
+    }
+
+    /// <summary>
+    /// format converter for decimal values to and from a formatted string, format
+    /// specified in the parameter field without the curly braces
+    /// </summary>
+    public class DecimalToStringConverter : IValueConverter
+
+    {
+
+        /// <summary>
+        /// converter
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+
+        {
+            try
+            {
+                decimal dblValue = (decimal)value;
+
+
+                string format = "{0.00}";
+                if (!string.IsNullOrWhiteSpace((parameter as String)))
+                {
+                    format = "{" + (parameter as String) + "}";
+                }
+                // Here's where you put the code do handle the value conversion.
+                var str = "";
+
+                str = String.Format(format, dblValue);
+
+                return str;
+            }
+            catch
+            {
+                return value.ToString();
+            }
+        }
+
+
+        /// <summary>
+        /// unconverter
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+
+        {
+           
+            decimal.TryParse((string)value, out var d);
+            
 
             return d;
         }
@@ -2464,14 +2537,65 @@ namespace BatRecordingManager
             }
         }
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             // Not implemented
             return null;
         }
+    }
+
+    #endregion Times2Converter (ValueConverter)
+
+
+        #region AddValueConverter (ValueConverter)
+
+
+    /// <summary>
+    /// Uses a converterparameter to increase or decrease the numerical (double) value in the object
+    /// </summary>
+    public class AddValueConverter : IValueConverter
+
+    {
+
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.
+                double.TryParse(parameter as string, out var factor);
+                return (double) value + factor;
+            }
+            catch
+            {
+                return value;
+            }
+        }
+
+        /// <summary>
+        /// convertback not implemented
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    #endregion AddValueConverter (ValueConverter)
+
+
+
+
+
+
 
         /// <summary>
         ///     Used to set the height of a scale grid inside a canvas of variable size.
@@ -2494,9 +2618,9 @@ namespace BatRecordingManager
                 throw new NotImplementedException();
             }
         }
-    }
+    
 
-    #endregion Times2Converter (ValueConverter)
+    
 
     #region multiscaleConverter (ValueConverter)
 
@@ -3476,5 +3600,8 @@ namespace BatRecordingManager
                 return parent;
             return FindVisualParent<T>(parentObject);
         }
+
+        
+
     }
 }

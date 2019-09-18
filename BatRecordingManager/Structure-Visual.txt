@@ -513,3 +513,24 @@ miAnalyseFiles_Click()
 				(GetNextFile returns filename or null)
 			if OK return Sessiontag
 			if FAIL return ""
+
+#################################################################################################################################
+ReportByFrequency::ReportMaster
+	ReportMaster()
+		InitializeComponent()
+		ReportDataGrid.EnableColumnVirtualization=true;
+		ReportDataGrid.EnableRowVirtualization=true;
+
+reportWindow.SetReportData(reportBatStatsList,reportSessionList,reportRecordingList)
+	ReportBatStatsList=reportBatList.Distinct()
+	ReportSessionList=reportReportSessionList.Distinct()
+	ReportRecordingList=reportRecordingList.Distinct()
+	foreach(tabItem){
+		(tabItem.Content as reportMaster).SetData(ReportBatStatsList,ReportSessionList,ReportRecordingList)
+	}
+
+ReportMaster.SetData(ReportBatStatsList,ReportSessionList,reportRecordingList)
+	set DataGrid to bind to reportDataList (BOC<FrequencyData>)
+	foreach(bat){
+		
+	}

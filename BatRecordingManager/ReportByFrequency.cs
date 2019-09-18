@@ -43,7 +43,7 @@ namespace BatRecordingManager
 
         private int _aggregationPeriod = 10;
 
-        public int AggegrationPeriodInMinutes
+        public int AggregationPeriodInMinutes
         {
             get { return (_aggregationPeriod); }
             set
@@ -66,6 +66,11 @@ namespace BatRecordingManager
             }
         }
 
+        /// <summary>
+        /// boolean to indicate if time of day should be raltive to sunset with table start at sunset -6 hours.
+        /// </summary>
+        public bool reSunset { get; set; } = false;
+
         private int _tableStartTimeInMinutesFromMidnight = 720;
 
         public int TableStartTimeInMinutesFromMidnight
@@ -73,20 +78,21 @@ namespace BatRecordingManager
             get { return (_tableStartTimeInMinutesFromMidnight); }
             set
             {
-                if (value <= 0 || value >= 1440)
+
+                if (value < 0 || value >= 1440)
                 {
                     _tableStartTimeInMinutesFromMidnight = 720;
                 }
                 else
                 {
-                    int t = AggegrationPeriodInMinutes;
+                    int t = AggregationPeriodInMinutes;
                     while (t < value)
                     {
-                        t += AggegrationPeriodInMinutes;
+                        t += AggregationPeriodInMinutes;
 
                     }
 
-                    t -= AggegrationPeriodInMinutes;
+                    t -= AggregationPeriodInMinutes;
                     if (t <= 0 || t > 1440) t = 720;
                     _tableStartTimeInMinutesFromMidnight = t;
 
@@ -100,12 +106,22 @@ namespace BatRecordingManager
 
         private int NumberOfPeriods
         {
-            get { return (1440 / AggegrationPeriodInMinutes); }
+            get { return (1440 / AggregationPeriodInMinutes); }
         }
 
         private BulkObservableCollection<FrequencyData> OccurrencesPerPeriod =
             new BulkObservableCollection<FrequencyData>();
 
+        /// <summary>
+        /// public enum defining the possible values for the block sizes in the frequency table
+        /// </summary>
+        public enum BlockSizeInMinutes
+        {
+            FIVE = 5,
+            TEN = 10,
+            FIFTEEN = 15,
+            TWENTY = 20
+        };
 
 
         /// <summary>
@@ -149,36 +165,44 @@ namespace BatRecordingManager
                 // aggregation period and start time for table and number of periods have been set or defaulted globally
                 foreach (var bat in batList)
                 {
-                    List<int> OccurrencesPerPeriodForBat = new List<int>();
-                    for (int i = 0; i < NumberOfPeriods; i++) OccurrencesPerPeriodForBat.Add(0);
-                    var segments = from seg in (reportRecordingList.SelectMany(rec => rec.LabelledSegments))
-                        from lnk in seg.BatSegmentLinks
-                        where lnk.BatID == bat.Id
-                        select seg;
-                    foreach (var segment in segments)
+
+                    FrequencyData fd = FrequencyData.CreateEmpty(AggregationPeriodInMinutes, bat);
+
+                    foreach (var recordingSession in reportSessionList)
                     {
-                        List<int> OccupiedPeriodsPerBlock = new List<int>();
-                        if (segment.FrequencyContributions(out int FirstBlock, out List<int> occupiedMinutesPerBlock,
-                            (double) TableStartTimeInMinutesFromMidnight, AggegrationPeriodInMinutes))
+                        bool sessionHasBat = (
+                            from sessbatLnk in recordingSession.BatSessionLinks
+                            where sessbatLnk.BatID == bat.Id
+                            select sessbatLnk).Any();
+                        if (sessionHasBat)
                         {
-                            for (int i = FirstBlock, j = 0; i < FirstBlock + occupiedMinutesPerBlock.Count; i++, j++)
+                            var sunset = recordingSession.Sunset;
+                            if (sunset == null || sunset.Value.Ticks<=0L)
                             {
-                                if (i >= OccurrencesPerPeriodForBat.Count || j >= occupiedMinutesPerBlock.Count)
-                                {
-                                    Debug.WriteLine($"Error OUT OF BOUNDS i={i} into OccurrencesPerPeriodForBat of length {OccurrencesPerPeriodForBat.Count},\n" +
-                                                    $"j={j} into OccupiedMinutesPerBlock of length {OccupiedPeriodsPerBlock.Count}");
-                                    break;
-                                }
-                                OccurrencesPerPeriodForBat[i] += occupiedMinutesPerBlock[j];
+                                sunset = recordingSession.Recordings.FirstOrDefault().sunset;
                             }
+
+                            if (sunset == null)
+                            {
+                                sunset = SessionManager.CalculateSunset(recordingSession.SessionDate.Date, 51.9178783m,
+                                    -1.1448518m);
+                            }
+                            if (reSunset && recordingSession.Sunset != null)
+                            {
+                                if (recordingSession.Sunset.Value.TotalMinutes > 720.0d)
+                                {
+                                    TableStartTimeInMinutesFromMidnight =
+                                        (int) recordingSession.Sunset.Value.TotalMinutes - 360;
+                                }
+                            }
+
+                            FrequencyData fdForSession = GetFrequencyData(bat, recordingSession, reportRecordingList);
+                            fd.Add(fdForSession);
                         }
-
                     }
-
-                    BulkObservableCollection<int> boc = new BulkObservableCollection<int>();
-                    boc.AddRange(OccurrencesPerPeriodForBat);
-                    FrequencyData fd = new FrequencyData(AggegrationPeriodInMinutes, bat, boc);
                     reportDataList.Add(fd);
+
+
                 }
             }
             catch (Exception ex)
@@ -223,6 +247,130 @@ namespace BatRecordingManager
             ReportDataGrid.ItemsSource = reportDataList;*/
         }
 
+        private FrequencyData GetFrequencyData(Bat bat, RecordingSession recordingSession, BulkObservableCollection<Recording> reportRecordingList)
+        {
+            FrequencyData fd=FrequencyData.CreateEmpty(AggregationPeriodInMinutes, bat);
+
+            //List<int> OccurrencesPerPeriodForBat = new List<int>();
+            //for (int i = 0; i < NumberOfPeriods; i++) OccurrencesPerPeriodForBat.Add(0);
+
+            var segmentsForThisBat = from seg in (reportRecordingList.SelectMany(rec => rec.LabelledSegments))
+                                     where seg.Recording.RecordingSession.Id==recordingSession.Id &&
+                                           seg.StartOffset!=seg.EndOffset
+                                     from lnk in seg.BatSegmentLinks
+                                     where lnk.BatID == bat.Id
+                                     select seg;
+
+
+            int firstBlock = GetFirstBlock(segmentsForThisBat);
+            int lastBlock = GetLastBlock(segmentsForThisBat);
+            for (int i = firstBlock; i <= lastBlock; i++)
+            {
+                fd.OccurrencesPerPeriod[i] = GetOcccurrencesForBlock(i, segmentsForThisBat);
+            }
+            /*
+            foreach (var batSegment in segmentsForThisBat)
+            {
+                List<int> OccupiedPeriodsPerBlock = new List<int>();
+
+
+                
+                if (batSegment.FrequencyContributions(out int FirstBlock, out List<int> occupiedMinutesPerBlock,
+                    (double)TableStartTimeInMinutesFromMidnight, AggregationPeriodInMinutes))
+                {
+                    for (int i = FirstBlock, j = 0; i < FirstBlock + occupiedMinutesPerBlock.Count; i++, j++)
+                    {
+                        if (i >= OccurrencesPerPeriodForBat.Count || j >= occupiedMinutesPerBlock.Count)
+                        {
+                            Debug.WriteLine($"Error OUT OF BOUNDS i={i} into OccurrencesPerPeriodForBat of length {OccurrencesPerPeriodForBat.Count},\n" +
+                                            $"j={j} into OccupiedMinutesPerBlock of length {OccupiedPeriodsPerBlock.Count}");
+                            break;
+                        }
+                        OccurrencesPerPeriodForBat[i] += occupiedMinutesPerBlock[j];
+                    }
+                }
+
+            }*/
+
+            //BulkObservableCollection<int> boc = new BulkObservableCollection<int>();
+            //boc.AddRange(OccurrencesPerPeriodForBat);
+            //fd = new FrequencyData(AggregationPeriodInMinutes, bat, boc);
+
+            return (fd);
+        }
+
+        /// <summary>
+        /// Examines the provided segments to see how many minutes in this block overlap segments in the set
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="segmentsForThisBat"></param>
+        /// <returns></returns>
+        private int GetOcccurrencesForBlock(int blockIndex, IEnumerable<LabelledSegment> segmentsForThisBat)
+        {
+            int result = 0;
+            TimeSpan startTimeForBlock = TimeSpan.FromMinutes( blockIndex * AggregationPeriodInMinutes);
+            
+            for (int minute = (int)startTimeForBlock.TotalMinutes;
+                minute < (int)startTimeForBlock.TotalMinutes + AggregationPeriodInMinutes;
+                minute++)
+            {
+                foreach (var seg in segmentsForThisBat)
+                {
+                    Debug.WriteLine(
+                        $"seg start at {seg.StartTime(TableStartTimeInMinutesFromMidnight)}({seg.StartTime(TableStartTimeInMinutesFromMidnight).TotalMinutes})" +
+                        $" end at {seg.EndTime(TableStartTimeInMinutesFromMidnight)}({seg.EndTime(TableStartTimeInMinutesFromMidnight).TotalMinutes})" +
+                        $"in minute {minute} ");
+                }
+
+                var inseg = (from seg in segmentsForThisBat
+                    where (int) (seg.StartTime(TableStartTimeInMinutesFromMidnight).TotalMinutes) <= minute &&
+                          (int) (seg.EndTime(TableStartTimeInMinutesFromMidnight).TotalMinutes) >= minute
+                    select seg).Any();
+
+                if (inseg)
+                {
+                    Debug.WriteLine("start<=minute && end>=minute");
+                    result++;
+                }
+
+            }
+
+            return (result);
+        }
+
+        /// <summary>
+        /// Finds the earliest segment and locates the first block that includes the start of that segment
+        /// </summary>
+        /// <param name="segmentsForThisBat"></param>
+        /// <returns></returns>
+        private int GetFirstBlock(IEnumerable<LabelledSegment> segmentsForThisBat)
+        {
+            var firstSegmentStart = (from seg in segmentsForThisBat
+                orderby seg.StartTime(TableStartTimeInMinutesFromMidnight)
+                select seg.StartTime(TableStartTimeInMinutesFromMidnight)).First();
+            if (firstSegmentStart.Ticks <= 0)
+            {
+                return (0);
+            }
+
+            var block = (int)firstSegmentStart.TotalMinutes / AggregationPeriodInMinutes;
+            return (block);
+        }
+
+        private int GetLastBlock(IEnumerable<LabelledSegment> segmentsForThisBat)
+        {
+            var lastSegmentEnd = (from seg in segmentsForThisBat
+                orderby seg.EndTime(TableStartTimeInMinutesFromMidnight) descending
+                select seg.EndTime(TableStartTimeInMinutesFromMidnight)).First();
+            if (lastSegmentEnd.Ticks <= 0)
+            {
+                return (0);
+            }
+
+            var block = (int)lastSegmentEnd.TotalMinutes / AggregationPeriodInMinutes;
+            return (block);
+        }
+
 
         /// <summary>
         ///     Creates a single column in the reportDataGridByFrequency Datagrid which will hold the list of bats
@@ -252,14 +400,25 @@ namespace BatRecordingManager
         {
             ReportDataGrid.Columns.Clear();
             if (reportDataList == null || reportDataList.Count <= 0) return;
-            var aggregationPeriod = AggegrationPeriodInMinutes;
+            var aggregationPeriod = AggregationPeriodInMinutes;
             var day = new TimeSpan(24, 0, 0);
             var minutesInDay = (int) day.TotalMinutes;
 
             ReportDataGrid.Columns.Add(CreateBatColumn());
 
+            TimeSpan TableStartTime=TimeSpan.FromMinutes(TableStartTimeInMinutesFromMidnight);
+            if (reSunset)
+            {
+                TableStartTime=TimeSpan.FromMinutes(-360); // if times are re sunset start at sunset -6hours
+            }
+
+            TimeSpan columnTime = TableStartTime;
             for (var i = 0; i < NumberOfPeriods; i++)
-                ReportDataGrid.Columns.Add(CreateOccurrencesColumn(aggregationPeriod, i));
+            {
+                ReportDataGrid.Columns.Add(CreateOccurrencesColumn(columnTime, i));
+                
+                columnTime += TimeSpan.FromMinutes(AggregationPeriodInMinutes);
+            }
         }
 
         /// <summary>
@@ -267,10 +426,11 @@ namespace BatRecordingManager
         /// </summary>
         /// <param name="i"></param>
         /// <returns></returns>
-        private DataGridColumn CreateOccurrencesColumn(int aggregationperiod, int i)
+        private DataGridColumn CreateOccurrencesColumn(TimeSpan columnTime, int i)
         {
-            var time = new TimeSpan(12, aggregationperiod * i, 0);
-            var strTime = $"{time.Hours}:{time.Minutes}";
+            //var time = new TimeSpan(12, aggregationperiod * i, 0);
+            var strTime = columnTime.ToHMString();
+            //Debug.WriteLine(strTime);
             var valueColumn = new DataGridTextColumn
             {
                 Header = strTime, Binding = new Binding("OccurrencesPerPeriod[" + i + "]")

@@ -28,6 +28,7 @@
                               Click="miDatabase_Click" />
                     <MenuItem x:Name="MiSetToDefaultDatabase" Header="Use Default Database"
                               ToolTip="Return to the normal default database" Click="miSetToDefaultDatabase_Click" />
+                    
 
                     <Separator />
                     <MenuItem x:Name="MiImportBatData" Header="Import Bat Data" Click="miImportBatData_Click" />
@@ -68,6 +69,7 @@
                      Style="{StaticResource SimpleTextBox}" IsReadOnly="True" TextChanged="StatusText_TextChanged" />
         </StackPanel>
         <Grid x:Name="MainWindowPaneGrid" Background="{StaticResource WindowBackgroundBrush}">
+            
 
             <!--<local:RecordingSessionListDetailControl x:Name="recordingSessionListControl" Visibility="Visible" />-->
         </Grid>

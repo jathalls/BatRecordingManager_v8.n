@@ -47,6 +47,22 @@ namespace BatRecordingManager
             set { _dbFileName = value; }
         }
 
+        /// <summary>
+        /// License key to use the DarkSky API.  To build fromGitHub sources
+        /// tou will need to obtain your own key from DarkSky.net and place it in the
+        /// BatReference.settings file which is not included in GitHub distributions
+        /// as 'DarkSkyApiKey'.
+        /// </summary>
+        public static string DarkSkyApiKey { get; set; } = "";
+
+        /// <summary>
+        /// License key from Microsoft to use the Bing Maps API.  To build from Github
+        /// sources you will need to obtain your own Bing Maps License key and place it in
+        /// the BatReference.settings file which is not included in the GitHub distribtution
+        /// as 'BingMapsKey'.
+        /// </summary>
+        public static string BingMapsLicenseKey { get; set; } = "";
+
         protected override void OnStartup(StartupEventArgs e)
         {
             foreach (var arg in e.Args)
@@ -58,8 +74,14 @@ namespace BatRecordingManager
             foreach (var arg in e.Args)
                 if (arg.Contains("nodebug") || arg.Contains("undebug"))
                     ShowDatabase = false;
+
+            
+            //DarkSkyApiKey = Properties.Settings.Default.DarkSkyApiKey;
+            //BingMapsLicenseKey = Properties.Settings.Default.BingMapsLicenseKey;
+            
             
             base.OnStartup(e);
+            
         }
 
         

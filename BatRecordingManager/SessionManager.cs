@@ -28,26 +28,53 @@ namespace BatRecordingManager
     {
         internal static string GetSessionTag(FileBrowser fileBrowser)
         {
-            var result = "";
+            string FolderPath = fileBrowser.WorkingFolder;
+            string SessionTag = "";
+            var tagPattern = @"[A-Z0-9]+[-_]{1}([0-9a-zA-Z]+[-_]{1})?20[0-9]{6}";
+            if (!string.IsNullOrWhiteSpace(FolderPath) && Directory.Exists(FolderPath))
+            {
+
+
+                var WavFileList = Directory.EnumerateFiles(FolderPath, "*.wav");
+                if (WavFileList.IsNullOrEmpty()) return ("");
+
+                foreach (var file in WavFileList)
+                {
+                    var fileName = file.Substring(file.LastIndexOf(@"\"));
+                    var result = Regex.Match(fileName, tagPattern);
+                    if (result.Success)
+                    {
+                        SessionTag = result.Value;
+                        return SessionTag;
+                    }
+
+
+                    
+                }
+            }
+
+
+            
+            
             if (!string.IsNullOrWhiteSpace(fileBrowser.WorkingFolder))
             {
                 var tagRegex = new Regex("-[a-zA-Z]+[0-9]+-{1}[0-9]+[a-zA-Z]*_+[0-9]{8}.*");
                 var match = tagRegex.Match(fileBrowser.WorkingFolder);
                 if (match.Success)
                 {
-                    result = match.Value.Substring(1); // remove the surplus leading hyphen
-                    if (result.EndsWith("\\")) // remove any trailing backslash
-                        result = result.Substring(0, result.Length - 1);
-                    while (result.Contains(@"\")
+                    SessionTag = match.Value.Substring(1); // remove the surplus leading hyphen
+                    if (SessionTag.EndsWith("\\")) // remove any trailing backslash
+                        SessionTag = SessionTag.Substring(0, SessionTag.Length - 1);
+                    while (SessionTag.Contains(@"\")
                     ) // tag may include parent folders as well as the lowest level folder so this removes leading folder names
-                        result = result.Substring(result.IndexOf(@"\") + 1);
+                        SessionTag = SessionTag.Substring(SessionTag.IndexOf(@"\") + 1);
                 }
             }
 
-            return result;
+            return SessionTag;
         }
 
-        /// <summary>
+            /// <summary>
         ///     Uses the supplied gpxhandler to fill in the GPX co-ordinates for the supplied session
         /// </summary>
         /// <param name="session"></param>
@@ -82,6 +109,25 @@ namespace BatRecordingManager
                 {
                     workingFolder
                 };
+
+            DateTime firstFileDateAndTimeFromName=new DateTime(1,1,1);
+            DateTime lastFileDateAndTimeFromName=new DateTime(1,1,1);
+            var wavFileList = Directory.EnumerateFiles(workingFolder, "*.wav");
+            if (!wavFileList.IsNullOrEmpty())
+            {
+                var wavfileName = wavFileList.First();
+                if (DBAccess.GetDateTimeFromFilename(wavfileName, out DateTime startFileDate))
+                {
+                    firstFileDateAndTimeFromName = startFileDate;
+                }
+
+                wavfileName = wavFileList.Last();
+                if (DBAccess.GetDateTimeFromFilename(wavfileName, out DateTime endFileDate))
+                {
+                    lastFileDateAndTimeFromName = endFileDate;
+                }
+
+            }
 
             var existingSession = DBAccess.GetRecordingSession(newSession.SessionTag);
             if (existingSession != null) return existingSession;
@@ -123,6 +169,27 @@ namespace BatRecordingManager
                             }
                     }
                 }
+
+                if (firstFileDateAndTimeFromName.Year > 1)
+                {
+                    newSession.SessionDate = firstFileDateAndTimeFromName;
+                    newSession.SessionStartTime = firstFileDateAndTimeFromName.TimeOfDay;
+                }
+
+                if (newSession.EndDate < newSession.SessionDate)
+                {
+                    newSession.EndDate = newSession.SessionDate;
+                    newSession.SessionEndTime = newSession.SessionStartTime + new TimeSpan(2, 0, 0);
+                }
+
+                if (lastFileDateAndTimeFromName.Year > 1)
+                {
+                    newSession.EndDate = lastFileDateAndTimeFromName;
+                    newSession.SessionEndTime = (newSession.EndDate ?? newSession.SessionDate).TimeOfDay +
+                                                new TimeSpan(0, 10, 0);
+
+                }
+
             }
             else
             {
@@ -248,9 +315,13 @@ namespace BatRecordingManager
                 var sess = DBAccess.GetRecordingSession(sessionTag);
                 if (sess != null) newSession = sess;
             }
-            else
+            if(newSession.Id<=0)
             {
-                sessionTag = CreateTag(folderPath);
+                if (string.IsNullOrWhiteSpace(sessionTag))
+                {
+                    sessionTag = CreateTag(folderPath);
+                }
+
                 headerFile = GetHeaderFile(folderPath);
                 newSession = FillSessionFromHeader(headerFile, sessionTag, folderList);
                 newSession = SetGpsCoordinates(newSession, gpxHandler);

@@ -450,3 +450,7 @@ DONEish
 	label file should be exported and the window closed.  BRM should then read the modified text file and update the recording and associated data accordingly.
 	This allows an initial quick assessment and labelling of species and permits later more detaield examination of interesting portions with more comprehensive description, and possible
 	re-assessment of species, which at the moment would require a complete re-import or 'editing' of a label.
+
+9 Sept 2019
+	Still getting some installation errors with reports to the errorlog about the Version table not existing.  Modified the DBAccess routines that used dc.Mapping.Tables to see whether a table exists or is need of being created (which actually does not work) and added a new GetRawDatabaseTables function which receives a connection string to make an independent connection to the database and uses sql to retriev the informationschema and extracts the list of table names.  The same process should be used to identify columns independently of the dc which uses the compile time expectations, no the characteristics of the connected database.
+

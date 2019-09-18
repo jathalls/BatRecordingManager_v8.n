@@ -24,6 +24,8 @@
             <RowDefinition Height="30" />
             <RowDefinition Height="30" />
             <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
             <RowDefinition Height="57*" />
         </Grid.RowDefinitions>
         <Label Grid.Row="1" Content="B R M" FontSize="36" HorizontalAlignment="Center" FontWeight="Bold"
@@ -42,5 +44,8 @@
         <Label Grid.Row="9" Content="Uses:-" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Top" />
         <Label Grid.Row="10" x:Name="DbVer" Content="    Undefined Database" FontSize="14" HorizontalAlignment="Left"
                VerticalAlignment="Top" />
+        <Label Grid.Row="11" x:Name="Sound" Content="    NAudio"/>
+        <Label Grid.Row="12" x:Name="weather" Content="    Weather Powered By Dark Sky" MouseLeftButtonUp="Weather_MouseLeftButtonUp" Foreground="#FF0C40F1"/>
+
     </Grid>
 </Window>

@@ -183,7 +183,7 @@ namespace BatRecordingManager
                 {
                     var currentSelectedListBoxItem =
                         RecordingsListView.ItemContainerGenerator.ContainerFromIndex(RecordingsListView.SelectedIndex)
-                            as ListBoxItem;
+                            as ListViewItem;
                     var lsegListView = Tools.FindDescendant<ListView>(currentSelectedListBoxItem);
                     lsegListView?.UnselectAll();
                     RecordingsListView.UnselectAll();
@@ -212,7 +212,7 @@ namespace BatRecordingManager
                     {
                         var currentSelectedListBoxItem =
                             RecordingsListView.ItemContainerGenerator.ContainerFromIndex(RecordingsListView
-                                .SelectedIndex) as ListBoxItem;
+                                .SelectedIndex) as ListViewItem;
                         var lsegListView = Tools.FindDescendant<ListView>(currentSelectedListBoxItem);
                         if (lsegListView != null)
                         {
@@ -262,7 +262,7 @@ namespace BatRecordingManager
         /// </param>
         internal void OnListViewItemFocused(object sender, RoutedEventArgs args)
         {
-            var lvi = sender as ListBoxItem;
+            var lvi = sender as ListViewItem;
 
             lvi.BringIntoView();
             lvi.IsSelected = true;

@@ -17,6 +17,7 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Maps.MapControl.WPF;
+using Microsoft.Maps.MapControl.WPF.Core;
 
 namespace BatRecordingManager
 {
@@ -41,6 +42,8 @@ namespace BatRecordingManager
             ThisMap.Focus();
             lastInsertedPinLocation = null;
            LabelMode = ThisMap.Mode;
+           
+           
         }
 
         /// <summary>

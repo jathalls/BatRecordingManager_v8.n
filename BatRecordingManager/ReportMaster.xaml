@@ -28,6 +28,9 @@
             Background="{StaticResource WindowBackgroundBrushLight}"
             Grid.Column="2"
             ItemsSource="{Binding Path=reportDataList}"
-            AutoGenerateColumns="false" ColumnReordered="ReportDataGrid_ColumnReordered" />
+            AutoGenerateColumns="false" 
+            FrozenColumnCount="2"
+            
+            ColumnReordered="ReportDataGrid_ColumnReordered" />
     </Grid>
 </UserControl>

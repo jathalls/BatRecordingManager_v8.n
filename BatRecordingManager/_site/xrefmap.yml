@@ -45,6 +45,38 @@ references:
   commentId: F:BatRecordingManager.AboutScreen.AssemblyVersionProperty
   fullName: BatRecordingManager.AboutScreen.AssemblyVersionProperty
   nameWithType: AboutScreen.AssemblyVersionProperty
+- uid: BatRecordingManager.AddValueConverter
+  name: AddValueConverter
+  href: api/BatRecordingManager.AddValueConverter.html
+  commentId: T:BatRecordingManager.AddValueConverter
+  fullName: BatRecordingManager.AddValueConverter
+  nameWithType: AddValueConverter
+- uid: BatRecordingManager.AddValueConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  name: Convert(Object, Type, Object, CultureInfo)
+  href: api/BatRecordingManager.AddValueConverter.html#BatRecordingManager_AddValueConverter_Convert_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_
+  commentId: M:BatRecordingManager.AddValueConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  fullName: BatRecordingManager.AddValueConverter.Convert(System.Object, System.Type, System.Object, System.Globalization.CultureInfo)
+  nameWithType: AddValueConverter.Convert(Object, Type, Object, CultureInfo)
+- uid: BatRecordingManager.AddValueConverter.Convert*
+  name: Convert
+  href: api/BatRecordingManager.AddValueConverter.html#BatRecordingManager_AddValueConverter_Convert_
+  commentId: Overload:BatRecordingManager.AddValueConverter.Convert
+  isSpec: "True"
+  fullName: BatRecordingManager.AddValueConverter.Convert
+  nameWithType: AddValueConverter.Convert
+- uid: BatRecordingManager.AddValueConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  name: ConvertBack(Object, Type, Object, CultureInfo)
+  href: api/BatRecordingManager.AddValueConverter.html#BatRecordingManager_AddValueConverter_ConvertBack_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_
+  commentId: M:BatRecordingManager.AddValueConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  fullName: BatRecordingManager.AddValueConverter.ConvertBack(System.Object, System.Type, System.Object, System.Globalization.CultureInfo)
+  nameWithType: AddValueConverter.ConvertBack(Object, Type, Object, CultureInfo)
+- uid: BatRecordingManager.AddValueConverter.ConvertBack*
+  name: ConvertBack
+  href: api/BatRecordingManager.AddValueConverter.html#BatRecordingManager_AddValueConverter_ConvertBack_
+  commentId: Overload:BatRecordingManager.AddValueConverter.ConvertBack
+  isSpec: "True"
+  fullName: BatRecordingManager.AddValueConverter.ConvertBack
+  nameWithType: AddValueConverter.ConvertBack
 - uid: BatRecordingManager.AnalysingEventArgs
   name: AnalysingEventArgs
   href: api/BatRecordingManager.AnalysingEventArgs.html
@@ -89,6 +121,32 @@ references:
   commentId: T:BatRecordingManager.App
   fullName: BatRecordingManager.App
   nameWithType: App
+- uid: BatRecordingManager.App.BingMapsLicenseKey
+  name: BingMapsLicenseKey
+  href: api/BatRecordingManager.App.html#BatRecordingManager_App_BingMapsLicenseKey
+  commentId: P:BatRecordingManager.App.BingMapsLicenseKey
+  fullName: BatRecordingManager.App.BingMapsLicenseKey
+  nameWithType: App.BingMapsLicenseKey
+- uid: BatRecordingManager.App.BingMapsLicenseKey*
+  name: BingMapsLicenseKey
+  href: api/BatRecordingManager.App.html#BatRecordingManager_App_BingMapsLicenseKey_
+  commentId: Overload:BatRecordingManager.App.BingMapsLicenseKey
+  isSpec: "True"
+  fullName: BatRecordingManager.App.BingMapsLicenseKey
+  nameWithType: App.BingMapsLicenseKey
+- uid: BatRecordingManager.App.DarkSkyApiKey
+  name: DarkSkyApiKey
+  href: api/BatRecordingManager.App.html#BatRecordingManager_App_DarkSkyApiKey
+  commentId: P:BatRecordingManager.App.DarkSkyApiKey
+  fullName: BatRecordingManager.App.DarkSkyApiKey
+  nameWithType: App.DarkSkyApiKey
+- uid: BatRecordingManager.App.DarkSkyApiKey*
+  name: DarkSkyApiKey
+  href: api/BatRecordingManager.App.html#BatRecordingManager_App_DarkSkyApiKey_
+  commentId: Overload:BatRecordingManager.App.DarkSkyApiKey
+  isSpec: "True"
+  fullName: BatRecordingManager.App.DarkSkyApiKey
+  nameWithType: App.DarkSkyApiKey
 - uid: BatRecordingManager.App.dbFileLocation
   name: dbFileLocation
   href: api/BatRecordingManager.App.html#BatRecordingManager_App_dbFileLocation
@@ -4299,6 +4357,19 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.DbMemberHelpers.ImportWavFile
   nameWithType: DbMemberHelpers.ImportWavFile
+- uid: BatRecordingManager.DbMemberHelpers.ToHMString(System.TimeSpan)
+  name: ToHMString(TimeSpan)
+  href: api/BatRecordingManager.DbMemberHelpers.html#BatRecordingManager_DbMemberHelpers_ToHMString_System_TimeSpan_
+  commentId: M:BatRecordingManager.DbMemberHelpers.ToHMString(System.TimeSpan)
+  fullName: BatRecordingManager.DbMemberHelpers.ToHMString(System.TimeSpan)
+  nameWithType: DbMemberHelpers.ToHMString(TimeSpan)
+- uid: BatRecordingManager.DbMemberHelpers.ToHMString*
+  name: ToHMString
+  href: api/BatRecordingManager.DbMemberHelpers.html#BatRecordingManager_DbMemberHelpers_ToHMString_
+  commentId: Overload:BatRecordingManager.DbMemberHelpers.ToHMString
+  isSpec: "True"
+  fullName: BatRecordingManager.DbMemberHelpers.ToHMString
+  nameWithType: DbMemberHelpers.ToHMString
 - uid: BatRecordingManager.DebugBreak
   name: DebugBreak
   href: api/BatRecordingManager.DebugBreak.html
@@ -4331,6 +4402,38 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.DebugBreak.ConvertBack
   nameWithType: DebugBreak.ConvertBack
+- uid: BatRecordingManager.DecimalToStringConverter
+  name: DecimalToStringConverter
+  href: api/BatRecordingManager.DecimalToStringConverter.html
+  commentId: T:BatRecordingManager.DecimalToStringConverter
+  fullName: BatRecordingManager.DecimalToStringConverter
+  nameWithType: DecimalToStringConverter
+- uid: BatRecordingManager.DecimalToStringConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  name: Convert(Object, Type, Object, CultureInfo)
+  href: api/BatRecordingManager.DecimalToStringConverter.html#BatRecordingManager_DecimalToStringConverter_Convert_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_
+  commentId: M:BatRecordingManager.DecimalToStringConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  fullName: BatRecordingManager.DecimalToStringConverter.Convert(System.Object, System.Type, System.Object, System.Globalization.CultureInfo)
+  nameWithType: DecimalToStringConverter.Convert(Object, Type, Object, CultureInfo)
+- uid: BatRecordingManager.DecimalToStringConverter.Convert*
+  name: Convert
+  href: api/BatRecordingManager.DecimalToStringConverter.html#BatRecordingManager_DecimalToStringConverter_Convert_
+  commentId: Overload:BatRecordingManager.DecimalToStringConverter.Convert
+  isSpec: "True"
+  fullName: BatRecordingManager.DecimalToStringConverter.Convert
+  nameWithType: DecimalToStringConverter.Convert
+- uid: BatRecordingManager.DecimalToStringConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  name: ConvertBack(Object, Type, Object, CultureInfo)
+  href: api/BatRecordingManager.DecimalToStringConverter.html#BatRecordingManager_DecimalToStringConverter_ConvertBack_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_
+  commentId: M:BatRecordingManager.DecimalToStringConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  fullName: BatRecordingManager.DecimalToStringConverter.ConvertBack(System.Object, System.Type, System.Object, System.Globalization.CultureInfo)
+  nameWithType: DecimalToStringConverter.ConvertBack(Object, Type, Object, CultureInfo)
+- uid: BatRecordingManager.DecimalToStringConverter.ConvertBack*
+  name: ConvertBack
+  href: api/BatRecordingManager.DecimalToStringConverter.html#BatRecordingManager_DecimalToStringConverter_ConvertBack_
+  commentId: Overload:BatRecordingManager.DecimalToStringConverter.ConvertBack
+  isSpec: "True"
+  fullName: BatRecordingManager.DecimalToStringConverter.ConvertBack
+  nameWithType: DecimalToStringConverter.ConvertBack
 - uid: BatRecordingManager.DisplayStoredImageControl
   name: DisplayStoredImageControl
   href: api/BatRecordingManager.DisplayStoredImageControl.html
@@ -5171,6 +5274,19 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.FrequencyData.FrequencyData
   nameWithType: FrequencyData.FrequencyData
+- uid: BatRecordingManager.FrequencyData.Add(BatRecordingManager.FrequencyData)
+  name: Add(FrequencyData)
+  href: api/BatRecordingManager.FrequencyData.html#BatRecordingManager_FrequencyData_Add_BatRecordingManager_FrequencyData_
+  commentId: M:BatRecordingManager.FrequencyData.Add(BatRecordingManager.FrequencyData)
+  fullName: BatRecordingManager.FrequencyData.Add(BatRecordingManager.FrequencyData)
+  nameWithType: FrequencyData.Add(FrequencyData)
+- uid: BatRecordingManager.FrequencyData.Add*
+  name: Add
+  href: api/BatRecordingManager.FrequencyData.html#BatRecordingManager_FrequencyData_Add_
+  commentId: Overload:BatRecordingManager.FrequencyData.Add
+  isSpec: "True"
+  fullName: BatRecordingManager.FrequencyData.Add
+  nameWithType: FrequencyData.Add
 - uid: BatRecordingManager.FrequencyData.AggregationPeriod
   name: AggregationPeriod
   href: api/BatRecordingManager.FrequencyData.html#BatRecordingManager_FrequencyData_AggregationPeriod
@@ -5358,6 +5474,44 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.GrabRegionForm.rect
   nameWithType: GrabRegionForm.rect
+- uid: BatRecordingManager.GridScaleConverter
+  name: GridScaleConverter
+  href: api/BatRecordingManager.GridScaleConverter.html
+  commentId: T:BatRecordingManager.GridScaleConverter
+  fullName: BatRecordingManager.GridScaleConverter
+  nameWithType: GridScaleConverter
+- uid: BatRecordingManager.GridScaleConverter.Convert(System.Object[],System.Type,System.Object,System.Globalization.CultureInfo)
+  name: Convert(Object[], Type, Object, CultureInfo)
+  href: api/BatRecordingManager.GridScaleConverter.html#BatRecordingManager_GridScaleConverter_Convert_System_Object___System_Type_System_Object_System_Globalization_CultureInfo_
+  commentId: M:BatRecordingManager.GridScaleConverter.Convert(System.Object[],System.Type,System.Object,System.Globalization.CultureInfo)
+  name.vb: Convert(Object(), Type, Object, CultureInfo)
+  fullName: BatRecordingManager.GridScaleConverter.Convert(System.Object[], System.Type, System.Object, System.Globalization.CultureInfo)
+  fullName.vb: BatRecordingManager.GridScaleConverter.Convert(System.Object(), System.Type, System.Object, System.Globalization.CultureInfo)
+  nameWithType: GridScaleConverter.Convert(Object[], Type, Object, CultureInfo)
+  nameWithType.vb: GridScaleConverter.Convert(Object(), Type, Object, CultureInfo)
+- uid: BatRecordingManager.GridScaleConverter.Convert*
+  name: Convert
+  href: api/BatRecordingManager.GridScaleConverter.html#BatRecordingManager_GridScaleConverter_Convert_
+  commentId: Overload:BatRecordingManager.GridScaleConverter.Convert
+  isSpec: "True"
+  fullName: BatRecordingManager.GridScaleConverter.Convert
+  nameWithType: GridScaleConverter.Convert
+- uid: BatRecordingManager.GridScaleConverter.ConvertBack(System.Object,System.Type[],System.Object,System.Globalization.CultureInfo)
+  name: ConvertBack(Object, Type[], Object, CultureInfo)
+  href: api/BatRecordingManager.GridScaleConverter.html#BatRecordingManager_GridScaleConverter_ConvertBack_System_Object_System_Type___System_Object_System_Globalization_CultureInfo_
+  commentId: M:BatRecordingManager.GridScaleConverter.ConvertBack(System.Object,System.Type[],System.Object,System.Globalization.CultureInfo)
+  name.vb: ConvertBack(Object, Type(), Object, CultureInfo)
+  fullName: BatRecordingManager.GridScaleConverter.ConvertBack(System.Object, System.Type[], System.Object, System.Globalization.CultureInfo)
+  fullName.vb: BatRecordingManager.GridScaleConverter.ConvertBack(System.Object, System.Type(), System.Object, System.Globalization.CultureInfo)
+  nameWithType: GridScaleConverter.ConvertBack(Object, Type[], Object, CultureInfo)
+  nameWithType.vb: GridScaleConverter.ConvertBack(Object, Type(), Object, CultureInfo)
+- uid: BatRecordingManager.GridScaleConverter.ConvertBack*
+  name: ConvertBack
+  href: api/BatRecordingManager.GridScaleConverter.html#BatRecordingManager_GridScaleConverter_ConvertBack_
+  commentId: Overload:BatRecordingManager.GridScaleConverter.ConvertBack
+  isSpec: "True"
+  fullName: BatRecordingManager.GridScaleConverter.ConvertBack
+  nameWithType: GridScaleConverter.ConvertBack
 - uid: BatRecordingManager.GuanoDeprecated
   name: GuanoDeprecated
   href: api/BatRecordingManager.GuanoDeprecated.html
@@ -6510,6 +6664,32 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.LabelledSegment.EndOffset
   nameWithType: LabelledSegment.EndOffset
+- uid: BatRecordingManager.LabelledSegment.endTime
+  name: endTime
+  href: api/BatRecordingManager.LabelledSegment.html#BatRecordingManager_LabelledSegment_endTime
+  commentId: P:BatRecordingManager.LabelledSegment.endTime
+  fullName: BatRecordingManager.LabelledSegment.endTime
+  nameWithType: LabelledSegment.endTime
+- uid: BatRecordingManager.LabelledSegment.EndTime(System.Int32)
+  name: EndTime(Int32)
+  href: api/BatRecordingManager.LabelledSegment.html#BatRecordingManager_LabelledSegment_EndTime_System_Int32_
+  commentId: M:BatRecordingManager.LabelledSegment.EndTime(System.Int32)
+  fullName: BatRecordingManager.LabelledSegment.EndTime(System.Int32)
+  nameWithType: LabelledSegment.EndTime(Int32)
+- uid: BatRecordingManager.LabelledSegment.endTime*
+  name: endTime
+  href: api/BatRecordingManager.LabelledSegment.html#BatRecordingManager_LabelledSegment_endTime_
+  commentId: Overload:BatRecordingManager.LabelledSegment.endTime
+  isSpec: "True"
+  fullName: BatRecordingManager.LabelledSegment.endTime
+  nameWithType: LabelledSegment.endTime
+- uid: BatRecordingManager.LabelledSegment.EndTime*
+  name: EndTime
+  href: api/BatRecordingManager.LabelledSegment.html#BatRecordingManager_LabelledSegment_EndTime_
+  commentId: Overload:BatRecordingManager.LabelledSegment.EndTime
+  isSpec: "True"
+  fullName: BatRecordingManager.LabelledSegment.EndTime
+  nameWithType: LabelledSegment.EndTime
 - uid: BatRecordingManager.LabelledSegment.Id
   name: Id
   href: api/BatRecordingManager.LabelledSegment.html#BatRecordingManager_LabelledSegment_Id
@@ -6626,6 +6806,32 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.LabelledSegment.StartOffset
   nameWithType: LabelledSegment.StartOffset
+- uid: BatRecordingManager.LabelledSegment.startTime
+  name: startTime
+  href: api/BatRecordingManager.LabelledSegment.html#BatRecordingManager_LabelledSegment_startTime
+  commentId: P:BatRecordingManager.LabelledSegment.startTime
+  fullName: BatRecordingManager.LabelledSegment.startTime
+  nameWithType: LabelledSegment.startTime
+- uid: BatRecordingManager.LabelledSegment.StartTime(System.Int32)
+  name: StartTime(Int32)
+  href: api/BatRecordingManager.LabelledSegment.html#BatRecordingManager_LabelledSegment_StartTime_System_Int32_
+  commentId: M:BatRecordingManager.LabelledSegment.StartTime(System.Int32)
+  fullName: BatRecordingManager.LabelledSegment.StartTime(System.Int32)
+  nameWithType: LabelledSegment.StartTime(Int32)
+- uid: BatRecordingManager.LabelledSegment.startTime*
+  name: startTime
+  href: api/BatRecordingManager.LabelledSegment.html#BatRecordingManager_LabelledSegment_startTime_
+  commentId: Overload:BatRecordingManager.LabelledSegment.startTime
+  isSpec: "True"
+  fullName: BatRecordingManager.LabelledSegment.startTime
+  nameWithType: LabelledSegment.startTime
+- uid: BatRecordingManager.LabelledSegment.StartTime*
+  name: StartTime
+  href: api/BatRecordingManager.LabelledSegment.html#BatRecordingManager_LabelledSegment_StartTime_
+  commentId: Overload:BatRecordingManager.LabelledSegment.StartTime
+  isSpec: "True"
+  fullName: BatRecordingManager.LabelledSegment.StartTime
+  nameWithType: LabelledSegment.StartTime
 - uid: BatRecordingManager.LabelledSegmentControl
   name: LabelledSegmentControl
   href: api/BatRecordingManager.LabelledSegmentControl.html
@@ -8867,19 +9073,49 @@ references:
   commentId: T:BatRecordingManager.ReportByFrequency
   fullName: BatRecordingManager.ReportByFrequency
   nameWithType: ReportByFrequency
-- uid: BatRecordingManager.ReportByFrequency.AggegrationPeriodInMinutes
-  name: AggegrationPeriodInMinutes
-  href: api/BatRecordingManager.ReportByFrequency.html#BatRecordingManager_ReportByFrequency_AggegrationPeriodInMinutes
-  commentId: P:BatRecordingManager.ReportByFrequency.AggegrationPeriodInMinutes
-  fullName: BatRecordingManager.ReportByFrequency.AggegrationPeriodInMinutes
-  nameWithType: ReportByFrequency.AggegrationPeriodInMinutes
-- uid: BatRecordingManager.ReportByFrequency.AggegrationPeriodInMinutes*
-  name: AggegrationPeriodInMinutes
-  href: api/BatRecordingManager.ReportByFrequency.html#BatRecordingManager_ReportByFrequency_AggegrationPeriodInMinutes_
-  commentId: Overload:BatRecordingManager.ReportByFrequency.AggegrationPeriodInMinutes
+- uid: BatRecordingManager.ReportByFrequency.AggregationPeriodInMinutes
+  name: AggregationPeriodInMinutes
+  href: api/BatRecordingManager.ReportByFrequency.html#BatRecordingManager_ReportByFrequency_AggregationPeriodInMinutes
+  commentId: P:BatRecordingManager.ReportByFrequency.AggregationPeriodInMinutes
+  fullName: BatRecordingManager.ReportByFrequency.AggregationPeriodInMinutes
+  nameWithType: ReportByFrequency.AggregationPeriodInMinutes
+- uid: BatRecordingManager.ReportByFrequency.AggregationPeriodInMinutes*
+  name: AggregationPeriodInMinutes
+  href: api/BatRecordingManager.ReportByFrequency.html#BatRecordingManager_ReportByFrequency_AggregationPeriodInMinutes_
+  commentId: Overload:BatRecordingManager.ReportByFrequency.AggregationPeriodInMinutes
   isSpec: "True"
-  fullName: BatRecordingManager.ReportByFrequency.AggegrationPeriodInMinutes
-  nameWithType: ReportByFrequency.AggegrationPeriodInMinutes
+  fullName: BatRecordingManager.ReportByFrequency.AggregationPeriodInMinutes
+  nameWithType: ReportByFrequency.AggregationPeriodInMinutes
+- uid: BatRecordingManager.ReportByFrequency.BlockSizeInMinutes
+  name: ReportByFrequency.BlockSizeInMinutes
+  href: api/BatRecordingManager.ReportByFrequency.BlockSizeInMinutes.html
+  commentId: T:BatRecordingManager.ReportByFrequency.BlockSizeInMinutes
+  fullName: BatRecordingManager.ReportByFrequency.BlockSizeInMinutes
+  nameWithType: ReportByFrequency.BlockSizeInMinutes
+- uid: BatRecordingManager.ReportByFrequency.BlockSizeInMinutes.FIFTEEN
+  name: FIFTEEN
+  href: api/BatRecordingManager.ReportByFrequency.BlockSizeInMinutes.html#BatRecordingManager_ReportByFrequency_BlockSizeInMinutes_FIFTEEN
+  commentId: F:BatRecordingManager.ReportByFrequency.BlockSizeInMinutes.FIFTEEN
+  fullName: BatRecordingManager.ReportByFrequency.BlockSizeInMinutes.FIFTEEN
+  nameWithType: ReportByFrequency.BlockSizeInMinutes.FIFTEEN
+- uid: BatRecordingManager.ReportByFrequency.BlockSizeInMinutes.FIVE
+  name: FIVE
+  href: api/BatRecordingManager.ReportByFrequency.BlockSizeInMinutes.html#BatRecordingManager_ReportByFrequency_BlockSizeInMinutes_FIVE
+  commentId: F:BatRecordingManager.ReportByFrequency.BlockSizeInMinutes.FIVE
+  fullName: BatRecordingManager.ReportByFrequency.BlockSizeInMinutes.FIVE
+  nameWithType: ReportByFrequency.BlockSizeInMinutes.FIVE
+- uid: BatRecordingManager.ReportByFrequency.BlockSizeInMinutes.TEN
+  name: TEN
+  href: api/BatRecordingManager.ReportByFrequency.BlockSizeInMinutes.html#BatRecordingManager_ReportByFrequency_BlockSizeInMinutes_TEN
+  commentId: F:BatRecordingManager.ReportByFrequency.BlockSizeInMinutes.TEN
+  fullName: BatRecordingManager.ReportByFrequency.BlockSizeInMinutes.TEN
+  nameWithType: ReportByFrequency.BlockSizeInMinutes.TEN
+- uid: BatRecordingManager.ReportByFrequency.BlockSizeInMinutes.TWENTY
+  name: TWENTY
+  href: api/BatRecordingManager.ReportByFrequency.BlockSizeInMinutes.html#BatRecordingManager_ReportByFrequency_BlockSizeInMinutes_TWENTY
+  commentId: F:BatRecordingManager.ReportByFrequency.BlockSizeInMinutes.TWENTY
+  fullName: BatRecordingManager.ReportByFrequency.BlockSizeInMinutes.TWENTY
+  nameWithType: ReportByFrequency.BlockSizeInMinutes.TWENTY
 - uid: BatRecordingManager.ReportByFrequency.reportDataList
   name: reportDataList
   href: api/BatRecordingManager.ReportByFrequency.html#BatRecordingManager_ReportByFrequency_reportDataList
@@ -8893,6 +9129,19 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.ReportByFrequency.reportDataList
   nameWithType: ReportByFrequency.reportDataList
+- uid: BatRecordingManager.ReportByFrequency.reSunset
+  name: reSunset
+  href: api/BatRecordingManager.ReportByFrequency.html#BatRecordingManager_ReportByFrequency_reSunset
+  commentId: P:BatRecordingManager.ReportByFrequency.reSunset
+  fullName: BatRecordingManager.ReportByFrequency.reSunset
+  nameWithType: ReportByFrequency.reSunset
+- uid: BatRecordingManager.ReportByFrequency.reSunset*
+  name: reSunset
+  href: api/BatRecordingManager.ReportByFrequency.html#BatRecordingManager_ReportByFrequency_reSunset_
+  commentId: Overload:BatRecordingManager.ReportByFrequency.reSunset
+  isSpec: "True"
+  fullName: BatRecordingManager.ReportByFrequency.reSunset
+  nameWithType: ReportByFrequency.reSunset
 - uid: BatRecordingManager.ReportByFrequency.SetData(Microsoft.VisualStudio.Language.Intellisense.BulkObservableCollection{BatRecordingManager.BatStatistics},Microsoft.VisualStudio.Language.Intellisense.BulkObservableCollection{BatRecordingManager.RecordingSession},Microsoft.VisualStudio.Language.Intellisense.BulkObservableCollection{BatRecordingManager.Recording})
   name: SetData(BulkObservableCollection<BatStatistics>, BulkObservableCollection<RecordingSession>, BulkObservableCollection<Recording>)
   href: api/BatRecordingManager.ReportByFrequency.html#BatRecordingManager_ReportByFrequency_SetData_Microsoft_VisualStudio_Language_Intellisense_BulkObservableCollection_BatRecordingManager_BatStatistics__Microsoft_VisualStudio_Language_Intellisense_BulkObservableCollection_BatRecordingManager_RecordingSession__Microsoft_VisualStudio_Language_Intellisense_BulkObservableCollection_BatRecordingManager_Recording__
@@ -10482,44 +10731,6 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.Times2Converter.ConvertBack
   nameWithType: Times2Converter.ConvertBack
-- uid: BatRecordingManager.Times2Converter.GridScaleConverter
-  name: Times2Converter.GridScaleConverter
-  href: api/BatRecordingManager.Times2Converter.GridScaleConverter.html
-  commentId: T:BatRecordingManager.Times2Converter.GridScaleConverter
-  fullName: BatRecordingManager.Times2Converter.GridScaleConverter
-  nameWithType: Times2Converter.GridScaleConverter
-- uid: BatRecordingManager.Times2Converter.GridScaleConverter.Convert(System.Object[],System.Type,System.Object,System.Globalization.CultureInfo)
-  name: Convert(Object[], Type, Object, CultureInfo)
-  href: api/BatRecordingManager.Times2Converter.GridScaleConverter.html#BatRecordingManager_Times2Converter_GridScaleConverter_Convert_System_Object___System_Type_System_Object_System_Globalization_CultureInfo_
-  commentId: M:BatRecordingManager.Times2Converter.GridScaleConverter.Convert(System.Object[],System.Type,System.Object,System.Globalization.CultureInfo)
-  name.vb: Convert(Object(), Type, Object, CultureInfo)
-  fullName: BatRecordingManager.Times2Converter.GridScaleConverter.Convert(System.Object[], System.Type, System.Object, System.Globalization.CultureInfo)
-  fullName.vb: BatRecordingManager.Times2Converter.GridScaleConverter.Convert(System.Object(), System.Type, System.Object, System.Globalization.CultureInfo)
-  nameWithType: Times2Converter.GridScaleConverter.Convert(Object[], Type, Object, CultureInfo)
-  nameWithType.vb: Times2Converter.GridScaleConverter.Convert(Object(), Type, Object, CultureInfo)
-- uid: BatRecordingManager.Times2Converter.GridScaleConverter.Convert*
-  name: Convert
-  href: api/BatRecordingManager.Times2Converter.GridScaleConverter.html#BatRecordingManager_Times2Converter_GridScaleConverter_Convert_
-  commentId: Overload:BatRecordingManager.Times2Converter.GridScaleConverter.Convert
-  isSpec: "True"
-  fullName: BatRecordingManager.Times2Converter.GridScaleConverter.Convert
-  nameWithType: Times2Converter.GridScaleConverter.Convert
-- uid: BatRecordingManager.Times2Converter.GridScaleConverter.ConvertBack(System.Object,System.Type[],System.Object,System.Globalization.CultureInfo)
-  name: ConvertBack(Object, Type[], Object, CultureInfo)
-  href: api/BatRecordingManager.Times2Converter.GridScaleConverter.html#BatRecordingManager_Times2Converter_GridScaleConverter_ConvertBack_System_Object_System_Type___System_Object_System_Globalization_CultureInfo_
-  commentId: M:BatRecordingManager.Times2Converter.GridScaleConverter.ConvertBack(System.Object,System.Type[],System.Object,System.Globalization.CultureInfo)
-  name.vb: ConvertBack(Object, Type(), Object, CultureInfo)
-  fullName: BatRecordingManager.Times2Converter.GridScaleConverter.ConvertBack(System.Object, System.Type[], System.Object, System.Globalization.CultureInfo)
-  fullName.vb: BatRecordingManager.Times2Converter.GridScaleConverter.ConvertBack(System.Object, System.Type(), System.Object, System.Globalization.CultureInfo)
-  nameWithType: Times2Converter.GridScaleConverter.ConvertBack(Object, Type[], Object, CultureInfo)
-  nameWithType.vb: Times2Converter.GridScaleConverter.ConvertBack(Object, Type(), Object, CultureInfo)
-- uid: BatRecordingManager.Times2Converter.GridScaleConverter.ConvertBack*
-  name: ConvertBack
-  href: api/BatRecordingManager.Times2Converter.GridScaleConverter.html#BatRecordingManager_Times2Converter_GridScaleConverter_ConvertBack_
-  commentId: Overload:BatRecordingManager.Times2Converter.GridScaleConverter.ConvertBack
-  isSpec: "True"
-  fullName: BatRecordingManager.Times2Converter.GridScaleConverter.ConvertBack
-  nameWithType: Times2Converter.GridScaleConverter.ConvertBack
 - uid: BatRecordingManager.TimeSpanConverter
   name: TimeSpanConverter
   href: api/BatRecordingManager.TimeSpanConverter.html
@@ -11262,3 +11473,28 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.WAMD_Data.versionAsDouble
   nameWithType: WAMD_Data.versionAsDouble
+- uid: BatRecordingManager.weatherEventArgs
+  name: weatherEventArgs
+  href: api/BatRecordingManager.weatherEventArgs.html
+  commentId: T:BatRecordingManager.weatherEventArgs
+  fullName: BatRecordingManager.weatherEventArgs
+  nameWithType: weatherEventArgs
+- uid: BatRecordingManager.weatherEventArgs.#ctor(System.String)
+  name: weatherEventArgs(String)
+  href: api/BatRecordingManager.weatherEventArgs.html#BatRecordingManager_weatherEventArgs__ctor_System_String_
+  commentId: M:BatRecordingManager.weatherEventArgs.#ctor(System.String)
+  fullName: BatRecordingManager.weatherEventArgs.weatherEventArgs(System.String)
+  nameWithType: weatherEventArgs.weatherEventArgs(String)
+- uid: BatRecordingManager.weatherEventArgs.#ctor*
+  name: weatherEventArgs
+  href: api/BatRecordingManager.weatherEventArgs.html#BatRecordingManager_weatherEventArgs__ctor_
+  commentId: Overload:BatRecordingManager.weatherEventArgs.#ctor
+  isSpec: "True"
+  fullName: BatRecordingManager.weatherEventArgs.weatherEventArgs
+  nameWithType: weatherEventArgs.weatherEventArgs
+- uid: BatRecordingManager.weatherEventArgs.summary
+  name: summary
+  href: api/BatRecordingManager.weatherEventArgs.html#BatRecordingManager_weatherEventArgs_summary
+  commentId: F:BatRecordingManager.weatherEventArgs.summary
+  fullName: BatRecordingManager.weatherEventArgs.summary
+  nameWithType: weatherEventArgs.summary

@@ -214,11 +214,11 @@ namespace BatRecordingManager
 
                         session.Location = LocationComboBox.Text;
 
-                        decimal.TryParse(GpsLatitudeTextBox.Text, out var value);
-                        session.LocationGPSLatitude = value;
-                        value = 0.0m;
-                        decimal.TryParse(GpsLongitudeTextBox.Text, out value);
-                        session.LocationGPSLongitude = value;
+                        //decimal.TryParse(GpsLatitudeTextBox.Text, out var value);
+                        //session.LocationGPSLatitude = value;
+                        //value = 0.0m;
+                        //decimal.TryParse(GpsLongitudeTextBox.Text, out value);
+                        //session.LocationGPSLongitude = value;
 
                         session.Operator = OperatorComboBox.Text;
                         session.SessionNotes = SessionNotesRichtextBox.Text;
@@ -278,6 +278,20 @@ namespace BatRecordingManager
                         //SessionDatePicker.SelectedDate = value.SessionDate;
                         TemperatureIntegerUpDown.Value = value.Temp;
                         FolderTextBox.Text = value.OriginalFilePath;
+                        /*
+                        if (string.IsNullOrWhiteSpace(WeatherTextBox.Text))
+                        {
+                            if (value.LocationGPSLatitude >= -90.0m && value.LocationGPSLatitude <= 90.0m &&
+                                value.LocationGPSLongitude >= -180.0m && value.LocationGPSLongitude <= 180.0m)
+                            {
+                                Weather weather=new Weather();
+                                weather.weatherReceived += Weather_weatherReceived;
+
+                                var res=weather.GetWeatherHistory((double) value.LocationGPSLatitude,
+                                    (double) value.LocationGPSLongitude, value.SessionDate.Date+(value.SessionStartTime??new TimeSpan(20,0,0)));
+                                WeatherTextBox.Text = res;
+                            }
+                        }*/
                     }
                     catch (Exception ex)
                     {
@@ -315,6 +329,18 @@ namespace BatRecordingManager
             }
         }
 
+        private void Weather_weatherReceived(object sender, weatherEventArgs e)
+        {
+            if (appendWeather)
+            {
+                WeatherTextBox.Text = WeatherTextBox.Text + ": " + e.summary;
+            }
+            else
+            {
+                WeatherTextBox.Text = e.summary;
+            }
+        }
+
         #endregion recordingSession
 
         #region selectedFolder
@@ -336,5 +362,28 @@ namespace BatRecordingManager
         }
 
         #endregion selectedFolder
+
+        private bool appendWeather = false;
+
+        private void WeatherButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!recordingSession.hasGPSLocation) return;
+            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+            {
+                appendWeather = true;
+            }
+            else
+            {
+                appendWeather = false;
+            }
+            
+            Weather weather = new Weather();
+            weather.weatherReceived += Weather_weatherReceived;
+
+            var res = weather.GetWeatherHistory((double)recordingSession.LocationGPSLatitude,
+                (double)recordingSession.LocationGPSLongitude, recordingSession.SessionDate.Date + (recordingSession.SessionStartTime ?? new TimeSpan(20, 0, 0)));
+            
+            
+        }
     }
 }

@@ -72,7 +72,38 @@ namespace BatRecordingManager
 
         public string sessionHeader { get; set; } = "";
 
-        
+        /// <summary>
+        /// returns a new, empty example of Frequency data configured for the named bat
+        /// </summary>
+        /// <param name="aggregationPeriodInMinutes"></param>
+        /// <param name="bat"></param>
+        /// <returns></returns>
+        internal static FrequencyData CreateEmpty(int aggregationPeriodInMinutes, Bat bat)
+        {
+            FrequencyData fd=new FrequencyData(aggregationPeriodInMinutes,bat,null);
+            for (int i = 0; i < fd.OccurrencesPerPeriod.Count; i++)
+            {
+                fd.OccurrencesPerPeriod[i] = 0;
+            }
+
+            return (fd);
+        }
+
+        /// <summary>
+        /// adds the contents of the provided frequency data to the current one assuming that the bat is the same and the
+        /// size of the OccurrencePerPeriod is the same
+        /// </summary>
+        /// <param name="fdForSession"></param>
+        public void Add(FrequencyData fdForSession)
+        {
+            if (bat.Id == fdForSession.bat.Id && OccurrencesPerPeriod.Count == fdForSession.OccurrencesPerPeriod.Count)
+            {
+                for (int i = 0; i < OccurrencesPerPeriod.Count; i++)
+                {
+                    OccurrencesPerPeriod[i] += fdForSession.OccurrencesPerPeriod[i];
+                }
+            }
+        }
     }
 
     /************************************************************************************************************************************/
@@ -170,6 +201,15 @@ namespace BatRecordingManager
                 if ((tabitem as TabItem).Content is ReportMaster)
                 {
                     var tabReportMaster = (tabitem as TabItem).Content as ReportMaster;
+                    if (tabReportMaster is ReportByFrequency)
+                    {
+                        ReportByFrequency frequencyReport = tabReportMaster as ReportByFrequency;
+                        frequencyReport.AggregationPeriodInMinutes = 10;
+                        frequencyReport.TableStartTimeInMinutesFromMidnight =
+                            720; // indicates to use sunset -6 hours for each session
+                        frequencyReport.reSunset = true;
+                    }
+
                     tabReportMaster.SetData(ReportBatStatsList, ReportSessionList, ReportRecordingList);
                     (tabitem as TabItem).Header = tabReportMaster.tabHeader;
                 }
