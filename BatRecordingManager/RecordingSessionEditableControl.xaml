@@ -58,6 +58,7 @@
                 <xctk:DateTimePicker
                     x:Name="SessionStartDateTime"
                     Background="{StaticResource WindowBackgroundBrushLight}"
+                    Value="{Binding Path=recordingSession.SessionDate, Mode=TwoWay}"
                     MinWidth="200"
                     AutoCloseCalendar="True"
                     CultureInfo="en-GB"

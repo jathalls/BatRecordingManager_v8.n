@@ -18,3 +18,32 @@ The file should contain the following code:-
 
 
 If you wish to continue to work without a license key, the MapResourceDictionary can be removed from the 'Merged Dictionaries' list in App.Xaml
+
+==================================================================================================================================================
+From version 8.0.7200 and greater:-
+API keys are required for Bing Maps and for DarkSky.Net weather history.  These keys can be obtained for free from Microsoft (Bing Maps)
+and from DarkSky.Net but may not be shared with other users.  Therefore they are compiled into the code so that they are not visible in the
+installable distribution and are excluded fromthe GitHub source files.
+There is a partial class contained in the source called APIKeys.cs which contains entries for the program to retrieve the API Keys as needed.
+For local use using your own keys you need to create an additional file - APIKeysLocal.cs containing a partial class as below:-
+
+namespace BatRecordingManager
+{
+    /// <summary>
+    /// Local version of APIKeys which contains my personal API keys
+    /// </summary>
+    public static partial class APIKeys
+    {
+        static APIKeys()
+        {
+            BingMapsLicenseKey = "YOUR BING MAPS LICENSE KEY GOES HERE";
+            DarkSkyApiKey = "YOUR DARK SKY API KEY GOES HERE";
+        }
+    }
+}
+
+This local file should not be committed to GitHub or you will be in violation of your registration with Microsoft or DarkSKy.
+
+If you do not create this file, then a file with this name will be created in the pre-build step the first time the project is compiled so that the Visual Studio
+build process can complete satisfactorily.
+

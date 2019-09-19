@@ -23,7 +23,7 @@ namespace BatRecordingManager
             //var it = GetWeatherHistoryAsync(51, -.1, DateTime.Now);
             
             string result = "";
-            string key = Properties.Settings.Default.DarkSkyApiKey;
+            string key = APIKeys.DarkSkyApiKey;
             var client = new DarkSkyService(key);
 
             Forecast fr =
@@ -53,7 +53,7 @@ namespace BatRecordingManager
         public async Task<string> GetWeatherHistoryAsync(double Latitude, double Longitude, DateTime when)
         {
             string result = "";
-            string key = Properties.Settings.Default.DarkSkyApiKey;
+            string key = APIKeys.DarkSkyApiKey;
             if (!string.IsNullOrWhiteSpace(key))
             {
                 DarkSkyService client;

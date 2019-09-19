@@ -115,38 +115,30 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.AnalysingEventArgs.FileName
   nameWithType: AnalysingEventArgs.FileName
+- uid: BatRecordingManager.APIKeys
+  name: APIKeys
+  href: api/BatRecordingManager.APIKeys.html
+  commentId: T:BatRecordingManager.APIKeys
+  fullName: BatRecordingManager.APIKeys
+  nameWithType: APIKeys
+- uid: BatRecordingManager.APIKeys.BingMapsLicenseKey
+  name: BingMapsLicenseKey
+  href: api/BatRecordingManager.APIKeys.html#BatRecordingManager_APIKeys_BingMapsLicenseKey
+  commentId: F:BatRecordingManager.APIKeys.BingMapsLicenseKey
+  fullName: BatRecordingManager.APIKeys.BingMapsLicenseKey
+  nameWithType: APIKeys.BingMapsLicenseKey
+- uid: BatRecordingManager.APIKeys.DarkSkyApiKey
+  name: DarkSkyApiKey
+  href: api/BatRecordingManager.APIKeys.html#BatRecordingManager_APIKeys_DarkSkyApiKey
+  commentId: F:BatRecordingManager.APIKeys.DarkSkyApiKey
+  fullName: BatRecordingManager.APIKeys.DarkSkyApiKey
+  nameWithType: APIKeys.DarkSkyApiKey
 - uid: BatRecordingManager.App
   name: App
   href: api/BatRecordingManager.App.html
   commentId: T:BatRecordingManager.App
   fullName: BatRecordingManager.App
   nameWithType: App
-- uid: BatRecordingManager.App.BingMapsLicenseKey
-  name: BingMapsLicenseKey
-  href: api/BatRecordingManager.App.html#BatRecordingManager_App_BingMapsLicenseKey
-  commentId: P:BatRecordingManager.App.BingMapsLicenseKey
-  fullName: BatRecordingManager.App.BingMapsLicenseKey
-  nameWithType: App.BingMapsLicenseKey
-- uid: BatRecordingManager.App.BingMapsLicenseKey*
-  name: BingMapsLicenseKey
-  href: api/BatRecordingManager.App.html#BatRecordingManager_App_BingMapsLicenseKey_
-  commentId: Overload:BatRecordingManager.App.BingMapsLicenseKey
-  isSpec: "True"
-  fullName: BatRecordingManager.App.BingMapsLicenseKey
-  nameWithType: App.BingMapsLicenseKey
-- uid: BatRecordingManager.App.DarkSkyApiKey
-  name: DarkSkyApiKey
-  href: api/BatRecordingManager.App.html#BatRecordingManager_App_DarkSkyApiKey
-  commentId: P:BatRecordingManager.App.DarkSkyApiKey
-  fullName: BatRecordingManager.App.DarkSkyApiKey
-  nameWithType: App.DarkSkyApiKey
-- uid: BatRecordingManager.App.DarkSkyApiKey*
-  name: DarkSkyApiKey
-  href: api/BatRecordingManager.App.html#BatRecordingManager_App_DarkSkyApiKey_
-  commentId: Overload:BatRecordingManager.App.DarkSkyApiKey
-  isSpec: "True"
-  fullName: BatRecordingManager.App.DarkSkyApiKey
-  nameWithType: App.DarkSkyApiKey
 - uid: BatRecordingManager.App.dbFileLocation
   name: dbFileLocation
   href: api/BatRecordingManager.App.html#BatRecordingManager_App_dbFileLocation
@@ -7185,6 +7177,19 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.MapControl.AddPushPin
   nameWithType: MapControl.AddPushPin
+- uid: BatRecordingManager.MapControl.BingMapsApiKey
+  name: BingMapsApiKey
+  href: api/BatRecordingManager.MapControl.html#BatRecordingManager_MapControl_BingMapsApiKey
+  commentId: P:BatRecordingManager.MapControl.BingMapsApiKey
+  fullName: BatRecordingManager.MapControl.BingMapsApiKey
+  nameWithType: MapControl.BingMapsApiKey
+- uid: BatRecordingManager.MapControl.BingMapsApiKey*
+  name: BingMapsApiKey
+  href: api/BatRecordingManager.MapControl.html#BatRecordingManager_MapControl_BingMapsApiKey_
+  commentId: Overload:BatRecordingManager.MapControl.BingMapsApiKey
+  isSpec: "True"
+  fullName: BatRecordingManager.MapControl.BingMapsApiKey
+  nameWithType: MapControl.BingMapsApiKey
 - uid: BatRecordingManager.MapControl.coordinates
   name: coordinates
   href: api/BatRecordingManager.MapControl.html#BatRecordingManager_MapControl_coordinates

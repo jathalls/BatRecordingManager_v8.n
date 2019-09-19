@@ -373,6 +373,8 @@
       <DependentUpon>AboutScreen.xaml</DependentUpon>
     </Compile>
     <Compile Include="AnalyzeAndImportClass.cs" />
+    <Compile Include="APIKeys.cs" />
+    <Compile Include="APIKeysLocal.cs" />
     <Compile Include="AudioHost.cs" />
     <Compile Include="AudioPlayer.xaml.cs">
       <DependentUpon>AudioPlayer.xaml</DependentUpon>
@@ -398,11 +400,6 @@
     </Compile>
     <Compile Include="BatRecordingsListDetailControl.xaml.cs">
       <DependentUpon>BatRecordingsListDetailControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\BatReference.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>BatReference.settings</DependentUpon>
     </Compile>
     <Compile Include="BatReferenceDBLinq.designer.cs">
       <AutoGen>True</AutoGen>
@@ -745,6 +742,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <None Include="api\index.md" />
     <None Include="articles\intro.md" />
@@ -757,10 +755,6 @@
     <None Include="BatRecordingManager_2_TemporaryKey.pfx" />
     <None Include="BatRecordingManager_3_TemporaryKey.pfx" />
     <None Include="BatRecordingManager_TemporaryKey.pfx" />
-    <None Include="Properties\BatReference.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>BatReference.Designer.cs</LastGenOutput>
-    </None>
     <None Include="BatReferenceDBLinq.dbml.layout">
       <DependentUpon>BatReferenceDBLinq.dbml</DependentUpon>
     </None>
@@ -786,6 +780,7 @@
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <AppDesigner Include="Properties\" />
     <None Include="toc.yml" />
@@ -901,6 +896,13 @@
   </Target>
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
   <Import Project="..\packages\xunit.core.2.4.1\build\xunit.core.targets" Condition="Exists('..\packages\xunit.core.2.4.1\build\xunit.core.targets')" />
+  <PropertyGroup>
+    <PreBuildEvent>
+if not exist $(ProjectDir)\APIKeysLocal.cs (
+    type nul &gt; $(ProjectDir)\APIKeysLocal.cs
+)
+</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -33,12 +33,16 @@ namespace BatRecordingManager
         private MapMode AerialMode { get; set; } = null;
         private MapMode RoadMode { get; set; } = null;
 
+        public string BingMapsApiKey { get; } = APIKeys.BingMapsLicenseKey;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="MapControl" /> class.
         /// </summary>
         public MapControl()
         {
             InitializeComponent();
+            DataContext = this;
+            ThisMap.CredentialsProvider=new ApplicationIdCredentialsProvider(APIKeys.BingMapsLicenseKey);
             ThisMap.Focus();
             lastInsertedPinLocation = null;
            LabelMode = ThisMap.Mode;

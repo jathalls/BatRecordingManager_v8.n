@@ -24,8 +24,9 @@
             ZoomLevel="16"
             Center="51.789845,-0.225125"
 
+
             
-            Mode="AerialWithLabels" MouseDoubleClick="mapControl_MouseDoubleClick" CredentialsProvider="{DynamicResource CredentialsProvider1}" />
+            Mode="AerialWithLabels" MouseDoubleClick="mapControl_MouseDoubleClick"  />
 
         <Grid
             Grid.Row="2"

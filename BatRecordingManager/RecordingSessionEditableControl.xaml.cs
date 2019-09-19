@@ -238,8 +238,9 @@ namespace BatRecordingManager
                     {
                         selectedFolder = value.SessionTag;
                         SessionTagTextBlock.Text = value.SessionTag;
-                        SessionStartDateTime.Value =
-                            value.SessionDate.Date + (value.SessionStartTime ?? new TimeSpan());
+
+                        //SessionStartDateTime.Value =
+                        value.SessionDate=value.SessionDate.Date + (value.SessionStartTime ?? new TimeSpan());
 
                         if (value.SessionEndTime == null)
                             value.SessionEndTime = value.SessionStartTime ?? new TimeSpan();

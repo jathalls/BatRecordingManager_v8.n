@@ -82,8 +82,7 @@ namespace BatRecordingManager
                 }
 
                 InitializeComponent();
-                App.DarkSkyApiKey=Properties.Settings.Default.DarkSkyApiKey;
-                App.BingMapsLicenseKey = Properties.Settings.Default.BingMapsLicenseKey;
+                
                 try
                 {
                     ShowDatabase = App.ShowDatabase;

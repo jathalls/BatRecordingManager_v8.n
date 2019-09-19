@@ -53,6 +53,18 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "obj/api/BatRecordingManager.APIKeys.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/BatRecordingManager.APIKeys.html",
+          "hash": "bZ8qKRz5VnfqFhov/sggAg=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "obj/api/BatRecordingManager.AboutScreen.yml",
       "output": {
         ".html": {
@@ -93,7 +105,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.App.html",
-          "hash": "JHCDm9vyklNF6WuDT2JChg=="
+          "hash": "T+dCFNmEvGS3s1MA+w+nTQ=="
         }
       },
       "is_incremental": true,
@@ -1065,7 +1077,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.MainWindow.html",
-          "hash": "0X+Y3JZgHasZSvk8ep8NAw=="
+          "hash": "Lsgn/wJmSd75Z4gCrjbRdA=="
         }
       },
       "is_incremental": true,
@@ -1077,7 +1089,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.MapControl.html",
-          "hash": "u9BRGoWgzrA11xiuMSmTsw=="
+          "hash": "0iaI1z2RsjB2YRrtJWheNQ=="
         }
       },
       "is_incremental": true,
@@ -1341,7 +1353,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.RecordingSessionEditableControl.html",
-          "hash": "xDB+TF1Jp8wqeUx7bwiAqQ=="
+          "hash": "SfbWdNBi5FyUWqtfpsR9RA=="
         }
       },
       "is_incremental": true,
@@ -1833,7 +1845,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.html",
-          "hash": "PA+Q6bSqwei0NLZawvHI5Q=="
+          "hash": "uAMXhQIb88Hok2qh9P9tPA=="
         }
       },
       "is_incremental": true,
@@ -1845,7 +1857,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "3MnUDKm1zd/c9I9eUO26TQ=="
+          "hash": "DygXC0z+qe67nfBLeE1aAQ=="
         }
       },
       "is_incremental": false,
@@ -1889,8 +1901,8 @@
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 149,
-          "skipped_file_count": 149
+          "total_file_count": 150,
+          "skipped_file_count": 150
         }
       }
     },
