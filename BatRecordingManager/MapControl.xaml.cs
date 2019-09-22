@@ -90,7 +90,12 @@ namespace BatRecordingManager
         public void AddPushPin(Location location)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
-            var pin = new Pushpin {Location = location,PositionOrigin = PositionOrigin.BottomCenter};
+            //var pin = new Pushpin {Location = location,PositionOrigin = PositionOrigin.BottomCenter};
+            var pin=new Pushpin();
+            pin.PositionOrigin = PositionOrigin.BottomCenter;
+            pin.Location = location;
+            
+            
             ThisMap.Children.Add(pin);
         }
 
@@ -98,10 +103,11 @@ namespace BatRecordingManager
         {
             e.Handled = true;
             ThisMap.Children.Clear();
-            var mousePosition = e.GetPosition(this);
+            var mousePosition = e.GetPosition(ThisMap);
             var pinLocation = ThisMap.ViewportPointToLocation(mousePosition);
 
-            var pin = new Pushpin {Location = pinLocation,PositionOrigin = PositionOrigin.BottomCenter};
+            var pin = new Pushpin {PositionOrigin = PositionOrigin.BottomCenter};
+            pin.Location = pinLocation;
             lastInsertedPinLocation = pinLocation;
             ThisMap.Children.Add(pin);
         }

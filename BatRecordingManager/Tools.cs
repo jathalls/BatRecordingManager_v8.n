@@ -1787,6 +1787,7 @@ namespace BatRecordingManager
         {
             try
             {
+                if (value == null) return ("");
                 decimal dblValue = (decimal)value;
 
 

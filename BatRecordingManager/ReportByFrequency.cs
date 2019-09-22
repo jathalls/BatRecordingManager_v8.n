@@ -268,33 +268,7 @@ namespace BatRecordingManager
             {
                 fd.OccurrencesPerPeriod[i] = GetOcccurrencesForBlock(i, segmentsForThisBat);
             }
-            /*
-            foreach (var batSegment in segmentsForThisBat)
-            {
-                List<int> OccupiedPeriodsPerBlock = new List<int>();
-
-
-                
-                if (batSegment.FrequencyContributions(out int FirstBlock, out List<int> occupiedMinutesPerBlock,
-                    (double)TableStartTimeInMinutesFromMidnight, AggregationPeriodInMinutes))
-                {
-                    for (int i = FirstBlock, j = 0; i < FirstBlock + occupiedMinutesPerBlock.Count; i++, j++)
-                    {
-                        if (i >= OccurrencesPerPeriodForBat.Count || j >= occupiedMinutesPerBlock.Count)
-                        {
-                            Debug.WriteLine($"Error OUT OF BOUNDS i={i} into OccurrencesPerPeriodForBat of length {OccurrencesPerPeriodForBat.Count},\n" +
-                                            $"j={j} into OccupiedMinutesPerBlock of length {OccupiedPeriodsPerBlock.Count}");
-                            break;
-                        }
-                        OccurrencesPerPeriodForBat[i] += occupiedMinutesPerBlock[j];
-                    }
-                }
-
-            }*/
-
-            //BulkObservableCollection<int> boc = new BulkObservableCollection<int>();
-            //boc.AddRange(OccurrencesPerPeriodForBat);
-            //fd = new FrequencyData(AggregationPeriodInMinutes, bat, boc);
+            
 
             return (fd);
         }
@@ -433,7 +407,7 @@ namespace BatRecordingManager
             //Debug.WriteLine(strTime);
             var valueColumn = new DataGridTextColumn
             {
-                Header = strTime, Binding = new Binding("OccurrencesPerPeriod[" + i + "]")
+                Header = "'"+strTime, Binding = new Binding("OccurrencesPerPeriod[" + i + "]")
             };
 
 

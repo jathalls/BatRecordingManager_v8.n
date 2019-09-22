@@ -454,3 +454,8 @@ DONEish
 9 Sept 2019
 	Still getting some installation errors with reports to the errorlog about the Version table not existing.  Modified the DBAccess routines that used dc.Mapping.Tables to see whether a table exists or is need of being created (which actually does not work) and added a new GetRawDatabaseTables function which receives a connection string to make an independent connection to the database and uses sql to retriev the informationschema and extracts the list of table names.  The same process should be used to identify columns independently of the dc which uses the compile time expectations, no the characteristics of the connected database.
 
+22 Sep 2019
+	Slight mod to the AddPushpin routines to ensure that the chosen location is the exact mouse location and is shown as the point of the pushpin.  Also changed the routine to add the new chosen location to the session data (which is bound to the location text boxes) rather than writing to the text boxes, possibly destroying the binding.
+
+
+

@@ -137,17 +137,20 @@ namespace BatRecordingManager
 
                     mapWindow.MapControl.ThisMap.Center = oldLocation;
                     mapWindow.MapControl.AddPushPin(oldLocation);
+                    
                 }
             }
 
             mapWindow.Title = mapWindow.Title + " Double-Click to Set new location";
             if (mapWindow.ShowDialog() ?? false)
             {
-                var lastSelecetdLocation = mapWindow.MapControl.lastInsertedPinLocation;
-                if (lastSelecetdLocation != null)
+                var lastSelectedLocation = mapWindow.MapControl.lastInsertedPinLocation;
+                if (lastSelectedLocation != null)
                 {
-                    GpsLatitudeTextBox.Text = lastSelecetdLocation.Latitude.ToString();
-                    GpsLongitudeTextBox.Text = lastSelecetdLocation.Longitude.ToString();
+                    recordingSession.LocationGPSLatitude = (decimal)lastSelectedLocation.Latitude;
+                    recordingSession.LocationGPSLongitude = (decimal) lastSelectedLocation.Longitude;
+                    //GpsLatitudeTextBox.Text = lastSelectedLocation.Latitude.ToString();
+                    //GpsLongitudeTextBox.Text = lastSelectedLocation.Longitude.ToString();
                 }
             }
         }
