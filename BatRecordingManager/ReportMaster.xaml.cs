@@ -66,17 +66,41 @@ namespace BatRecordingManager
         /// <param name="visibility"></param>
         /// <param name="converter"></param>
         /// <returns></returns>
-        protected DataGridTextColumn CreateColumn(string header, string bindingSource, Visibility visibility,
-            string converter)
+        protected DataGridTextColumn CreateColumn(string header, string bindingSource, Visibility visibility=Visibility.Visible,
+            string converter="")
         {
             var column = new DataGridTextColumn {Header = header};
             var bind = new Binding(bindingSource);
             if (!string.IsNullOrWhiteSpace(converter))
             {
-                if (converter == "ShortTime_Converter")
-                    bind.Converter = new ShortTimeConverter();
-                else if (converter == "ShortDate_Converter")
-                    bind.Converter = new ShortDateConverter();
+                switch (converter)
+                {
+                    case "ShortTime_Converter":
+                        bind.Converter=new ShortTimeConverter();
+                        break;
+                    case "ShortDate_Converter":
+                        bind.Converter=new ShortDateConverter();
+                        break;
+                    case "GPSConverter":
+                        bind.Converter=new GPSConverter();
+                        break;
+                    case "MapRefConverter":
+                        bind.Converter=new MapRefConverter();
+                        break;
+                    case "SessionStartDateTimeConverter":
+                        bind.Converter=new SessionStartDateTimeConverter();
+                        break;
+                    case "SessionEndDateTimeConverter":
+                        bind.Converter=new SessionEndDateTimeConverter();
+                        break;
+                    case "BSPassesConverter":
+                        bind.Converter=new BSPassesConverter();
+                        break;
+                    default:
+                        break;
+                }
+
+                
             }
 
             column.Binding = bind;

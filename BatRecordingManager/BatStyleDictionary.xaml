@@ -143,6 +143,18 @@
 
     <local:ImagesForAllRecordingsConverter x:Key="ImagesForAllRecordingsConverter" />
 
+    <local:GPSConverter x:Key="GPSConverter"/>
+
+    <local:MapRefConverter x:Key="MapRefConverter"/>
+
+    <local:SessionStartDateTimeConverter x:Key="SessionStartDateTimeConverter"/>
+
+    <local:SessionEndDateTimeConverter x:Key="SessionEndDateTimeConverter"/>
+
+    <local:BSPassesConverter x:Key="BSPassesConverter"/>
+
+    <local:FilePathBrushConverter x:Key="FilePathBrushConverter"/>
+
     <DataTemplate x:Key="ImageTemplate">
         <local:ImageScrollerControl
             x:Name="imageScroller" />

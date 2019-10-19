@@ -14,6 +14,8 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using System;
+using System.IO;
 using System.Windows;
 
 namespace BatRecordingManager
@@ -23,6 +25,10 @@ namespace BatRecordingManager
     /// </summary>
     public partial class App : Application
     {
+        private static string defaultDBLocation;
+
+        private static string defaultDBFileName;
+
         private static string _dbFileLocation;
 
         private static string _dbFileName;
@@ -54,19 +60,37 @@ namespace BatRecordingManager
             foreach (var arg in e.Args)
                 if (arg.Contains("debug"))
                     ShowDatabase = true;
+            defaultDBLocation =
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    @"Echolocation\WinBLP\");
+            defaultDBFileName = "BatReferenceDBv5.31.mdf";
+
 #if DEBUG
-            ShowDatabase = true; 
+            ShowDatabase = true;
+            defaultDBLocation =
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    @"Echolocation\WinBLP\Debug\");
 #endif
             foreach (var arg in e.Args)
                 if (arg.Contains("nodebug") || arg.Contains("undebug"))
                     ShowDatabase = false;
 
-            
+            dbFileLocation = defaultDBLocation;
+            dbFileName = defaultDBFileName;
             
             
             
             base.OnStartup(e);
             
+        }
+
+        /// <summary>
+        /// sets the App database location and name to the defaults
+        /// </summary>
+        public static void ResetDatabase()
+        {
+            dbFileLocation = defaultDBLocation;
+            dbFileName = defaultDBFileName;
         }
 
         

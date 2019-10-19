@@ -59,7 +59,7 @@ namespace BatRecordingManager
         {
             RecordingSessionControl.recordingSession = new RecordingSession
             {
-                LocationGPSLongitude = null, LocationGPSLatitude = null
+                LocationGPSLongitude = null, LocationGPSLatitude = null,hasGPSLocation = false
             };
         }
 
@@ -69,6 +69,7 @@ namespace BatRecordingManager
             if (string.IsNullOrWhiteSpace(err))
             {
                 DBAccess.UpdateRecordingSession(RecordingSessionControl.recordingSession);
+                RecordingSessionControl.recordingSession.hasGPSLocation = false;
             }
             else
             {
@@ -81,6 +82,7 @@ namespace BatRecordingManager
             if (recordingForm.ShowDialog() ?? false)
             {
                 DialogResult = true;
+                RecordingSessionControl.recordingSession.hasGPSLocation = false;
                 Close();
             }
         }
@@ -115,6 +117,7 @@ namespace BatRecordingManager
             if (string.IsNullOrWhiteSpace(err))
             {
                 DBAccess.UpdateRecordingSession(RecordingSessionControl.recordingSession);
+                RecordingSessionControl.recordingSession.hasGPSLocation = false;
                 DialogResult = true;
                 Close();
             }

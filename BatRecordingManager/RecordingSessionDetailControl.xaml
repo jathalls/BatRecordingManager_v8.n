@@ -90,10 +90,15 @@
                     x:Name="FolderTextBox"
                     Style="{StaticResource SimpleTextBox}"
                     Background="{StaticResource WindowBackgroundBrush}"
+                    Foreground="{Binding Path=recordingSession.OriginalFilePath, Converter={StaticResource FilePathBrushConverter}}"
 
                     HorizontalAlignment="Stretch"
                     IsReadOnly="True"
-                    Text="{Binding Path=recordingSession.OriginalFilePath}" MinWidth="200" />
+                    Text="{Binding Path=recordingSession.OriginalFilePath}" MinWidth="200" >
+                    
+                    
+                </TextBox>
+                <!--<TextBox Foreground="{Binding Text, ElementName=FolderTextBox,  Converter={StaticResource FilePathBrushConverter}}"></TextBox>-->
             </StackPanel>
 
             <Label

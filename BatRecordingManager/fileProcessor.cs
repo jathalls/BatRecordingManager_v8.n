@@ -21,8 +21,9 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
-
+using FluentAssertions;
 using Microsoft.VisualStudio.Language.Intellisense;
+using NAudio.Wave;
 
 
 namespace BatRecordingManager
@@ -401,6 +402,7 @@ namespace BatRecordingManager
         private static TimeSpan GetFileDuration(string fileName, out string wavfile, out DateTime fileStart,
             out DateTime fileEnd)
         {
+
             DateTime creationTime;
             fileStart = new DateTime();
             fileEnd = new DateTime();
@@ -416,6 +418,15 @@ namespace BatRecordingManager
                     var info = new FileInfo(wavfilename);
                     wavfile = wavfilename;
                     var fa = File.GetAttributes(wavfile);
+                    fileStart = File.GetCreationTime(wavfile);
+                    using (WaveFileReader wfr = new WaveFileReader(wavfile))
+                    {
+                        duration = wfr.TotalTime;
+                        fileEnd = fileStart + duration;
+                        return (duration);
+
+                    }
+                    /*
 
                     var recordingTime =
                         wavfilename.Substring(Math.Max(fileName.LastIndexOf('_'), fileName.LastIndexOf('-')) + 1, 6);
@@ -448,7 +459,7 @@ namespace BatRecordingManager
                             fileEnd = creationTime;
                             duration = new TimeSpan();
                         }
-                    }
+                    }*/
                 }
             }
             catch (Exception ex)

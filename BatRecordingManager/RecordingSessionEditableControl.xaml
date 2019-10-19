@@ -85,6 +85,7 @@
                     x:Name="FolderTextBox"
                     Style="{StaticResource SimpleTextBox}"
                     Background="{StaticResource WindowBackgroundBrushLight}"
+                    Foreground="{Binding Path=recordingSession.OriginalFilePath, Converter={StaticResource FilePathBrushConverter}}"
                     Text="{Binding Path=recordingSession.OriginalFilePath}" MinWidth="200" />
                 <Button
                     x:Name="FolderBrowseButton"

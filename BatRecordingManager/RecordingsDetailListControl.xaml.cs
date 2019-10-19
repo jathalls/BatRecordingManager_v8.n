@@ -443,8 +443,13 @@ namespace BatRecordingManager
         private AnalyseAndImportClass aai;
         private void RecordingNameTextBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var thisTextBox = sender as TextBox;
+            var thisTextBox = sender as TextBlock;
             var recording = RecordingsListView.SelectedItem as Recording;
+            if (!File.Exists(recording.RecordingSession.OriginalFilePath + recording.RecordingName))
+            {
+                thisTextBox.Foreground = Brushes.Red;
+                return;
+            }
             /*var labelContent = thisTextBox.Text as string;
             if (!string.IsNullOrWhiteSpace(labelContent))
                 if (labelContent.ToUpper().Contains(".WAV"))
@@ -913,6 +918,28 @@ namespace BatRecordingManager
         private void OffsetsButton_Click(object sender, RoutedEventArgs e)
         {
             Refresh();
+        }
+
+        private void RecordingNameTextBox_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            
+        }
+
+        private void RecordingNameTextBox_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+            {
+                RecordingNameTextBox_MouseDoubleClick(sender, e);
+                e.Handled = true;
+            }
+        }
+
+        private void RecordingNameContentControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            
+                RecordingNameTextBox_MouseDoubleClick(sender, e);
+                e.Handled = true;
+            
         }
     } // End of Class RecordingDetailListControl
 

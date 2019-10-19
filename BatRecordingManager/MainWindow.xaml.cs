@@ -46,7 +46,31 @@ namespace BatRecordingManager
         /// <summary>
         ///     The window title
         /// </summary>
-        private readonly string _windowTitle = "Bat Log Manager - v";
+        /// 
+        //private string _windowTitle { get; set; } = "Bat Log Manager - v";
+
+        #region _windowTitle
+
+        /// <summary>
+        /// _windowTitle Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty _windowTitleProperty =
+            DependencyProperty.Register("_windowTitle", typeof(string), typeof(MainWindow),
+                new FrameworkPropertyMetadata((string)""));
+
+        /// <summary>
+        /// Gets or sets the _windowTitle property.  This dependency property 
+        /// indicates ....
+        /// </summary>
+        public string _windowTitle
+        {
+            get { return (string) GetValue(_windowTitleProperty); }
+            set { SetValue(_windowTitleProperty, value); }
+        } 
+
+        #endregion
+
+
 
         /// <summary>
         ///     Instance holder for the Analyze and Import class.  If null, then a new folder
@@ -60,6 +84,8 @@ namespace BatRecordingManager
         private ImportPictureDialog _importPictureDialog;
 
         private bool _runKaleidoscope;
+
+        private bool _useCurrentSession;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="MainWindow" /> class.
@@ -81,12 +107,20 @@ namespace BatRecordingManager
                     Tools.ErrorLog("Error in Main Window prior to Initialisation " + ex.Message);
                 }
 
+                _windowTitle = "Bat Log Manager v";
                 InitializeComponent();
                 
                 try
                 {
                     ShowDatabase = App.ShowDatabase;
                     DataContext = this;
+
+                    System.Windows.Data.Binding binding = new System.Windows.Data.Binding(nameof(_windowTitle));
+                    binding.Source = this;
+                    //System.Windows.Data.BindingOperations.SetBinding(Title, TitleProperty, binding);
+                    this.SetBinding(TitleProperty, binding);
+
+
                     //statusText = "Starting Up";
                     //SetStatusText("Starting Up");
                     _build = Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -105,8 +139,9 @@ namespace BatRecordingManager
                                  buildDateTime.TimeOfDay +
                                  ")";
                     //windowTitle = "Bat Log File Processor " + Build;
-                    Title = _windowTitle + " " + _build;
-                    Console.WriteLine(Title);
+                    //Title = _windowTitle + " " + _build;
+                    _windowTitle = _windowTitle + _build;
+                    Console.WriteLine(_windowTitle);
 
                     InvalidateArrange();
                     //DBAccess.InitializeDatabase();
@@ -128,6 +163,7 @@ namespace BatRecordingManager
                         MainWindowPaneGrid.Children.Add(recordingSessionListControl);
                     recordingSessionListControl.Visibility = Visibility.Visible;
                     recordingSessionListControl.RefreshData();
+                    SetTitle();
                 }
                 catch (Exception ex)
                 {
@@ -139,6 +175,12 @@ namespace BatRecordingManager
             {
                 Tools.ErrorLog(ex + "\n" + ex.Message);
             }
+        }
+
+        public void SetTitle()
+        {
+            _windowTitle = $"Bat Recording Manager v {_build} using {DBAccess.GetWorkingDatabaseName(DBAccess.GetWorkingDatabaseLocation())}";
+            InvalidateVisual();
         }
 
 
@@ -171,38 +213,7 @@ namespace BatRecordingManager
             about.ShowDialog();
         }
 
-        /*
-        public static string SetStatusText(string newStatusText)
-        {
-            string result = "";
-            /*
-            string result = statusText;
-            statusText = newStatusText;
-            return (result);
-            var Topwindow = App.Current.MainWindow;
-            MainWindow window = Topwindow as MainWindow;
-            if (window != null)
-            {
-                //result = window.StatusText.Text;
-                DialogResult = "";
-                //Debug.WriteLine("Old status="+window.statusText);
-                //Debug.WriteLine("Old text="+window.StatusText.Text);
-
-
-                window.Dispatcher.Invoke(() =>
-                {
-
-                    window.StatusText.Text = newStatusText;
-                    
-                    Debug.WriteLine("========== set status to \"" + newStatusText + "\"");
-                    window.InvalidateArrange();
-                    window.UpdateLayout();
-                },DispatcherPriority.Send);
-            }
-
-            Debug.WriteLine($"New displayed text={window.StatusText.Text}");
-            return result;
-        }*/
+        
 
         /// <summary>
         ///     Handles the Click event of the miBatReference control.
@@ -340,7 +351,7 @@ namespace BatRecordingManager
             var workingFolder = DBAccess.GetWorkingDatabaseLocation();
             if (string.IsNullOrWhiteSpace(workingFolder) || !Directory.Exists(workingFolder))
             {
-                App.dbFileLocation = "";
+                
                 workingFolder = DBAccess.GetWorkingDatabaseLocation();
             }
 
@@ -397,6 +408,7 @@ Do you wish to update that database to the latest specification?", "Out of Date 
                     }
                 }
             }
+            SetTitle();
         }
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
@@ -500,6 +512,7 @@ Do you wish to update that database to the latest specification?", "Out of Date 
                 RefreshAll();
                 miRecordingSearch_Click(sender, e);
             }
+            SetTitle();
         }
 
         /// <summary>
@@ -542,11 +555,27 @@ Do you wish to update that database to the latest specification?", "Out of Date 
         private void miAnalyseFiles_Click(object sender, RoutedEventArgs e)
         {
             _runKaleidoscope = false || Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
+            _useCurrentSession = false || Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
             if (_analyseAndImport == null)
             {
                 _importPictureDialog = new ImportPictureDialog();
+                if (_useCurrentSession )
+                {
+                    var currentSession = recordingSessionListControl.GetSelectedSession();
+                    if (currentSession != null)
+                    {
+                        _analyseAndImport=new AnalyseAndImportClass(currentSession.SessionTag);
+                    }
+                    else
+                    {
+                        _analyseAndImport=new AnalyseAndImportClass();
+                    }
+                }
+                else
+                {
+                    _analyseAndImport = new AnalyseAndImportClass();
+                }
 
-                _analyseAndImport = new AnalyseAndImportClass();
                 _analyseAndImport.e_Analysing += AnalyseAndImport_Analysing;
                 _analyseAndImport.e_DataUpdated += AnalyseAndImport_DataUpdated;
                 _analyseAndImport.e_AnalysingFinished += AnalyseAndImport_AnalysingFinished;
@@ -624,20 +653,36 @@ Do you wish to update that database to the latest specification?", "Out of Date 
         /// <param name="e"></param>
         private void AnalyseAndImport_AnalysingFinished(object sender, EventArgs e)
         {
-            if (_analyseAndImport != null)
+            try
             {
-                _analyseAndImport.Close();
+                if (_analyseAndImport != null)
+                {
+                    _analyseAndImport?.Close();
 
-                _analyseAndImport = null;
+                    _analyseAndImport = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error closing AnalyseAndImport:- "+ex.Message);
+                Tools.ErrorLog("Error closing AnalyseAndImport:- " + ex.Message);
             }
 
-            _importPictureDialog?.Dispatcher.BeginInvoke(DispatcherPriority.Background,
-                new Action(() =>
-                {
-                    DBAccess.ResolveOrphanImages();
-                    _importPictureDialog.Close();
-                    _importPictureDialog = null;
-                }));
+            try
+            {
+                _importPictureDialog?.Dispatcher.BeginInvoke(DispatcherPriority.Background,
+                    new Action(() =>
+                    {
+                        DBAccess.ResolveOrphanImages();
+                        _importPictureDialog?.Close();
+                        _importPictureDialog = null;
+                    }));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error invoking a close of import picture dialog when ending analyse and import:- "+ex.Message);
+                Tools.ErrorLog("Error invoking a close of import picture dialog when ending analyse and import:- " + ex.Message);
+            }
         }
 
         /// <summary>

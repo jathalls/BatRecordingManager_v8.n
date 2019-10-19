@@ -43,6 +43,7 @@ using Microsoft.Maps.MapControl.WPF;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Application = System.Windows.Application;
 using Brushes = System.Drawing.Brushes;
+using Color = System.Drawing.Color;
 using Cursor = System.Windows.Input.Cursor;
 using Cursors = System.Windows.Input.Cursors;
 using DataGrid = System.Windows.Controls.DataGrid;
@@ -2204,6 +2205,48 @@ namespace BatRecordingManager
         }
     }
 
+
+    #region FilePathBrushConverter (ValueConverter)
+    /// <summary>
+    /// Converter to return a red brush if the directory in value does not exist and a black brush if it does or in the event of any error
+    /// </summary>
+    public class FilePathBrushConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.  
+                if (value is string)
+                {
+                    string folder = value as string;
+                    if (!string.IsNullOrWhiteSpace(folder))
+                    {
+                        if (Directory.Exists(folder))
+                        {
+                            return (new SolidColorBrush(Colors.Black));
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                return new SolidColorBrush(Colors.Red);
+            }
+
+            return (new SolidColorBrush(Colors.Red));
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    #endregion
+
+
     #endregion ShortTimeConverter (ValueConverter)
 
     #region TextColourConverter (ValueConverter)
@@ -2283,6 +2326,190 @@ namespace BatRecordingManager
     }
 
     #endregion DebugBreak (ValueConverter)
+
+
+    #region GPSConverter (ValueConverter)
+
+    public class GPSConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.  
+                if (value is RecordingSession)
+                {
+                    RecordingSession session=value as RecordingSession;
+                    return (session.LocationGPSLatitude.ToString() + ", " + session.LocationGPSLongitude.ToString());
+                }
+
+                return ("");
+            }
+            catch
+            {
+                return "ERR";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    #endregion
+
+
+    #region MapRefConverter (ValueConverter)
+
+    public class MapRefConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.  
+                if (value is RecordingSession)
+                {
+                    RecordingSession session=value as RecordingSession;
+
+                    if (session.hasGPSLocation)
+                    {
+                        var lat = (double) session.LocationGPSLatitude;
+                        var longit = (double) session.LocationGPSLongitude;
+                        var gridRef = GPSLocation.ConvertGPStoGridRef(lat, longit);
+                        return (gridRef);
+                    }
+                    else
+                    {
+                        return (" - ");
+                    }
+
+                }
+
+                return (" - ");
+            }
+            catch
+            {
+                return "ERR";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    #endregion
+
+
+    #region SessionStartDateTimeConverter (ValueConverter)
+
+    public class SessionStartDateTimeConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.  
+                if (value is RecordingSession)
+                {
+                    RecordingSession session=value as RecordingSession;
+                    string result = (session.SessionDate.Date +
+                                     (session.SessionStartTime ?? new TimeSpan(18, 0, 0))).ToString();
+                    return(result);
+                }
+
+                return (" - ");
+            }
+            catch
+            {
+                return "ERR";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    #endregion
+
+    #region SessionEndDateTimeConverter (ValueConverter)
+
+    public class SessionEndDateTimeConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.  
+                if (value is RecordingSession)
+                {
+                    RecordingSession session = value as RecordingSession;
+                    string result = ((session.EndDate??session.SessionDate).Date +
+                                     (session.SessionEndTime ?? new TimeSpan(23, 59, 0))).ToString();
+                    return (result);
+                }
+
+                return (" - ");
+            }
+            catch
+            {
+                return "ERR";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    #endregion
+
+
+    #region BSPassesConverter (ValueConverter)
+
+    public class BSPassesConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.  
+                if (value is BatStats)
+                {
+                    BatStats bs=value as BatStats;
+                    string result = bs.passes + "/" + bs.segments;
+                    return (result);
+                }
+
+                return (" - ");
+            }
+            catch
+            {
+                return "ERR";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    #endregion
+
+
+
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 

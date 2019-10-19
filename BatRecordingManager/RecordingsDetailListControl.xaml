@@ -101,7 +101,12 @@
             IsSynchronizedWithCurrentItem="True"
             HorizontalAlignment="Stretch" VerticalContentAlignment="Stretch" VerticalAlignment="Center" HorizontalContentAlignment="Stretch"
             >
-
+<!-- 
+            4 Oct 2019 8.0.7217 Debug 
+            Changed Recording Template to use TextBlock for recording name, dat and times instead of TextBox, also moving the Border outside the
+            StackPanel.  This gives a more consistent appearance in the window but does NOT allow the use of double-click to open the file in
+            Audacity and therefore SHIFT-Click is now used to do this.  If the file is not present then the text of the file name turns red.
+            -->
             <ListView.ItemTemplate >
                 
                 <DataTemplate >
@@ -114,38 +119,43 @@
 
                         Focusable="True">
 
-                        
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-                            <TextBox
-                                Style="{StaticResource SimpleTextBox}"
-                                x:Name="RecordingNameTextBox"
-                                IsReadOnly="True"
-                                BorderThickness="0,2,0,0"
-                                Text="{Binding Path=RecordingName}"
-                                VerticalContentAlignment="Center"
-                                BorderBrush="Black" 
-                                MouseDoubleClick="RecordingNameTextBox_MouseDoubleClick" FontSize="17" FontWeight="Normal" />
-                            <Label Content=" On "/>
-                            <TextBox
-                                Style="{StaticResource SimpleTextBox}"
-                                x:Name="RecordingDateTextBox"
-                                IsReadOnly="True"
-                                VerticalContentAlignment="Center"
-                                BorderThickness="0,2,0,0"
-                                Text="{Binding Path=RecordingDate, Converter={StaticResource ShortDateConverter}}"
-                                BorderBrush="Black" FontSize="16" />
-                            <Label Content=" for "/>
-                            <TextBox
-                                Style="{StaticResource SimpleTextBox}"
-                                x:Name="RecordingDurationTextBox"
-                                IsReadOnly="True"
-                                VerticalContentAlignment="Center"
-                                BorderThickness="0,2,0,0"
-                                Text="{Binding Path=., Converter={StaticResource RecordingDurationConverter}}"
-                                BorderBrush="Black" FontSize="16" />
-                        </StackPanel>
+                            <Border BorderThickness="0,2,0,0" BorderBrush="Black">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" >
+                                    <ContentControl MouseDoubleClick="RecordingNameContentControl_MouseDoubleClick">
+                                        <TextBlock
+                                            
+                                            x:Name="RecordingNameTextBox"
+                                            
+                                            
+                                            Text="{Binding Path=RecordingName}"
+                                            
+                                            ToolTip="Double-click to open file in Audacity"
+                                            
+                                             FontSize="17" FontWeight="Normal"   />
+                                    </ContentControl>
+                                         <Label Content=" On "/>
+                                        <TextBlock
+                                    
+                                        
+                                        x:Name="RecordingDateTextBox"
+                                        
+                                        
+                                        Text="{Binding Path=RecordingDate, Converter={StaticResource ShortDateConverter}}"
+                                         FontSize="16" />
+                                    <Label Content=" for "/>
+                                    <TextBlock
+                                        
+                                        x:Name="RecordingDurationTextBox"
+                                        
+                                        
+                                        
+                                        Text="{Binding Path=., Converter={StaticResource RecordingDurationConverter}}"
+                                         FontSize="16" />
+                                   
+                                </StackPanel>
+                            </Border>
 
-                        <Label
+                            <Label
                             Style="{StaticResource SimpleLabel}"
                             x:Name="GPSLabel"
                             Content="{Binding Converter={StaticResource RecordingToGpsConverter}}"

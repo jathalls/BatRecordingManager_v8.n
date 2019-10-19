@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Windows.Forms.Design;
 using Microsoft.VisualStudio.Language.Intellisense;
@@ -54,6 +55,88 @@ namespace BatRecordingManager
 
 
             return filename;
+        }
+
+        /// <summary>
+        /// Writes a new text file for this recording in the original folder and with the same name as
+        /// the recording but with a .txt extension.  The text file contains times and comments from each
+        /// Labelled segment in the recording.  If partial is true the file is only written if it does not
+        /// already exist.  Otherwise any existing text file will be renamed .bak and replaced.
+        /// </summary>
+        /// <param name="recording"></param>
+        /// <param name="partial"></param>
+        public static void WriteTextFile(this Recording recording, bool partial)
+        {
+            string filename = recording.RecordingSession.OriginalFilePath + recording.RecordingName;
+            filename = filename.Substring(0,filename.Length - 3) + "txt";
+            if (!partial && File.Exists(filename))
+            {
+                string bakfilename = filename.Substring(0,filename.Length - 3) + "bak";
+                if(File.Exists(bakfilename))File.Delete(bakfilename);
+                File.Move(filename,bakfilename);
+            }
+
+            if (File.Exists(filename)) return;
+            string contents = "";
+            foreach (var segment in recording.LabelledSegments)
+            {
+                contents+= segment.StartOffset.TotalSeconds + "\t" +
+                         segment.EndOffset.TotalSeconds + "\t" + segment.Comment+"\n";
+
+            }
+            File.WriteAllText(filename,contents);
+
+        }
+
+        /// <summary>
+        /// Extension method on RecordingSession.  Recreates the header text file for the session
+        /// using the data in the database.  If partial is true then an existing file will not
+        /// be overwritten.  If false then an existing file is renamed as .bak and replaced with
+        /// the newly created file - this may result in text duplication if the session Notes contain
+        /// the text of the original file.
+        /// Header file is assumed to be the same name as the sessionTag
+        /// </summary>
+        /// <param name=""></param>
+        /// <param name="session"></param>
+        /// <param name="partial"></param>
+        public static void WriteTextFile(this RecordingSession session,bool partial)
+        {
+            string filename = session.OriginalFilePath + session.SessionTag + ".txt";
+            
+            if (!partial && File.Exists(filename))
+            {
+                string bakfilename = filename.Substring(0,filename.Length - 3) + "bak";
+                if (File.Exists(bakfilename)) File.Delete(bakfilename);
+                File.Move(filename, bakfilename);
+            }
+
+            if (File.Exists(filename)) return;
+            string contents = "";
+            contents = "[COPY]\n";
+            contents += session.Location+"\n";
+            contents += $"{session.Operator}\n";
+
+            contents += $"{session.SessionDate.Date.ToLongDateString()} {session.SessionStartTime.ToString()} - ";
+            if (session.EndDate != null && session.EndDate.Value.Date != session.SessionDate.Date)
+                contents += $"{session.EndDate.Value.Date.ToLongDateString()} ";
+            if (session.SessionEndTime != null) contents += $"{session.SessionEndTime.Value.ToString()}";
+            contents += "\n";
+
+            contents += $"{session.Equipment}\n";
+            contents += $"{session.Microphone}\n";
+            contents += $"{session.Weather}\n";
+            if (session.Sunset != null) contents += $"Sunset:- {session.Sunset.Value.ToString()}\n";
+
+            if (session.hasGPSLocation)
+            {
+                contents +=
+                    $"{session.LocationGPSLatitude.Value.ToString("G", CultureInfo.InvariantCulture)}, {session.LocationGPSLongitude.Value.ToString("G",CultureInfo.InvariantCulture)}\n";
+            }
+
+            contents += session.SessionNotes.Trim() + "\n";
+
+            File.WriteAllText(filename,contents);
+
         }
 
         /// <summary>
@@ -465,6 +548,11 @@ namespace BatRecordingManager
     {
         private bool? _hasGPSLocation = null;
 
+        /// <summary>
+        /// cached boolean returns true if the GPS co-ordinates are non-null
+        /// in the range 90 to -90 and 180 to -180 and they are not both
+        /// less than .0001 (i.e.  GPS of 0,0 is considered invalid)
+        /// </summary>
         public bool hasGPSLocation
         {
             get
@@ -487,6 +575,8 @@ namespace BatRecordingManager
 
                 return (_hasGPSLocation.Value);
             }
+
+            set { _hasGPSLocation = null; }
         }
     }
 }

@@ -158,6 +158,11 @@ namespace BatRecordingManager
         public BulkObservableCollection<FrequencyData> reportDataByFrequencyList { get; set; } =
             new BulkObservableCollection<FrequencyData>();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public BulkObservableCollection<ReportData> reportSummaryList { get; set; }=new BulkObservableCollection<ReportData>();
+
 
         /// <summary>
         ///     Define the data for the report to be generated and populate the purpose defined class instances so that
@@ -195,6 +200,8 @@ namespace BatRecordingManager
                 ReportRecordingList = new BulkObservableCollection<Recording>();
                 ReportRecordingList.AddRange(reportRecordingList.Where(rrl => rrl != null).Distinct());
             }
+
+            
 
             // Set data for the Test Frequency Tab
             foreach (var tabitem in MainWindowTabControl.Items)

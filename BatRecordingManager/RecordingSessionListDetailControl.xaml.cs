@@ -312,20 +312,28 @@ Mouse.OverrideCursor = null;*/
                     var session =
                         DBAccess.GetRecordingSession((RecordingSessionListView.SelectedItems[0] as RecordingSessionData)
                             .Id);
-                    //recordingSessionDataList.RemoveAt(oldIndex);
-                    if (RecordingSessionListView.Items.Count > 0)
+                    var result = MessageBox.Show(
+                        $"This will remove session {session.SessionTag} From the Database\nAre You Sure?",
+                        "Delete RecordingSession", MessageBoxButton.YesNo);
+                    if (result == MessageBoxResult.Yes)
                     {
-                        oldIndex--;
-                        if (oldIndex < 0) oldIndex = 0;
-                        RecordingSessionListView.SelectedIndex = oldIndex;
-                    }
-                    else
-                    {
-                        RecordingSessionControl.recordingSession = null;
-                        RecordingsListControl.recordingsList.Clear();
+                        //recordingSessionDataList.RemoveAt(oldIndex);
+                        if (RecordingSessionListView.Items.Count > 0)
+                        {
+                            oldIndex--;
+                            if (oldIndex < 0) oldIndex = 0;
+                            RecordingSessionListView.SelectedIndex = oldIndex;
+                        }
+                        else
+                        {
+                            RecordingSessionControl.recordingSession = null;
+                            RecordingsListControl.recordingsList.Clear();
+                        }
+
+
+                        DBAccess.DeleteSession(session);
                     }
 
-                    DBAccess.DeleteSession(session);
                     RefreshData(PageSize, CurrentTopOfScreen);
                     if (RecordingSessionListView.SelectedItem != null)
                         RecordingSessionListView.ScrollIntoView(RecordingSessionListView.SelectedItem);
@@ -354,6 +362,10 @@ Mouse.OverrideCursor = null;*/
 
         /// <summary>
         ///     Handles the Click event of the ExportSessionDataButton control.
+        /// Modified functionality - now rewrites all the text files for recordings in this session
+        /// using the comments in the relevant labelled segments.  By default will replace all the old text files
+        /// with new ones, but CTRL-Click will just write text files where they do not already exist and
+        /// existing text files will be left untouched.
         /// </summary>
         /// <param name="sender">
         ///     The source of the event.
@@ -362,6 +374,42 @@ Mouse.OverrideCursor = null;*/
         ///     The <see cref="RoutedEventArgs" /> instance containing the event data.
         /// </param>
         private void ExportSessionDataButton_Click(object sender, RoutedEventArgs e)
+        {
+            bool partial = false;
+            if (Keyboard.IsKeyDown(Key.RightCtrl) || Keyboard.IsKeyDown(Key.LeftCtrl))
+            {
+                partial = true;
+            }
+            RecordingSession selectedSession = GetSelectedSession();
+            if (selectedSession == null) return;
+            if (selectedSession.Recordings == null || selectedSession.Recordings.Count <= 0) return;
+            if (!Directory.Exists(selectedSession.OriginalFilePath)) return;
+            
+            // only carry on if we have just one session selected
+            using (new WaitCursor())
+            {
+                selectedSession.WriteTextFile(partial);
+                foreach (var recording in selectedSession.Recordings)
+                {
+                    recording.WriteTextFile(partial);
+                }
+
+            }
+
+            e.Handled = true;
+            return;
+        }
+
+        /// <summary>
+        ///     Handles the Click event of the ExportSessionDataButton control.
+        /// </summary>
+        /// <param name="sender">
+        ///     The source of the event.
+        /// </param>
+        /// <param name="e">
+        ///     The <see cref="RoutedEventArgs" /> instance containing the event data.
+        /// </param>
+        private void ExportSessionDataButton_Click_old(object sender, RoutedEventArgs e)
         {
             using (new WaitCursor("Export session data"))
             {
@@ -436,142 +484,8 @@ Mouse.OverrideCursor = null;*/
                     }
             }
         }
-        /*
-        private void NavOrderByComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            using (new WaitCursor("Set default pre-load order"))
-            {
-                if (!e.Handled)
-                {
-                    e.Handled = true;
-                    if (e.AddedItems != null && e.AddedItems.Count > 0)
-                    {
-                        //string selectedItem = (NavOrderByComboBox.SelectedItem as ComboBoxItem).Content.ToString();
-                        string selectedItem = "NONE";
-                        if (!string.IsNullOrWhiteSpace(selectedItem))
-                        {
-                            field = selectedItem;
-                            RefreshData();
-                            if (field.StartsWith("DATE"))
-                            {
-                                Tools.SortColumn(RecordingSessionListView, DateColumn.DisplayIndex);
-                            }
-                            else if (field.StartsWith("TAG"))
-                            {
-                                Tools.SortColumn(RecordingSessionListView, TagColumn.DisplayIndex);
-                            }
-                            else if (field.StartsWith("LOCATION"))
-                            {
-                                Tools.SortColumn(RecordingSessionListView, LocationColumn.DisplayIndex);
-                            }
-                            else if (field.StartsWith("RECORDINGS"))
-                            {
-                                Tools.SortColumn(RecordingSessionListView, RecordingsColumn.DisplayIndex);
-                            }
-                        }
-                    }
-                }
-            }
-        }*/
+        
 
-        /*
-        /// <summary>
-        /// Move to the end of the list of sessions in the database
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void NavToLastPage_Click(object sender, RoutedEventArgs e)
-        {
-            using (new WaitCursor("Move to Last Page"))
-            {
-                if (!e.Handled)
-                {
-                    e.Handled = true;
-                    if (pageSize <= 0) return;
-                    currentTopOfScreen = MaxRecordingSessions - pageSize;
-                    if (currentTopOfScreen < 0)
-                    {
-                        currentTopOfScreen = 0;
-                    }
-                    RefreshData();
-                }
-            }
-        }*/
-
-        /*
-
-        /// <summary>
-        /// moves forward by 2/3 of a page in the database
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void NavToNextPage_Click(object sender, RoutedEventArgs e)
-        {
-            using (new WaitCursor("Move to Next Page"))
-            {
-                if (!e.Handled)
-                {
-                    e.Handled = true;
-                    if (pageSize <= 0) return;
-                    currentTopOfScreen += (int)(pageSize * 0.667);
-                    if (currentTopOfScreen > (MaxRecordingSessions - pageSize))
-                    {
-                        currentTopOfScreen = MaxRecordingSessions - pageSize;
-                    }
-                    if (currentTopOfScreen < 0)
-                    {
-                        currentTopOfScreen = 0;
-                    }
-                    RefreshData();
-                }
-            }
-        }*/
-
-        /*
-
-        /// <summary>
-        /// Moves up 2/3 of a  page in the list of sessions from the database
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void NavToPrevPage_Click(object sender, RoutedEventArgs e)
-        {
-            using (new WaitCursor("Load previous page"))
-            {
-                if (!e.Handled)
-                {
-                    e.Handled = true;
-                    if (pageSize <= 0) return;
-                    currentTopOfScreen -= (int)(pageSize * 0.667);
-                    if (currentTopOfScreen < 0)
-                    {
-                        currentTopOfScreen = 0;
-                    }
-                    RefreshData();
-                }
-            }
-        }*/
-
-        /*
-
-        /// <summary>
-        /// Moves to the start of the list of items in the database
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void NavToStartButton_Click(object sender, RoutedEventArgs e)
-        {
-            using (new WaitCursor("Move to First page"))
-            {
-                if (!e.Handled)
-                {
-                    e.Handled = true;
-                    if (pageSize <= 0) return;
-                    currentTopOfScreen = 0;
-                    RefreshData();
-                }
-            }
-        }*/
 
         private void OnListViewItemFocused(object sender, RoutedEventArgs e)
         {
@@ -579,55 +493,7 @@ Mouse.OverrideCursor = null;*/
             //lvi.IsSelected = true;
             //lvi.BringIntoView();
         }
-        /*
-        /// <summary>
-        /// Refreshes the page with the new pagesize settings
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PageSizeComboBox_DropDownClosed(object sender, EventArgs e)
-        {
-        }*/
-
-        /*
-
-        /// <summary>
-        /// Adjust the page size - re-population will be done on combobox closed
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PageSizeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            using (new WaitCursor("Changing page size"))
-            {
-                if (!e.Handled)
-                {
-                    e.Handled = true;
-                    if (e.AddedItems.Count > 0)
-                    {
-                        String selectedItem = (PageSizeComboBox.SelectedItem as ComboBoxItem).Content.ToString();
-                        if (!String.IsNullOrWhiteSpace(selectedItem))
-                        {
-                            if (selectedItem.ToUpper() == "ALL")
-                            {
-                                currentTopOfScreen = 0;
-                                pageSize = 0;
-                            }
-                            else
-                            {
-                                int size = 0;
-                                int.TryParse(selectedItem, out size);
-                                if (size > 0)
-                                {
-                                    pageSize = size;
-                                }
-                            }
-                            RefreshData(pageSize, currentTopOfScreen);
-                        }
-                    }
-                }
-            }
-        }*/
+        
 
         /// <summary>
         ///     called when the control is initialized and the data can be refreshed for the first time
@@ -658,6 +524,14 @@ Mouse.OverrideCursor = null;*/
             {
                 if (RecordingSessionListView.SelectedItems == null ||
                     RecordingSessionListView.SelectedItems.Count <= 0) return;
+                if (RecordingSessionListView.SelectedItems.Count == 1)
+                {
+                    ExportSessionDataButton.IsEnabled = true;
+                }
+                else
+                {
+                    ExportSessionDataButton.IsEnabled = false;
+                }
                 RecordingsListControl.recordingsList.Clear();
                 RecordingsListControl.Refresh();
                 var id = (RecordingSessionListView.SelectedItems[0] as RecordingSessionData).Id;

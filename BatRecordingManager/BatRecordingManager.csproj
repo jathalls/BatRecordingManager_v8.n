@@ -514,6 +514,7 @@
     <Compile Include="ReportMaster.xaml.cs">
       <DependentUpon>ReportMaster.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ReportSummary.cs" />
     <Compile Include="SearchableCollection.cs" />
     <Compile Include="SearchDialog.xaml.cs">
       <DependentUpon>SearchDialog.xaml</DependentUpon>

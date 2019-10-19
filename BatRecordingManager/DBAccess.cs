@@ -669,8 +669,7 @@ namespace BatRecordingManager
             dc.Connection.Dispose();
             dc.Dispose();
             dc = null;
-            App.dbFileLocation = "";
-            App.dbFileName = "";
+            _isDataContextUpToDate = false;
             _persistentbatReferenceDataContext = null;
         }
 
@@ -1325,7 +1324,7 @@ namespace BatRecordingManager
                 if (!File.Exists(workingDatabaseLocation + workingDatabaseFilename))
                 {
                     Tools.InfoLog("No file at [" + workingDatabaseLocation + workingDatabaseFilename + "]");
-                    App.dbFileLocation = "";
+                    
                     workingDatabaseLocation = GetWorkingDatabaseLocation();
                     workingDatabaseFilename = GetWorkingDatabaseName(workingDatabaseLocation);
                 }
@@ -1382,8 +1381,12 @@ namespace BatRecordingManager
 
             if (_isDataContextUpToDate) return batReferenceDataContext;
 
-            tables=GetRawDatabaseTables(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + workingDatabaseLocation +
-                                        workingDatabaseFilename + @";Integrated Security=False;Connect Timeout=60");
+            
+                tables = GetRawDatabaseTables(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" +
+                                              workingDatabaseLocation +
+                                              workingDatabaseFilename +
+                                              @";Integrated Security=False;Connect Timeout=60");
+            
 
             var versionTableExists = false;
             foreach (var table in tables)
@@ -1515,20 +1518,28 @@ namespace BatRecordingManager
 
         private static List<string> GetRawDatabaseTables(string connectionString)
         {
+            
             List<string> tables=new List<string>();
-            SqlConnection conn = new SqlConnection(connectionString);
-            conn.Open();
-            SqlCommand sqlCommand = new SqlCommand("SELECT * FROM INFORMATION_SCHEMA.TABLES", conn);
-            using (SqlDataReader dataReader = sqlCommand.ExecuteReader())
+            try
             {
-
-                while (dataReader.Read())
+                SqlConnection conn = new SqlConnection(connectionString);
+                conn.Open();
+                SqlCommand sqlCommand = new SqlCommand("SELECT * FROM INFORMATION_SCHEMA.TABLES", conn);
+                using (SqlDataReader dataReader = sqlCommand.ExecuteReader())
                 {
-                    tables.Add((string)dataReader["TABLE_NAME"]);
+
+                    while (dataReader.Read())
+                    {
+                        tables.Add((string) dataReader["TABLE_NAME"]);
+                    }
+
+
+
                 }
-
-
-
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("GetRawDatabaseTables Error:- "+ex.Message);
             }
 
             return (tables);
@@ -2143,18 +2154,14 @@ namespace BatRecordingManager
         {
             string BackupFileLocation = "";
             var workingDatabaseLocation = "";
-
+            workingDatabaseLocation = App.dbFileLocation;
 
 #if DEBUG
-            workingDatabaseLocation = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                @"Echolocation\WinBLP\Debug\");
+            
             BackupFileLocation = @"C:\BRMBackupDebug\";
 
 #else
-            workingDatabaseLocation = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                @"Echolocation\WinBLP\");
+            
             BackupFileLocation = @"C:\BRMBackup\";
 #endif
 
@@ -2175,23 +2182,13 @@ namespace BatRecordingManager
         internal static string GetWorkingDatabaseName(string dbLocation)
         {
             var workingDatabaseName = "";
-            if (!string.IsNullOrWhiteSpace(App.dbFileName) && App.dbFileName.EndsWith(".mdf") &&
-                App.dbFileName.Contains("BatReferenceDB"))
+
+            if (!File.Exists(App.dbFileLocation + App.dbFileName))
             {
-                if (File.Exists(dbLocation + App.dbFileName))
-                {
-                    workingDatabaseName = App.dbFileName;
-                }
-                else
-                {
-                    App.dbFileName = "";
-                    if (File.Exists(dbLocation + DBFileName)) workingDatabaseName = DBFileName;
-                }
+                InitializeDatabase();
             }
-            else
-            {
-                workingDatabaseName = DBFileName;
-            }
+            workingDatabaseName =  App.dbFileName;
+               
 
             return workingDatabaseName;
         }
@@ -2210,17 +2207,17 @@ namespace BatRecordingManager
         {
             try
             {
-                var workingDatabaseLocation = GetWorkingDatabaseLocation();
+                var workingDatabaseLocation = App.dbFileLocation;
+                var workingDatabaseName = App.dbFileName;
 
-                var dbShortName = "BatReferenceDB";
+                
 
-                if (!File.Exists(workingDatabaseLocation + dbShortName + DbVersion + ".mdf"))
+                if (!File.Exists(workingDatabaseLocation+workingDatabaseName))
                 {
                     try
                     {
-                        CreateDatabase(workingDatabaseLocation + dbShortName + DbVersion + ".mdf");
-                        App.dbFileLocation = workingDatabaseLocation;
-                        App.dbFileName = dbShortName + DbVersion + ".mdf";
+                        CreateDatabase(workingDatabaseLocation + workingDatabaseName);
+                        
                     }
                     catch (Exception ex)
                     {
@@ -2237,6 +2234,14 @@ namespace BatRecordingManager
                             workingDatabaseLocation + "EditableBatReferenceXMLFile.xml");
 
                         UpdateReferenceData(workingDatabaseLocation);
+                    }
+                    else
+                    {
+                        if (File.Exists(@".\BatReferenceXMLFile.xml"))
+                        {
+                            File.Copy(@".\BatReferenceXMLFile.xml",workingDatabaseLocation+"EditableBatReferenceXMLFile.xml");
+                            UpdateReferenceData(workingDatabaseLocation);
+                        }
                     }
                 }
                 else
@@ -2352,42 +2357,28 @@ namespace BatRecordingManager
             try
             {
                 CloseDatabase();
-                if (!string.IsNullOrWhiteSpace(fileName))
-                {
-                    if (File.Exists(fileName))
-                    {
-                        var index = fileName.LastIndexOf(@"\");
-                        App.dbFileLocation = fileName.Substring(0, index + 1);
-                        App.dbFileName = fileName.Substring(index + 1);
-                    }
-                    else
-                    {
-                        err = "Specified database file does not exist:-" + fileName;
-                    }
-                }
-                else
-                {
-                    err = CreateDatabase(fileName);
-                    if (!string.IsNullOrWhiteSpace(err))
-                    {
-                        App.dbFileLocation = "";
-                        App.dbFileName = "";
-                        Tools.ErrorLog("Unable to find or create database [" + fileName + "]:-" + err);
-                    }
-                }
-
                 _isDataContextUpToDate = false;
-                var dc = GetDataContext();
-                if (dc == null)
-                    err = "Unable to re-open selected database";
+                if (!string.IsNullOrWhiteSpace(fileName)  && File.Exists(fileName))
+                {
+                    App.dbFileLocation = Tools.GetPath(fileName);
+                    App.dbFileName = Tools.StripPath(fileName);
+                }
                 else
-                    InitializeDatabase(dc);
+                {
+                    App.ResetDatabase();
+                    InitializeDatabase();
+                }
+                InitializeDatabase();
+
+                
             }
             catch (Exception ex)
             {
                 err = ex.ToString();
                 Tools.ErrorLog(ex.Message);
             }
+
+            
 
             return err;
         }

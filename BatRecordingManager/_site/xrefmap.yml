@@ -178,6 +178,19 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.App.OnStartup
   nameWithType: App.OnStartup
+- uid: BatRecordingManager.App.ResetDatabase
+  name: ResetDatabase()
+  href: api/BatRecordingManager.App.html#BatRecordingManager_App_ResetDatabase
+  commentId: M:BatRecordingManager.App.ResetDatabase
+  fullName: BatRecordingManager.App.ResetDatabase()
+  nameWithType: App.ResetDatabase()
+- uid: BatRecordingManager.App.ResetDatabase*
+  name: ResetDatabase
+  href: api/BatRecordingManager.App.html#BatRecordingManager_App_ResetDatabase_
+  commentId: Overload:BatRecordingManager.App.ResetDatabase
+  isSpec: "True"
+  fullName: BatRecordingManager.App.ResetDatabase
+  nameWithType: App.ResetDatabase
 - uid: BatRecordingManager.App.ShowDatabase
   name: ShowDatabase
   href: api/BatRecordingManager.App.html#BatRecordingManager_App_ShowDatabase
@@ -3188,6 +3201,38 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.BottomMarginConverter.ConvertBack
   nameWithType: BottomMarginConverter.ConvertBack
+- uid: BatRecordingManager.BSPassesConverter
+  name: BSPassesConverter
+  href: api/BatRecordingManager.BSPassesConverter.html
+  commentId: T:BatRecordingManager.BSPassesConverter
+  fullName: BatRecordingManager.BSPassesConverter
+  nameWithType: BSPassesConverter
+- uid: BatRecordingManager.BSPassesConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  name: Convert(Object, Type, Object, CultureInfo)
+  href: api/BatRecordingManager.BSPassesConverter.html#BatRecordingManager_BSPassesConverter_Convert_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_
+  commentId: M:BatRecordingManager.BSPassesConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  fullName: BatRecordingManager.BSPassesConverter.Convert(System.Object, System.Type, System.Object, System.Globalization.CultureInfo)
+  nameWithType: BSPassesConverter.Convert(Object, Type, Object, CultureInfo)
+- uid: BatRecordingManager.BSPassesConverter.Convert*
+  name: Convert
+  href: api/BatRecordingManager.BSPassesConverter.html#BatRecordingManager_BSPassesConverter_Convert_
+  commentId: Overload:BatRecordingManager.BSPassesConverter.Convert
+  isSpec: "True"
+  fullName: BatRecordingManager.BSPassesConverter.Convert
+  nameWithType: BSPassesConverter.Convert
+- uid: BatRecordingManager.BSPassesConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  name: ConvertBack(Object, Type, Object, CultureInfo)
+  href: api/BatRecordingManager.BSPassesConverter.html#BatRecordingManager_BSPassesConverter_ConvertBack_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_
+  commentId: M:BatRecordingManager.BSPassesConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  fullName: BatRecordingManager.BSPassesConverter.ConvertBack(System.Object, System.Type, System.Object, System.Globalization.CultureInfo)
+  nameWithType: BSPassesConverter.ConvertBack(Object, Type, Object, CultureInfo)
+- uid: BatRecordingManager.BSPassesConverter.ConvertBack*
+  name: ConvertBack
+  href: api/BatRecordingManager.BSPassesConverter.html#BatRecordingManager_BSPassesConverter_ConvertBack_
+  commentId: Overload:BatRecordingManager.BSPassesConverter.ConvertBack
+  isSpec: "True"
+  fullName: BatRecordingManager.BSPassesConverter.ConvertBack
+  nameWithType: BSPassesConverter.ConvertBack
 - uid: BatRecordingManager.ButtonBarControl
   name: ButtonBarControl
   href: api/BatRecordingManager.ButtonBarControl.html
@@ -4362,6 +4407,25 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.DbMemberHelpers.ToHMString
   nameWithType: DbMemberHelpers.ToHMString
+- uid: BatRecordingManager.DbMemberHelpers.WriteTextFile(BatRecordingManager.Recording,System.Boolean)
+  name: WriteTextFile(Recording, Boolean)
+  href: api/BatRecordingManager.DbMemberHelpers.html#BatRecordingManager_DbMemberHelpers_WriteTextFile_BatRecordingManager_Recording_System_Boolean_
+  commentId: M:BatRecordingManager.DbMemberHelpers.WriteTextFile(BatRecordingManager.Recording,System.Boolean)
+  fullName: BatRecordingManager.DbMemberHelpers.WriteTextFile(BatRecordingManager.Recording, System.Boolean)
+  nameWithType: DbMemberHelpers.WriteTextFile(Recording, Boolean)
+- uid: BatRecordingManager.DbMemberHelpers.WriteTextFile(BatRecordingManager.RecordingSession,System.Boolean)
+  name: WriteTextFile(RecordingSession, Boolean)
+  href: api/BatRecordingManager.DbMemberHelpers.html#BatRecordingManager_DbMemberHelpers_WriteTextFile_BatRecordingManager_RecordingSession_System_Boolean_
+  commentId: M:BatRecordingManager.DbMemberHelpers.WriteTextFile(BatRecordingManager.RecordingSession,System.Boolean)
+  fullName: BatRecordingManager.DbMemberHelpers.WriteTextFile(BatRecordingManager.RecordingSession, System.Boolean)
+  nameWithType: DbMemberHelpers.WriteTextFile(RecordingSession, Boolean)
+- uid: BatRecordingManager.DbMemberHelpers.WriteTextFile*
+  name: WriteTextFile
+  href: api/BatRecordingManager.DbMemberHelpers.html#BatRecordingManager_DbMemberHelpers_WriteTextFile_
+  commentId: Overload:BatRecordingManager.DbMemberHelpers.WriteTextFile
+  isSpec: "True"
+  fullName: BatRecordingManager.DbMemberHelpers.WriteTextFile
+  nameWithType: DbMemberHelpers.WriteTextFile
 - uid: BatRecordingManager.DebugBreak
   name: DebugBreak
   href: api/BatRecordingManager.DebugBreak.html
@@ -5206,6 +5270,38 @@ references:
   commentId: F:BatRecordingManager.FileOrderDialog.fileListProperty
   fullName: BatRecordingManager.FileOrderDialog.fileListProperty
   nameWithType: FileOrderDialog.fileListProperty
+- uid: BatRecordingManager.FilePathBrushConverter
+  name: FilePathBrushConverter
+  href: api/BatRecordingManager.FilePathBrushConverter.html
+  commentId: T:BatRecordingManager.FilePathBrushConverter
+  fullName: BatRecordingManager.FilePathBrushConverter
+  nameWithType: FilePathBrushConverter
+- uid: BatRecordingManager.FilePathBrushConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  name: Convert(Object, Type, Object, CultureInfo)
+  href: api/BatRecordingManager.FilePathBrushConverter.html#BatRecordingManager_FilePathBrushConverter_Convert_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_
+  commentId: M:BatRecordingManager.FilePathBrushConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  fullName: BatRecordingManager.FilePathBrushConverter.Convert(System.Object, System.Type, System.Object, System.Globalization.CultureInfo)
+  nameWithType: FilePathBrushConverter.Convert(Object, Type, Object, CultureInfo)
+- uid: BatRecordingManager.FilePathBrushConverter.Convert*
+  name: Convert
+  href: api/BatRecordingManager.FilePathBrushConverter.html#BatRecordingManager_FilePathBrushConverter_Convert_
+  commentId: Overload:BatRecordingManager.FilePathBrushConverter.Convert
+  isSpec: "True"
+  fullName: BatRecordingManager.FilePathBrushConverter.Convert
+  nameWithType: FilePathBrushConverter.Convert
+- uid: BatRecordingManager.FilePathBrushConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  name: ConvertBack(Object, Type, Object, CultureInfo)
+  href: api/BatRecordingManager.FilePathBrushConverter.html#BatRecordingManager_FilePathBrushConverter_ConvertBack_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_
+  commentId: M:BatRecordingManager.FilePathBrushConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  fullName: BatRecordingManager.FilePathBrushConverter.ConvertBack(System.Object, System.Type, System.Object, System.Globalization.CultureInfo)
+  nameWithType: FilePathBrushConverter.ConvertBack(Object, Type, Object, CultureInfo)
+- uid: BatRecordingManager.FilePathBrushConverter.ConvertBack*
+  name: ConvertBack
+  href: api/BatRecordingManager.FilePathBrushConverter.html#BatRecordingManager_FilePathBrushConverter_ConvertBack_
+  commentId: Overload:BatRecordingManager.FilePathBrushConverter.ConvertBack
+  isSpec: "True"
+  fullName: BatRecordingManager.FilePathBrushConverter.ConvertBack
+  nameWithType: FilePathBrushConverter.ConvertBack
 - uid: BatRecordingManager.FolderSelectionDialog
   name: FolderSelectionDialog
   href: api/BatRecordingManager.FolderSelectionDialog.html
@@ -5331,6 +5427,38 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.FrequencyData.sessionHeader
   nameWithType: FrequencyData.sessionHeader
+- uid: BatRecordingManager.GPSConverter
+  name: GPSConverter
+  href: api/BatRecordingManager.GPSConverter.html
+  commentId: T:BatRecordingManager.GPSConverter
+  fullName: BatRecordingManager.GPSConverter
+  nameWithType: GPSConverter
+- uid: BatRecordingManager.GPSConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  name: Convert(Object, Type, Object, CultureInfo)
+  href: api/BatRecordingManager.GPSConverter.html#BatRecordingManager_GPSConverter_Convert_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_
+  commentId: M:BatRecordingManager.GPSConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  fullName: BatRecordingManager.GPSConverter.Convert(System.Object, System.Type, System.Object, System.Globalization.CultureInfo)
+  nameWithType: GPSConverter.Convert(Object, Type, Object, CultureInfo)
+- uid: BatRecordingManager.GPSConverter.Convert*
+  name: Convert
+  href: api/BatRecordingManager.GPSConverter.html#BatRecordingManager_GPSConverter_Convert_
+  commentId: Overload:BatRecordingManager.GPSConverter.Convert
+  isSpec: "True"
+  fullName: BatRecordingManager.GPSConverter.Convert
+  nameWithType: GPSConverter.Convert
+- uid: BatRecordingManager.GPSConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  name: ConvertBack(Object, Type, Object, CultureInfo)
+  href: api/BatRecordingManager.GPSConverter.html#BatRecordingManager_GPSConverter_ConvertBack_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_
+  commentId: M:BatRecordingManager.GPSConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  fullName: BatRecordingManager.GPSConverter.ConvertBack(System.Object, System.Type, System.Object, System.Globalization.CultureInfo)
+  nameWithType: GPSConverter.ConvertBack(Object, Type, Object, CultureInfo)
+- uid: BatRecordingManager.GPSConverter.ConvertBack*
+  name: ConvertBack
+  href: api/BatRecordingManager.GPSConverter.html#BatRecordingManager_GPSConverter_ConvertBack_
+  commentId: Overload:BatRecordingManager.GPSConverter.ConvertBack
+  isSpec: "True"
+  fullName: BatRecordingManager.GPSConverter.ConvertBack
+  nameWithType: GPSConverter.ConvertBack
 - uid: BatRecordingManager.GPSLocation
   name: GPSLocation
   href: api/BatRecordingManager.GPSLocation.html
@@ -7071,6 +7199,25 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.MainWindow.MainWindow
   nameWithType: MainWindow.MainWindow
+- uid: BatRecordingManager.MainWindow._windowTitle
+  name: _windowTitle
+  href: api/BatRecordingManager.MainWindow.html#BatRecordingManager_MainWindow__windowTitle
+  commentId: P:BatRecordingManager.MainWindow._windowTitle
+  fullName: BatRecordingManager.MainWindow._windowTitle
+  nameWithType: MainWindow._windowTitle
+- uid: BatRecordingManager.MainWindow._windowTitle*
+  name: _windowTitle
+  href: api/BatRecordingManager.MainWindow.html#BatRecordingManager_MainWindow__windowTitle_
+  commentId: Overload:BatRecordingManager.MainWindow._windowTitle
+  isSpec: "True"
+  fullName: BatRecordingManager.MainWindow._windowTitle
+  nameWithType: MainWindow._windowTitle
+- uid: BatRecordingManager.MainWindow._windowTitleProperty
+  name: _windowTitleProperty
+  href: api/BatRecordingManager.MainWindow.html#BatRecordingManager_MainWindow__windowTitleProperty
+  commentId: F:BatRecordingManager.MainWindow._windowTitleProperty
+  fullName: BatRecordingManager.MainWindow._windowTitleProperty
+  nameWithType: MainWindow._windowTitleProperty
 - uid: BatRecordingManager.MainWindow.AnalyseAndImport_DataUpdated(System.Object,System.EventArgs)
   name: AnalyseAndImport_DataUpdated(Object, EventArgs)
   href: api/BatRecordingManager.MainWindow.html#BatRecordingManager_MainWindow_AnalyseAndImport_DataUpdated_System_Object_System_EventArgs_
@@ -7113,6 +7260,19 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.MainWindow.RefreshAll
   nameWithType: MainWindow.RefreshAll
+- uid: BatRecordingManager.MainWindow.SetTitle
+  name: SetTitle()
+  href: api/BatRecordingManager.MainWindow.html#BatRecordingManager_MainWindow_SetTitle
+  commentId: M:BatRecordingManager.MainWindow.SetTitle
+  fullName: BatRecordingManager.MainWindow.SetTitle()
+  nameWithType: MainWindow.SetTitle()
+- uid: BatRecordingManager.MainWindow.SetTitle*
+  name: SetTitle
+  href: api/BatRecordingManager.MainWindow.html#BatRecordingManager_MainWindow_SetTitle_
+  commentId: Overload:BatRecordingManager.MainWindow.SetTitle
+  isSpec: "True"
+  fullName: BatRecordingManager.MainWindow.SetTitle
+  nameWithType: MainWindow.SetTitle
 - uid: BatRecordingManager.MainWindow.ShowDatabase
   name: ShowDatabase
   href: api/BatRecordingManager.MainWindow.html#BatRecordingManager_MainWindow_ShowDatabase
@@ -7216,6 +7376,38 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.MapControl.lastInsertedPinLocation
   nameWithType: MapControl.lastInsertedPinLocation
+- uid: BatRecordingManager.MapRefConverter
+  name: MapRefConverter
+  href: api/BatRecordingManager.MapRefConverter.html
+  commentId: T:BatRecordingManager.MapRefConverter
+  fullName: BatRecordingManager.MapRefConverter
+  nameWithType: MapRefConverter
+- uid: BatRecordingManager.MapRefConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  name: Convert(Object, Type, Object, CultureInfo)
+  href: api/BatRecordingManager.MapRefConverter.html#BatRecordingManager_MapRefConverter_Convert_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_
+  commentId: M:BatRecordingManager.MapRefConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  fullName: BatRecordingManager.MapRefConverter.Convert(System.Object, System.Type, System.Object, System.Globalization.CultureInfo)
+  nameWithType: MapRefConverter.Convert(Object, Type, Object, CultureInfo)
+- uid: BatRecordingManager.MapRefConverter.Convert*
+  name: Convert
+  href: api/BatRecordingManager.MapRefConverter.html#BatRecordingManager_MapRefConverter_Convert_
+  commentId: Overload:BatRecordingManager.MapRefConverter.Convert
+  isSpec: "True"
+  fullName: BatRecordingManager.MapRefConverter.Convert
+  nameWithType: MapRefConverter.Convert
+- uid: BatRecordingManager.MapRefConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  name: ConvertBack(Object, Type, Object, CultureInfo)
+  href: api/BatRecordingManager.MapRefConverter.html#BatRecordingManager_MapRefConverter_ConvertBack_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_
+  commentId: M:BatRecordingManager.MapRefConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  fullName: BatRecordingManager.MapRefConverter.ConvertBack(System.Object, System.Type, System.Object, System.Globalization.CultureInfo)
+  nameWithType: MapRefConverter.ConvertBack(Object, Type, Object, CultureInfo)
+- uid: BatRecordingManager.MapRefConverter.ConvertBack*
+  name: ConvertBack
+  href: api/BatRecordingManager.MapRefConverter.html#BatRecordingManager_MapRefConverter_ConvertBack_
+  commentId: Overload:BatRecordingManager.MapRefConverter.ConvertBack
+  isSpec: "True"
+  fullName: BatRecordingManager.MapRefConverter.ConvertBack
+  nameWithType: MapRefConverter.ConvertBack
 - uid: BatRecordingManager.MapWindow
   name: MapWindow
   href: api/BatRecordingManager.MapWindow.html
@@ -9370,6 +9562,19 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.ReportMainWindow.reportDataBySessionList
   nameWithType: ReportMainWindow.reportDataBySessionList
+- uid: BatRecordingManager.ReportMainWindow.reportSummaryList
+  name: reportSummaryList
+  href: api/BatRecordingManager.ReportMainWindow.html#BatRecordingManager_ReportMainWindow_reportSummaryList
+  commentId: P:BatRecordingManager.ReportMainWindow.reportSummaryList
+  fullName: BatRecordingManager.ReportMainWindow.reportSummaryList
+  nameWithType: ReportMainWindow.reportSummaryList
+- uid: BatRecordingManager.ReportMainWindow.reportSummaryList*
+  name: reportSummaryList
+  href: api/BatRecordingManager.ReportMainWindow.html#BatRecordingManager_ReportMainWindow_reportSummaryList_
+  commentId: Overload:BatRecordingManager.ReportMainWindow.reportSummaryList
+  isSpec: "True"
+  fullName: BatRecordingManager.ReportMainWindow.reportSummaryList
+  nameWithType: ReportMainWindow.reportSummaryList
 - uid: BatRecordingManager.ReportMainWindow.SetReportData(System.Collections.Generic.List{BatRecordingManager.BatStatistics},System.Collections.Generic.List{BatRecordingManager.RecordingSession},System.Collections.Generic.List{BatRecordingManager.Recording})
   name: SetReportData(List<BatStatistics>, List<RecordingSession>, List<Recording>)
   href: api/BatRecordingManager.ReportMainWindow.html#BatRecordingManager_ReportMainWindow_SetReportData_System_Collections_Generic_List_BatRecordingManager_BatStatistics__System_Collections_Generic_List_BatRecordingManager_RecordingSession__System_Collections_Generic_List_BatRecordingManager_Recording__
@@ -9991,6 +10196,38 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.SessionActionEventArgs.RecordingSessionId
   nameWithType: SessionActionEventArgs.RecordingSessionId
+- uid: BatRecordingManager.SessionEndDateTimeConverter
+  name: SessionEndDateTimeConverter
+  href: api/BatRecordingManager.SessionEndDateTimeConverter.html
+  commentId: T:BatRecordingManager.SessionEndDateTimeConverter
+  fullName: BatRecordingManager.SessionEndDateTimeConverter
+  nameWithType: SessionEndDateTimeConverter
+- uid: BatRecordingManager.SessionEndDateTimeConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  name: Convert(Object, Type, Object, CultureInfo)
+  href: api/BatRecordingManager.SessionEndDateTimeConverter.html#BatRecordingManager_SessionEndDateTimeConverter_Convert_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_
+  commentId: M:BatRecordingManager.SessionEndDateTimeConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  fullName: BatRecordingManager.SessionEndDateTimeConverter.Convert(System.Object, System.Type, System.Object, System.Globalization.CultureInfo)
+  nameWithType: SessionEndDateTimeConverter.Convert(Object, Type, Object, CultureInfo)
+- uid: BatRecordingManager.SessionEndDateTimeConverter.Convert*
+  name: Convert
+  href: api/BatRecordingManager.SessionEndDateTimeConverter.html#BatRecordingManager_SessionEndDateTimeConverter_Convert_
+  commentId: Overload:BatRecordingManager.SessionEndDateTimeConverter.Convert
+  isSpec: "True"
+  fullName: BatRecordingManager.SessionEndDateTimeConverter.Convert
+  nameWithType: SessionEndDateTimeConverter.Convert
+- uid: BatRecordingManager.SessionEndDateTimeConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  name: ConvertBack(Object, Type, Object, CultureInfo)
+  href: api/BatRecordingManager.SessionEndDateTimeConverter.html#BatRecordingManager_SessionEndDateTimeConverter_ConvertBack_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_
+  commentId: M:BatRecordingManager.SessionEndDateTimeConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  fullName: BatRecordingManager.SessionEndDateTimeConverter.ConvertBack(System.Object, System.Type, System.Object, System.Globalization.CultureInfo)
+  nameWithType: SessionEndDateTimeConverter.ConvertBack(Object, Type, Object, CultureInfo)
+- uid: BatRecordingManager.SessionEndDateTimeConverter.ConvertBack*
+  name: ConvertBack
+  href: api/BatRecordingManager.SessionEndDateTimeConverter.html#BatRecordingManager_SessionEndDateTimeConverter_ConvertBack_
+  commentId: Overload:BatRecordingManager.SessionEndDateTimeConverter.ConvertBack
+  isSpec: "True"
+  fullName: BatRecordingManager.SessionEndDateTimeConverter.ConvertBack
+  nameWithType: SessionEndDateTimeConverter.ConvertBack
 - uid: BatRecordingManager.SessionManager
   name: SessionManager
   href: api/BatRecordingManager.SessionManager.html
@@ -10177,6 +10414,38 @@ references:
   commentId: F:BatRecordingManager.SessionsAndRecordingsControl.SelectedBatId
   fullName: BatRecordingManager.SessionsAndRecordingsControl.SelectedBatId
   nameWithType: SessionsAndRecordingsControl.SelectedBatId
+- uid: BatRecordingManager.SessionStartDateTimeConverter
+  name: SessionStartDateTimeConverter
+  href: api/BatRecordingManager.SessionStartDateTimeConverter.html
+  commentId: T:BatRecordingManager.SessionStartDateTimeConverter
+  fullName: BatRecordingManager.SessionStartDateTimeConverter
+  nameWithType: SessionStartDateTimeConverter
+- uid: BatRecordingManager.SessionStartDateTimeConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  name: Convert(Object, Type, Object, CultureInfo)
+  href: api/BatRecordingManager.SessionStartDateTimeConverter.html#BatRecordingManager_SessionStartDateTimeConverter_Convert_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_
+  commentId: M:BatRecordingManager.SessionStartDateTimeConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  fullName: BatRecordingManager.SessionStartDateTimeConverter.Convert(System.Object, System.Type, System.Object, System.Globalization.CultureInfo)
+  nameWithType: SessionStartDateTimeConverter.Convert(Object, Type, Object, CultureInfo)
+- uid: BatRecordingManager.SessionStartDateTimeConverter.Convert*
+  name: Convert
+  href: api/BatRecordingManager.SessionStartDateTimeConverter.html#BatRecordingManager_SessionStartDateTimeConverter_Convert_
+  commentId: Overload:BatRecordingManager.SessionStartDateTimeConverter.Convert
+  isSpec: "True"
+  fullName: BatRecordingManager.SessionStartDateTimeConverter.Convert
+  nameWithType: SessionStartDateTimeConverter.Convert
+- uid: BatRecordingManager.SessionStartDateTimeConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  name: ConvertBack(Object, Type, Object, CultureInfo)
+  href: api/BatRecordingManager.SessionStartDateTimeConverter.html#BatRecordingManager_SessionStartDateTimeConverter_ConvertBack_System_Object_System_Type_System_Object_System_Globalization_CultureInfo_
+  commentId: M:BatRecordingManager.SessionStartDateTimeConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)
+  fullName: BatRecordingManager.SessionStartDateTimeConverter.ConvertBack(System.Object, System.Type, System.Object, System.Globalization.CultureInfo)
+  nameWithType: SessionStartDateTimeConverter.ConvertBack(Object, Type, Object, CultureInfo)
+- uid: BatRecordingManager.SessionStartDateTimeConverter.ConvertBack*
+  name: ConvertBack
+  href: api/BatRecordingManager.SessionStartDateTimeConverter.html#BatRecordingManager_SessionStartDateTimeConverter_ConvertBack_
+  commentId: Overload:BatRecordingManager.SessionStartDateTimeConverter.ConvertBack
+  isSpec: "True"
+  fullName: BatRecordingManager.SessionStartDateTimeConverter.ConvertBack
+  nameWithType: SessionStartDateTimeConverter.ConvertBack
 - uid: BatRecordingManager.ShortDateConverter
   name: ShortDateConverter
   href: api/BatRecordingManager.ShortDateConverter.html

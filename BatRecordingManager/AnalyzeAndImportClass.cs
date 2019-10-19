@@ -100,6 +100,22 @@ namespace BatRecordingManager
             }
         }
 
+        public AnalyseAndImportClass(string sessionTag)
+        {
+            SessionTag = sessionTag;
+            FolderSelected = false;
+            FilesRemaining = 0;
+            ThisRecording = null;
+            FolderPath = SelectFolder();
+            if (!string.IsNullOrWhiteSpace(FolderPath) && Directory.Exists(FolderPath) && !WavFileList.IsNullOrEmpty())
+            {
+
+
+                FolderSelected = true;
+                SetAudacityExportFolder(FolderPath);
+            }
+        }
+
         public AnalyseAndImportClass(Recording recordingToAnalyse)
         {
             FolderSelected = false;
@@ -285,10 +301,34 @@ namespace BatRecordingManager
 
 
             GetFileList();
-            SessionTag = GetSessionTag();
+            if (!string.IsNullOrWhiteSpace(SessionTag) && DBAccess.SessionTagExists(SessionTag))
+            {
+                ThisRecordingSession = DBAccess.GetRecordingSession(SessionTag);
+                if (ThisRecordingSession != null)
+                {
+                    var mbResult = MessageBox.Show($@"You will add analysis results for folder {FolderPath}
+to Existing RecordingSession {SessionTag}
+Are you sure this is correct?", "Append Analysis to current Session", MessageBoxButtons.YesNo);
+                    if (mbResult == DialogResult.No)
+                    {
+                        SessionTag = GetSessionTag();
+                        ThisRecordingSession = CreateSession();
+                    }
+                }
+            }
+            else
+            {
+                SessionTag = GetSessionTag();
 
-            ThisRecordingSession = CreateSession();
-            if (ThisRecordingSession == null) return null;
+                ThisRecordingSession = CreateSession();
+            }
+
+            if (ThisRecordingSession == null)
+            {
+                MessageBox.Show("Cannot find or create a session for this folder",
+                    "Aborting Analysis!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
 
             if (!WavFileList.IsNullOrEmpty())
             {
@@ -824,7 +864,25 @@ namespace BatRecordingManager
                     }
                 }
 
-            return "";
+            string path = Tools.GetPath(WavFileList.FirstOrDefault());
+            if (!string.IsNullOrWhiteSpace(path))
+            {
+                if (path.EndsWith("\\"))
+                {
+                    path = path.Substring(0, path.Length - 1);
+                }
+
+                if (path.Contains("\\"))
+                {
+                    SessionTag = path.Substring(path.LastIndexOf('\\')).Trim();
+                    if (SessionTag.StartsWith("\\"))
+                    {
+                        SessionTag = SessionTag.Substring(1);
+                    }
+                }
+            }
+
+            return SessionTag;
         }
 
         /// <summary>
