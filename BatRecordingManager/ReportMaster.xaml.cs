@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System.Windows;
 using System.Windows.Controls;
@@ -67,18 +66,41 @@ namespace BatRecordingManager
         /// <param name="visibility"></param>
         /// <param name="converter"></param>
         /// <returns></returns>
-        protected DataGridTextColumn CreateColumn(string header, string bindingSource, Visibility visibility,
-            string converter)
+        protected DataGridTextColumn CreateColumn(string header, string bindingSource, Visibility visibility=Visibility.Visible,
+            string converter="")
         {
-            var column = new DataGridTextColumn();
-            column.Header = header;
+            var column = new DataGridTextColumn {Header = header};
             var bind = new Binding(bindingSource);
             if (!string.IsNullOrWhiteSpace(converter))
             {
-                if (converter == "ShortTime_Converter")
-                    bind.Converter = new ShortTimeConverter();
-                else if (converter == "ShortDate_Converter")
-                    bind.Converter = new ShortDateConverter();
+                switch (converter)
+                {
+                    case "ShortTime_Converter":
+                        bind.Converter=new ShortTimeConverter();
+                        break;
+                    case "ShortDate_Converter":
+                        bind.Converter=new ShortDateConverter();
+                        break;
+                    case "GPSConverter":
+                        bind.Converter=new GPSConverter();
+                        break;
+                    case "MapRefConverter":
+                        bind.Converter=new MapRefConverter();
+                        break;
+                    case "SessionStartDateTimeConverter":
+                        bind.Converter=new SessionStartDateTimeConverter();
+                        break;
+                    case "SessionEndDateTimeConverter":
+                        bind.Converter=new SessionEndDateTimeConverter();
+                        break;
+                    case "BSPassesConverter":
+                        bind.Converter=new BSPassesConverter();
+                        break;
+                    default:
+                        break;
+                }
+
+                
             }
 
             column.Binding = bind;

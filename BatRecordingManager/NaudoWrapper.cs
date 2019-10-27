@@ -1,21 +1,21 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using NAudio.Dsp;
 using NAudio.Utils;
@@ -162,30 +162,50 @@ namespace BatRecordingManager
             var outFormat = new WaveFormat(21000, _reader.WaveFormat.Channels);
             _resampler = new MediaFoundationResampler(_reader, outFormat);
 
-
-#if DEBUG
-            if (!string.IsNullOrWhiteSpace(fileName)) WaveFileWriter.CreateWaveFile(fileName, _resampler);
-#endif
-            _reader.Position = 0;
-            _resampler.Reposition();
-
-            _player = new WaveOut();
-            if (_player == null)
+            
+            if (!string.IsNullOrWhiteSpace(fileName))
             {
-                CleanUp();
-                OnStopped(new EventArgs());
-                return;
+                try
+                {
+                    WaveFileWriter.CreateWaveFile(fileName, _resampler);
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine("Write of audio file failed:- " + e.Message);
+                }
+                finally
+                {
+                    CleanUp();
+                    OnStopped(new EventArgs());
+                    
+                }
             }
+            else
+            {
 
-            _player.PlaybackStopped += Player_PlaybackStopped;
 
-            //reader = new WaveFileReader(converter);
-            //player.Init(converter);
-            _player.Init(_resampler);
-            _player.Play();
+                _reader.Position = 0;
+                _resampler.Reposition();
+
+                _player = new WaveOut();
+                _player.Volume = 1.0f;
+                if (_player == null)
+                {
+                    CleanUp();
+                    OnStopped(new EventArgs());
+                    return;
+                }
+
+                _player.PlaybackStopped += Player_PlaybackStopped;
+
+                //reader = new WaveFileReader(converter);
+                //player.Init(converter);
+                _player.Init(_resampler);
+                _player.Play();
+            }
         }
 
-        public void Play(PlayListItem itemToPlay, decimal speedFactor, bool playInLoop)
+        public void Play(PlayListItem itemToPlay, decimal speedFactor, bool playInLoop,string filename="")
         {
             CleanUp();
             _doLoop = playInLoop;
@@ -197,6 +217,28 @@ namespace BatRecordingManager
                 CleanUp();
                 OnStopped(new EventArgs());
                 return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(filename))
+            {
+                _doLoop = false;
+                bool quit = false;
+                try
+                {
+                    WaveFileWriter.CreateWaveFile("filename.wav", _reader);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(("Write Play file faile:- " + ex.Message));
+                }
+                finally
+                {
+                    CleanUp();
+                    OnStopped(new EventArgs());
+                    quit = true;
+                }
+
+                if (quit) return;
             }
 
             _player = new WaveOut();
@@ -223,7 +265,7 @@ namespace BatRecordingManager
             if (_player != null && _player.PlaybackState != PlaybackState.Stopped) return;
             if (itemToPlay == null) return;
             if (string.IsNullOrWhiteSpace(itemToPlay.filename)) return;
-            if (!File.Exists(itemToPlay.filename)) return;
+            if (!File.Exists(itemToPlay.filename) || (new FileInfo(itemToPlay.filename).Length<=0L)) return;
 
 
             using (var afr = new AudioFileReader(itemToPlay.filename))

@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -22,7 +21,10 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
+using FluentAssertions;
 using Microsoft.VisualStudio.Language.Intellisense;
+using NAudio.Wave;
+
 
 namespace BatRecordingManager
 {
@@ -65,10 +67,11 @@ namespace BatRecordingManager
         /// <returns></returns>
         internal static SegmentAndBatList Create(LabelledSegment segment)
         {
-            var segBatList = new SegmentAndBatList();
-            segBatList.Segment = segment;
+            var segBatList = new SegmentAndBatList
+            {
+                Segment = segment, BatList = DBAccess.GetDescribedBats(segment.Comment)
+            };
 
-            segBatList.BatList = DBAccess.GetDescribedBats(segment.Comment);
 
             //DBAccess.InsertParamsFromComment(segment.Comment, null);
             var listOfSegmentImages = segment.GetImageList();
@@ -217,9 +220,8 @@ namespace BatRecordingManager
         /// <returns></returns>
         public static bool IsLabelFileLine(string line, out TimeSpan start, out TimeSpan end, out string comment)
         {
-            var startStr = "";
             var endStr = "";
-            if (!IsLabelFileLine(line, out startStr, out endStr, out comment))
+            if (!IsLabelFileLine(line, out var startStr, out endStr, out comment))
             {
                 start = new TimeSpan();
                 end = new TimeSpan();
@@ -400,6 +402,7 @@ namespace BatRecordingManager
         private static TimeSpan GetFileDuration(string fileName, out string wavfile, out DateTime fileStart,
             out DateTime fileEnd)
         {
+
             DateTime creationTime;
             fileStart = new DateTime();
             fileEnd = new DateTime();
@@ -410,11 +413,20 @@ namespace BatRecordingManager
             {
                 var wavfilename = fileName.Substring(0, fileName.Length - 4);
                 wavfilename = wavfilename + ".wav";
-                if (File.Exists(wavfilename))
+                if (File.Exists(wavfilename) && (new FileInfo(wavfilename).Length>0L))
                 {
                     var info = new FileInfo(wavfilename);
                     wavfile = wavfilename;
                     var fa = File.GetAttributes(wavfile);
+                    fileStart = File.GetCreationTime(wavfile);
+                    using (WaveFileReader wfr = new WaveFileReader(wavfile))
+                    {
+                        duration = wfr.TotalTime;
+                        fileEnd = fileStart + duration;
+                        return (duration);
+
+                    }
+                    /*
 
                     var recordingTime =
                         wavfilename.Substring(Math.Max(fileName.LastIndexOf('_'), fileName.LastIndexOf('-')) + 1, 6);
@@ -447,7 +459,7 @@ namespace BatRecordingManager
                             fileEnd = creationTime;
                             duration = new TimeSpan();
                         }
-                    }
+                    }*/
                 }
             }
             catch (Exception ex)
@@ -612,11 +624,16 @@ namespace BatRecordingManager
         /// </summary>
         /// <param name="recording"></param>
         /// <param name="labelFileName"></param>
-        internal void UpdateRecording(Recording recording, string labelFileName)
+        public static string UpdateRecording(Recording recording, string labelFileName)
         {
+            string result = "";
             var batsFound = new Dictionary<string, BatStats>();
-            ProcessLabelOrManualFile(labelFileName, new GpxHandler(recording.RecordingSession.Location),
-                recording.RecordingSession.Id, ref batsFound);
+            DBAccess.DeleteAllSegmentsForRecording(recording.Id);
+            result=ProcessLabelOrManualFile(labelFileName, new GpxHandler(recording.RecordingSession.Location),
+                recording.RecordingSession.Id,recording, ref batsFound);
+           
+            
+            return (result);
         }
 
         /// <summary>
@@ -672,7 +689,7 @@ namespace BatRecordingManager
                 {
                     var wavfile = fileName.Substring(0, fileName.Length - 4) + ".wav";
                     duration = GetFileDuration(fileName, out wavfile, out var fileStart, out var fileEnd);
-                    if (File.Exists(wavfile))
+                    if (File.Exists(wavfile) && (new FileInfo(wavfile).Length>0L))
                     {
                         wfmd = new WavFileMetaData(wavfile);
                         //Guano GuanoData=new Guano(Guano.GetGuanoData(CurrentRecordingSessionId, wavfile));
@@ -684,6 +701,11 @@ namespace BatRecordingManager
                             else
                                 fileEnd = fileStart + duration;
 
+                            recording.RecordingNotes = wfmd.FormattedText();
+                        }
+
+                        if (wfmd != null)
+                        {
                             recording.RecordingNotes = wfmd.FormattedText();
                         }
                     }
@@ -794,13 +816,14 @@ namespace BatRecordingManager
                 if (fileName.ToUpper().EndsWith(".TXT"))
                 {
                     allLines = File.ReadAllLines(fileName);
-                    if (allLines.Any() || string.IsNullOrWhiteSpace(allLines[0]))
+                    if (!allLines.Any() || string.IsNullOrWhiteSpace(allLines[0]))
                         allLines = new[] {"Start - End \t No Bats"};
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine(ex+"\n  ******** Assuming empty text file and no bats");
+                allLines = new[] { "Start - End \t No Bats" };
             }
 
             outputString = ProcessText(allLines, duration, ref listOfsegmentAndBatLists, mode, ref batsFound);
@@ -991,12 +1014,12 @@ namespace BatRecordingManager
 
                     if (char.IsDigit(parts[1].Trim()[0]) && parts[1].Contains(",")) return line;
 
-                    line = string.Format("{0}s={1:F2},e={2:F2},{3}", parts[0] + "{", fmax, fmin, parts[1]);
+                    line = $"{parts[0] + "{"}s={fmax:F2},e={fmin:F2},{parts[1]}";
                 }
             }
             else
             {
-                line = string.Format("{0}s={1:F2},e={2:F2}{3}", line + " {", fmax, fmin, "}");
+                line = $"{line + " {"}s={fmax:F2},e={fmin:F2}{"}"}";
             }
 
             return line;

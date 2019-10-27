@@ -2,7 +2,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:BatRecordingManager" x:Class="BatRecordingManager.MainWindow"
-    Title="{Binding windowTitle}"
+    Title="{Binding Path=_windowTitle}"
     Height="768"
     Width="1026"
     Closing="Window_Closing"
@@ -28,6 +28,7 @@
                               Click="miDatabase_Click" />
                     <MenuItem x:Name="MiSetToDefaultDatabase" Header="Use Default Database"
                               ToolTip="Return to the normal default database" Click="miSetToDefaultDatabase_Click" />
+                    
 
                     <Separator />
                     <MenuItem x:Name="MiImportBatData" Header="Import Bat Data" Click="miImportBatData_Click" />
@@ -41,7 +42,8 @@
                         <MenuItem.ToolTip>
                             <TextBlock>
                                 "Open a folder of files to Analyse sequentially using Audacity"<LineBreak />
-                                "CTRL-CLICK to open a folder of files to analyse using Kaleidoscope"
+                                "CTRL-CLICK to open a folder of files to analyse using Kaleidoscope"<LineBreak />
+                                "+ &lt;SHIFT&gt; to force append to current selected session (where non-standard tag is used)"
                             </TextBlock>
                         </MenuItem.ToolTip>
                     </MenuItem>
@@ -64,10 +66,11 @@
             </Menu>
             <Label x:Name="OutputLocationLabel" HorizontalContentAlignment="Stretch"
                    Style="{StaticResource SimpleLabel}" />
-            <TextBox x:Name="StatusText" Text="" Width="800" HorizontalContentAlignment="Stretch"
-                     Style="{StaticResource SimpleTextBox}" IsReadOnly="True" />
+            <TextBox x:Name="StatusText" Text="{Binding Path=statusText}"  Width="800" HorizontalContentAlignment="Stretch"
+                     Style="{StaticResource SimpleTextBox}" IsReadOnly="True" TextChanged="StatusText_TextChanged" />
         </StackPanel>
         <Grid x:Name="MainWindowPaneGrid" Background="{StaticResource WindowBackgroundBrush}">
+            
 
             <!--<local:RecordingSessionListDetailControl x:Name="recordingSessionListControl" Visibility="Visible" />-->
         </Grid>

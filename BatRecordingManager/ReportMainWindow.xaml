@@ -122,6 +122,12 @@
                 </Grid>
     </TabItem> -->
             <TabItem
+                x:Name="BySummary"
+                Header="Summary">
+                <local:ReportSummary
+                    x:Name="Report_Summary" />
+            </TabItem>
+            <TabItem
                 x:Name="ByBat"
                 Header="Bats">
                 <local:ReportByBats

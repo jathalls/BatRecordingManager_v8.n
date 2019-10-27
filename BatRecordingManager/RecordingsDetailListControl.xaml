@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:BatRecordingManager"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="600">
+             d:DesignHeight="400" d:DesignWidth="800">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -42,6 +42,7 @@
                     IsEnabled="False"
                     ToolTip="Delete the selected recording from the database"
                     Style="{StaticResource SimpleButton}" Click="DeleteRecordingButton_Click" />
+                
                 <Button
                     Name="AddSegImgButton"
                     Content="Add Segment"
@@ -73,40 +74,88 @@
                     Style="{StaticResource SimpleButton}"
                     ToolTip="Opens a player window and adds the selected segment to the play list"
                     Click="PlayButton_Click" />
+                <ToggleButton
+                    x:Name="OffsetsButton"
+                    Content="Re SS"
+                    Width="50"
+                    Style="{StaticResource ToggleButton}"
+                    ToolTip="Displays segment times as time after sunset instead of offset into file"
+                    IsEnabled="False" Click="OffsetsButton_Click" 
+                    />
             </StackPanel>
         </Border>
 
         <!-- Scrolling for the listbox of recordings MUST be false as the header sections can take up the whole screen and if set to true
         i.e. scroll in logical rather than physical units, then the labelled segments cannot be scrolled into view-->
-        <ListBox
+        <ListView
             x:Name="RecordingsListView"
             Grid.Row="1"
 
-            Style="{StaticResource SimpleListBox}"
+            Style="{StaticResource SimpleListView}"
             SelectionChanged="RecordingsListView_SelectionChanged"
 
             ScrollViewer.CanContentScroll="False"
 
             ItemsSource="{Binding Path=recordingsList}"
-            ScrollViewer.VerticalScrollBarVisibility="Visible" IsSynchronizedWithCurrentItem="True">
-
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel
+            ScrollViewer.VerticalScrollBarVisibility="Visible" 
+            IsSynchronizedWithCurrentItem="True"
+            HorizontalAlignment="Stretch" VerticalContentAlignment="Stretch" VerticalAlignment="Center" HorizontalContentAlignment="Stretch"
+            >
+<!-- 
+            4 Oct 2019 8.0.7217 Debug 
+            Changed Recording Template to use TextBlock for recording name, dat and times instead of TextBox, also moving the Border outside the
+            StackPanel.  This gives a more consistent appearance in the window but does NOT allow the use of double-click to open the file in
+            Audacity and therefore SHIFT-Click is now used to do this.  If the file is not present then the text of the file name turns red.
+            -->
+            <ListView.ItemTemplate >
+                
+                <DataTemplate >
+                    <Border BorderThickness="1,1,1,1" BorderBrush="Black" HorizontalAlignment="Stretch">
+                        <StackPanel
                         Orientation="Vertical"
                         x:Name="RecordingStackPanel"
                         Background="{StaticResource WindowBackgroundBrush}"
-
+                        HorizontalAlignment="Stretch"
 
                         Focusable="True">
 
-                        <Label
-                            Style="{StaticResource SimpleLabel}"
-                            x:Name="RecordingNameLabel"
-                            BorderThickness="0,2,0,0"
-                            Content="{Binding Converter={StaticResource RecordingDetailsConverter}}"
-                            BorderBrush="Black" MouseDoubleClick="RecordingNameLabel_MouseDoubleClick" />
-                        <Label
+                            <Border BorderThickness="0,2,0,0" BorderBrush="Black">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" >
+                                    <ContentControl MouseDoubleClick="RecordingNameContentControl_MouseDoubleClick">
+                                        <TextBlock
+                                            
+                                            x:Name="RecordingNameTextBox"
+                                            
+                                            
+                                            Text="{Binding Path=RecordingName}"
+                                            
+                                            ToolTip="Double-click to open file in Audacity"
+                                            
+                                             FontSize="17" FontWeight="Normal"   />
+                                    </ContentControl>
+                                         <Label Content=" On "/>
+                                        <TextBlock
+                                    
+                                        
+                                        x:Name="RecordingDateTextBox"
+                                        
+                                        
+                                        Text="{Binding Path=RecordingDate, Converter={StaticResource ShortDateConverter}}"
+                                         FontSize="16" />
+                                    <Label Content=" for "/>
+                                    <TextBlock
+                                        
+                                        x:Name="RecordingDurationTextBox"
+                                        
+                                        
+                                        
+                                        Text="{Binding Path=., Converter={StaticResource RecordingDurationConverter}}"
+                                         FontSize="16" />
+                                   
+                                </StackPanel>
+                            </Border>
+
+                            <Label
                             Style="{StaticResource SimpleLabel}"
                             x:Name="GPSLabel"
                             Content="{Binding Converter={StaticResource RecordingToGpsConverter}}"
@@ -128,17 +177,19 @@
                                     ScrollViewer.CanContentScroll="False"
                                     SelectionChanged="LabelledSegmentListView_SelectionChanged"
                                     PreviewMouseWheel="LabelledSegmentListView_PreviewMouseWheel"
-                                    SelectionMode="Single">
+                                    VerticalAlignment="Stretch"
+                                    HorizontalAlignment="Stretch"
+                                    SelectionMode="Single" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
 
-                                    <ListView.ItemTemplate>
+                                    <ListView.ItemTemplate >
                                         <DataTemplate>
-                                            <Border BorderThickness="0,0,0,2" BorderBrush="Black">
-                                                <StackPanel Orientation="Vertical">
+                                            <Border BorderThickness="0,0,0,2" BorderBrush="Black" HorizontalAlignment="Stretch">
+                                                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
                                                     <!-- Stack panel required to hold call parameters if the text block is hovered over
                                                     and the Calls button has been clicked-->
                                                     <ContentControl MouseDoubleClick="ContentControl_MouseDoubleClick">
                                                         <TextBlock
-                                                            Text="{Binding Converter={StaticResource LabelledSegmentConverter}}"
+                                                            
                                                             x:Name="LabelledSegmentTextBlock"
                                                             TextWrapping="Wrap"
                                                             Background="{Binding Path=Comment, Converter={StaticResource TextColourConverter}}"
@@ -153,6 +204,20 @@
                                                                     </TextBlock>
                                                                 </ToolTip>
                                                             </TextBlock.ToolTip>
+                                                        
+                                                            <TextBlock.Text>
+                                                                <MultiBinding Converter="{StaticResource LabelledSegmentConverter}">
+                                                                    <MultiBinding.Bindings>
+                                                                        
+                                                                        <Binding ElementName="OffsetsButton" Path="." ></Binding>
+                                                                        <Binding Path="."></Binding>
+                                                                       
+                                                                    </MultiBinding.Bindings>
+                                                                </MultiBinding>
+                                                            </TextBlock.Text>
+                                                        
+                                                            
+
                                                         </TextBlock>
                                                     </ContentControl>
                                                 </StackPanel>
@@ -162,11 +227,23 @@
                                 </ListView>
                             </StackPanel>
                         </Border>
-                    </StackPanel>
+                        </StackPanel>
+                    </Border>
                 </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+            </ListView.ItemTemplate>
+        </ListView>
 
+        <!-- <TextBlock.Text>
+                                                                
+                                                                <MultiBinding Converter="{StaticResource LabelledSegmentConverter}">
+                                                                   <MultiBinding.Bindings>
+                                                                        
+                                                                            <Binding ElementName="OffsetsButton" Path="." ></Binding>
+                                                                            <Binding Path="."></Binding>
+                                                                       
+                                                                   </MultiBinding.Bindings>
+                                                                </MultiBinding>
+                                                            </TextBlock.Text>-->
         <!-- The recordings list is populated from code -->
     </Grid>
 </UserControl>

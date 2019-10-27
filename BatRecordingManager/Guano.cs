@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -113,9 +112,8 @@ namespace BatRecordingManager
                             {
                                 var parts = line.Split(' ');
                                 if (parts != null && parts.Length > 1)
-                                {
-                                    if (TimeSpan.TryParse(parts[1].Trim(), out var ts)) _duration = ts;
-                                }
+                                    if (TimeSpan.TryParse(parts[1].Trim(), out var ts))
+                                        _duration = ts;
                             }
 
 
@@ -140,13 +138,11 @@ namespace BatRecordingManager
                             {
                                 var parts = line.Split(':');
                                 if (parts != null && parts.Length > 1)
-                                {
                                     if (double.TryParse(parts[1].Trim(), out var v))
                                     {
                                         _version = v;
                                         found = true;
                                     }
-                                }
                             }
                 }
                 else
@@ -238,9 +234,8 @@ namespace BatRecordingManager
                             {
                                 var parts = line.Split(':');
                                 if (parts != null && parts.Length > 1)
-                                {
-                                    if (int.TryParse(parts[1].Trim(), out var s)) _samplerate = s;
-                                }
+                                    if (int.TryParse(parts[1].Trim(), out var s))
+                                        _samplerate = s;
                             }
 
                 return _samplerate;
@@ -261,9 +256,8 @@ namespace BatRecordingManager
                             {
                                 var parts = line.Split(':');
                                 if (parts != null && parts.Length > 1)
-                                {
-                                    if (double.TryParse(parts[1].Trim(), out var f)) _filterHp = f;
-                                }
+                                    if (double.TryParse(parts[1].Trim(), out var f))
+                                        _filterHp = f;
                             }
 
                 return _filterHp;
@@ -284,9 +278,8 @@ namespace BatRecordingManager
                             {
                                 var parts = line.Split(':');
                                 if (parts != null && parts.Length > 1)
-                                {
-                                    if (double.TryParse(parts[1].Trim(), out var f)) _filterLp = f;
-                                }
+                                    if (double.TryParse(parts[1].Trim(), out var f))
+                                        _filterLp = f;
                             }
 
                 return _filterLp;
@@ -347,9 +340,8 @@ namespace BatRecordingManager
                             {
                                 var parts = line.Split(':');
                                 if (parts != null && parts.Length > 1)
-                                {
-                                    if (double.TryParse(parts[1].Trim(), out var v)) _humidity = v;
-                                }
+                                    if (double.TryParse(parts[1].Trim(), out var v))
+                                        _humidity = v;
                             }
 
                 return _humidity;
@@ -370,9 +362,8 @@ namespace BatRecordingManager
                             {
                                 var parts = line.Split(':');
                                 if (parts != null && parts.Length > 1)
-                                {
-                                    if (double.TryParse(parts[1].Trim(), out var v)) _length = v;
-                                }
+                                    if (double.TryParse(parts[1].Trim(), out var v))
+                                        _length = v;
                             }
 
                 return _length;
@@ -393,9 +384,8 @@ namespace BatRecordingManager
                             {
                                 var parts = line.Split(':');
                                 if (parts != null && parts.Length > 1)
-                                {
-                                    if (double.TryParse(parts[1].Trim(), out var v)) _locationAccuracy = v;
-                                }
+                                    if (double.TryParse(parts[1].Trim(), out var v))
+                                        _locationAccuracy = v;
                             }
 
                 return _locationAccuracy;
@@ -416,9 +406,8 @@ namespace BatRecordingManager
                             {
                                 var parts = line.Split(':');
                                 if (parts != null && parts.Length > 1)
-                                {
-                                    if (double.TryParse(parts[1].Trim(), out var v)) _locationElevation = v;
-                                }
+                                    if (double.TryParse(parts[1].Trim(), out var v))
+                                        _locationElevation = v;
                             }
 
                 return _locationElevation;
@@ -442,13 +431,9 @@ namespace BatRecordingManager
                                 {
                                     var locarray = parts[1].Trim().Split(' ');
                                     if (locarray != null && locarray.Length > 1)
-                                    {
                                         if (double.TryParse(locarray[0].Trim(), out var lat))
-                                        {
                                             if (double.TryParse(locarray[1].Trim(), out var longit))
                                                 _location = new Tuple<double, double>(lat, longit);
-                                        }
-                                    }
                                 }
                             }
 
@@ -550,9 +535,8 @@ namespace BatRecordingManager
                             {
                                 var parts = line.Split(':');
                                 if (parts != null && parts.Length > 1)
-                                {
-                                    if (int.TryParse(parts[1].Trim(), out var v)) _expansion = v;
-                                }
+                                    if (int.TryParse(parts[1].Trim(), out var v))
+                                        _expansion = v;
                             }
 
                 return _expansion;
@@ -574,9 +558,8 @@ namespace BatRecordingManager
                             {
                                 var parts = line.Split(':');
                                 if (parts != null && parts.Length > 1)
-                                {
-                                    if (double.TryParse(parts[1].Trim(), out var v)) _temperature = v;
-                                }
+                                    if (double.TryParse(parts[1].Trim(), out var v))
+                                        _temperature = v;
                             }
 
                 return _temperature;
@@ -654,9 +637,7 @@ namespace BatRecordingManager
             RawText = "";
             if (guanoText.Trim().ToUpper().EndsWith(".WAV"))
             {
-                WAMD_Data wamdData = null;
-
-                Get_WAVFile_MetaData(guanoText, out metadata, out wamdData);
+                Get_WAVFile_MetaData(guanoText, out metadata, out var wamdData);
                 _wamdData = wamdData;
             }
             else
@@ -849,7 +830,7 @@ Duration: " + new TimeSpan((long) (durationInSecs * 10000000L)).ToString(@"hh\:m
             var sessionNotes = DBAccess.GetRecordingSessionNotes(currentRecordingSessionId);
             if (string.IsNullOrWhiteSpace(sessionNotes)) return "";
             if (!sessionNotes.Contains("[GUANO]")) return "";
-            if (!File.Exists(wavfile)) return "";
+            if (!File.Exists(wavfile) || (new FileInfo(wavfile).Length<=0L)) return "";
             byte[] metadata = null;
             WAMD_Data wamdData = null;
             var guanoData = Get_WAVFile_MetaData(wavfile, out metadata, out wamdData);

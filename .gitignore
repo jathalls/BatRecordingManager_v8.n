@@ -16,3 +16,6 @@ Properties
 *.exe
 *.mdf
 *.ldf
+/BatRecordingManager/MapResourceDictionary.xaml
+/BatRecordingManagerTests/WeatherTests.cs
+/BatRecordingManager/APIKeysLocal.cs

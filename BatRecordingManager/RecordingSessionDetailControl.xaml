@@ -48,7 +48,7 @@
 
             <Label
                 Style="{StaticResource SimpleLabel}"
-                Grid.Row="1" 
+                Grid.Row="1"
                 Grid.Column="0"
                 Content="Session Start:-" />
             <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1">
@@ -72,28 +72,33 @@
                     IsReadOnly="true"
                     CultureInfo="en-GB"
                     Minimum="01/01/1950 01:01:00" />
-                
+
             </StackPanel>
 
-            <Label 
-                Grid.Row="2" 
+            <Label
+                Grid.Row="2"
                 Grid.Column="0"
-                Content="Folder:- " 
+                Content="Folder:- "
                 Style="{StaticResource SimpleLabel}" />
 
-            <StackPanel 
-                Grid.Row="2" 
-                Grid.Column="1" 
+            <StackPanel
+                Grid.Row="2"
+                Grid.Column="1"
                 Orientation="Horizontal">
 
                 <TextBox
                     x:Name="FolderTextBox"
                     Style="{StaticResource SimpleTextBox}"
                     Background="{StaticResource WindowBackgroundBrush}"
+                    Foreground="{Binding Path=recordingSession.OriginalFilePath, Converter={StaticResource FilePathBrushConverter}}"
 
                     HorizontalAlignment="Stretch"
                     IsReadOnly="True"
-                    Text="{Binding Path=recordingSession.OriginalFilePath}" MinWidth="200" />
+                    Text="{Binding Path=recordingSession.OriginalFilePath}" MinWidth="200" >
+                    
+                    
+                </TextBox>
+                <!--<TextBox Foreground="{Binding Text, ElementName=FolderTextBox,  Converter={StaticResource FilePathBrushConverter}}"></TextBox>-->
             </StackPanel>
 
             <Label
@@ -111,22 +116,22 @@
                 Background="{StaticResource WindowBackgroundBrush}" />
 
             <Label
-                Grid.Row="4" 
+                Grid.Row="4"
                 Grid.Column="0"
-                Content="Microphone" 
+                Content="Microphone"
                 Style="{StaticResource SimpleLabel}" />
 
             <TextBox
                 Style="{StaticResource SimpleTextBox}"
                 x:Name="MicrophoneComboBox"
-                Grid.Row="4" 
+                Grid.Row="4"
                 Grid.Column="1"
                 IsReadOnly="True"
                 Background="{StaticResource WindowBackgroundBrush}" />
 
             <Label
                 Style="{StaticResource SimpleLabel}"
-                Grid.Row="5" 
+                Grid.Row="5"
                 Grid.Column="0"
                 Content="Operator:-" />
 
@@ -135,13 +140,13 @@
                 x:Name="OperatorComboBox"
                 Background="{StaticResource WindowBackgroundBrush}"
 
-                Grid.Row="5" 
+                Grid.Row="5"
                 Grid.Column="1"
                 IsReadOnly="True" />
 
             <Label
                 Style="{StaticResource SimpleLabel}"
-                Grid.Row="6" 
+                Grid.Row="6"
                 Grid.Column="0"
                 Content="Location:-" />
             <TextBox
@@ -154,7 +159,7 @@
 
             <Label
                 Style="{StaticResource SimpleLabel}"
-                Grid.Row="7" 
+                Grid.Row="7"
                 Grid.Column="0"
                 Content="GPS Co-ordinates:-" />
 
@@ -192,9 +197,9 @@
             </StackPanel>
 
             <Label
-                Grid.Row="8" 
+                Grid.Row="8"
                 Grid.Column="0"
-                Content="Weather" 
+                Content="Weather"
                 Style="{StaticResource SimpleLabel}" />
             <TextBox
                 Grid.Row="8"
@@ -205,13 +210,13 @@
                 x:Name="WeatherTextBox" />
 
             <Label
-                Grid.Row="9" 
+                Grid.Row="9"
                 Grid.Column="0"
-                Content="Temperature:-" 
+                Content="Temperature:-"
                 Style="{StaticResource SimpleLabel}" />
             <StackPanel
-                Grid.Row="9" 
-                Grid.Column="10" 
+                Grid.Row="9"
+                Grid.Column="1"
                 Orientation="Horizontal">
                 <TextBox
 
@@ -231,12 +236,12 @@
             </StackPanel>
 
             <Label
-                Grid.Row="10" 
+                Grid.Row="10"
                 Grid.Column="0"
-                Content="Notes:-" 
+                Content="Notes:-"
                 Style="{StaticResource SimpleLabel}" />
 
-            <ScrollViewer 
+            <ScrollViewer
                 Grid.Row="10"
                 Grid.Column="1">
                 <TextBox

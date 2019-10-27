@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Diagnostics;
@@ -125,8 +124,7 @@ namespace BatRecordingManager
         /// <param name="recordingSession"></param>
         internal void AutoFill(RecordingSession recordingSession)
         {
-            var recording = new Recording();
-            recording.RecordingSessionId = recordingSession.Id;
+            var recording = new Recording {RecordingSessionId = recordingSession.Id};
             if (string.IsNullOrWhiteSpace(recording.RecordingName))
                 recording.RecordingName = recordingSession.SessionTag + ".wav";
             recording.RecordingDate = recordingSession.SessionDate;
@@ -152,8 +150,7 @@ namespace BatRecordingManager
                 {
                     foreach (var line in lines)
                     {
-                        var newSegment = new LabelledSegment();
-                        newSegment.Comment = line;
+                        var newSegment = new LabelledSegment {Comment = line};
                         recording.LabelledSegments.Add(newSegment);
                         _modifiedFlag.Add(true);
                     }
@@ -179,10 +176,7 @@ namespace BatRecordingManager
         {
             var segmentForm = new LabelledSegmentForm();
             //int os = LabelledSegmentsListView.SelectedIndex;
-            if (segmentToEdit == null)
-                segmentForm.labelledSegment = new LabelledSegment();
-            else
-                segmentForm.labelledSegment = segmentToEdit;
+            segmentForm.labelledSegment = segmentToEdit ?? new LabelledSegment();
 
             if (segmentForm.ShowDialog() ?? false)
                 if (segmentForm.DialogResult ?? false)
@@ -560,7 +554,7 @@ namespace BatRecordingManager
         ///     LabelledSegmentsList Dependency Property
         /// </summary>
         public static readonly DependencyProperty LabelledSegmentsListProperty =
-            DependencyProperty.Register("LabelledSegmentsList", typeof(BulkObservableCollection<LabelledSegment>),
+            DependencyProperty.Register(nameof(LabelledSegmentsList), typeof(BulkObservableCollection<LabelledSegment>),
                 typeof(RecordingForm),
                 new FrameworkPropertyMetadata(new BulkObservableCollection<LabelledSegment>()));
 
@@ -592,7 +586,7 @@ namespace BatRecordingManager
         ///     recording Dependency Property
         /// </summary>
         public static readonly DependencyProperty recordingProperty =
-            DependencyProperty.Register("recording", typeof(Recording), typeof(RecordingForm),
+            DependencyProperty.Register(nameof(recording), typeof(Recording), typeof(RecordingForm),
                 new FrameworkPropertyMetadata(new Recording()));
 
         /// <summary>

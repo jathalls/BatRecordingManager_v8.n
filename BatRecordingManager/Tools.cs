@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -24,27 +23,32 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using WindowsInput;
 using WindowsInput.Native;
 using Microsoft.Maps.MapControl.WPF;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Application = System.Windows.Application;
 using Brushes = System.Drawing.Brushes;
+using Color = System.Drawing.Color;
 using Cursor = System.Windows.Input.Cursor;
 using Cursors = System.Windows.Input.Cursors;
 using DataGrid = System.Windows.Controls.DataGrid;
 using MessageBox = System.Windows.Forms.MessageBox;
+using StringAlignment = System.Drawing.StringAlignment;
 
 namespace BatRecordingManager
 {
@@ -89,14 +93,20 @@ namespace BatRecordingManager
         /// </returns>
         public static string FormattedTimeSpan(TimeSpan time)
         {
+            TimeSpan absTime = time;
             var result = "";
-            if (time != null && time.Ticks >= 0)
+            if (time != null )
             {
-                time = time.Duration();
-                if (time.Hours > 0) result = result + time.Hours + "h";
-                if (time.Hours > 0 || time.Minutes > 0) result = result + time.Minutes + "'";
-                var seconds = time.Seconds + time.Milliseconds / 1000.0m;
-                result = result + string.Format("{0:0.0#}\"", seconds);
+                absTime = time.Duration();
+                if (absTime.Hours > 0) result = result + absTime.Hours + "h";
+                if (absTime.Hours > 0 || absTime.Minutes > 0) result = result + absTime.Minutes + "'";
+                var seconds = absTime.Seconds + absTime.Milliseconds / 1000.0m;
+                result = result + $"{seconds:0.0#}\"";
+            }
+
+            if (time.Ticks<0L)
+            {
+                result = "(-" + result+")";
             }
 
             return result;
@@ -142,8 +152,8 @@ namespace BatRecordingManager
 
         {
             // Check if this object is the specified type
-            if (obj is T)
-                return obj as T;
+            if (obj is T dependencyObject)
+                return dependencyObject;
 
             // Check for children
             var childrenCount = VisualTreeHelper.GetChildrenCount(obj);
@@ -154,8 +164,8 @@ namespace BatRecordingManager
             for (var i = 0; i < childrenCount; i++)
             {
                 var child = VisualTreeHelper.GetChild(obj, i);
-                if (child is T)
-                    return child as T;
+                if (child is T o)
+                    return o;
             }
 
             // Then check the childrens children
@@ -174,6 +184,7 @@ namespace BatRecordingManager
         public static T FindParent<T>(DependencyObject child) where T : DependencyObject
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
+
             // get parent item
             var parentObject = VisualTreeHelper.GetParent(child);
 
@@ -184,6 +195,8 @@ namespace BatRecordingManager
             if (parentObject is T parent)
                 return parent;
             return FindParent<T>(parentObject);
+
+
         }
 
         /// <summary>
@@ -205,6 +218,55 @@ namespace BatRecordingManager
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Displays a file save dialog to the user to allow them to select a location and filename to
+        /// write to.  Parameters give an prefferred location, which can be null, and a prefferred file
+        /// extension which can be null.  The function checks if the requested file already exists and
+        /// takes appropriate actions.  The file extension can be changed by the user.
+        /// If the dialog is cancelled an empty string is returned.
+        /// Defaults to MyDocuments and .wav
+        /// </summary>
+        /// <param name="initialLocaltion"></param>
+        /// <param name="desiredExtension"></param>
+        /// <returns></returns>
+        public static string GetFileToWriteTo(string initialLocaltion, string desiredExtension)
+        {
+            string result = "";
+            if (string.IsNullOrWhiteSpace(initialLocaltion))
+            {
+                initialLocaltion = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            }
+
+            if (!Directory.Exists(initialLocaltion))
+            {
+                initialLocaltion = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            }
+
+            if (string.IsNullOrWhiteSpace(desiredExtension))
+            {
+                desiredExtension = ".wav";
+            }
+
+            using (SaveFileDialog sfd = new SaveFileDialog())
+            {
+                sfd.OverwritePrompt = true;
+                sfd.AddExtension = true;
+                sfd.CheckFileExists = false;
+                sfd.CheckPathExists = true;
+                sfd.DefaultExt = desiredExtension;
+                
+                sfd.InitialDirectory = initialLocaltion;
+                var outcome = sfd.ShowDialog();
+                if (outcome == DialogResult.OK)
+                {
+                    result = sfd.FileName;
+                }
+            }
+
+
+            return (result);
         }
 
         /// <summary>
@@ -292,6 +354,24 @@ namespace BatRecordingManager
         }
 
         /// <summary>
+        /// given an instance of a Recording, looks for a .txt file of the same name and returns true if
+        /// the file modified date and time are within 10s of Now.  Otherwise returns false;
+        /// </summary>
+        /// <param name="thisRecording"></param>
+        /// <returns></returns>
+        internal static bool IsTextFileModified(DateTime since,Recording thisRecording)
+        {
+            if (thisRecording == null) return false;
+            string filename = (thisRecording.RecordingSession.OriginalFilePath ?? "") + thisRecording.RecordingName;
+            filename = Tools.GetMatchingTextFile(filename);
+            if (!File.Exists(filename)) return false;
+            DateTime whenModified = File.GetLastWriteTime(filename);
+            if (whenModified>=since) return true;
+            return false;
+
+        }
+
+        /// <summary>
         ///     Writes an information string to the Error Log without the additional burden of a stack trace
         /// </summary>
         /// <param name="v"></param>
@@ -347,11 +427,42 @@ namespace BatRecordingManager
         /// </returns>
         /// <exception cref="System.NotImplementedException">
         /// </exception>
-        internal static string FormattedSegmentLine(LabelledSegment segment)
+        internal static string FormattedSegmentLine(LabelledSegment segment,bool offsets=true)
         {
             if (segment == null) return "";
-            var result = FormattedTimeSpan(segment.StartOffset) + " - " +
-                         FormattedTimeSpan(segment.EndOffset) + " = " +
+
+            TimeSpan start = segment.StartOffset;
+            TimeSpan end = segment.EndOffset;
+            if (!offsets)
+            {
+                try
+                {/*
+                    var sunset = segment.Recording.RecordingSession.Sunset;
+                    if (sunset != null && segment.Recording.RecordingStartTime!=null && segment.Recording.RecordingEndTime!=null)
+                    {
+                        start = (segment.Recording.RecordingSession.SessionDate.Date+segment.Recording.RecordingStartTime.Value + segment.StartOffset - sunset.Value).TimeOfDay;
+                        end = ((segment.Recording.RecordingSession.EndDate??segment.Recording.RecordingSession.SessionDate).Date+segment.Recording.RecordingEndTime.Value + segment.StartOffset - sunset.Value).TimeOfDay;
+                    }*/
+                    var recordingStartTimeAfterSunset = segment.Recording.startTimeAfterSunset;
+                    if (recordingStartTimeAfterSunset != null )
+                    {
+                        start = recordingStartTimeAfterSunset.Value + segment.StartOffset;
+                        end = recordingStartTimeAfterSunset.Value + segment.EndOffset;
+                    }
+                    
+                }
+                catch (Exception)
+                {
+                    start = segment.StartOffset;
+                    end = segment.EndOffset;
+                }
+            }
+            
+
+            
+            var result = (!offsets?"SS + ":"")+
+                         FormattedTimeSpan(start) + " - " +
+                         FormattedTimeSpan(end) + " = " +
                          FormattedTimeSpan(segment.EndOffset - segment.StartOffset) + "; " +
                          segment.Comment;
             var calls = DBAccess.GetCallParametersForSegment(segment);
@@ -376,8 +487,8 @@ namespace BatRecordingManager
         {
             var result = "";
             if (value == null || value <= 0.0d) return "";
-            result = string.Format("{0:##0.0}", value);
-            if (variation != null && variation >= 0.0) result = result + "+/-" + string.Format("{0:##0.0}", variation);
+            result = $"{value:##0.0}";
+            if (variation != null && variation >= 0.0) result = result + "+/-" + $"{variation:##0.0}";
 
             return result;
         }
@@ -411,7 +522,7 @@ namespace BatRecordingManager
             stat.Add(segment.EndOffset - segment.StartOffset);
             return stat.passes;
         }
-
+/*
         internal static void OpenWavFile(Recording selectedRecording)
         {
             if (selectedRecording?.RecordingSession == null) return;
@@ -439,11 +550,18 @@ namespace BatRecordingManager
                     if (folder[1] != ':') return; // we didn't find a drive with the folder path so give up
                 }
 
+            if (!Directory.Exists(folder))
+            {
+                // if after trying the folder still doesnt exist, give up
+                return;
+            }
+
+            
             if (selectedRecording.RecordingName.StartsWith(@"\"))
                 selectedRecording.RecordingName = selectedRecording.RecordingName.Substring(1);
             folder = folder + @"\" + selectedRecording.RecordingName;
             OpenWavFile(folder);
-        }
+        }*/
 
         /// <summary>
         ///     Given a recording Session, returns a list of strings each of which contains a summary
@@ -569,7 +687,7 @@ namespace BatRecordingManager
 
         internal static void OpenWavFile(string folder)
         {
-            if (string.IsNullOrWhiteSpace(folder) || !File.Exists(folder)) return;
+            if (string.IsNullOrWhiteSpace(folder) || !File.Exists(folder) || (new FileInfo(folder).Length<=0L)) return;
             //Process externalProcess = new Process();
 
             //externalProcess.StartInfo.FileName = folder;
@@ -585,7 +703,7 @@ namespace BatRecordingManager
             Debug.WriteLine("Selected wavFile=" + wavFile);
             wavFile = wavFile.Replace(@"\\", @"\");
             Debug.WriteLine("Corrected wavFile=" + wavFile);
-            if (!File.Exists(wavFile))
+            if (!File.Exists(wavFile) && (new FileInfo(wavFile).Length>0L))
             {
                 Debug.WriteLine("Wav file does not exist");
                 return null;
@@ -651,7 +769,7 @@ namespace BatRecordingManager
                 Application.Current.MainWindow.Focus();
             }
             catch (InvalidOperationException)
-            {
+            {// may get an InvalidOperationException which can be ignored
             }
 
             while (externalProcess.MainWindowHandle == (IntPtr) 0L)
@@ -1085,7 +1203,7 @@ namespace BatRecordingManager
         /// <param name="endOffset"></param>
         internal static void OpenWavFile(string wavFile, TimeSpan startOffset, TimeSpan endOffset)
         {
-            if (string.IsNullOrWhiteSpace(wavFile) || !File.Exists(wavFile))
+            if (string.IsNullOrWhiteSpace(wavFile) || !File.Exists(wavFile) || (new FileInfo(wavFile).Length<=0L))
                 return; // since we don't have a valid file name to work with
             var startSeconds = (int) startOffset.TotalSeconds;
             var endSeconds = (int) endOffset.TotalSeconds;
@@ -1463,10 +1581,8 @@ namespace BatRecordingManager
             Location result = null;
             if (!string.IsNullOrWhiteSpace(latit) && !string.IsNullOrWhiteSpace(longit))
             {
-                double dLat = 200;
-                double dlong = 200;
-                double.TryParse(latit, out dLat);
-                double.TryParse(longit, out dlong);
+                double.TryParse(latit, out var dLat);
+                double.TryParse(longit, out var dlong);
                 result = ValidCoordinates(new Location(dLat, dlong));
             }
 
@@ -1518,8 +1634,7 @@ namespace BatRecordingManager
                 for (var i = 1; i < match.Groups.Count; i++)
                 {
                     if (i == 0) continue;
-                    var v = 0.0d;
-                    double.TryParse(match.Groups[i].Value, out v);
+                    double.TryParse(match.Groups[i].Value, out var v);
                     switch (i)
                     {
                         case 1:
@@ -1586,7 +1701,7 @@ namespace BatRecordingManager
         public static BitmapSource CreateBitmapSourceFromBitmap(Bitmap bitmap)
         {
             if (bitmap == null)
-                throw new ArgumentNullException("bitmap");
+                throw new ArgumentNullException(nameof(bitmap));
 
             var hBitmap = bitmap.GetHbitmap();
             try
@@ -1618,15 +1733,24 @@ namespace BatRecordingManager
         {
             try
             {
+                double dblValue=(double)value;
+                
+
+                string format = "{0.00}";
+                if (!string.IsNullOrWhiteSpace((parameter as String)))
+                {
+                    format = "{"+(parameter as String)+"}";
+                }
                 // Here's where you put the code do handle the value conversion.
                 var str = "";
-                str = string.Format("{0,5:N1}", value);
+
+                str = String.Format(format, dblValue);
 
                 return str;
             }
             catch
             {
-                return value;
+                return value.ToString();
             }
         }
 
@@ -1636,9 +1760,71 @@ namespace BatRecordingManager
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             // Not implemented
-            var d = -1.0d;
-            double.TryParse((string) value, out d);
+            double.TryParse((string) value, out var d);
             if (d < 0) return null;
+
+            return d;
+        }
+    }
+
+    /// <summary>
+    /// format converter for decimal values to and from a formatted string, format
+    /// specified in the parameter field without the curly braces
+    /// </summary>
+    public class DecimalToStringConverter : IValueConverter
+
+    {
+
+        /// <summary>
+        /// converter
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+
+        {
+            try
+            {
+                if (value == null) return ("");
+                decimal dblValue = (decimal)value;
+
+
+                string format = "{0.00}";
+                if (!string.IsNullOrWhiteSpace((parameter as String)))
+                {
+                    format = "{" + (parameter as String) + "}";
+                }
+                // Here's where you put the code do handle the value conversion.
+                var str = "";
+
+                str = String.Format(format, dblValue);
+
+                return str;
+            }
+            catch
+            {
+                return value.ToString();
+            }
+        }
+
+
+        /// <summary>
+        /// unconverter
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+
+        {
+           
+            decimal.TryParse((string)value, out var d);
+            
 
             return d;
         }
@@ -1779,8 +1965,7 @@ namespace BatRecordingManager
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var text = value as string;
-            var modifiedSegment = new LabelledSegment();
-            modifiedSegment.Comment = text;
+            var modifiedSegment = new LabelledSegment {Comment = text};
 
             return modifiedSegment;
         }
@@ -1852,10 +2037,7 @@ namespace BatRecordingManager
                     bmp = value as Bitmap;
                 }
 
-                if (bmp != null)
-                    //Use existing Interop functionality to perform conversion
-
-                    return bmp.ToBitmapSource();
+                return bmp?.ToBitmapSource();
                 /*IntPtr HBitmap = bmp.GetHbitmap();
                     try
                     {
@@ -1870,7 +2052,6 @@ namespace BatRecordingManager
                         DeleteObject(HBitmap);
                     }
                     */
-                return null;
             }
             catch
             {
@@ -2024,6 +2205,48 @@ namespace BatRecordingManager
         }
     }
 
+
+    #region FilePathBrushConverter (ValueConverter)
+    /// <summary>
+    /// Converter to return a red brush if the directory in value does not exist and a black brush if it does or in the event of any error
+    /// </summary>
+    public class FilePathBrushConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.  
+                if (value is string)
+                {
+                    string folder = value as string;
+                    if (!string.IsNullOrWhiteSpace(folder))
+                    {
+                        if (Directory.Exists(folder))
+                        {
+                            return (new SolidColorBrush(Colors.Black));
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                return new SolidColorBrush(Colors.Red);
+            }
+
+            return (new SolidColorBrush(Colors.Red));
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    #endregion
+
+
     #endregion ShortTimeConverter (ValueConverter)
 
     #region TextColourConverter (ValueConverter)
@@ -2104,44 +2327,322 @@ namespace BatRecordingManager
 
     #endregion DebugBreak (ValueConverter)
 
+
+    #region GPSConverter (ValueConverter)
+
+    public class GPSConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.  
+                if (value is RecordingSession)
+                {
+                    RecordingSession session=value as RecordingSession;
+                    return (session.LocationGPSLatitude.ToString() + ", " + session.LocationGPSLongitude.ToString());
+                }
+
+                return ("");
+            }
+            catch
+            {
+                return "ERR";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    #endregion
+
+
+    #region MapRefConverter (ValueConverter)
+
+    public class MapRefConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.  
+                if (value is RecordingSession)
+                {
+                    RecordingSession session=value as RecordingSession;
+
+                    if (session.hasGPSLocation)
+                    {
+                        var lat = (double) session.LocationGPSLatitude;
+                        var longit = (double) session.LocationGPSLongitude;
+                        var gridRef = GPSLocation.ConvertGPStoGridRef(lat, longit);
+                        return (gridRef);
+                    }
+                    else
+                    {
+                        return (" - ");
+                    }
+
+                }
+
+                return (" - ");
+            }
+            catch
+            {
+                return "ERR";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    #endregion
+
+
+    #region SessionStartDateTimeConverter (ValueConverter)
+
+    public class SessionStartDateTimeConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.  
+                if (value is RecordingSession)
+                {
+                    RecordingSession session=value as RecordingSession;
+                    string result = (session.SessionDate.Date +
+                                     (session.SessionStartTime ?? new TimeSpan(18, 0, 0))).ToString();
+                    return(result);
+                }
+
+                return (" - ");
+            }
+            catch
+            {
+                return "ERR";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    #endregion
+
+    #region SessionEndDateTimeConverter (ValueConverter)
+
+    public class SessionEndDateTimeConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.  
+                if (value is RecordingSession)
+                {
+                    RecordingSession session = value as RecordingSession;
+                    string result = ((session.EndDate??session.SessionDate).Date +
+                                     (session.SessionEndTime ?? new TimeSpan(23, 59, 0))).ToString();
+                    return (result);
+                }
+
+                return (" - ");
+            }
+            catch
+            {
+                return "ERR";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    #endregion
+
+
+    #region BSPassesConverter (ValueConverter)
+
+    public class BSPassesConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.  
+                if (value is BatStats)
+                {
+                    BatStats bs=value as BatStats;
+                    string result = bs.passes + "/" + bs.segments;
+                    return (result);
+                }
+
+                return (" - ");
+            }
+            catch
+            {
+                return "ERR";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    #endregion
+
+
+
+
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+    public static class UiServices
+    {
+        /// <summary>
+        ///   A value indicating whether the UI is currently busy
+        /// </summary>
+        private static bool IsBusy;
+
+       
+
+        /// <summary>
+        /// Sets the busystate as busy.
+        /// </summary>
+        public static void SetBusyState()
+        {
+            SetBusyState(true);
+        }
+
+        /// <summary>
+        /// Sets the busystate to busy or not busy.
+        /// </summary>
+        /// <param name="busy">if set to <c>true</c> the application is now busy.</param>
+        private static void SetBusyState(bool busy, [CallerMemberName] string caller = null, [CallerLineNumber] int linenumber = 0)
+        {
+            if (busy != IsBusy)
+            {
+                IsBusy = busy;
+                if (Mouse.OverrideCursor == null)
+                {
+                    var mw = (App.Current.MainWindow as MainWindow);
+                    if (mw != null)
+                    {
+                        mw.Dispatcher.Invoke(delegate
+                        {
+
+                            Mouse.OverrideCursor = busy ? Cursors.Wait : null;
+                            Debug.WriteLine(
+                                $"%%%%%%%%%%%%%%%%%%%%%%%%%    busy={busy} - from {caller} at {linenumber} - {DateTime.Now.ToLongTimeString()}");
+                        });
+                    }
+                }
+                
+
+                if (IsBusy)
+                {
+                    new DispatcherTimer(TimeSpan.FromSeconds(0), DispatcherPriority.ApplicationIdle, dispatcherTimer_Tick, Application.Current.Dispatcher);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handles the Tick event of the dispatcherTimer control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+        private static void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            var dispatcherTimer = sender as DispatcherTimer;
+            if (dispatcherTimer != null)
+            {
+                SetBusyState(false);
+                dispatcherTimer.Stop();
+            }
+        }
+
+    }
 
     public class WaitCursor : IDisposable
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
         private string _oldStatus = "null";
-        private Cursor _previousCursor;
+        private Cursor _previousCursor = Cursors.Arrow;
+        private int Depth = 0;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
-        public WaitCursor(string status = "null")
+        public WaitCursor(string status = "null",[CallerMemberName] string caller=null,[CallerLineNumber] int linenumber=0)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             try
             {
-                if (status != "null")
-                    //(App.Current.MainWindow as MainWindow).Dispatcher.Invoke((Action)delegate
-                    Application.Current.Dispatcher.Invoke(delegate
+
+                /* if (status != "null")
+                 {
+                     //(App.Current.MainWindow as MainWindow).Dispatcher.Invoke((Action)delegate
+                     //var currentMainWindow = Application.Current.MainWindow;
+                     //MainWindow window = (currentMainWindow as MainWindow);
+                     //window.Dispatcher.Invoke(delegate
+                     //{
+
+                         Debug.WriteLine("-=-=-=-=-=-=-=-=- "+status+" -=-=-=-=-=-=-=-=-");
+                         _oldStatus = MainWindow.SetStatusText(status);
+                         //Debug.WriteLine("old Status=" + oldStatus);
+                         _previousCursor = Mouse.OverrideCursor;
+                         //Debug.WriteLine("old cursor saved");
+                         Mouse.OverrideCursor = Cursors.Wait;
+                         //Debug.WriteLine("Wait cursor set");
+
+                     //});
+                 }
+                 else
+                 {*/
+
+                if (Mouse.OverrideCursor == null)
+                {
+                    var mw = (App.Current.MainWindow as MainWindow);
+                    if (mw != null)
                     {
-                        var mw = Application.Current.MainWindow;
-                        if (mw is MainWindow)
-                            _oldStatus = (mw as MainWindow).SetStatusText(status);
-                        //Debug.WriteLine("old Status=" + oldStatus);
-                        _previousCursor = Mouse.OverrideCursor;
-                        //Debug.WriteLine("old cursor saved");
-                        Mouse.OverrideCursor = Cursors.Wait;
-                        //Debug.WriteLine("Wait cursor set");
-                    });
+                        mw.Dispatcher.Invoke(delegate
+                        {
+                            _previousCursor = Mouse.OverrideCursor;
+                            Mouse.OverrideCursor = Cursors.Wait;
+                            Debug.WriteLine(
+                                $"%%%%%%%%%%%%%%%%%%%%%%%%%    WAIT - from {caller} at {linenumber} - {DateTime.Now.ToLongTimeString()}");
+                        });
+                    }
+                }
                 else
-                    Application.Current.Dispatcher.Invoke(delegate
-                    {
-                        _previousCursor = Mouse.OverrideCursor;
-                        Mouse.OverrideCursor = Cursors.Wait;
-                    });
+                {
+                    Depth = 1;
+                    Debug.WriteLine($"No wait cursor set from {caller}");
+                }
+
+
+                //Application.Current.MainWindow.Dispatcher.InvokeAsync(() => { Mouse.OverrideCursor = _previousCursor; },
+                //System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+                //}
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("WaitCursor failed for \"" + status + "\":-" + ex.Message);
+                Debug.WriteLine("%%%%%%%%%%%%%%%%%  WaitCursor failed for \"" + status + "\":-" + ex.Message);
             }
         }
 
@@ -2161,16 +2662,36 @@ namespace BatRecordingManager
         {
             try
             {
-                Application.Current.Dispatcher.Invoke(delegate
+                if (Depth == 0)
                 {
-                    Mouse.OverrideCursor = _previousCursor ?? Cursors.Arrow;
-                });
+                    var mw = (App.Current.MainWindow as MainWindow);
+                    if (mw != null)
+                    {
+                        mw.Dispatcher.Invoke(delegate
+                        {
+                            //Mouse.OverrideCursor = _previousCursor ?? Cursors.Arrow;
+                            Mouse.OverrideCursor = null;
+                            Debug.WriteLine(
+                                $"%-%-%-%-%-%-%_%-%-%-%-%-%-- RESUME {Mouse.OverrideCursor} at {DateTime.Now.ToLongTimeString()}");
+                        });
+
+                    }
+                    else
+                    {
+                        Debug.WriteLine("No Main Window, failed to reset cursor");
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("No cursor reset");
+                }
+                /*
                 if (_oldStatus != "null")
                     //(App.Current.MainWindow as MainWindow).Dispatcher.Invoke((Action)delegate
-                    Application.Current.Dispatcher.Invoke(delegate
-                    {
-                        _oldStatus = (Application.Current.MainWindow as MainWindow).SetStatusText(_oldStatus);
-                    });
+
+                    MainWindow.SetStatusText(_oldStatus);*/
+
+
             }
             catch (Exception ex)
             {
@@ -2235,8 +2756,7 @@ namespace BatRecordingManager
             try
             {
                 // Here's where you put the code do handle the value conversion.
-                var factor = 1.0d;
-                double.TryParse(parameter as string, out factor);
+                double.TryParse(parameter as string, out var factor);
                 return (double) value * factor;
             }
             catch
@@ -2245,14 +2765,65 @@ namespace BatRecordingManager
             }
         }
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             // Not implemented
             return null;
         }
+    }
+
+    #endregion Times2Converter (ValueConverter)
+
+
+        #region AddValueConverter (ValueConverter)
+
+
+    /// <summary>
+    /// Uses a converterparameter to increase or decrease the numerical (double) value in the object
+    /// </summary>
+    public class AddValueConverter : IValueConverter
+
+    {
+
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.
+                double.TryParse(parameter as string, out var factor);
+                return (double) value + factor;
+            }
+            catch
+            {
+                return value;
+            }
+        }
+
+        /// <summary>
+        /// convertback not implemented
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    #endregion AddValueConverter (ValueConverter)
+
+
+
+
+
+
 
         /// <summary>
         ///     Used to set the height of a scale grid inside a canvas of variable size.
@@ -2275,9 +2846,9 @@ namespace BatRecordingManager
                 throw new NotImplementedException();
             }
         }
-    }
+    
 
-    #endregion Times2Converter (ValueConverter)
+    
 
     #region multiscaleConverter (ValueConverter)
 
@@ -2312,7 +2883,7 @@ namespace BatRecordingManager
                         double.TryParse(strHeight, out height);
                     }
 
-                    if (values[0] is double) height = (values[0] as double?).Value;
+                    if (values[0] is double) height = ((double?) values[0]).Value;
 
                     if (values[1] is string)
                     {
@@ -2320,7 +2891,7 @@ namespace BatRecordingManager
                         double.TryParse(strFactor, out factor);
                     }
 
-                    if (values[1] is double) factor = (values[1] as double?).Value;
+                    if (values[1] is double) factor = ((double?) values[1]).Value;
 
                     return height * factor;
                 }
@@ -2373,8 +2944,7 @@ namespace BatRecordingManager
         {
             try
             {
-                var indexToGridline = -1;
-                int.TryParse(values[0] as string, out indexToGridline);
+                int.TryParse(values[0] as string, out var indexToGridline);
                 var width = values[1] as double?;
                 var height = values[2] as double?;
 
@@ -2438,8 +3008,7 @@ namespace BatRecordingManager
         {
             try
             {
-                var indexToGridline = -1;
-                int.TryParse(values[0] as string, out indexToGridline);
+                int.TryParse(values[0] as string, out var indexToGridline);
                 var width = values[1] as double?;
                 var height = values[2] as double?;
 
@@ -2504,9 +3073,7 @@ namespace BatRecordingManager
                 var width = values[0] as double?;
                 var height = values[1] as double?;
 
-                var si = values[2] as StoredImage;
-
-                if (width != null && height != null && si != null)
+                if (width != null && height != null && values[2] is StoredImage si)
                 {
                     //Debug.WriteLine("============================================================================================");
                     var hscale = width.Value / si.image.Width;
@@ -2570,9 +3137,7 @@ namespace BatRecordingManager
                 var width = values[0] as double?;
                 var height = values[1] as double?;
 
-                var si = values[2] as StoredImage;
-
-                if (width != null && height != null && si != null)
+                if (width != null && height != null && values[2] is StoredImage si)
                 {
                     //Debug.WriteLine("============================================================================================");
                     var hscale = width.Value / si.image.Width;
@@ -2636,9 +3201,7 @@ namespace BatRecordingManager
                 var width = values[0] as double?;
                 var height = values[1] as double?;
 
-                var si = values[2] as StoredImage;
-
-                if (width != null && height != null && si != null)
+                if (width != null && height != null && values[2] is StoredImage si)
                 {
                     //Debug.WriteLine("============================================================================================");
                     var hscale = width.Value / si.image.Width;
@@ -2703,9 +3266,7 @@ namespace BatRecordingManager
                 var width = values[0] as double?;
                 var height = values[1] as double?;
 
-                var si = values[2] as StoredImage;
-
-                if (width != null && height != null && si != null)
+                if (width != null && height != null && values[2] is StoredImage si)
                 {
                     //Debug.WriteLine("============================================================================================");
                     var hscale = width.Value / si.image.Width;
@@ -2872,8 +3433,7 @@ namespace BatRecordingManager
                 var numberOfImages = 0;
                 if (values[1] == null) return "-";
                 var bat = values[1] as Bat;
-                var recordings = values[0] as BulkObservableCollection<Recording>;
-                if (recordings == null || recordings.Count <= 0) return "-";
+                if (!(values[0] is BulkObservableCollection<Recording> recordings) || recordings.Count <= 0) return "-";
 
                 numberOfImages = (from rec in recordings.AsParallel()
                     from seg in rec.LabelledSegments.AsParallel()
@@ -2962,7 +3522,7 @@ namespace BatRecordingManager
     /// <summary>
     ///     Converts a LabelledSegment instance to an intelligible string for display
     /// </summary>
-    public class LabelledSegmentConverter : IValueConverter
+    public class LabelledSegmentConverter : IMultiValueConverter
     {
         /// <summary>
         ///     Converts the specified value.
@@ -2981,20 +3541,47 @@ namespace BatRecordingManager
         /// </param>
         /// <returns>
         /// </returns>
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             try
             {
                 // Here's where you put the code do handle the value conversion.
                 var result = "";
-                if (value is LabelledSegment segment)
+                bool offsets = true;
+                LabelledSegment segment = null;
+                if (values == null) return (result);
+                if (values.Length < 2) return (result);
+
+                if (values[0] != null)
                 {
-                    result = Tools.FormattedSegmentLine(segment);
-                    while (result.Trim().EndsWith("*")) result = result.Substring(0, result.Length - 1);
-                    result = result.Trim();
-                    if (!result.EndsWith(")") && segment.SegmentDatas.Count > 0)
-                        result = result + " (" + segment.SegmentDatas.Count + " images )";
+                    if (values[0] is ToggleButton)
+                    {
+                        var bt = values[0] as ToggleButton;
+                        if (bt.IsEnabled)
+                        {
+                            offsets = !bt.IsChecked ?? true;
+                        }
+                        else
+                        {
+                            offsets = true;
+                        }
+                    }
                 }
+
+                if (values[1] is LabelledSegment)
+                {
+                    segment=(LabelledSegment)values[1];
+                }
+                
+                    if (segment!=null)
+                    {
+                        result = Tools.FormattedSegmentLine(segment,offsets);
+                        while (result.Trim().EndsWith("*")) result = result.Substring(0, result.Length - 1);
+                        result = result.Trim();
+                        if (!result.EndsWith(")") && segment.SegmentDatas.Count > 0)
+                            result = result + " (" + segment.SegmentDatas.Count + " images )";
+                    }
+                
 
                 return result;
             }
@@ -3021,7 +3608,7 @@ namespace BatRecordingManager
         /// </param>
         /// <returns>
         /// </returns>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object[] ConvertBack(object value, Type[] targetType, object parameter, CultureInfo culture)
         {
             // Not implemented
             return null;
@@ -3062,8 +3649,7 @@ namespace BatRecordingManager
                 var result = new Call();
                 if (value is LabelledSegment segment)
                 {
-                    result = DBAccess.GetSegmentCall(segment);
-                    if (result == null) result = new Call();
+                    result = DBAccess.GetSegmentCall(segment) ?? new Call();
                 }
 
                 return result;
@@ -3238,10 +3824,12 @@ namespace BatRecordingManager
             if (parentObject == null) return null;
 
             // check if the parent matches the type we’re looking for
-            var parent = parentObject as T;
-            if (parent != null)
+            if (parentObject is T parent)
                 return parent;
             return FindVisualParent<T>(parentObject);
         }
+
+        
+
     }
 }

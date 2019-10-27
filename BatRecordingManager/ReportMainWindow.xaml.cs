@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -49,13 +48,10 @@ namespace BatRecordingManager
         public FrequencyData(int aggregationPeriod, Bat bat, BulkObservableCollection<int> occurrencesPerPeriod)
         {
             AggregationPeriod = aggregationPeriod;
-            var periods = (int) Math.Floor(1440.0m / aggregationPeriod);
+            var periods = (int) Math.Floor(1440.0m / aggregationPeriod);// periods per daya
             this.bat = bat;
-            if (occurrencesPerPeriod != null)
-                OccurrencesPerPeriod = occurrencesPerPeriod;
-            else
-                OccurrencesPerPeriod = new BulkObservableCollection<int>();
-            while (OccurrencesPerPeriod.Count < periods) OccurrencesPerPeriod.Add(0);
+            OccurrencesPerPeriod = occurrencesPerPeriod ?? new BulkObservableCollection<int>();// set internal array to that provided or an empty one
+            while (OccurrencesPerPeriod.Count < periods) OccurrencesPerPeriod.Add(0); // pad the internal array to the correct size if necessary
         }
 
         /// <summary>
@@ -77,39 +73,36 @@ namespace BatRecordingManager
         public string sessionHeader { get; set; } = "";
 
         /// <summary>
-        ///     given a period in the form of two dateTimes, adjusts those values to start and end at exact
-        ///     multiples of the Aggregation period in seconds, starting at midday;
+        /// returns a new, empty example of Frequency data configured for the named bat
         /// </summary>
-        /// <param name="aggregationPeriod"></param>
-        /// <param name="recordingPeriod"></param>
-        internal static Tuple<DateTime, DateTime> NormalizePeriod(int aggregationPeriod, Tuple<DateTime, DateTime> rp)
+        /// <param name="aggregationPeriodInMinutes"></param>
+        /// <param name="bat"></param>
+        /// <returns></returns>
+        internal static FrequencyData CreateEmpty(int aggregationPeriodInMinutes, Bat bat)
         {
-            var result = rp;
-            var normalizedItem1 = false;
-            var normalizedItem2 = false;
-            for (var dt = new DateTime();
-                dt < new DateTime() + new TimeSpan(24, 0, 0);
-                dt = dt + new TimeSpan(0, aggregationPeriod, 0))
+            FrequencyData fd=new FrequencyData(aggregationPeriodInMinutes,bat,null);
+            for (int i = 0; i < fd.OccurrencesPerPeriod.Count; i++)
             {
-                //from midnight for 24 hours insteps of AggregationPeriod
-                if (!normalizedItem1 && rp.Item1.TimeOfDay < dt.TimeOfDay)
-                {
-                    // have gone past start time
-                    result = new Tuple<DateTime, DateTime>(
-                        rp.Item1.Date + (dt.TimeOfDay - new TimeSpan(0, aggregationPeriod, 0)), result.Item2);
-                    normalizedItem1 = true;
-                }
-
-                if (!normalizedItem2 && rp.Item2.TimeOfDay < dt.TimeOfDay)
-                {
-                    result = new Tuple<DateTime, DateTime>(result.Item1, rp.Item2.Date + dt.TimeOfDay);
-                    normalizedItem2 = true;
-                }
-
-                if (normalizedItem1 && normalizedItem2) return result;
+                fd.OccurrencesPerPeriod[i] = 0;
             }
 
-            return result;
+            return (fd);
+        }
+
+        /// <summary>
+        /// adds the contents of the provided frequency data to the current one assuming that the bat is the same and the
+        /// size of the OccurrencePerPeriod is the same
+        /// </summary>
+        /// <param name="fdForSession"></param>
+        public void Add(FrequencyData fdForSession)
+        {
+            if (bat.Id == fdForSession.bat.Id && OccurrencesPerPeriod.Count == fdForSession.OccurrencesPerPeriod.Count)
+            {
+                for (int i = 0; i < OccurrencesPerPeriod.Count; i++)
+                {
+                    OccurrencesPerPeriod[i] += fdForSession.OccurrencesPerPeriod[i];
+                }
+            }
         }
     }
 
@@ -165,6 +158,11 @@ namespace BatRecordingManager
         public BulkObservableCollection<FrequencyData> reportDataByFrequencyList { get; set; } =
             new BulkObservableCollection<FrequencyData>();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public BulkObservableCollection<ReportData> reportSummaryList { get; set; }=new BulkObservableCollection<ReportData>();
+
 
         /// <summary>
         ///     Define the data for the report to be generated and populate the purpose defined class instances so that
@@ -177,45 +175,55 @@ namespace BatRecordingManager
         public void SetReportData(List<BatStatistics> reportBatList, List<RecordingSession> reportSessionList,
             List<Recording> reportRecordingList)
         {
-            using (new WaitCursor("Set report data"))
+
+            Debug.WriteLine(reportRecordingList.ToString());
+
+            // Generic operations to set up the data
+            ReportBatStatsList.Clear();
+            ReportSessionList.Clear();
+            ReportRecordingList.Clear();
+
+            if (reportBatList != null)
             {
-                Debug.WriteLine(reportRecordingList.ToString());
+                ReportBatStatsList = new BulkObservableCollection<BatStatistics>();
+                ReportBatStatsList.AddRange(reportBatList.Where(rbl => rbl != null).Distinct());
+            }
 
-                // Generic operations to set up the data
-                ReportBatStatsList.Clear();
-                ReportSessionList.Clear();
-                ReportRecordingList.Clear();
+            if (reportSessionList != null)
+            {
+                ReportSessionList = new BulkObservableCollection<RecordingSession>();
+                ReportSessionList.AddRange(reportSessionList.Where(rsl => rsl != null).Distinct());
+            }
 
-                if (reportBatList != null)
+            if (reportRecordingList != null)
+            {
+                ReportRecordingList = new BulkObservableCollection<Recording>();
+                ReportRecordingList.AddRange(reportRecordingList.Where(rrl => rrl != null).Distinct());
+            }
+
+            
+
+            // Set data for the Test Frequency Tab
+            foreach (var tabitem in MainWindowTabControl.Items)
+                if ((tabitem as TabItem).Content is ReportMaster)
                 {
-                    ReportBatStatsList = new BulkObservableCollection<BatStatistics>();
-                    ReportBatStatsList.AddRange(reportBatList.Distinct());
-                }
-
-                if (reportSessionList != null)
-                {
-                    ReportSessionList = new BulkObservableCollection<RecordingSession>();
-                    ReportSessionList.AddRange(reportSessionList.Distinct());
-                }
-
-                if (reportRecordingList != null)
-                {
-                    ReportRecordingList = new BulkObservableCollection<Recording>();
-                    ReportRecordingList.AddRange(reportRecordingList.Distinct());
-                }
-
-                // Set data for the Test Frequency Tab
-                foreach (var tabitem in MainWindowTabControl.Items)
-                    if ((tabitem as TabItem).Content is ReportMaster)
+                    var tabReportMaster = (tabitem as TabItem).Content as ReportMaster;
+                    if (tabReportMaster is ReportByFrequency)
                     {
-                        var tabReportMaster = (tabitem as TabItem).Content as ReportMaster;
-                        tabReportMaster.SetData(ReportBatStatsList, ReportSessionList, ReportRecordingList);
-                        (tabitem as TabItem).Header = tabReportMaster.tabHeader;
+                        ReportByFrequency frequencyReport = tabReportMaster as ReportByFrequency;
+                        frequencyReport.AggregationPeriodInMinutes = 10;
+                        frequencyReport.TableStartTimeInMinutesFromMidnight =
+                            720; // indicates to use sunset -6 hours for each session
+                        frequencyReport.reSunset = true;
                     }
 
+                    tabReportMaster.SetData(ReportBatStatsList, ReportSessionList, ReportRecordingList);
+                    (tabitem as TabItem).Header = tabReportMaster.tabHeader;
+                }
 
-                SortSessionHeaders();
-            }
+
+            SortSessionHeaders();
+
         }
 
 
@@ -349,9 +357,7 @@ namespace BatRecordingManager
                 if (recording != null && !string.IsNullOrWhiteSpace(recording.RecordingGPSLatitude) &&
                     !string.IsNullOrWhiteSpace(recording.RecordingGPSLongitude))
                 {
-                    var latitude = 200.0d;
-                    var longitude = 200.0d;
-                    recording.GetGpSasDouble(out latitude, out longitude);
+                    recording.GetGpSasDouble(out var latitude, out var longitude);
                     gridRef = GPSLocation.ConvertGPStoGridRef(latitude, longitude);
                 }
 

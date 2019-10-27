@@ -70,8 +70,10 @@
                         Width="50" Height="25"
                         Content="Export"
                         IsEnabled="False"
-                        ToolTip="Export a summary of the selected recording session as a .csv file"
-                        Style="{StaticResource SimpleButton}" Click="ExportSessionDataButton_Click" />
+                        ToolTip="Re-writes all the .txt files for the recordings in this session.  Overwrites existing files. [CTRL-CLICK] only writes missing files"
+                        Style="{StaticResource SimpleButton}" Click="ExportSessionDataButton_Click" >
+                        
+                    </Button>
                     <Button
                         x:Name="ReportSessionDataButton"
                         Width="50" Height="25"
@@ -169,6 +171,8 @@
                         ItemsSource="{Binding recordingSessionDataList,IsAsync=true}"
                         AutoGenerateColumns="False"
 
+                        HeadersVisibility="Column"
+                        AreRowDetailsFrozen="True"
                         CanUserAddRows="False"
                         CanUserResizeRows="False" IsReadOnly="True" IsTextSearchEnabled="True" Grid.ColumnSpan="3">
 

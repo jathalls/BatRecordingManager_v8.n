@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.ComponentModel;
@@ -47,7 +46,31 @@ namespace BatRecordingManager
         /// <summary>
         ///     The window title
         /// </summary>
-        private readonly string _windowTitle = "Bat Log Manager - v";
+        /// 
+        //private string _windowTitle { get; set; } = "Bat Log Manager - v";
+
+        #region _windowTitle
+
+        /// <summary>
+        /// _windowTitle Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty _windowTitleProperty =
+            DependencyProperty.Register("_windowTitle", typeof(string), typeof(MainWindow),
+                new FrameworkPropertyMetadata((string)""));
+
+        /// <summary>
+        /// Gets or sets the _windowTitle property.  This dependency property 
+        /// indicates ....
+        /// </summary>
+        public string _windowTitle
+        {
+            get { return (string) GetValue(_windowTitleProperty); }
+            set { SetValue(_windowTitleProperty, value); }
+        } 
+
+        #endregion
+
+
 
         /// <summary>
         ///     Instance holder for the Analyze and Import class.  If null, then a new folder
@@ -62,6 +85,8 @@ namespace BatRecordingManager
 
         private bool _runKaleidoscope;
 
+        private bool _useCurrentSession;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="MainWindow" /> class.
         /// </summary>
@@ -69,9 +94,11 @@ namespace BatRecordingManager
         {
             try
             {
+                Application.Current.MainWindow = this;
                 try
                 {
                     Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+                    
                     DBAccess.InitializeDatabase();
                 }
                 catch (Exception ex)
@@ -80,22 +107,29 @@ namespace BatRecordingManager
                     Tools.ErrorLog("Error in Main Window prior to Initialisation " + ex.Message);
                 }
 
+                _windowTitle = "Bat Log Manager v";
                 InitializeComponent();
+                
                 try
                 {
                     ShowDatabase = App.ShowDatabase;
                     DataContext = this;
-                    statusText = "Starting Up";
 
+                    System.Windows.Data.Binding binding = new System.Windows.Data.Binding(nameof(_windowTitle));
+                    binding.Source = this;
+                    //System.Windows.Data.BindingOperations.SetBinding(Title, TitleProperty, binding);
+                    this.SetBinding(TitleProperty, binding);
+
+
+                    //statusText = "Starting Up";
+                    //SetStatusText("Starting Up");
                     _build = Assembly.GetExecutingAssembly().GetName().Version.ToString();
                     var buildDateTime = new DateTime(2000, 1, 1);
                     var buildParts = _build.Split('.');
                     if (buildParts.Length >= 4)
                     {
-                        var days = 0;
-                        var seconds = 0;
-                        int.TryParse(buildParts[2], out days);
-                        int.TryParse(buildParts[3], out seconds);
+                        int.TryParse(buildParts[2], out var days);
+                        int.TryParse(buildParts[3], out var seconds);
                         if (days > 0) buildDateTime = buildDateTime.AddDays(days);
                         if (seconds > 0) buildDateTime = buildDateTime.AddSeconds(seconds * 2);
                     }
@@ -105,7 +139,9 @@ namespace BatRecordingManager
                                  buildDateTime.TimeOfDay +
                                  ")";
                     //windowTitle = "Bat Log File Processor " + Build;
-                    Title = _windowTitle + " " + _build;
+                    //Title = _windowTitle + " " + _build;
+                    _windowTitle = _windowTitle + _build;
+                    Console.WriteLine(_windowTitle);
 
                     InvalidateArrange();
                     //DBAccess.InitializeDatabase();
@@ -113,7 +149,7 @@ namespace BatRecordingManager
                     BatRecordingListDetailControl.SessionsAndRecordings.e_SessionAction +=
                         SessionsAndRecordings_SessionAction;
                     miRecordingSearch_Click(this, new RoutedEventArgs());
-                    statusText = "";
+                    //SetStatusText("");
                 }
                 catch (Exception ex)
                 {
@@ -127,6 +163,7 @@ namespace BatRecordingManager
                         MainWindowPaneGrid.Children.Add(recordingSessionListControl);
                     recordingSessionListControl.Visibility = Visibility.Visible;
                     recordingSessionListControl.RefreshData();
+                    SetTitle();
                 }
                 catch (Exception ex)
                 {
@@ -138,6 +175,12 @@ namespace BatRecordingManager
             {
                 Tools.ErrorLog(ex + "\n" + ex.Message);
             }
+        }
+
+        public void SetTitle()
+        {
+            _windowTitle = $"Bat Recording Manager v {_build} using {DBAccess.GetWorkingDatabaseName(DBAccess.GetWorkingDatabaseLocation())}";
+            InvalidateVisual();
         }
 
 
@@ -166,25 +209,11 @@ namespace BatRecordingManager
         /// </param>
         private void miAbout_Click(object sender, RoutedEventArgs e)
         {
-            var about = new AboutScreen();
-            about.Version.Content = "v " + _build;
+            var about = new AboutScreen {Version = {Content = "v " + _build}};
             about.ShowDialog();
         }
 
-        public string SetStatusText(string newStatusText)
-        {
-            /*
-            string result = statusText;
-            statusText = newStatusText;
-            return (result);*/
-            var result = StatusText.Text;
-            StatusText.Text = newStatusText;
-            InvalidateArrange();
-            UpdateLayout();
-
-            Debug.WriteLine("========== set status to \"" + newStatusText + "\"");
-            return result;
-        }
+        
 
         /// <summary>
         ///     Handles the Click event of the miBatReference control.
@@ -262,10 +291,12 @@ namespace BatRecordingManager
 
         private void miCreateDatabase_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new SaveFileDialog();
-            dialog.InitialDirectory = DBAccess.GetWorkingDatabaseLocation();
-            dialog.FileName = "_BatReferenceDB.mdf";
-            dialog.DefaultExt = ".mdf";
+            var dialog = new SaveFileDialog
+            {
+                InitialDirectory = DBAccess.GetWorkingDatabaseLocation(),
+                FileName = "_BatReferenceDB.mdf",
+                DefaultExt = ".mdf"
+            };
             var result = dialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
@@ -320,7 +351,7 @@ namespace BatRecordingManager
             var workingFolder = DBAccess.GetWorkingDatabaseLocation();
             if (string.IsNullOrWhiteSpace(workingFolder) || !Directory.Exists(workingFolder))
             {
-                App.dbFileLocation = "";
+                
                 workingFolder = DBAccess.GetWorkingDatabaseLocation();
             }
 
@@ -377,6 +408,7 @@ Do you wish to update that database to the latest specification?", "Out of Date 
                     }
                 }
             }
+            SetTitle();
         }
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
@@ -480,6 +512,7 @@ Do you wish to update that database to the latest specification?", "Out of Date 
                 RefreshAll();
                 miRecordingSearch_Click(sender, e);
             }
+            SetTitle();
         }
 
         /// <summary>
@@ -522,11 +555,27 @@ Do you wish to update that database to the latest specification?", "Out of Date 
         private void miAnalyseFiles_Click(object sender, RoutedEventArgs e)
         {
             _runKaleidoscope = false || Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
+            _useCurrentSession = false || Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
             if (_analyseAndImport == null)
             {
                 _importPictureDialog = new ImportPictureDialog();
+                if (_useCurrentSession )
+                {
+                    var currentSession = recordingSessionListControl.GetSelectedSession();
+                    if (currentSession != null)
+                    {
+                        _analyseAndImport=new AnalyseAndImportClass(currentSession.SessionTag);
+                    }
+                    else
+                    {
+                        _analyseAndImport=new AnalyseAndImportClass();
+                    }
+                }
+                else
+                {
+                    _analyseAndImport = new AnalyseAndImportClass();
+                }
 
-                _analyseAndImport = new AnalyseAndImportClass();
                 _analyseAndImport.e_Analysing += AnalyseAndImport_Analysing;
                 _analyseAndImport.e_DataUpdated += AnalyseAndImport_DataUpdated;
                 _analyseAndImport.e_AnalysingFinished += AnalyseAndImport_AnalysingFinished;
@@ -604,19 +653,36 @@ Do you wish to update that database to the latest specification?", "Out of Date 
         /// <param name="e"></param>
         private void AnalyseAndImport_AnalysingFinished(object sender, EventArgs e)
         {
-            if (_analyseAndImport != null)
+            try
             {
-                _analyseAndImport.Close();
+                if (_analyseAndImport != null)
+                {
+                    _analyseAndImport?.Close();
 
-                _analyseAndImport = null;
+                    _analyseAndImport = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error closing AnalyseAndImport:- "+ex.Message);
+                Tools.ErrorLog("Error closing AnalyseAndImport:- " + ex.Message);
             }
 
-            _importPictureDialog?.Dispatcher.BeginInvoke(DispatcherPriority.Background,
-                new Action(() =>
-                {
-                    _importPictureDialog.Close();
-                    _importPictureDialog = null;
-                }));
+            try
+            {
+                _importPictureDialog?.Dispatcher.BeginInvoke(DispatcherPriority.Background,
+                    new Action(() =>
+                    {
+                        DBAccess.ResolveOrphanImages();
+                        _importPictureDialog?.Close();
+                        _importPictureDialog = null;
+                    }));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error invoking a close of import picture dialog when ending analyse and import:- "+ex.Message);
+                Tools.ErrorLog("Error invoking a close of import picture dialog when ending analyse and import:- " + ex.Message);
+            }
         }
 
         /// <summary>
@@ -624,13 +690,13 @@ Do you wish to update that database to the latest specification?", "Out of Date 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void AnalyseAndImport_DataUpdated(object sender, EventArgs e)
+        public void AnalyseAndImport_DataUpdated(object sender, EventArgs e)
         {
-            if (sender != null)
+            if (sender != null && (sender is AnalyseAndImportClass))
             {
                 recordingSessionListControl?.RefreshData();
-                var sessionUpdated = (sender as AnalyseAndImportClass).SessionTag;
-                if (!string.IsNullOrWhiteSpace(sessionUpdated) && _runKaleidoscope)
+                var UpdatedSessionTag = (sender as AnalyseAndImportClass).SessionTag;
+                if (!string.IsNullOrWhiteSpace(UpdatedSessionTag) && _runKaleidoscope)
                 {
                     var mbResult = MessageBox.Show("Do you wish to Generate a report for this dataset?",
                         "Generate Report?", MessageBoxButton.YesNo);
@@ -640,10 +706,12 @@ Do you wish to update that database to the latest specification?", "Out of Date 
                             new Action(() =>
                             {
                                 //recordingSessionListControl.RefreshData();
-                                recordingSessionListControl.SelectSession(sessionUpdated);
+                                //recordingSessionListControl.SelectSession(sessionUpdated);
 
-                                recordingSessionListControl.ReportSessionDataButton_Click(sender,
-                                    new RoutedEventArgs());
+                                //recordingSessionListControl.ReportSessionDataButton_Click(sender,
+                                    //new RoutedEventArgs());
+                                    RecordingSession upDatedSession = DBAccess.GetRecordingSession(UpdatedSessionTag);
+                                    recordingSessionListControl.GenerateReportSet(upDatedSession, true);
                             }));
                 }
             }
@@ -712,12 +780,12 @@ Do you wish to update that database to the latest specification?", "Out of Date 
         }
 
         #region statusText
-
+        /*
         /// <summary>
         ///     statusText Dependency Property
         /// </summary>
         public static readonly DependencyProperty statusTextProperty =
-            DependencyProperty.Register("statusText", typeof(string), typeof(MainWindow),
+            DependencyProperty.Register(nameof(statusText), typeof(string), typeof(MainWindow),
                 new FrameworkPropertyMetadata(""));
 
         /// <summary>
@@ -728,8 +796,48 @@ Do you wish to update that database to the latest specification?", "Out of Date 
         {
             get => (string) GetValue(statusTextProperty);
             set => SetValue(statusTextProperty, value);
-        }
+        }*/
+
+        public string statusText { get; set; }
 
         #endregion
+
+        private void StatusText_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            Debug.WriteLine($"Status text changed to:-{StatusText.Text}");
+        }
+
+        /// <summary>
+        /// Menu item to copy the database.  The user chooses a location from the save file dialog
+        /// and the current .mdf and .ldf files are copied to the new location.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MiCopyDatabase_Click(object sender, RoutedEventArgs e)
+        {
+            var dc = DBAccess.GetFastDataContext();
+            dc.Connection.Close();
+            var destination = Tools.GetFileToWriteTo("", ".mdf");
+            if (!destination.EndsWith(".mdf"))
+            {
+                destination += ".mdf";
+            }
+
+            var source = DBAccess.GetWorkingDatabaseLocation();
+            source = source+DBAccess.GetWorkingDatabaseName(source);
+            File.Copy(source,destination);
+
+        }
+
+        /// <summary>
+        /// Expors the entire contents of the database to an XML file in text format.
+        /// This will be a BIG file and will take a LONG time.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MiExportDatabase_Click(object sender, RoutedEventArgs e)
+        {
+            // Not yet implemented
+        }
     }
 }

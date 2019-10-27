@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Diagnostics;
@@ -36,8 +35,16 @@ namespace BatRecordingManager
         ///     The bat list property
         /// </summary>
         public static readonly DependencyProperty BatListProperty =
-            DependencyProperty.Register("BatList", typeof(BulkObservableCollection<Bat>), typeof(BatEditor),
+            DependencyProperty.Register(nameof(BatList), typeof(BulkObservableCollection<Bat>), typeof(BatEditor),
                 new PropertyMetadata(new BulkObservableCollection<Bat>()));
+
+        /// <summary>
+        ///     Gets or sets the bat list.
+        /// </summary>
+        /// <value>
+        ///     The bat list.
+        /// </value>
+        public BulkObservableCollection<Bat> BatList => (BulkObservableCollection<Bat>)GetValue(BatListProperty);
 
         /// <summary>
         ///     The changing
@@ -60,13 +67,7 @@ namespace BatRecordingManager
             BatNameListBox.ItemsSource = BatList;
         }
 
-        /// <summary>
-        ///     Gets or sets the bat list.
-        /// </summary>
-        /// <value>
-        ///     The bat list.
-        /// </value>
-        public BulkObservableCollection<Bat> BatList => (BulkObservableCollection<Bat>) GetValue(BatListProperty);
+        
 
         /// <summary>
         ///     Handles the Click event of the AddRecordButton control.
@@ -359,13 +360,9 @@ namespace BatRecordingManager
             try
             {
                 if (lastSelectedIndex < BatNameListBox.Items.Count)
-                {
                     BatNameListBox.SelectedIndex = lastSelectedIndex >= 0 ? lastSelectedIndex : 0;
-                }
                 else
-                {
                     BatNameListBox.SelectedIndex = BatNameListBox.Items.Count - 1;
-                }
             }
             catch (Exception ex)
             {

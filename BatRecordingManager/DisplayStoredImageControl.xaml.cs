@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -35,7 +34,7 @@ namespace BatRecordingManager
     {
         /// Using a DependencyProperty as the backing store for storedImage.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty storedImageProperty =
-            DependencyProperty.Register("storedImage", typeof(StoredImage), typeof(DisplayStoredImageControl),
+            DependencyProperty.Register(nameof(storedImage), typeof(StoredImage), typeof(DisplayStoredImageControl),
                 new PropertyMetadata(new StoredImage(null, "", "", -1)));
 
         private readonly double _defaultGridLeftMargin = 0.28d;
@@ -890,22 +889,24 @@ namespace BatRecordingManager
                 //BindingOperations.SetBinding(line, Line.X2Property, binding);
 
                 var mbXBinding = new MultiBinding {Converter = new LeftMarginConverter()};
-                var binding = new Binding();
+                var binding = new Binding
+                {
+                    RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
+                    Path = new PropertyPath(nameof(ActualWidth))
+                };
 
                 //binding.Source = this;
-                binding.RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1);
-                binding.Path = new PropertyPath("ActualWidth");
                 mbXBinding.Bindings.Add(binding);
 
                 binding = new Binding
                 {
                     RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
-                    Path = new PropertyPath("ActualHeight")
+                    Path = new PropertyPath(nameof(ActualHeight))
                 };
                 //binding.Source = this;
                 mbXBinding.Bindings.Add(binding);
 
-                binding = new Binding {Source = this, Path = new PropertyPath("storedImage")};
+                binding = new Binding {Source = this, Path = new PropertyPath(nameof(storedImage))};
                 mbXBinding.Bindings.Add(binding);
 
                 BindingOperations.SetBinding(line, Line.X1Property, mbXBinding);
@@ -914,7 +915,7 @@ namespace BatRecordingManager
                 binding = new Binding
                 {
                     RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
-                    Path = new PropertyPath("ActualWidth")
+                    Path = new PropertyPath(nameof(ActualWidth))
                 };
 
                 //binding.Source = this;
@@ -923,12 +924,12 @@ namespace BatRecordingManager
                 binding = new Binding
                 {
                     RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
-                    Path = new PropertyPath("ActualHeight")
+                    Path = new PropertyPath(nameof(ActualHeight))
                 };
                 //binding.Source = this;
                 mbXBinding.Bindings.Add(binding);
 
-                binding = new Binding {Source = this, Path = new PropertyPath("storedImage")};
+                binding = new Binding {Source = this, Path = new PropertyPath(nameof(storedImage))};
                 mbXBinding.Bindings.Add(binding);
 
                 BindingOperations.SetBinding(line, Line.X2Property, mbXBinding);
@@ -943,7 +944,7 @@ namespace BatRecordingManager
                 binding = new Binding
                 {
                     RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
-                    Path = new PropertyPath("ActualWidth")
+                    Path = new PropertyPath(nameof(ActualWidth))
                 };
                 //binding.Source = this;
                 mBinding.Bindings.Add(binding);
@@ -951,7 +952,7 @@ namespace BatRecordingManager
                 binding = new Binding
                 {
                     RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
-                    Path = new PropertyPath("ActualHeight")
+                    Path = new PropertyPath(nameof(ActualHeight))
                 };
                 //binding.Source = this;
                 mBinding.Bindings.Add(binding);
@@ -984,7 +985,7 @@ namespace BatRecordingManager
                 var binding = new Binding
                 {
                     RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
-                    Path = new PropertyPath("ActualWidth")
+                    Path = new PropertyPath(nameof(ActualWidth))
                 };
 
                 //binding.Source = this;
@@ -993,12 +994,12 @@ namespace BatRecordingManager
                 binding = new Binding
                 {
                     RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
-                    Path = new PropertyPath("ActualHeight")
+                    Path = new PropertyPath(nameof(ActualHeight))
                 };
                 //binding.Source = this;
                 mbXBinding.Bindings.Add(binding);
 
-                binding = new Binding {Source = this, Path = new PropertyPath("storedImage")};
+                binding = new Binding {Source = this, Path = new PropertyPath(nameof(storedImage))};
                 mbXBinding.Bindings.Add(binding);
 
                 BindingOperations.SetBinding(line, Line.Y1Property, mbXBinding);
@@ -1007,7 +1008,7 @@ namespace BatRecordingManager
                 binding = new Binding
                 {
                     RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
-                    Path = new PropertyPath("ActualWidth")
+                    Path = new PropertyPath(nameof(ActualWidth))
                 };
 
                 //binding.Source = this;
@@ -1016,12 +1017,12 @@ namespace BatRecordingManager
                 binding = new Binding
                 {
                     RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
-                    Path = new PropertyPath("ActualHeight")
+                    Path = new PropertyPath(nameof(ActualHeight))
                 };
                 //binding.Source = this;
                 mbXBinding.Bindings.Add(binding);
 
-                binding = new Binding {Source = this, Path = new PropertyPath("storedImage")};
+                binding = new Binding {Source = this, Path = new PropertyPath(nameof(storedImage))};
                 mbXBinding.Bindings.Add(binding);
 
                 BindingOperations.SetBinding(line, Line.Y2Property, mbXBinding);
@@ -1035,7 +1036,7 @@ namespace BatRecordingManager
                 binding = new Binding
                 {
                     RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
-                    Path = new PropertyPath("ActualWidth")
+                    Path = new PropertyPath(nameof(ActualWidth))
                 };
                 //binding.Source = this;
                 mBinding.Bindings.Add(binding);
@@ -1043,12 +1044,12 @@ namespace BatRecordingManager
                 binding = new Binding
                 {
                     RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
-                    Path = new PropertyPath("ActualHeight")
+                    Path = new PropertyPath(nameof(ActualHeight))
                 };
                 //binding.Source = this;
                 mBinding.Bindings.Add(binding);
 
-                binding = new Binding {Source = this, Path = new PropertyPath("storedImage")};
+                binding = new Binding {Source = this, Path = new PropertyPath(nameof(storedImage))};
                 mBinding.Bindings.Add(binding);
 
                 BindingOperations.SetBinding(line, Line.X1Property, mBinding);
@@ -1356,8 +1357,8 @@ namespace BatRecordingManager
             if (DisplayImageCanvas.Children != null)
             {
                 foreach (var child in DisplayImageCanvas.Children)
-                    if (child is Line)
-                        (child as Line).StrokeThickness = 1;
+                    if (child is Line line)
+                        line.StrokeThickness = 1;
                 if (_selectedLine >= 0)
                     if (DisplayImageCanvas.Children[_selectedLine] is Line)
                         (DisplayImageCanvas.Children[_selectedLine] as Line).StrokeThickness = 2;
@@ -1698,7 +1699,7 @@ namespace BatRecordingManager
         ///     scaleValue Dependency Property
         /// </summary>
         public static readonly DependencyProperty scaleValueProperty =
-            DependencyProperty.Register("scaleValue", typeof(string), typeof(DisplayStoredImageControl),
+            DependencyProperty.Register(nameof(scaleValue), typeof(string), typeof(DisplayStoredImageControl),
                 new FrameworkPropertyMetadata("0.5"));
 
         /// <summary>
@@ -1719,7 +1720,7 @@ namespace BatRecordingManager
         ///     scaleValue Dependency Property
         /// </summary>
         public static readonly DependencyProperty gridScaleValueProperty =
-            DependencyProperty.Register("gridScaleValue", typeof(double), typeof(DisplayStoredImageControl),
+            DependencyProperty.Register(nameof(gridScaleValue), typeof(double), typeof(DisplayStoredImageControl),
                 new FrameworkPropertyMetadata(1.1d));
 
         /// <summary>
@@ -1740,7 +1741,7 @@ namespace BatRecordingManager
         ///     scaleValue Dependency Property
         /// </summary>
         public static readonly DependencyProperty gridLeftMarginProperty =
-            DependencyProperty.Register("gridLeftMargin", typeof(double), typeof(DisplayStoredImageControl),
+            DependencyProperty.Register(nameof(gridLeftMargin), typeof(double), typeof(DisplayStoredImageControl),
                 new FrameworkPropertyMetadata(0.28d));
 
         /// <summary>
@@ -1761,7 +1762,7 @@ namespace BatRecordingManager
         ///     scaleValue Dependency Property
         /// </summary>
         public static readonly DependencyProperty gridTopMarginProperty =
-            DependencyProperty.Register("gridTopMargin", typeof(double), typeof(DisplayStoredImageControl),
+            DependencyProperty.Register(nameof(gridTopMargin), typeof(double), typeof(DisplayStoredImageControl),
                 new FrameworkPropertyMetadata(0.154d));
 
         /// <summary>

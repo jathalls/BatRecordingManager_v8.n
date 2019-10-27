@@ -69,10 +69,26 @@
 
         <Style.Triggers>
             <DataTrigger Binding="{Binding IsLoading}" Value="True">
-                <Setter Property="ListView.Cursor" Value="Wait" />
+                
                 <Setter Property="ListView.Background" Value="LightGray" />
             </DataTrigger>
         </Style.Triggers>
+    </Style>
+
+    <Style 
+        x:Key="lviStyle"
+        TargetType="{x:Type ListViewItem}"
+        >
+        <Setter Property="HorizontalContentAlignment" Value="Left"></Setter>
+        <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+    </Style>
+
+    <Style 
+        x:Key="lbiStyle"
+        TargetType="{x:Type ListBoxItem}"
+    >
+        <Setter Property="HorizontalContentAlignment" Value="Left"></Setter>
+        <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
     </Style>
 
     <local:BatLatinNameConverter x:Key="ConvertLatinName" />
@@ -86,6 +102,8 @@
     <local:SegmentToTextConverter x:Key="ConvertSegmentToText" />
 
     <local:ShortDateConverter x:Key="ShortDateConverter" />
+
+    <local:RecordingDurationConverter x:Key="RecordingDurationConverter"/>
 
     <local:ShortTimeConverter x:Key="ShortTimeConverter" />
 
@@ -101,6 +119,8 @@
 
     <local:DoubleStringConverter x:Key="DoubleToStringConverter" />
 
+    <local:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
+
     <local:CallParametersConverter x:Key="CallParametersConverter" />
 
     <local:TextColourConverter x:Key="TextColourConverter" />
@@ -115,11 +135,25 @@
 
     <local:Times2Converter x:Key="Times2Converter" />
 
+    <local:AddValueConverter x:Key="AddValueConverter"/>
+
     <local:MultiscaleConverter x:Key="MultiscaleConverter" />
 
     <local:NumberOfImagesConverter x:Key="NumberOfImagesConverter" />
 
     <local:ImagesForAllRecordingsConverter x:Key="ImagesForAllRecordingsConverter" />
+
+    <local:GPSConverter x:Key="GPSConverter"/>
+
+    <local:MapRefConverter x:Key="MapRefConverter"/>
+
+    <local:SessionStartDateTimeConverter x:Key="SessionStartDateTimeConverter"/>
+
+    <local:SessionEndDateTimeConverter x:Key="SessionEndDateTimeConverter"/>
+
+    <local:BSPassesConverter x:Key="BSPassesConverter"/>
+
+    <local:FilePathBrushConverter x:Key="FilePathBrushConverter"/>
 
     <DataTemplate x:Key="ImageTemplate">
         <local:ImageScrollerControl

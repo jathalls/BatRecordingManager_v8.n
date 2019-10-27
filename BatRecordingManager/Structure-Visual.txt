@@ -440,3 +440,97 @@ DBAccess.UpdateRecording(recording,listOfSegmentAndBatList,listOfSegmentImageLis
 				DBAccess.UpdateBatSegmentLinks(segmentAndBatList,existingSegment,dc)
 				if commentChanged:- DBAccess.UpdateSegmentCalls(existingSegment,dc)
 				DBAccess.UpdateSegmentImages(ListOfSegmentImages,existingSegment,dc)
+
+				###############################################################################################################################
+
+				6/7/2019
+.
+ProcessFile(filename,gpxHandler,currentRecordingSessionId,ref batsFound)
+	outputString=ProcessLabelOrManualFile(filename,gpxHandler,currentRecordingSessionId,ref batsFound)
+		recording=newRecording()
+		return ProcessLabelOrManualFile(filename,gpxHandler,currentRecordingSessionId,recording,ref batsFound)
+			mode=Mode.PROCESS
+			WavFileMetaData wfmd=null;
+			(if FileExists filename)
+			force/create wavfilename from filename
+			duration=GetFileDuration(filename,out wavfile,out fileStart,out fileEnd)
+			if(wavFile exists)
+				wfmd=new WavFileMetaData(wavFile)
+				set duration from metadata
+				recording.RecordingNotes=wfmd.FormattedText()
+			set recordingParameters
+			if(gpxHandler valid) set recording GPX Data from GpxHandler
+			write GPS data to Output string
+			if(no GPSLatitude)
+				Get position data from wfmd
+			if(filename ends .txt) outputString+=ProcessTextFile(filename,duration,ref listOfSegmentAndBatLists,ref batsFound)
+			elseif (filename ends .wav) {
+				comment=ProcessWavFile(fileName,duration,ref listOfSegmentAndBatLists,mode,ref batsFound)
+				recording.recordingNotes+=comment
+				outputString+=comment}
+			foreach batFound outputString+=Tools.GetFormattedBatStats(bat,true)
+			DBAccess.UpdateRecording(recording,listOfSegmentAndBatLists,null)
+
+#############################################################################################################################################
+Analyse and Import
+miAnalyseFiles_Click()
+	create _importPictureDialog
+	create _analyseAndImport with callbacks
+		Presents folder selection dialog
+	show _importPictureDialog
+	if(_runKaleidoscope)
+		_analyseAndImport.ImportFromKaleidoscope
+	else
+		_analyseAndImport.AnalyseNextFile()
+			GetNextFile()
+				return null if no file left
+				Analyse(file)
+					if(file doesnt exist) FAIL
+					raise OnAnalysing
+						@@@@@@@@@@@@@@@@@@@@@@@@@@@@ caller class
+						AnalyseAndImport_Analysing(filename)
+						SetImportImageCaption(filename)
+						@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+					OpenWavFile
+						Create Audacity externalprocess with ExternalProcessExited Eventhandler
+						Start Audacity
+						############################# callback when Audacity Exits
+							Close and tidy external process
+							If(IsCurrentMatchingTextFile())
+								SaveRecording()
+								AnalyseNextFile() == filename, null or "" ->line 485
+								if(null or "")
+									raise OnAnalysingFinished
+							else
+								raise OnAnalysingFinished
+								@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ caller class
+								AnalyseAndImport_AnalysingFinished()
+									close and tidy _analyseAndImport
+									close and tidy _importPictureDialog
+								@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+						###############################
+					(AnalyseFile returns true or false)
+				(GetNextFile returns filename or null)
+			if OK return Sessiontag
+			if FAIL return ""
+
+#################################################################################################################################
+ReportByFrequency::ReportMaster
+	ReportMaster()
+		InitializeComponent()
+		ReportDataGrid.EnableColumnVirtualization=true;
+		ReportDataGrid.EnableRowVirtualization=true;
+
+reportWindow.SetReportData(reportBatStatsList,reportSessionList,reportRecordingList)
+	ReportBatStatsList=reportBatList.Distinct()
+	ReportSessionList=reportReportSessionList.Distinct()
+	ReportRecordingList=reportRecordingList.Distinct()
+	foreach(tabItem){
+		(tabItem.Content as reportMaster).SetData(ReportBatStatsList,ReportSessionList,ReportRecordingList)
+	}
+
+ReportMaster.SetData(ReportBatStatsList,ReportSessionList,reportRecordingList)
+	set DataGrid to bind to reportDataList (BOC<FrequencyData>)
+	foreach(bat){
+		
+	}

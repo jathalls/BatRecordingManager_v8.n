@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class StoredImage
    ">
-    <meta name="generator" content="docfx 2.29.1.0">
+    <meta name="generator" content="docfx 2.44.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -22,7 +22,7 @@
     
     
   </head>
-  <body data-spy="scroll" data-target="#affix">
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
     <div id="wrapper">
       <header>
         
@@ -81,6 +81,10 @@
     <div class="level0"><span class="xref">System.Object</span></div>
     <div class="level1"><span class="xref">StoredImage</span></div>
   </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><span class="xref">System.ComponentModel.INotifyPropertyChanged</span></div>
+  </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
     <div>
@@ -110,25 +114,25 @@
   <h5 id="BatRecordingManager_StoredImage_syntax">Syntax</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">[Serializable]
-public class StoredImage</code></pre>
+public class StoredImage : INotifyPropertyChanged</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_StoredImage__ctor_System_Windows_Media_Imaging_BitmapImage_System_String_System_String_System_Int32_.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.%23ctor(System.Windows.Media.Imaging.BitmapImage%2CSystem.String%2CSystem.String%2CSystem.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage__ctor_System_Windows_Media_Imaging_BitmapSource_System_String_System_String_System_Int32_.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.%23ctor(System.Windows.Media.Imaging.BitmapSource%2CSystem.String%2CSystem.String%2CSystem.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/StoredImage.cs/#L74">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L60">View Source</a>
   </span>
   <a id="BatRecordingManager_StoredImage__ctor_" data-uid="BatRecordingManager.StoredImage.#ctor*"></a>
-  <h4 id="BatRecordingManager_StoredImage__ctor_System_Windows_Media_Imaging_BitmapImage_System_String_System_String_System_Int32_" data-uid="BatRecordingManager.StoredImage.#ctor(System.Windows.Media.Imaging.BitmapImage,System.String,System.String,System.Int32)">StoredImage(BitmapImage, String, String, Int32)</h4>
+  <h4 id="BatRecordingManager_StoredImage__ctor_System_Windows_Media_Imaging_BitmapSource_System_String_System_String_System_Int32_" data-uid="BatRecordingManager.StoredImage.#ctor(System.Windows.Media.Imaging.BitmapSource,System.String,System.String,System.Int32)">StoredImage(BitmapSource, String, String, Int32)</h4>
   <div class="markdown level1 summary"><p>default constructor for the StoredImage class</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public StoredImage(BitmapImage image, string caption, string description, int ImageID)</code></pre>
+    <pre><code class="lang-csharp hljs">public StoredImage(BitmapSource image, string caption, string description, int imageID)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -141,7 +145,7 @@ public class StoredImage</code></pre>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Windows.Media.Imaging.BitmapImage</span></td>
+        <td><span class="xref">System.Windows.Media.Imaging.BitmapSource</span></td>
         <td><span class="parametername">image</span></td>
         <td></td>
       </tr>
@@ -157,7 +161,7 @@ public class StoredImage</code></pre>
       </tr>
       <tr>
         <td><span class="xref">System.Int32</span></td>
-        <td><span class="parametername">ImageID</span></td>
+        <td><span class="parametername">imageID</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -166,10 +170,10 @@ public class StoredImage</code></pre>
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_StoredImage_caption.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.caption%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_caption.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.caption%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/StoredImage.cs/#L32">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L86">View Source</a>
   </span>
   <a id="BatRecordingManager_StoredImage_caption_" data-uid="BatRecordingManager.StoredImage.caption*"></a>
   <h4 id="BatRecordingManager_StoredImage_caption" data-uid="BatRecordingManager.StoredImage.caption">caption</h4>
@@ -197,10 +201,10 @@ public class StoredImage</code></pre>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_StoredImage_description.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.description%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_description.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.description%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/StoredImage.cs/#L37">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L99">View Source</a>
   </span>
   <a id="BatRecordingManager_StoredImage_description_" data-uid="BatRecordingManager.StoredImage.description*"></a>
   <h4 id="BatRecordingManager_StoredImage_description" data-uid="BatRecordingManager.StoredImage.description">description</h4>
@@ -228,10 +232,10 @@ public class StoredImage</code></pre>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_StoredImage_HorizontalGridlines.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.HorizontalGridlines%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_HorizontalGridlines.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.HorizontalGridlines%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/StoredImage.cs/#L54">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L123">View Source</a>
   </span>
   <a id="BatRecordingManager_StoredImage_HorizontalGridlines_" data-uid="BatRecordingManager.StoredImage.HorizontalGridlines*"></a>
   <h4 id="BatRecordingManager_StoredImage_HorizontalGridlines" data-uid="BatRecordingManager.StoredImage.HorizontalGridlines">HorizontalGridlines</h4>
@@ -260,10 +264,10 @@ between 0 and the height of the image</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_StoredImage_image.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.image%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_image.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.image%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/StoredImage.cs/#L27">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L73">View Source</a>
   </span>
   <a id="BatRecordingManager_StoredImage_image_" data-uid="BatRecordingManager.StoredImage.image*"></a>
   <h4 id="BatRecordingManager_StoredImage_image" data-uid="BatRecordingManager.StoredImage.image">image</h4>
@@ -272,7 +276,7 @@ between 0 and the height of the image</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BitmapImage image { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public BitmapSource image { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -284,17 +288,17 @@ between 0 and the height of the image</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Windows.Media.Imaging.BitmapImage</span></td>
+        <td><span class="xref">System.Windows.Media.Imaging.BitmapSource</span></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_StoredImage_ImageID.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.ImageID%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_ImageID.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.ImageID%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/StoredImage.cs/#L43">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L112">View Source</a>
   </span>
   <a id="BatRecordingManager_StoredImage_ImageID_" data-uid="BatRecordingManager.StoredImage.ImageID*"></a>
   <h4 id="BatRecordingManager_StoredImage_ImageID" data-uid="BatRecordingManager.StoredImage.ImageID">ImageID</h4>
@@ -322,10 +326,103 @@ between 0 and the height of the image</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_StoredImage_Uri.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.Uri%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_isPlayable.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.isPlayable%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/StoredImage.cs/#L48">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L140">View Source</a>
+  </span>
+  <a id="BatRecordingManager_StoredImage_isPlayable_" data-uid="BatRecordingManager.StoredImage.isPlayable*"></a>
+  <h4 id="BatRecordingManager_StoredImage_isPlayable" data-uid="BatRecordingManager.StoredImage.isPlayable">isPlayable</h4>
+  <div class="markdown level1 summary"><p>returns true if there is a labelled segment associated with this image.
+Also causes the segmentsForImage to be populated if it has not been previously.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool isPlayable { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_Name.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.Name%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L134">View Source</a>
+  </span>
+  <a id="BatRecordingManager_StoredImage_Name_" data-uid="BatRecordingManager.StoredImage.Name*"></a>
+  <h4 id="BatRecordingManager_StoredImage_Name" data-uid="BatRecordingManager.StoredImage.Name">Name</h4>
+  <div class="markdown level1 summary"><p>Not sure if this name field is used</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string Name { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_segmentsForImage.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.segmentsForImage%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L158">View Source</a>
+  </span>
+  <a id="BatRecordingManager_StoredImage_segmentsForImage_" data-uid="BatRecordingManager.StoredImage.segmentsForImage*"></a>
+  <h4 id="BatRecordingManager_StoredImage_segmentsForImage" data-uid="BatRecordingManager.StoredImage.segmentsForImage">segmentsForImage</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public List&lt;LabelledSegment&gt; segmentsForImage { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.List</span>&lt;<a class="xref" href="BatRecordingManager.LabelledSegment.html">LabelledSegment</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_Uri.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.Uri%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L117">View Source</a>
   </span>
   <a id="BatRecordingManager_StoredImage_Uri_" data-uid="BatRecordingManager.StoredImage.Uri*"></a>
   <h4 id="BatRecordingManager_StoredImage_Uri" data-uid="BatRecordingManager.StoredImage.Uri">Uri</h4>
@@ -353,10 +450,10 @@ between 0 and the height of the image</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_StoredImage_VerticalGridLines.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.VerticalGridLines%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_VerticalGridLines.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.VerticalGridLines%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/StoredImage.cs/#L60">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L129">View Source</a>
   </span>
   <a id="BatRecordingManager_StoredImage_VerticalGridLines_" data-uid="BatRecordingManager.StoredImage.VerticalGridLines*"></a>
   <h4 id="BatRecordingManager_StoredImage_VerticalGridLines" data-uid="BatRecordingManager.StoredImage.VerticalGridLines">VerticalGridLines</h4>
@@ -387,10 +484,10 @@ the width of the image</p>
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_StoredImage_ConvertBinaryPngToBitmapImage_System_Data_Linq_Binary_System_Collections_Generic_List_System_Int32___System_Collections_Generic_List_System_Int32___.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.ConvertBinaryPngToBitmapImage(System.Data.Linq.Binary%2CSystem.Collections.Generic.List%7BSystem.Int32%7D%40%2CSystem.Collections.Generic.List%7BSystem.Int32%7D%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_ConvertBinaryPngToBitmapImage_System_Data_Linq_Binary_System_Collections_Generic_List_System_Int32___System_Collections_Generic_List_System_Int32___.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.ConvertBinaryPngToBitmapImage(System.Data.Linq.Binary%2CSystem.Collections.Generic.List%7BSystem.Int32%7D%40%2CSystem.Collections.Generic.List%7BSystem.Int32%7D%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/StoredImage.cs/#L339">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L417">View Source</a>
   </span>
   <a id="BatRecordingManager_StoredImage_ConvertBinaryPngToBitmapImage_" data-uid="BatRecordingManager.StoredImage.ConvertBinaryPngToBitmapImage*"></a>
   <h4 id="BatRecordingManager_StoredImage_ConvertBinaryPngToBitmapImage_System_Data_Linq_Binary_System_Collections_Generic_List_System_Int32___System_Collections_Generic_List_System_Int32___" data-uid="BatRecordingManager.StoredImage.ConvertBinaryPngToBitmapImage(System.Data.Linq.Binary,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@)">ConvertBinaryPngToBitmapImage(Binary, out List&lt;Int32&gt;, out List&lt;Int32&gt;)</h4>
@@ -399,7 +496,7 @@ the width of the image</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static BitmapImage ConvertBinaryPngToBitmapImage(Binary rawImage, out List&lt;int&gt; HorizontalGridLines, out List&lt;int&gt; VerticalGridLines)</code></pre>
+    <pre><code class="lang-csharp hljs">public static BitmapSource ConvertBinaryPngToBitmapImage(Binary rawImage, out List&lt;int&gt; horizontalGridLines, out List&lt;int&gt; verticalGridLines)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -418,12 +515,12 @@ the width of the image</p>
       </tr>
       <tr>
         <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.Int32</span>&gt;</td>
-        <td><span class="parametername">HorizontalGridLines</span></td>
+        <td><span class="parametername">horizontalGridLines</span></td>
         <td></td>
       </tr>
       <tr>
         <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.Int32</span>&gt;</td>
-        <td><span class="parametername">VerticalGridLines</span></td>
+        <td><span class="parametername">verticalGridLines</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -438,17 +535,17 @@ the width of the image</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Windows.Media.Imaging.BitmapImage</span></td>
+        <td><span class="xref">System.Windows.Media.Imaging.BitmapSource</span></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_StoredImage_ConvertBinaryToBitmapImage_System_Data_Linq_Binary_.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.ConvertBinaryToBitmapImage(System.Data.Linq.Binary)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_ConvertBinaryToBitmapImage_System_Data_Linq_Binary_.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.ConvertBinaryToBitmapImage(System.Data.Linq.Binary)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/StoredImage.cs/#L522">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L569">View Source</a>
   </span>
   <a id="BatRecordingManager_StoredImage_ConvertBinaryToBitmapImage_" data-uid="BatRecordingManager.StoredImage.ConvertBinaryToBitmapImage*"></a>
   <h4 id="BatRecordingManager_StoredImage_ConvertBinaryToBitmapImage_System_Data_Linq_Binary_" data-uid="BatRecordingManager.StoredImage.ConvertBinaryToBitmapImage(System.Data.Linq.Binary)">ConvertBinaryToBitmapImage(Binary)</h4>
@@ -493,19 +590,19 @@ the width of the image</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_StoredImage_ConvertBitmapImageToPngBinary_System_Windows_Media_Imaging_BitmapImage_System_Collections_Generic_List_System_Int32__System_Collections_Generic_List_System_Int32__.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.ConvertBitmapImageToPngBinary(System.Windows.Media.Imaging.BitmapImage%2CSystem.Collections.Generic.List%7BSystem.Int32%7D%2CSystem.Collections.Generic.List%7BSystem.Int32%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_ConvertBitmapImageToPngBinary_System_Windows_Media_Imaging_BitmapSource_System_Collections_Generic_List_System_Int32__System_Collections_Generic_List_System_Int32__.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.ConvertBitmapImageToPngBinary(System.Windows.Media.Imaging.BitmapSource%2CSystem.Collections.Generic.List%7BSystem.Int32%7D%2CSystem.Collections.Generic.List%7BSystem.Int32%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/StoredImage.cs/#L610">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L673">View Source</a>
   </span>
   <a id="BatRecordingManager_StoredImage_ConvertBitmapImageToPngBinary_" data-uid="BatRecordingManager.StoredImage.ConvertBitmapImageToPngBinary*"></a>
-  <h4 id="BatRecordingManager_StoredImage_ConvertBitmapImageToPngBinary_System_Windows_Media_Imaging_BitmapImage_System_Collections_Generic_List_System_Int32__System_Collections_Generic_List_System_Int32__" data-uid="BatRecordingManager.StoredImage.ConvertBitmapImageToPngBinary(System.Windows.Media.Imaging.BitmapImage,System.Collections.Generic.List{System.Int32},System.Collections.Generic.List{System.Int32})">ConvertBitmapImageToPngBinary(BitmapImage, List&lt;Int32&gt;, List&lt;Int32&gt;)</h4>
+  <h4 id="BatRecordingManager_StoredImage_ConvertBitmapImageToPngBinary_System_Windows_Media_Imaging_BitmapSource_System_Collections_Generic_List_System_Int32__System_Collections_Generic_List_System_Int32__" data-uid="BatRecordingManager.StoredImage.ConvertBitmapImageToPngBinary(System.Windows.Media.Imaging.BitmapSource,System.Collections.Generic.List{System.Int32},System.Collections.Generic.List{System.Int32})">ConvertBitmapImageToPngBinary(BitmapSource, List&lt;Int32&gt;, List&lt;Int32&gt;)</h4>
   <div class="markdown level1 summary"><p>Given a BitmapImage converts it into a PNG binary for storage in the database</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Binary ConvertBitmapImageToPngBinary(BitmapImage bmpImage, List&lt;int&gt; HorizontalGridLines, List&lt;int&gt; VerticalGridLines)</code></pre>
+    <pre><code class="lang-csharp hljs">public static Binary ConvertBitmapImageToPngBinary(BitmapSource bmpImage, List&lt;int&gt; horizontalGridLines, List&lt;int&gt; verticalGridLines)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -518,18 +615,18 @@ the width of the image</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Windows.Media.Imaging.BitmapImage</span></td>
+        <td><span class="xref">System.Windows.Media.Imaging.BitmapSource</span></td>
         <td><span class="parametername">bmpImage</span></td>
         <td></td>
       </tr>
       <tr>
         <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.Int32</span>&gt;</td>
-        <td><span class="parametername">HorizontalGridLines</span></td>
+        <td><span class="parametername">horizontalGridLines</span></td>
         <td></td>
       </tr>
       <tr>
         <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.Int32</span>&gt;</td>
-        <td><span class="parametername">VerticalGridLines</span></td>
+        <td><span class="parametername">verticalGridLines</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -551,58 +648,10 @@ the width of the image</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_StoredImage_ConvertBitmapSourceToBitmapImage_System_Windows_Media_Imaging_BitmapSource_.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.ConvertBitmapSourceToBitmapImage(System.Windows.Media.Imaging.BitmapSource)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_CreateFromBinary_BatRecordingManager_BinaryData_.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.CreateFromBinary(BatRecordingManager.BinaryData)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/StoredImage.cs/#L689">View Source</a>
-  </span>
-  <a id="BatRecordingManager_StoredImage_ConvertBitmapSourceToBitmapImage_" data-uid="BatRecordingManager.StoredImage.ConvertBitmapSourceToBitmapImage*"></a>
-  <h4 id="BatRecordingManager_StoredImage_ConvertBitmapSourceToBitmapImage_System_Windows_Media_Imaging_BitmapSource_" data-uid="BatRecordingManager.StoredImage.ConvertBitmapSourceToBitmapImage(System.Windows.Media.Imaging.BitmapSource)">ConvertBitmapSourceToBitmapImage(BitmapSource)</h4>
-  <div class="markdown level1 summary"><p>Static function returns a BitmapImage when supplied with a BitmapSource</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static BitmapImage ConvertBitmapSourceToBitmapImage(BitmapSource bmps)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.Windows.Media.Imaging.BitmapSource</span></td>
-        <td><span class="parametername">bmps</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <h5 class="returns">Returns</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.Windows.Media.Imaging.BitmapImage</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_StoredImage_CreateFromBinary_BatRecordingManager_BinaryData_.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.CreateFromBinary(BatRecordingManager.BinaryData)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/StoredImage.cs/#L89">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L172">View Source</a>
   </span>
   <a id="BatRecordingManager_StoredImage_CreateFromBinary_" data-uid="BatRecordingManager.StoredImage.CreateFromBinary*"></a>
   <h4 id="BatRecordingManager_StoredImage_CreateFromBinary_BatRecordingManager_BinaryData_" data-uid="BatRecordingManager.StoredImage.CreateFromBinary(BatRecordingManager.BinaryData)">CreateFromBinary(BinaryData)</h4>
@@ -648,10 +697,10 @@ Converts from PNG or generic types of blob and if the type is PNG restores any g
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_StoredImage_GetAsBinaryData.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.GetAsBinaryData%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_GetAsBinaryData.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.GetAsBinaryData%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/StoredImage.cs/#L715">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L740">View Source</a>
   </span>
   <a id="BatRecordingManager_StoredImage_GetAsBinaryData_" data-uid="BatRecordingManager.StoredImage.GetAsBinaryData*"></a>
   <h4 id="BatRecordingManager_StoredImage_GetAsBinaryData" data-uid="BatRecordingManager.StoredImage.GetAsBinaryData">GetAsBinaryData()</h4>
@@ -679,18 +728,19 @@ Converts from PNG or generic types of blob and if the type is PNG restores any g
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_StoredImage_GetClipboardImageAsBitmapImage.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.GetClipboardImageAsBitmapImage%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_GetClipboardImageAsBitmapImage.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.GetClipboardImageAsBitmapImage%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/StoredImage.cs/#L665">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L723">View Source</a>
   </span>
   <a id="BatRecordingManager_StoredImage_GetClipboardImageAsBitmapImage_" data-uid="BatRecordingManager.StoredImage.GetClipboardImageAsBitmapImage*"></a>
   <h4 id="BatRecordingManager_StoredImage_GetClipboardImageAsBitmapImage" data-uid="BatRecordingManager.StoredImage.GetClipboardImageAsBitmapImage">GetClipboardImageAsBitmapImage()</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>returns the image stored in the clipboard if any</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static BitmapImage GetClipboardImageAsBitmapImage()</code></pre>
+    <pre><code class="lang-csharp hljs">public static BitmapSource GetClipboardImageAsBitmapImage()</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -702,27 +752,27 @@ Converts from PNG or generic types of blob and if the type is PNG restores any g
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Windows.Media.Imaging.BitmapImage</span></td>
+        <td><span class="xref">System.Windows.Media.Imaging.BitmapSource</span></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_StoredImage_getCombinedText.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.getCombinedText%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_GetCombinedText.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.GetCombinedText%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/StoredImage.cs/#L186">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L252">View Source</a>
   </span>
-  <a id="BatRecordingManager_StoredImage_getCombinedText_" data-uid="BatRecordingManager.StoredImage.getCombinedText*"></a>
-  <h4 id="BatRecordingManager_StoredImage_getCombinedText" data-uid="BatRecordingManager.StoredImage.getCombinedText">getCombinedText()</h4>
+  <a id="BatRecordingManager_StoredImage_GetCombinedText_" data-uid="BatRecordingManager.StoredImage.GetCombinedText*"></a>
+  <h4 id="BatRecordingManager_StoredImage_GetCombinedText" data-uid="BatRecordingManager.StoredImage.GetCombinedText">GetCombinedText()</h4>
   <div class="markdown level1 summary"><p>combines the StoredImage member variable caption and description into a multiplexed
 string separated by $ which is no longer truncated to 250 chars to fit the database</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string getCombinedText()</code></pre>
+    <pre><code class="lang-csharp hljs">public string GetCombinedText()</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -741,13 +791,47 @@ string separated by $ which is no longer truncated to 250 chars to fit the datab
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_StoredImage_setBinaryData_BatRecordingManager_BinaryData_.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.setBinaryData(BatRecordingManager.BinaryData)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_GetName.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.GetName%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/StoredImage.cs/#L211">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L326">View Source</a>
   </span>
-  <a id="BatRecordingManager_StoredImage_setBinaryData_" data-uid="BatRecordingManager.StoredImage.setBinaryData*"></a>
-  <h4 id="BatRecordingManager_StoredImage_setBinaryData_BatRecordingManager_BinaryData_" data-uid="BatRecordingManager.StoredImage.setBinaryData(BatRecordingManager.BinaryData)">setBinaryData(BinaryData)</h4>
+  <a id="BatRecordingManager_StoredImage_GetName_" data-uid="BatRecordingManager.StoredImage.GetName*"></a>
+  <h4 id="BatRecordingManager_StoredImage_GetName" data-uid="BatRecordingManager.StoredImage.GetName">GetName()</h4>
+  <div class="markdown level1 summary"><p>returns a string containing a name for the image.  If the image links to a segment or recording
+the name will be the recording filename with the .wav removed and either _nn appended where nn
+is either 00 for a recording or the number of seconds to the start of the segment.
+If the image relates to a bat or call then the name returned is the image caption .trimmed.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string GetName()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_SetBinaryData_BatRecordingManager_BinaryData_.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.SetBinaryData(BatRecordingManager.BinaryData)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L271">View Source</a>
+  </span>
+  <a id="BatRecordingManager_StoredImage_SetBinaryData_" data-uid="BatRecordingManager.StoredImage.SetBinaryData*"></a>
+  <h4 id="BatRecordingManager_StoredImage_SetBinaryData_BatRecordingManager_BinaryData_" data-uid="BatRecordingManager.StoredImage.SetBinaryData(BatRecordingManager.BinaryData)">SetBinaryData(BinaryData)</h4>
   <div class="markdown level1 summary"><p>Given a BinaryData from the database which includes various fields, converts the blob to a BitmapImage which is
 stored in the member variable &apos;image&apos; and SetCaptionAndDescription is used to separate the caption and description
 which are merged together in the BinaryData into separate memberVariables in StoredImage.</p>
@@ -755,7 +839,7 @@ which are merged together in the BinaryData into separate memberVariables in Sto
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void setBinaryData(BinaryData blob)</code></pre>
+    <pre><code class="lang-csharp hljs">public void SetBinaryData(BinaryData blob)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -776,13 +860,13 @@ which are merged together in the BinaryData into separate memberVariables in Sto
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_StoredImage_setCaptionAndDescription_System_String_.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.setCaptionAndDescription(System.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_SetCaptionAndDescription_System_String_.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.SetCaptionAndDescription(System.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/StoredImage.cs/#L115">View Source</a>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L198">View Source</a>
   </span>
-  <a id="BatRecordingManager_StoredImage_setCaptionAndDescription_" data-uid="BatRecordingManager.StoredImage.setCaptionAndDescription*"></a>
-  <h4 id="BatRecordingManager_StoredImage_setCaptionAndDescription_System_String_" data-uid="BatRecordingManager.StoredImage.setCaptionAndDescription(System.String)">setCaptionAndDescription(String)</h4>
+  <a id="BatRecordingManager_StoredImage_SetCaptionAndDescription_" data-uid="BatRecordingManager.StoredImage.SetCaptionAndDescription*"></a>
+  <h4 id="BatRecordingManager_StoredImage_SetCaptionAndDescription_System_String_" data-uid="BatRecordingManager.StoredImage.SetCaptionAndDescription(System.String)">SetCaptionAndDescription(String)</h4>
   <div class="markdown level1 summary"><p>Takes combined description as stored in the database in which the caption and description
 parts are separatedd by $ signs, and stores the extracted components in them relative member
 variables of StoredImage.</p>
@@ -790,7 +874,7 @@ variables of StoredImage.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void setCaptionAndDescription(string combined_caption_description)</code></pre>
+    <pre><code class="lang-csharp hljs">public void SetCaptionAndDescription(string combinedCaptionDescription)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -804,11 +888,61 @@ variables of StoredImage.</p>
     <tbody>
       <tr>
         <td><span class="xref">System.String</span></td>
-        <td><span class="parametername">combined_caption_description</span></td>
+        <td><span class="parametername">combinedCaptionDescription</span></td>
         <td></td>
       </tr>
     </tbody>
   </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_SetPropertyChanged.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.SetPropertyChanged%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L161">View Source</a>
+  </span>
+  <a id="BatRecordingManager_StoredImage_SetPropertyChanged_" data-uid="BatRecordingManager.StoredImage.SetPropertyChanged*"></a>
+  <h4 id="BatRecordingManager_StoredImage_SetPropertyChanged" data-uid="BatRecordingManager.StoredImage.SetPropertyChanged">SetPropertyChanged()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetPropertyChanged()</code></pre>
+  </div>
+  <h3 id="events">Events
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage_PropertyChanged.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage.PropertyChanged%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L159">View Source</a>
+  </span>
+  <h4 id="BatRecordingManager_StoredImage_PropertyChanged" data-uid="BatRecordingManager.StoredImage.PropertyChanged">PropertyChanged</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event PropertyChangedEventHandler PropertyChanged</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.ComponentModel.PropertyChangedEventHandler</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <span class="xref">System.ComponentModel.INotifyPropertyChanged</span>
+  </div>
 </article>
           </div>
           
@@ -817,10 +951,10 @@ variables of StoredImage.</p>
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/new/master/apiSpec/new?filename=BatRecordingManager_StoredImage.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Development/apiSpec/new?filename=BatRecordingManager_StoredImage.md&amp;value=---%0Auid%3A%20BatRecordingManager.StoredImage%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/jathalls/BRM_v5.4-Alpha/blob/master/BatRecordingManager/StoredImage.cs/#L20" class="contribution-link">View Source</a>
+                    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Development/BatRecordingManager/StoredImage.cs/#L42" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>
@@ -840,7 +974,7 @@ variables of StoredImage.</p>
               <a href="#top">Back to top</a>
             </span>
             
-            <span>Copyright © 2015-2017 Microsoft<br>Generated by <strong>DocFX</strong></span>
+            <span>Generated by <strong>DocFX</strong></span>
           </div>
         </div>
       </footer>

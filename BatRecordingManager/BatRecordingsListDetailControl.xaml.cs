@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -69,6 +68,8 @@ namespace BatRecordingManager
         internal void RefreshData()
         {
             var oldSelection = BatStatsDataGrid.SelectedIndex;
+            var multiSelection = BatStatsDataGrid.SelectedItems;
+            
             BatStatisticsList.Clear();
             //BatStatisticsList.AddRange(DBAccess.GetBatStatistics());
             // Stopwatch watch = Stopwatch.StartNew();
@@ -77,7 +78,25 @@ namespace BatRecordingManager
             // Debug.WriteLine("GetBatStatistics took " + watch.ElapsedMilliseconds + "ms");
 
             //BatStatsDataGrid.ItemsSource = BatStatisticsList;
-            if (oldSelection < BatStatisticsList.Count) BatStatsDataGrid.SelectedIndex = oldSelection;
+            if ( multiSelection.Count > 0)
+            {
+                foreach (var item in multiSelection)
+                {
+                    BatStatsDataGrid.SelectedItems.Add(item);
+                }
+            }
+            else
+            {
+                if (BatStatsDataGrid.SelectedIndex != oldSelection)
+                {
+                    if (oldSelection < BatStatisticsList.Count) BatStatsDataGrid.SelectedIndex = oldSelection;
+                }
+                else
+                {
+                    BatStatsDataGrid_SelectionChanged(this, null);
+                }
+            }
+
             //  watch.Reset();
             //  watch.Start();
             BatStatsDataGrid.Items.Refresh();
@@ -146,9 +165,11 @@ namespace BatRecordingManager
             {
                 //DataGrid bsdg = sender as DataGrid;
                 ListByBatsImageScroller.Clear();
-
-                if (e.AddedItems == null || e.RemovedItems == null) return;
-                if (e.AddedItems.Count <= 0 && e.RemovedItems.Count <= 0) return; // nothing has changed
+                if (e != null)
+                {
+                    if (e.AddedItems == null || e.RemovedItems == null) return;
+                    if (e.AddedItems.Count <= 0 && e.RemovedItems.Count <= 0) return; // nothing has changed
+                }
 
                 var selectedBatDetailsList = new List<BatStatistics>();
                 foreach (var item in BatStatsDataGrid.SelectedItems) selectedBatDetailsList.Add(item as BatStatistics);

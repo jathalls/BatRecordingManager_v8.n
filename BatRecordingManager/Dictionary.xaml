@@ -1,0 +1,12 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:BatRecordingManager">
+    <ResourceDictionary>
+        <ResourceDictionary.MergedDictionaries>
+            <ResourceDictionary Source="Simple Styles.xaml"></ResourceDictionary>
+            
+            <ResourceDictionary Source="MapResourceDictionary.xaml"></ResourceDictionary>
+        </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+    
+</ResourceDictionary>

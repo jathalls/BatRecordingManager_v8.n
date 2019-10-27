@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -26,6 +25,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Dynamic;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.Language.Intellisense;
 
@@ -36,35 +36,41 @@ namespace BatRecordingManager
     /// </summary>
     public static class DBAccess
     {
-        private static readonly string DbVersion = "v5.31";
+        public enum BracketedText
+        {
+            INCLUDE,
+            EXCLUDE
+        }
 
-        private static readonly string DBFileName = "BatReferenceDBv5.31.mdf";
+        private static BatReferenceDBLinqDataContext __persistentbatReferenceDataContext;
 
-        private static readonly string DBLocation = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            @"Echolocation\WinBLP\");
+        private static BatReferenceDBLinqDataContext _persistentbatReferenceDataContext
+        {
+            get { return (__persistentbatReferenceDataContext); }
 
-        /// <summary>
-        ///     dbVersionDec is the decimal format version of the currently expected database
-        ///     This is the database version, not the program version.
-        ///     v5.31 Original base format
-        ///     v6.0 :-
-        ///     @"ALTER TABLE [dbo].[RecordingSession] ADD[EndDate] DATETIME NULL;"
-        ///     @"ALTER TABLE [dbo].[Recording] ADD[RecordingDate] DATETIME NULL;"
-        ///     v6.1 :-
-        ///     @"ALTER TABLE [dbo].[BinaryData] ALTER COLUMN [Description] NVARCHAR(MAX) NULL;"
-        ///     v6.2 :- add two new link tables and update the existing data
-        ///     @"CREATE TABLE [dbo].[BatSession]  (
-        ///     [Id] INT NOT NULL PRIMARY KEY,     [SessionID] INT NOT NULL DEFAULT -1,    [BatID] INT NOT NULL DEFAULT -1
-        ///     CONSTRAINT[Bat_BatSession] FOREIGN KEY([BatID]) REFERENCES[dbo].[Bat] ([Id]),
-        ///     CONSTRAINT[RecordingSession_BatSession] FOREIGN KEY([SessionID]) REFERENCES[dbo].[RecordingSession] ([Id])
-        ///     )
-        ///     CREATE TABLE[dbo].[BatRecording] (
-        ///     [Id] INT NOT NULL PRIMARY KEY,     [BatID] INT NOT NULL DEFAULT -1,    [RecordingID] INT NOT NULL DEFAULT -1,
-        ///     CONSTRAINT[Bat_BatRecording] FOREIGN KEY([BatID]) REFERENCES[dbo].[Bat] ([Id]),
-        ///     CONSTRAINT[Recording_BatRecording] FOREIGN KEY([RecordingID]) REFERENCES[dbo].[Recording] ([Id])"
-        /// </summary>
-        private static readonly decimal DbVersionDec = 6.2m;
+            set
+            {
+                if (__persistentbatReferenceDataContext != null)
+                {
+                    __persistentbatReferenceDataContext.Dispose();
+                    __persistentbatReferenceDataContext = null;
+                }
+
+                __persistentbatReferenceDataContext = value;
+            }
+        }
+
+        internal static void FixSessionAndRecordingTimes()
+        {
+
+            BatReferenceDBLinqDataContext dc = GetDataContext();
+            foreach (var session in dc.RecordingSessions)
+            {
+                UpdateRecordingSession(session,dc);
+            }
+        }
+
+        private static bool _isDataContextUpToDate;
 
 
         /// <summary>
@@ -94,6 +100,12 @@ namespace BatRecordingManager
             newBat = existingBat;
 
             return result;
+        }
+
+        internal static void FixRecordingLocationData()
+        {
+            /// TODO
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -515,7 +527,7 @@ namespace BatRecordingManager
                 {
                     var si = StoredImage.CreateFromBinary(blob);
                     var filename = si.caption.ExtractFilename(".wav");
-                    if (!string.IsNullOrWhiteSpace(filename) && File.Exists(filename))
+                    if (!string.IsNullOrWhiteSpace(filename) && File.Exists(filename) && (new FileInfo(filename).Length>0L))
                         si.Uri = filename;
                     else
                         si.Uri = "";
@@ -657,8 +669,7 @@ namespace BatRecordingManager
             dc.Connection.Dispose();
             dc.Dispose();
             dc = null;
-            App.dbFileLocation = "";
-            App.dbFileName = "";
+            _isDataContextUpToDate = false;
             _persistentbatReferenceDataContext = null;
         }
 
@@ -699,6 +710,18 @@ namespace BatRecordingManager
             try
             {
                 batReferenceDataContext.CreateDatabase();
+                Version version = new Version();
+                version.Version1 = DbVersionDec;
+                if (batReferenceDataContext.Versions.Count() <= 0)
+                {
+                    
+                    batReferenceDataContext.Versions.InsertOnSubmit(version);
+                }
+                else
+                {
+                    batReferenceDataContext.Versions.First().Version1 = DbVersionDec;
+                }
+                batReferenceDataContext.SubmitChanges();
             }
             catch (Exception ex)
             {
@@ -1294,13 +1317,14 @@ namespace BatRecordingManager
             //if (PersistentbatReferenceDataContext != null) return (PersistentbatReferenceDataContext);
             var workingDatabaseLocation = GetWorkingDatabaseLocation();
             var workingDatabaseFilename = GetWorkingDatabaseName(workingDatabaseLocation);
+            List<string> tables=new List<string>();
 
             try
             {
                 if (!File.Exists(workingDatabaseLocation + workingDatabaseFilename))
                 {
                     Tools.InfoLog("No file at [" + workingDatabaseLocation + workingDatabaseFilename + "]");
-                    App.dbFileLocation = "";
+                    
                     workingDatabaseLocation = GetWorkingDatabaseLocation();
                     workingDatabaseFilename = GetWorkingDatabaseName(workingDatabaseLocation);
                 }
@@ -1328,9 +1352,12 @@ namespace BatRecordingManager
                     }
                 }
 
+
+                
+
                 batReferenceDataContext = new BatReferenceDBLinqDataContext(
-                    @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + workingDatabaseLocation +
-                    workingDatabaseFilename + @";Integrated Security=False;Connect Timeout=60");
+                        @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + workingDatabaseLocation +
+                        workingDatabaseFilename + @";Integrated Security=False;Connect Timeout=60");
             }
             catch (Exception ex)
             {
@@ -1343,17 +1370,32 @@ namespace BatRecordingManager
 
             if (deferred != null) batReferenceDataContext.DeferredLoadingEnabled = deferred.Value;
 
+
+
+
+
+
+            
+
+
+
             if (_isDataContextUpToDate) return batReferenceDataContext;
 
-            var tables = batReferenceDataContext.Mapping.GetTables();
+            
+                tables = GetRawDatabaseTables(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" +
+                                              workingDatabaseLocation +
+                                              workingDatabaseFilename +
+                                              @";Integrated Security=False;Connect Timeout=60");
+            
+
             var versionTableExists = false;
             foreach (var table in tables)
-                if (table.TableName.Contains("Version"))
+                if (table.Contains("Version"))
                     versionTableExists = true;
             if (!versionTableExists)
             {
                 Tools.InfoLog("+@+@+@+@  Table in the database:-");
-                foreach (var table in tables) Tools.InfoLog(table.TableName);
+                foreach (var table in tables) Tools.InfoLog(table);
                 try
                 {
                     CreateVersionTable(batReferenceDataContext);
@@ -1367,6 +1409,9 @@ namespace BatRecordingManager
                 try
                 {
                     // only happens when a table has just been created so it will always be the first entry
+                    // set to the earliest viable version so that updates will happen.  If a current database
+                    // was involved then the Version table would not have to have been created.  Since it was missing
+                    // other tables and DB updates may also be missing and this will force them all to be updated.
                     var version = new Version {Version1 = 5.31m};
                     batReferenceDataContext.Versions.InsertOnSubmit(version);
                     batReferenceDataContext.SubmitChanges();
@@ -1396,9 +1441,7 @@ namespace BatRecordingManager
                 Tools.InfoLog(batReferenceDataContext.DatabaseExists() ? "Database exists" : "Database does not exist");
             }
 
-            var mappedTables = batReferenceDataContext.Mapping.GetTables();
-            versionTableExists = batReferenceDataContext.Mapping.GetTables().Where(e => e.TableName == "dbo.Version")
-                .Select(t => t.RowType.IsEntity).FirstOrDefault();
+            
             if (!versionTableExists)
             {
                 try
@@ -1473,6 +1516,35 @@ namespace BatRecordingManager
             return batReferenceDataContext;
         }
 
+        private static List<string> GetRawDatabaseTables(string connectionString)
+        {
+            
+            List<string> tables=new List<string>();
+            try
+            {
+                SqlConnection conn = new SqlConnection(connectionString);
+                conn.Open();
+                SqlCommand sqlCommand = new SqlCommand("SELECT * FROM INFORMATION_SCHEMA.TABLES", conn);
+                using (SqlDataReader dataReader = sqlCommand.ExecuteReader())
+                {
+
+                    while (dataReader.Read())
+                    {
+                        tables.Add((string) dataReader["TABLE_NAME"]);
+                    }
+
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("GetRawDatabaseTables Error:- "+ex.Message);
+            }
+
+            return (tables);
+        }
+
         /// <summary>
         ///     Checks to see if the file selected is a valid and up to date BRM database.
         ///     If it is a an earlier version of a vsalid database will return a message of
@@ -1495,19 +1567,28 @@ namespace BatRecordingManager
                     @";Integrated Security=False;Connect Timeout=60"))
                 {
                     if (batReferenceDataContext == null) return "bad";
-                    var mappedTables = batReferenceDataContext.Mapping.GetTables();
-                    var tableNames = (from tab in mappedTables select tab.TableName).ToList();
-                    if (!(tableNames.Contains("dbo.RecordingSession") && tableNames.Contains("dbo.Recording") &&
-                          tableNames.Contains("dbo.LabelledSegment")))
+                    var tableNames = GetRawDatabaseTables(batReferenceDataContext.Connection.ConnectionString);
+                        
+                        
+                    
+                    if (!(tableNames.Contains("RecordingSession") && tableNames.Contains("Recording") &&
+                          tableNames.Contains("LabelledSegment")))
                     {
-                        var error = "Attempting to open database withthe following tables:-\n";
+                        var error = "Attempting to open database with the following tables:-\n";
                         foreach (var name in tableNames) error = error + name + "\n";
                         Tools.InfoLog(error);
                         return "bad";
                     }
 
-                    var versionTableExists = batReferenceDataContext.Mapping.GetTables()
-                        .Where(e => e.TableName == "dbo.Version").Select(t => t.RowType.IsEntity).FirstOrDefault();
+                    var versionTableExists = false;
+                    foreach (var name in tableNames)
+                    {
+                        if (name.Contains("Version"))
+                        {
+                            versionTableExists = true;
+                            break;
+                        }
+                    }
                     if (!versionTableExists) return "old";
 
                     try
@@ -1540,6 +1621,7 @@ namespace BatRecordingManager
         /// <param name="batReferenceDataContext"></param>
         private static void UpdateDataBase(BatReferenceDBLinqDataContext batReferenceDataContext)
         {
+            
             var version = 0.0m;
             try
             {
@@ -1598,6 +1680,7 @@ namespace BatRecordingManager
             {
                 try
                 {
+                    
                     AddBatSessionLinkTable(batReferenceDataContext);
                 }
                 catch (Exception ex)
@@ -2069,22 +2152,26 @@ namespace BatRecordingManager
         /// </returns>
         internal static string GetWorkingDatabaseLocation()
         {
+            string BackupFileLocation = "";
             var workingDatabaseLocation = "";
-            if (!string.IsNullOrWhiteSpace(App.dbFileLocation) && Directory.Exists(App.dbFileLocation))
-            {
-                workingDatabaseLocation = App.dbFileLocation;
-            }
-            else
-            {
+            workingDatabaseLocation = App.dbFileLocation;
+
 #if DEBUG
-                workingDatabaseLocation = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    @"Echolocation\WinBLP\Debug\");
+            
+            BackupFileLocation = @"C:\BRMBackupDebug\";
+
 #else
-                workingDatabaseLocation = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    @"Echolocation\WinBLP\");
+            
+            BackupFileLocation = @"C:\BRMBackup\";
 #endif
+
+            if (!Directory.Exists(BackupFileLocation)) Directory.CreateDirectory(BackupFileLocation);
+
+            string dbPath = workingDatabaseLocation + GetWorkingDatabaseName(workingDatabaseLocation);
+            if (!string.IsNullOrWhiteSpace(BackupFileLocation) && !File.Exists(BackupFileLocation + "BRMBackup.cmd") &&
+                File.Exists(dbPath))
+            {
+                File.WriteAllText(BackupFileLocation + "BRMBackup.cmd", $@"Copy {dbPath} {BackupFileLocation}" + "\n");
             }
 
             if (!Directory.Exists(workingDatabaseLocation)) Directory.CreateDirectory(workingDatabaseLocation);
@@ -2095,23 +2182,13 @@ namespace BatRecordingManager
         internal static string GetWorkingDatabaseName(string dbLocation)
         {
             var workingDatabaseName = "";
-            if (!string.IsNullOrWhiteSpace(App.dbFileName) && App.dbFileName.EndsWith(".mdf") &&
-                App.dbFileName.Contains("BatReferenceDB"))
+
+            if (!File.Exists(App.dbFileLocation + App.dbFileName))
             {
-                if (File.Exists(dbLocation + App.dbFileName))
-                {
-                    workingDatabaseName = App.dbFileName;
-                }
-                else
-                {
-                    App.dbFileName = "";
-                    if (File.Exists(dbLocation + DBFileName)) workingDatabaseName = DBFileName;
-                }
+                InitializeDatabase();
             }
-            else
-            {
-                workingDatabaseName = DBFileName;
-            }
+            workingDatabaseName =  App.dbFileName;
+               
 
             return workingDatabaseName;
         }
@@ -2130,23 +2207,24 @@ namespace BatRecordingManager
         {
             try
             {
-                var workingDatabaseLocation = GetWorkingDatabaseLocation();
+                var workingDatabaseLocation = App.dbFileLocation;
+                var workingDatabaseName = App.dbFileName;
 
-                var dbShortName = "BatReferenceDB";
+                
 
-                if (!File.Exists(workingDatabaseLocation + dbShortName + DbVersion + ".mdf"))
+                if (!File.Exists(workingDatabaseLocation+workingDatabaseName))
                 {
                     try
                     {
-                        CreateDatabase(workingDatabaseLocation + dbShortName + DbVersion + ".mdf");
-                        App.dbFileLocation = workingDatabaseLocation;
-                        App.dbFileName = dbShortName + DbVersion + ".mdf";
+                        CreateDatabase(workingDatabaseLocation + workingDatabaseName);
+                        
                     }
                     catch (Exception ex)
                     {
                         Debug.WriteLine(ex);
                         Tools.ErrorLog(ex.Message);
                     }
+                    
 
                     //BatReferenceDBLinqDataContext batReferenceDataContext = DBAccess.GetDataContext();
                     if (!File.Exists(workingDatabaseLocation + "EditableBatReferenceXMLFile.xml") &&
@@ -2157,9 +2235,18 @@ namespace BatRecordingManager
 
                         UpdateReferenceData(workingDatabaseLocation);
                     }
+                    else
+                    {
+                        if (File.Exists(@".\BatReferenceXMLFile.xml"))
+                        {
+                            File.Copy(@".\BatReferenceXMLFile.xml",workingDatabaseLocation+"EditableBatReferenceXMLFile.xml");
+                            UpdateReferenceData(workingDatabaseLocation);
+                        }
+                    }
                 }
                 else
                 {
+                    
                     UpdateReferenceData(workingDatabaseLocation);
                 }
 
@@ -2270,42 +2357,28 @@ namespace BatRecordingManager
             try
             {
                 CloseDatabase();
-                if (!string.IsNullOrWhiteSpace(fileName))
-                {
-                    if (File.Exists(fileName))
-                    {
-                        var index = fileName.LastIndexOf(@"\");
-                        App.dbFileLocation = fileName.Substring(0, index + 1);
-                        App.dbFileName = fileName.Substring(index + 1);
-                    }
-                    else
-                    {
-                        err = "Specified database file does not exist:-" + fileName;
-                    }
-                }
-                else
-                {
-                    err = CreateDatabase(fileName);
-                    if (!string.IsNullOrWhiteSpace(err))
-                    {
-                        App.dbFileLocation = "";
-                        App.dbFileName = "";
-                        Tools.ErrorLog("Unable to find or create database [" + fileName + "]:-" + err);
-                    }
-                }
-
                 _isDataContextUpToDate = false;
-                var dc = GetDataContext();
-                if (dc == null)
-                    err = "Unable to re-open selected database";
+                if (!string.IsNullOrWhiteSpace(fileName)  && File.Exists(fileName))
+                {
+                    App.dbFileLocation = Tools.GetPath(fileName);
+                    App.dbFileName = Tools.StripPath(fileName);
+                }
                 else
-                    InitializeDatabase(dc);
+                {
+                    App.ResetDatabase();
+                    InitializeDatabase();
+                }
+                InitializeDatabase();
+
+                
             }
             catch (Exception ex)
             {
                 err = ex.ToString();
                 Tools.ErrorLog(ex.Message);
             }
+
+            
 
             return err;
         }
@@ -2727,6 +2800,17 @@ namespace BatRecordingManager
                                {
                                    existingRecording.LabelledSegments.Add(bsl.segment);
                                }*/
+                    if(existingRecording.RecordingStartTime!=null && existingRecording.RecordingEndTime!=null && (((existingRecording.RecordingEndTime??new TimeSpan()).Ticks<=0L) || (existingRecording.RecordingEndTime??new TimeSpan()).Ticks < existingRecording.RecordingStartTime.Value.Ticks))
+                    {
+                        existingRecording.RecordingEndTime =
+                            existingRecording.RecordingStartTime + new TimeSpan(0, 5, 0);
+                        if (existingRecording.RecordingDate != null)
+                        {
+                            existingRecording.RecordingDate =
+                                existingRecording.RecordingDate.Value.Date + existingRecording.RecordingStartTime;
+                        }
+
+                    }
                     dc.SubmitChanges();
 
                     // now we have a stored updated recording, update the labelled segments and their images
@@ -2759,7 +2843,7 @@ namespace BatRecordingManager
         {
             if (recording == null) return null;
             var fullyQualifiedFileName = recording.GetFileName(session);
-            if (!string.IsNullOrWhiteSpace(fullyQualifiedFileName) && File.Exists(fullyQualifiedFileName))
+            if (!string.IsNullOrWhiteSpace(fullyQualifiedFileName) && File.Exists(fullyQualifiedFileName) && (new FileInfo(fullyQualifiedFileName).Length>0L))
             {
                 var creationDate = File.GetCreationTime(fullyQualifiedFileName);
                 if (creationDate.Date >= session.SessionDate.Date &&
@@ -2860,16 +2944,62 @@ namespace BatRecordingManager
         /// <returns></returns>
         private static Recording NormalizeRecordingTimes(Recording recording, RecordingSession session)
         {
-            if (session.SessionEndTime != null && session.SessionStartTime != null &&
-                session.SessionStartTime < session.SessionEndTime)
+            DateTime sessionStart = session.SessionDate.Date;
+            sessionStart+= session.SessionStartTime??new TimeSpan();
+
+            DateTime recordStart = (recording.RecordingDate ?? sessionStart).Date;
+            recordStart += recording.RecordingStartTime ?? sessionStart.TimeOfDay;
+
+            DateTime sessionEnd = (session.EndDate ?? sessionStart).Date;
+            sessionEnd += session.SessionEndTime ?? sessionStart.TimeOfDay.Add(recordStart.TimeOfDay+new TimeSpan(1,0,0));
+
+            
+            DateTime recordEnd = recordStart.Date;
+            if (recording.RecordingEndTime != null)
             {
-                if (!(recording.RecordingStartTime != null && recording.RecordingStartTime <= session.SessionEndTime &&
-                      recording.RecordingStartTime >= session.SessionStartTime))
-                    recording.RecordingStartTime = session.SessionStartTime;
-                if (!(recording.RecordingEndTime != null && recording.RecordingEndTime <= session.SessionEndTime &&
-                      recording.RecordingEndTime >= session.SessionStartTime))
-                    recording.RecordingEndTime = session.SessionEndTime;
+                if (recordStart.TimeOfDay.TotalMinutes > (12.0d * 60.0d) &&
+                    recording.RecordingEndTime.Value.TotalMinutes < (12.0d * 60.0d)) // starts after midday but ends before midday, so add 1 day to the date
+                {
+                    recordEnd = recordEnd.AddDays(1);
+                }
+
+                recordEnd += recording.RecordingEndTime.Value;
             }
+            else
+            {
+                recordEnd += recordStart.TimeOfDay.Add(new TimeSpan(0,4,0));
+            }
+
+            if (sessionStart > sessionEnd)
+            {
+                DateTime temp = sessionStart;
+                sessionStart = sessionEnd;
+                sessionEnd = temp;
+            }
+
+            if (recordStart > recordEnd)
+            {
+                DateTime temp = recordStart;
+                recordStart = recordEnd;
+                recordEnd = temp;
+            }
+
+            if (recordStart < sessionStart)
+            {
+                recordStart = sessionStart;
+            }
+
+            if (recordEnd > sessionEnd)
+            {
+                recordEnd = sessionEnd;
+            }
+
+
+            recording.RecordingDate = recordStart.Date;
+            recording.RecordingStartTime = recordStart.TimeOfDay;
+            recording.RecordingEndTime = recordEnd - recordStart;
+
+            
 
             return recording;
         }
@@ -2882,7 +3012,7 @@ namespace BatRecordingManager
         /// </param>
         /// <exception cref="System.NotImplementedException">
         /// </exception>
-        internal static void UpdateRecordingSession(RecordingSession sessionForFolder)
+        internal static void UpdateRecordingSession(RecordingSession sessionForFolder,BatReferenceDBLinqDataContext dc=null)
         {
             if (sessionForFolder == null)
             {
@@ -2892,8 +3022,8 @@ namespace BatRecordingManager
 
             try
             {
-                var dc = GetFastDataContext();
 
+                if (dc == null) dc = GetDataContext();
                 RecordingSession existingSession = null;
 
                 var existingSessions = from sess in dc.RecordingSessions
@@ -2909,6 +3039,7 @@ namespace BatRecordingManager
                     sessionForFolder.Weather = sessionForFolder.Weather.Truncate(120);
                     sessionForFolder.Location = sessionForFolder.Location.Truncate(120);
                     sessionForFolder.Operator = sessionForFolder.Operator.Truncate(120);
+                    NormalizeSessionDateTimes(ref sessionForFolder);
                     dc.RecordingSessions.InsertOnSubmit(sessionForFolder);
                 }
                 else
@@ -2929,6 +3060,7 @@ namespace BatRecordingManager
                     existingSession.LocationGPSLatitude = sessionForFolder.LocationGPSLatitude;
                     existingSession.LocationGPSLongitude = sessionForFolder.LocationGPSLongitude;
                     existingSession.OriginalFilePath = sessionForFolder.OriginalFilePath;
+                    NormalizeSessionDateTimes(ref existingSession);
                 }
 
                 dc.SubmitChanges();
@@ -2937,6 +3069,30 @@ namespace BatRecordingManager
             {
                 Tools.ErrorLog("Updating Session <" + sessionForFolder.SessionTag + "> - " + ex);
             }
+        }
+
+        /// <summary>
+        /// Checks validity and ordering of session dates and times
+        /// </summary>
+        /// <param name="session"></param>
+        private static void NormalizeSessionDateTimes(ref RecordingSession session)
+        {
+            if (session.EndDate == null) session.EndDate = session.SessionDate;
+            if(session.SessionStartTime==null) session.SessionStartTime=new TimeSpan(18,0,0);
+            if(session.SessionEndTime==null) session.SessionEndTime=new TimeSpan(23,59,59);
+            DateTime start = session.SessionDate.Date + session.SessionStartTime.Value;
+            DateTime end = session.EndDate.Value.Date + session.SessionEndTime.Value;
+            if (start > end)
+            {
+                DateTime temp = start;
+                start = end;
+                end = temp;
+            }
+
+            session.SessionDate = start;
+            session.EndDate = end;
+            session.SessionStartTime = start.TimeOfDay;
+            session.SessionEndTime = end.TimeOfDay;
         }
 
         /// <summary>
@@ -4040,12 +4196,14 @@ namespace BatRecordingManager
                     return; // can't do anything in this case
 
                 var newLinkList = (from bat in segmentAndBatList.BatList
-                                      select new BatSegmentLink {BatID = bat.Id, LabelledSegmentID = existingSegment.Id}) ??
+                                      select new BatSegmentLink
+                                          {BatID = bat.Id, LabelledSegmentID = existingSegment.Id}) ??
                                   Enumerable.Empty<BatSegmentLink>();
 
                 // 2 - get existingBatSegment links
 
-                var existingLinks = existingSegment.BatSegmentLinks.Select(lnk => lnk) ?? Enumerable.Empty<BatSegmentLink>();
+                var existingLinks = existingSegment.BatSegmentLinks.Select(lnk => lnk) ??
+                                    Enumerable.Empty<BatSegmentLink>();
 
                 // 3 - delete existing links not in new links
                 if (!existingLinks.IsNullOrEmpty())
@@ -4789,7 +4947,9 @@ namespace BatRecordingManager
                 topOfScreen = 0;
             }
 
-            result = string.IsNullOrWhiteSpace(field) ? dc.RecordingSessions.Skip(topOfScreen).Take(pageSize).AsQueryable() : dc.RecordingSessions.OrderBy(field).Skip(topOfScreen).Take(pageSize);
+            result = string.IsNullOrWhiteSpace(field)
+                ? dc.RecordingSessions.Skip(topOfScreen).Take(pageSize).AsQueryable()
+                : dc.RecordingSessions.OrderBy(field).Skip(topOfScreen).Take(pageSize);
 
             /*
 
@@ -5632,7 +5792,7 @@ namespace BatRecordingManager
                 {
                     foreach (var seg in segs)
                     {
-                        if (seg.Recording.RecordingStartTime.Value > sampleStart + oneMinute) continue;
+                        if (seg.Recording.RecordingStartTime != null && seg.Recording.RecordingStartTime.Value > sampleStart + oneMinute) continue;
                         if (seg.Recording.RecordingEndTime != null && seg.Recording.RecordingEndTime < sampleStart)
                             continue;
                         var realStartTime = seg.Recording.RecordingStartTime.Value + seg.StartOffset;
@@ -5942,15 +6102,35 @@ namespace BatRecordingManager
             return MergeBat(bat, dataContext, out var newBat);
         }
 
-        public enum BracketedText
-        {
-            INCLUDE,
-            EXCLUDE
-        }
+        private static readonly string DbVersion = "v5.31";
 
-        private static BatReferenceDBLinqDataContext _persistentbatReferenceDataContext;
+        private static readonly string DBFileName = "BatReferenceDBv5.31.mdf";
 
-        private static bool _isDataContextUpToDate;
+        private static readonly string DBLocation = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            @"Echolocation\WinBLP\");
+
+        /// <summary>
+        ///     dbVersionDec is the decimal format version of the currently expected database
+        ///     This is the database version, not the program version.
+        ///     v5.31 Original base format
+        ///     v6.0 :-
+        ///     @"ALTER TABLE [dbo].[RecordingSession] ADD[EndDate] DATETIME NULL;"
+        ///     @"ALTER TABLE [dbo].[Recording] ADD[RecordingDate] DATETIME NULL;"
+        ///     v6.1 :-
+        ///     @"ALTER TABLE [dbo].[BinaryData] ALTER COLUMN [Description] NVARCHAR(MAX) NULL;"
+        ///     v6.2 :- add two new link tables and update the existing data
+        ///     @"CREATE TABLE [dbo].[BatSession]  (
+        ///     [Id] INT NOT NULL PRIMARY KEY,     [SessionID] INT NOT NULL DEFAULT -1,    [BatID] INT NOT NULL DEFAULT -1
+        ///     CONSTRAINT[Bat_BatSession] FOREIGN KEY([BatID]) REFERENCES[dbo].[Bat] ([Id]),
+        ///     CONSTRAINT[RecordingSession_BatSession] FOREIGN KEY([SessionID]) REFERENCES[dbo].[RecordingSession] ([Id])
+        ///     )
+        ///     CREATE TABLE[dbo].[BatRecording] (
+        ///     [Id] INT NOT NULL PRIMARY KEY,     [BatID] INT NOT NULL DEFAULT -1,    [RecordingID] INT NOT NULL DEFAULT -1,
+        ///     CONSTRAINT[Bat_BatRecording] FOREIGN KEY([BatID]) REFERENCES[dbo].[Bat] ([Id]),
+        ///     CONSTRAINT[Recording_BatRecording] FOREIGN KEY([RecordingID]) REFERENCES[dbo].[Recording] ([Id])"
+        /// </summary>
+        private static readonly decimal DbVersionDec = 6.2m;
     } // end DBAccess
 
     //###########################################################################################################################################
@@ -5995,7 +6175,9 @@ namespace BatRecordingManager
             var result = "";
             if (s.ToUpper().Contains(endingwith.ToUpper()))
             {
-                result = !string.IsNullOrEmpty(endingwith) ? s.Substring(0, s.ToUpper().IndexOf(endingwith.ToUpper()) + endingwith.Length) : s;
+                result = !string.IsNullOrEmpty(endingwith)
+                    ? s.Substring(0, s.ToUpper().IndexOf(endingwith.ToUpper()) + endingwith.Length)
+                    : s;
                 if (result.Contains(@"\")) result = result.Substring(result.LastIndexOf(@"\") + 1);
             }
 

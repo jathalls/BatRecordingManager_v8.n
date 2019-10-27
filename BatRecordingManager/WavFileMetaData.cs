@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -41,7 +40,7 @@ namespace BatRecordingManager
         {
             // set a default start date as the file creation or modified date
             if (m_Start == null)
-                if (File.Exists(filename))
+                if (File.Exists(filename) && (new FileInfo(filename).Length>0L))
                 {
                     if (DBAccess.GetDateTimeFromFilename(filename, out var dt))
                     {
@@ -189,7 +188,7 @@ namespace BatRecordingManager
 
             if (string.IsNullOrWhiteSpace(wavFilename)) return result;
             if (!wavFilename.Trim().ToUpper().EndsWith(".WAV")) return result;
-            if (!File.Exists(wavFilename)) return result;
+            if (!File.Exists(wavFilename) || (new FileInfo(wavFilename).Length<=0L)) return result;
             try
             {
                 using (var fs = File.Open(wavFilename, FileMode.Open))
@@ -219,7 +218,7 @@ namespace BatRecordingManager
                     }
 
                     var header = new byte[4];
-                    byte[] data;
+                    byte[] data = null;
                     var dataBytes = 0;
                     // WAMD_Data wamd_data = new WAMD_Data();
 
@@ -235,11 +234,26 @@ namespace BatRecordingManager
                                 header = reader.ReadBytes(4);
                                 if (header == null || header.Length != 4) break;
                                 var size = reader.ReadInt32();
+                                try
+                                {
+                                    data = reader.ReadBytes(size);
 
-                                data = reader.ReadBytes(size);
-                                if ((size & 0x0001) != 0)
-                                    // we have an odd number of bytes for size, so read the xtra null byte of padding
-                                    reader.ReadByte();
+                                }
+                                catch (Exception ex)
+                                {
+                                    Debug.WriteLine($"Tried to read to much data - {size}:-{ex}");
+                                }
+
+                                try
+                                {
+                                    if ((size & 0x0001) != 0 && reader.BaseStream.Position < reader.BaseStream.Length)
+                                        // we have an odd number of bytes for size, so read the xtra null byte of padding
+                                        reader.ReadByte();
+                                }
+                                catch (Exception) // just in case it overflows the data file
+                                {
+                                }
+
                                 var strHeader = Encoding.UTF8.GetString(header);
                                 if (strHeader == "data") dataBytes = size;
                                 if (strHeader == "wamd" && data != null)
@@ -480,8 +494,8 @@ namespace BatRecordingManager
                     case 0x0001:
                         m_Device = entry.Value;
                         result = true;
-                        if (entries.ContainsKey(0x0003)) m_Device = m_Device + " " + entries[0x0002];
-                        if (entries.ContainsKey(0x0004)) m_Device = m_Device + " " + entries[0x0004];
+                        if (entries.ContainsKey(0x0002)) m_Device = m_Device + " " + entries[0x0002];
+                        if (entries.ContainsKey(0x0003)) m_Device = m_Device + " " + entries[0x0003];
                         break;
 
                     case 0x0012:
@@ -557,9 +571,7 @@ namespace BatRecordingManager
         /// <param name="id"></param>
         public GPSLocation(string WGS84AsciiLocation, string name = "", string id = "")
         {
-            var latitude = 200.0d;
-            var longitude = 200.0d;
-            if (ConvertToLatLong(WGS84AsciiLocation, out latitude, out longitude))
+            if (ConvertToLatLong(WGS84AsciiLocation, out var latitude, out var longitude))
             {
                 m_Latitude = latitude;
                 m_Longitude = longitude;
@@ -608,13 +620,11 @@ namespace BatRecordingManager
             var result = false;
             latitude = 200.0d;
             longitude = 200.0d;
-            var pattern = @".*([0-9\.-]*),([NS]),?([0-9.-]*),?([WE])"; // e.g. WGS84,51.74607,N,0.26183,W
+            var pattern = @"WGS84,([0-9.-]*),([NS]),([0-9.-]*),([WE])"; // e.g. WGS84,51.74607,N,0.26183,W
             var match = Regex.Match(WGS84AsciiLocation, pattern);
             if (match.Success && match.Groups.Count >= 5)
             {
-                var dd = -1.0d;
-
-                if (double.TryParse(match.Groups[1].Value, out dd)) latitude = dd;
+                if (double.TryParse(match.Groups[1].Value, out var dd)) latitude = dd;
                 dd = -1.0d;
                 if (double.TryParse(match.Groups[3].Value, out dd)) longitude = dd;
                 if (match.Groups[2].Value.Contains("S")) latitude = 0.0d - latitude;

@@ -7,7 +7,27 @@
         mc:Ignorable="d"
         Title="Database" Height="450" Width="800">
     <Grid>
-        <TabControl x:Name="DatabaseTablesTabControl">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Menu
+            x:Name="DatabaseMenu"
+            Grid.Row="0"
+            Style="{StaticResource SimpleMenu}"
+            >
+            <Button 
+                x:Name="FixTimesButton"
+                Content="Fix Times"
+                Style="{StaticResource SimpleButton}" Click="FixTimesButton_Click"
+                />
+            <Button 
+                x:Name="FixMDataButton"
+                Content="Fix M'Data"
+                Style="{StaticResource SimpleButton}" Click="FixMDataButton_Click"
+            />
+        </Menu>
+        <TabControl x:Name="DatabaseTablesTabControl" Grid.Row="1">
             <TabItem x:Name="TiRecordingSessions" Header="RecordingSessions">
                 <local:RecordingSessionTableControl x:Name="RecordingSessionTableControl" />
             </TabItem>

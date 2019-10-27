@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Data.Linq;
@@ -44,17 +43,11 @@ namespace BatRecordingManager
         public EditBatForm()
         {
             InitializeComponent();
-            NewBat = new Bat();
-            NewBat.Name = "Unknown";
-            NewBat.Batgenus = "Unknown";
-            NewBat.BatSpecies = "unknown";
-            NewBat.Id = -1;
+            NewBat = new Bat {Name = "Unknown", Batgenus = "Unknown", BatSpecies = "unknown", Id = -1};
             CallList.Clear();
 
             NewBat.Notes = "";
-            var bt = new BatTag();
-            bt.BatTag1 = "bat";
-            bt.BatID = NewBat.Id;
+            var bt = new BatTag {BatTag1 = "bat", BatID = NewBat.Id};
             NewBat.BatTags.Add(bt);
             //SelectedCallIndex = -1;
             AddNewTagButton.IsEnabled = true;
@@ -93,14 +86,8 @@ namespace BatRecordingManager
                 if (value >= 0 && value < CallList.Count)
                 {
                     var maxIndex = CallList.Count - 1;
-                    if (value <= 0)
-                        PrevCallButton.IsEnabled = false;
-                    else
-                        PrevCallButton.IsEnabled = true;
-                    if (value >= maxIndex)
-                        NextCallButton.IsEnabled = false;
-                    else
-                        NextCallButton.IsEnabled = true;
+                    PrevCallButton.IsEnabled = value > 0;
+                    NextCallButton.IsEnabled = value < maxIndex;
                     CallIndexTextBox.Text = (SelectedCallIndex + 1).ToString();
                     TotalCallsTextBox.Text = CallList.Count.ToString();
 
@@ -143,8 +130,7 @@ namespace BatRecordingManager
             Update();
             if (NewBat == null)
             {
-                NewBat = new Bat();
-                NewBat.Id = -1;
+                NewBat = new Bat {Id = -1};
             }
 
             if (NewBat.BatTags == null) NewBat.BatTags = new EntitySet<BatTag>();
@@ -181,16 +167,13 @@ namespace BatRecordingManager
 
             if (NewBat == null)
             {
-                NewBat = new Bat();
-                NewBat.Id = -1;
+                NewBat = new Bat {Id = -1};
             }
 
             if (NewBat.BatTags == null) NewBat.BatTags = new EntitySet<BatTag>();
             if (!string.IsNullOrWhiteSpace(text))
             {
-                var newTag = new BatTag();
-                newTag.BatID = NewBat.Id;
-                newTag.BatTag1 = text;
+                var newTag = new BatTag {BatID = NewBat.Id, BatTag1 = text};
                 NewBat.BatTags.Add(newTag);
 
                 DataContext = NewBat;
@@ -271,8 +254,7 @@ namespace BatRecordingManager
             Update();
             if (NewBat == null)
             {
-                NewBat = new Bat();
-                NewBat.Id = -1;
+                NewBat = new Bat {Id = -1};
             }
 
             if (NewBat.BatTags == null) NewBat.BatTags = new EntitySet<BatTag>();
@@ -367,7 +349,7 @@ namespace BatRecordingManager
         ///     newBat Dependency Property
         /// </summary>
         public static readonly DependencyProperty newBatProperty =
-            DependencyProperty.Register("newBat", typeof(Bat), typeof(EditBatForm),
+            DependencyProperty.Register(nameof(NewBat), typeof(Bat), typeof(EditBatForm),
                 new FrameworkPropertyMetadata(new Bat()));
 
         /// <summary>

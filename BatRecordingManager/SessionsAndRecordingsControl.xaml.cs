@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -23,6 +22,7 @@ using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Threading;
 using DataVirtualizationLibrary;
 using Microsoft.VisualStudio.Language.Intellisense;
 
@@ -280,11 +280,22 @@ namespace BatRecordingManager
         {
             var result = new List<Recording>();
             if (RecordingsDataGrid.SelectedItems != null && RecordingsDataGrid.SelectedItems.Count > 0)
+            {
                 foreach (var item in RecordingsDataGrid.SelectedItems)
-                    result.Add(DBAccess.GetRecording((item as BatSessionRecordingData).RecordingId ?? 0));
+                {
+                    if (item == null || ((item as BatSessionRecordingData).RecordingId ?? -1) < 0) continue;
+                    result.Add(DBAccess.GetRecording((item as BatSessionRecordingData).RecordingId ?? -1));
+                }
+            }
             else
+            {
                 foreach (var item in RecordingsDataGrid.Items)
-                    result.Add(DBAccess.GetRecording((item as BatSessionRecordingData).RecordingId ?? 0));
+                {
+                    if (item == null || ((item as BatSessionRecordingData).RecordingId ?? -1) < 0) continue;
+                    result.Add(DBAccess.GetRecording((item as BatSessionRecordingData).RecordingId ?? -1));
+                }
+            }
+
             return result;
         }
 
@@ -297,28 +308,81 @@ namespace BatRecordingManager
         {
             var result = new List<RecordingSession>();
             if (SessionsDataGrid.SelectedItems != null && SessionsDataGrid.SelectedItems.Count > 0)
+            {
                 foreach (var item in SessionsDataGrid.SelectedItems)
+                {
+                    if (item == null || ((item as BatSessionData).id) < 0) continue;
                     result.Add(DBAccess.GetRecordingSession((item as BatSessionData).id));
+                }
+            }
             else
+            {
                 foreach (var item in SessionsDataGrid.Items)
+                {
+                    if (item == null || ((item as BatSessionData).id) < 0) continue;
                     result.Add(DBAccess.GetRecordingSession((item as BatSessionData).id));
+                }
+            }
+
             return result;
         }
 
+        private Recording thisRecording { get; set; } = null;
+        private AnalyseAndImportClass aai = null;
         private void RecordingsDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var dg = sender as DataGrid;
             var selectedItem = dg.SelectedItem as BatSessionRecordingData;
+            thisRecording = DBAccess.GetRecording(selectedItem.RecordingId??-1);
+            if (thisRecording != null)
+            {
+                var aai=new AnalyseAndImportClass(thisRecording);
+                aai.e_DataUpdated += Aai_e_DataUpdated;
+                aai.AnalyseRecording();
+            }
 
 
-            Tools.OpenWavFile(DBAccess.GetRecording(selectedItem.RecordingId ?? -1));
+            //Tools.OpenWavFile(DBAccess.GetRecording(selectedItem.RecordingId ?? -1));
+        }
+
+        private void Aai_e_DataUpdated(object sender, EventArgs e)
+        {
+            if (thisRecording != null && aai!=null)
+            {
+                if (Tools.IsTextFileModified(aai.startedAt??DateTime.Now,thisRecording))
+                {
+                    if (!Dispatcher.CheckAccess())
+                    {
+
+
+                        Dispatcher.BeginInvoke(DispatcherPriority.Background,
+                            new Action(() => { RefreshParentData(); }));
+
+                    }
+                    else
+                    {
+                        RefreshParentData();
+                    }
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// Locates the top level parent window (ListByBats) and refreshes the data in that
+        /// window, forcing a SelectionChanged event which will cascade down and refresh this
+        /// window.
+        /// </summary>
+        private void RefreshParentData()
+        {
+            var topParent=Tools.FindParent<BatRecordingsListDetailControl>(this);
+            topParent.RefreshData();
         }
 
         private void SessionsDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var dg = sender as DataGrid;
-            var selectedSession = dg.SelectedItem as BatSessionData;
-            if (selectedSession == null) return;
+            if (!(dg.SelectedItem is BatSessionData selectedSession)) return;
 
             OnSessionAction(new SessionActionEventArgs(selectedSession.SessionTag));
         }
@@ -367,17 +431,17 @@ namespace BatRecordingManager
         private void MatchingRecordingData_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             Debug.WriteLine("recording data changed:-" + e.PropertyName);
-            if (e.PropertyName == "IsLoading")
+            if (e.PropertyName == nameof(IsLoading))
             {
                 if (matchingRecordingData.IsLoading)
                 {
                     Debug.WriteLine("Set wait cursor");
-                    RecordingsDataGrid.Cursor = Cursors.Wait;
+                    //RecordingsDataGrid.Cursor = Cursors.Wait;
                 }
                 else
                 {
                     Debug.WriteLine("Clear wait cursor");
-                    RecordingsDataGrid.Cursor = Cursors.Arrow;
+                   // RecordingsDataGrid.Cursor = Cursors.Arrow;
                 }
             }
         }

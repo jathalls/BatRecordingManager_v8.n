@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Globalization;
@@ -43,7 +42,7 @@ namespace BatRecordingManager
         ///     labelledSegment Dependency Property
         /// </summary>
         public static readonly DependencyProperty labelledSegmentProperty =
-            DependencyProperty.Register("labelledSegment", typeof(LabelledSegment), typeof(LabelledSegmentControl),
+            DependencyProperty.Register(nameof(labelledSegment), typeof(LabelledSegment), typeof(LabelledSegmentControl),
                 new FrameworkPropertyMetadata(new LabelledSegment()));
 
         /// <summary>
@@ -74,7 +73,7 @@ namespace BatRecordingManager
         ///     startTime Dependency Property
         /// </summary>
         public static readonly DependencyProperty startTimeProperty =
-            DependencyProperty.Register("startTime", typeof(TimeSpan), typeof(LabelledSegmentControl),
+            DependencyProperty.Register(nameof(startTime), typeof(TimeSpan), typeof(LabelledSegmentControl),
                 new FrameworkPropertyMetadata(new TimeSpan()));
 
         /// <summary>
@@ -94,7 +93,7 @@ namespace BatRecordingManager
         ///     endTime Dependency Property
         /// </summary>
         public static readonly DependencyProperty endTimeProperty =
-            DependencyProperty.Register("endTime", typeof(TimeSpan), typeof(LabelledSegmentControl),
+            DependencyProperty.Register(nameof(endTime), typeof(TimeSpan), typeof(LabelledSegmentControl),
                 new FrameworkPropertyMetadata(new TimeSpan()));
 
         /// <summary>
@@ -114,7 +113,7 @@ namespace BatRecordingManager
         ///     duration Dependency Property
         /// </summary>
         public static readonly DependencyProperty durationProperty =
-            DependencyProperty.Register("duration", typeof(TimeSpan), typeof(LabelledSegmentControl),
+            DependencyProperty.Register(nameof(duration), typeof(TimeSpan), typeof(LabelledSegmentControl),
                 new FrameworkPropertyMetadata(new TimeSpan()));
 
         /// <summary>
@@ -134,7 +133,7 @@ namespace BatRecordingManager
         ///     comment Dependency Property
         /// </summary>
         public static readonly DependencyProperty commentProperty =
-            DependencyProperty.Register("comment", typeof(string), typeof(LabelledSegmentControl),
+            DependencyProperty.Register(nameof(comment), typeof(string), typeof(LabelledSegmentControl),
                 new FrameworkPropertyMetadata(""));
 
         /// <summary>
@@ -178,9 +177,8 @@ namespace BatRecordingManager
             try
             {
                 // Here's where you put the code do handle the value conversion.
-                var ts = value as TimeSpan?;
-                if (ts == null) return "";
-                var result = Tools.FormattedTimeSpan(ts.Value);
+                if (!(value is TimeSpan ts)) return "";
+                var result = Tools.FormattedTimeSpan(ts);
 
                 return result;
             }
@@ -241,10 +239,8 @@ namespace BatRecordingManager
 ";
                         else
                             summary = "";
-                        summary = summary + string.Format(
-                                      "{0,5:##0.0},{1,5:##0.0},{2,5:##0.0}kHz {3,5:##0.0},{4,5:##0.0}mS",
-                                      call.Call.StartFrequency, call.Call.EndFrequency, call.Call.PeakFrequency,
-                                      call.Call.PulseDuration, call.Call.PulseInterval);
+                        summary = summary +
+                                  $"{call.Call.StartFrequency,5:##0.0},{call.Call.EndFrequency,5:##0.0},{call.Call.PeakFrequency,5:##0.0}kHz {call.Call.PulseDuration,5:##0.0},{call.Call.PulseInterval,5:##0.0}mS";
                     }
 
                 return summary;

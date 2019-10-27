@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.ComponentModel;
@@ -142,40 +141,64 @@ namespace BatRecordingManager
 
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
+            string filename = "";
             var looped = (sender as Button).Content as string == "LOOP";
+            if ((sender as Button).Content as String == "SAVE")
+            {
+                filename = Tools.GetFileToWriteTo("", ".wav");
+            }
             if (PlayButton.Content as string == "PLAY")
             {
-                PlayListItem itemToPlay = null;
-                if (!PlayList.IsNullOrEmpty())
-                {
-                    if (PlayListDatagrid.SelectedItem != null)
-                        itemToPlay = PlayListDatagrid.SelectedItem as PlayListItem;
-                    else
-                        itemToPlay = PlayList.First();
-                }
+                PlayListItem itemToPlay = GetItemToPlay();
 
                 if (itemToPlay != null)
                 {
-                    PlayItem(itemToPlay, looped);
-                    PlayButton.Content = "STOP";
+                    PlayItem(itemToPlay, looped,filename);
+                    if (string.IsNullOrWhiteSpace(filename))
+                    {
+                        PlayButton.Content = "STOP";
+                    }
+                    else
+                    {
+                        StopPlaying();
+                    }
                 }
             }
             else
             {
-                if (_wrapper != null)
+                StopPlaying();
+            }
+        }
+
+        private void StopPlaying()
+        {
+            if (_wrapper != null)
+            {
+                _wrapper.Stop();
+                if (_wrapper.playBackState == PlaybackState.Stopped)
                 {
-                    _wrapper.Stop();
-                    if (_wrapper.playBackState == PlaybackState.Stopped)
-                    {
-                        _wrapper.Dispose();
-                        _wrapper = null;
-                        PlayButton.Content = "PLAY";
-                    }
+                    _wrapper.Dispose();
+                    _wrapper = null;
+                    PlayButton.Content = "PLAY";
                 }
             }
         }
 
-        private void PlayItem(PlayListItem itemToPlay, bool playLooped)
+        private PlayListItem GetItemToPlay()
+        {
+            PlayListItem item = null;
+            if (!PlayList.IsNullOrEmpty())
+            {
+                if (PlayListDatagrid.SelectedItem != null)
+                    item = PlayListDatagrid.SelectedItem as PlayListItem;
+                else
+                    item = PlayList.First();
+            }
+
+            return (item);
+        }
+
+        private void PlayItem(PlayListItem itemToPlay, bool playLooped,string filename)
         {
             _wrapper = new NaudioWrapper {Frequency = (decimal) Frequency};
             _wrapper.e_Stopped += Wrapper_Stopped;
@@ -186,11 +209,12 @@ namespace BatRecordingManager
                 if (TenthButton.IsChecked ?? false) rate = 0.1m;
                 if (FifthButton.IsChecked ?? false) rate = 0.2m;
                 if (TwentiethButton.IsChecked ?? false) rate = 0.05m;
-                _wrapper.Play(itemToPlay, rate, playLooped);
+                
+                _wrapper.Play(itemToPlay, rate, playLooped,filename);
             }
             else
             {
-                _wrapper.Heterodyne(itemToPlay, @"X:\test.wav");
+                _wrapper.Heterodyne(itemToPlay, filename);
             }
         }
 
@@ -248,7 +272,7 @@ namespace BatRecordingManager
         ///     Frequency Dependency Property
         /// </summary>
         public static readonly DependencyProperty FrequencyProperty =
-            DependencyProperty.Register("Frequency", typeof(double), typeof(AudioPlayer),
+            DependencyProperty.Register(nameof(Frequency), typeof(double), typeof(AudioPlayer),
                 new FrameworkPropertyMetadata(50.0d));
 
         /// <summary>
@@ -266,6 +290,8 @@ namespace BatRecordingManager
         }
 
         #endregion
+
+       
     }
 
     /// <summary>
@@ -303,7 +329,7 @@ namespace BatRecordingManager
         public static PlayListItem Create(string filename, TimeSpan start, TimeSpan duration, string label)
         {
             if (string.IsNullOrWhiteSpace(filename)) return null;
-            if (!File.Exists(filename)) return null;
+            if (!File.Exists(filename) || (new FileInfo(filename).Length<=0L)) return null;
             var result = new PlayListItem
             {
                 filename = filename, startOffset = start, playLength = duration, label = label

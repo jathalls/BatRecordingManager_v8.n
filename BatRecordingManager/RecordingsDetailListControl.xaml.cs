@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -26,6 +25,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Threading;
 using Microsoft.Maps.MapControl.WPF;
 using Microsoft.VisualStudio.Language.Intellisense;
 
@@ -44,26 +45,10 @@ namespace BatRecordingManager
 
         private bool _isSegmentSelected;
         private EventHandler<EventArgs> _recordingChangedEvent;
-        private SearchDialog _searchDialog = new SearchDialog();
+        private SearchDialog _searchDialog;
         private EventHandler<EventArgs> _segmentSelectionChangedEvent;
         private LabelledSegment _selectedSegment;
         private RecordingSession _selectedSession;
-
-        //private double vo = -1.0;
-
-        //-----------------------------------------------------------------------------------
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RecordingsDetailListControl" /> class.
-        /// </summary>
-        public RecordingsDetailListControl()
-        {
-            recordingsList = new BulkObservableCollection<Recording>();
-            selectedSession = null;
-            InitializeComponent();
-            DataContext = this;
-            RecordingsListView.ItemsSource = recordingsList;
-            CreateSearchDialog();
-        }
 
         /// <summary>
         ///     Gets or sets the recordings list.
@@ -85,9 +70,75 @@ namespace BatRecordingManager
             set
             {
                 _selectedSession = value;
-                Refresh();
+                if (OffsetsButton != null)
+                {
+                    OffsetsButton.IsEnabled = false;
+                    Refresh();
+                    if (_selectedSession != null)
+                    {
+                        if (_selectedSession.Sunset != null)
+                        {
+                            OffsetsButton.IsEnabled = true;
+                        }
+                        else
+                        {
+                            var sunset = SessionManager.CalculateSunset(value.SessionDate, value.LocationGPSLatitude,
+                                value.LocationGPSLongitude);
+                            _selectedSession.Sunset = sunset;
+                            if (sunset != null)
+                            {
+                                OffsetsButton.IsEnabled = true;
+                            }
+                            else
+                            {
+                                if (!recordingsList.IsNullOrEmpty())
+                                {
+                                    var rec = recordingsList.First();
+                                    if (!string.IsNullOrWhiteSpace(rec.RecordingGPSLatitude) &&
+                                        !string.IsNullOrWhiteSpace(rec.RecordingGPSLongitude))
+                                    {
+                                        if (decimal.TryParse(rec.RecordingGPSLatitude, out decimal lat) &&
+                                            decimal.TryParse(rec.RecordingGPSLongitude, out decimal longit))
+                                        {
+                                            sunset = SessionManager.CalculateSunset(value.SessionDate, (decimal?) lat,
+                                                (decimal?) longit);
+                                            if (sunset != null)
+                                            {
+                                                _selectedSession.Sunset = sunset;
+                                                OffsetsButton.IsEnabled = true;
+                                            }
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Refresh();
+                }
             }
         }
+
+        //private double vo = -1.0;
+
+        //-----------------------------------------------------------------------------------
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RecordingsDetailListControl" /> class.
+        /// </summary>
+        public RecordingsDetailListControl()
+        {
+            recordingsList = new BulkObservableCollection<Recording>();
+            selectedSession = null;
+            InitializeComponent();
+            DataContext = this;
+            RecordingsListView.ItemsSource = recordingsList;
+            CreateSearchDialog();
+        }
+
+        
 
         private void SearchDialog_Closed(object sender, EventArgs e)
         {
@@ -109,10 +160,7 @@ namespace BatRecordingManager
 
             if (SearchButton != null)
             {
-                if (recordingsList.Count <= 0)
-                    SearchButton.IsEnabled = false;
-                else
-                    SearchButton.IsEnabled = true;
+                SearchButton.IsEnabled = recordingsList.Count > 0;
             }
         }
 
@@ -135,7 +183,7 @@ namespace BatRecordingManager
                 {
                     var currentSelectedListBoxItem =
                         RecordingsListView.ItemContainerGenerator.ContainerFromIndex(RecordingsListView.SelectedIndex)
-                            as ListBoxItem;
+                            as ListViewItem;
                     var lsegListView = Tools.FindDescendant<ListView>(currentSelectedListBoxItem);
                     lsegListView?.UnselectAll();
                     RecordingsListView.UnselectAll();
@@ -164,7 +212,7 @@ namespace BatRecordingManager
                     {
                         var currentSelectedListBoxItem =
                             RecordingsListView.ItemContainerGenerator.ContainerFromIndex(RecordingsListView
-                                .SelectedIndex) as ListBoxItem;
+                                .SelectedIndex) as ListViewItem;
                         var lsegListView = Tools.FindDescendant<ListView>(currentSelectedListBoxItem);
                         if (lsegListView != null)
                         {
@@ -214,7 +262,7 @@ namespace BatRecordingManager
         /// </param>
         internal void OnListViewItemFocused(object sender, RoutedEventArgs args)
         {
-            var lvi = sender as ListBoxItem;
+            var lvi = sender as ListViewItem;
 
             lvi.BringIntoView();
             lvi.IsSelected = true;
@@ -233,8 +281,7 @@ namespace BatRecordingManager
             if (recording == null) recording = new Recording();
             if (recording.RecordingSession == null) recording.RecordingSessionId = selectedSession.Id;
 
-            var recordingForm = new RecordingForm();
-            recordingForm.recording = recording;
+            var recordingForm = new RecordingForm {recording = recording};
 
             if (recordingForm.ShowDialog() ?? false)
                 if (recordingForm.DialogResult ?? false)
@@ -245,10 +292,7 @@ namespace BatRecordingManager
             PopulateRecordingsList();
             if (oldIndex > 0 && oldIndex < RecordingsListView.Items.Count) RecordingsListView.SelectedIndex = oldIndex;
 
-            if (recordingsList.Count <= 0)
-                SearchButton.IsEnabled = false;
-            else
-                SearchButton.IsEnabled = true;
+            SearchButton.IsEnabled = recordingsList.Count > 0;
         }
 
         private void AddRecordingButton_Click(object sender, RoutedEventArgs e)
@@ -275,10 +319,7 @@ namespace BatRecordingManager
                 DBAccess.DeleteRecording(RecordingsListView.SelectedItem as Recording);
             PopulateRecordingsList();
             if (oldIndex >= 0 && oldIndex < RecordingsListView.Items.Count) RecordingsListView.SelectedIndex = oldIndex;
-            if (recordingsList.Count <= 0)
-                SearchButton.IsEnabled = false;
-            else
-                SearchButton.IsEnabled = true;
+            SearchButton.IsEnabled = recordingsList.Count > 0;
             OnRecordingChanged(new EventArgs());
         }
 
@@ -307,6 +348,10 @@ namespace BatRecordingManager
         /// <param name="e"></param>
         private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
+            if (_searchDialog == null)
+            {
+                CreateSearchDialog();
+            }
             if (_searchDialog.IsLoaded)
             {
                 _searchDialog.Visibility = Visibility.Visible;
@@ -345,17 +390,9 @@ namespace BatRecordingManager
                 recordingsList.Clear();
             }
 
-            if (RecordingsListView != null)
-            {
-                //RecordingsListView.ItemsSource = recordingsList;
-                //var view = CollectionViewSource.GetDefaultView(RecordingsListView.ItemsSource);
-                //if (view != null) { view.Refresh(); }
-            }
+            
 
-            if (recordingsList.Count > 0)
-                SearchButton.IsEnabled = true;
-            else
-                SearchButton.IsEnabled = false;
+            SearchButton.IsEnabled = recordingsList.Count > 0;
         }
 
         private void RecordingsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -370,14 +407,12 @@ namespace BatRecordingManager
                     {
                         EditRecordingButton.IsEnabled = true;
                         DeleteRecordingButton.IsEnabled = true;
+                        
                         if (RecordingsListView.Items != null)
                             foreach (var item in RecordingsListView.Items)
                                 if (item is ListView view)
                                 {
-                                    if (view.SelectedIndex >= 0)
-                                        _isSegmentSelected = true;
-                                    else
-                                        _isSegmentSelected = false;
+                                    _isSegmentSelected = view.SelectedIndex >= 0;
                                 }
 
                         if (!_isSegmentSelected)
@@ -396,6 +431,7 @@ namespace BatRecordingManager
                     {
                         EditRecordingButton.IsEnabled = false;
                         DeleteRecordingButton.IsEnabled = false;
+                        
                         AddSegImgButton.IsEnabled = false;
                         Debug.WriteLine("Recording De-Selected");
                         _isSegmentSelected = false;
@@ -404,11 +440,17 @@ namespace BatRecordingManager
             }
         }
 
-        private void RecordingNameLabel_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private AnalyseAndImportClass aai;
+        private void RecordingNameTextBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var thisLabel = sender as Label;
+            var thisTextBox = sender as TextBlock;
             var recording = RecordingsListView.SelectedItem as Recording;
-            var labelContent = thisLabel.Content as string;
+            if (!File.Exists(recording.RecordingSession.OriginalFilePath + recording.RecordingName))
+            {
+                thisTextBox.Foreground = Brushes.Red;
+                return;
+            }
+            /*var labelContent = thisTextBox.Text as string;
             if (!string.IsNullOrWhiteSpace(labelContent))
                 if (labelContent.ToUpper().Contains(".WAV"))
                 {
@@ -416,8 +458,62 @@ namespace BatRecordingManager
                     labelContent = labelContent.Substring(0, pos) + ".wav";
                     labelContent = selectedSession.OriginalFilePath + labelContent;
 
-                    Tools.OpenWavFile(recording);
+                    //Tools.OpenWavFile(recording);*/
+                    aai=new AnalyseAndImportClass(recording);
+                    aai.e_DataUpdated += Aai_e_DataUpdated;
+                    aai.AnalyseRecording();
+               // }
+        }
+
+        private void Aai_e_DataUpdated(object sender, EventArgs e)
+        {
+            
+            //Tools.FindParent<RecordingSessionListDetailControl>(this).RefreshData();
+            if (aai.ThisRecording != null && Tools.IsTextFileModified(aai.startedAt??DateTime.Now,aai.ThisRecording))
+            {
+                DependencyObject d = this;
+                while (true)
+                {
+                    if (d == null) break;
+                    if (d.Dispatcher.CheckAccess())
+                    {
+                        d = VisualTreeHelper.GetParent(d);
+                    }
+                    else
+                    {
+                        d.Dispatcher.Invoke(DispatcherPriority.Background,
+                            new Action(() => { d = VisualTreeHelper.GetParent(d); }));
+                    }
+
+                    if (d == null) break;
+                    if (d is RecordingSessionListDetailControl t)
+                    {
+                        if (t.Dispatcher.CheckAccess())
+                        {
+                            t.RefreshData();
+                        }
+                        else
+                        {
+                            t.Dispatcher.Invoke(DispatcherPriority.Background,
+                                new Action(() => { t.RefreshData(); }));
+                        }
+
+                        break;
+                    }
+
                 }
+
+                /* Unnecessary as RefreshData does a SelectionChanged which forces a refresh of this
+                if (Dispatcher.CheckAccess())
+                {
+                    Refresh();
+                }
+                else
+                {
+                    Dispatcher.BeginInvoke(DispatcherPriority.Background,
+                        new Action(() => { Refresh(); }));
+                }*/
+            }
         }
 
         private void GPSLabel_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -430,10 +526,8 @@ namespace BatRecordingManager
                     var numbers = labelContent.Split(',');
                     if (numbers.Length >= 2)
                     {
-                        var lat = -200.0d;
-                        var longit = -200.0d;
-                        double.TryParse(numbers[0].Trim(), out lat);
-                        double.TryParse(numbers[1].Trim(), out longit);
+                        double.TryParse(numbers[0].Trim(), out var lat);
+                        double.TryParse(numbers[1].Trim(), out var longit);
                         if (Math.Abs(lat) <= 90.0d && Math.Abs(longit) <= 180.0d)
                         {
                             var oldLocation = new Location(lat, longit);
@@ -629,9 +723,8 @@ namespace BatRecordingManager
 
             if (button != null && button.Content as string == "Add Segment")
             {
-                var segmentForm = new LabelledSegmentForm();
+                var segmentForm = new LabelledSegmentForm {labelledSegment = new LabelledSegment()};
 
-                segmentForm.labelledSegment = new LabelledSegment();
 
                 var result = segmentForm.ShowDialog();
                 {
@@ -667,7 +760,7 @@ namespace BatRecordingManager
             }
             else
             {
-                if (RecordingsListView.SelectedItem as Recording != null)
+                if (RecordingsListView.SelectedItem is Recording)
                     selectedRecording = RecordingsListView.SelectedItem as Recording;
             }
 
@@ -696,41 +789,45 @@ namespace BatRecordingManager
 
         private void Refresh()
         {
-            var oldIndex = -1;
-            if (RecordingsListView != null) oldIndex = RecordingsListView.SelectedIndex;
-            if (selectedSession != null)
+            using (new WaitCursor())
             {
-                recordingsList.Clear();
-                //recordingsList.AddRange(DBAccess.GetRecordingsForSession(value));
-                recordingsList.AddRange(selectedSession.Recordings);
-                if (AddRecordingButton != null && DeleteRecordingButton != null && EditRecordingButton != null)
+                var oldIndex = -1;
+                if (RecordingsListView != null) oldIndex = RecordingsListView.SelectedIndex;
+                if (selectedSession != null)
                 {
-                    AddRecordingButton.IsEnabled = true;
-                    DeleteRecordingButton.IsEnabled = false;
-                    EditRecordingButton.IsEnabled = false;
-                    SearchButton.IsEnabled = false;
+                    recordingsList.Clear();
+                    //recordingsList.AddRange(DBAccess.GetRecordingsForSession(value));
+                    recordingsList.AddRange(selectedSession.Recordings);
+                    if (AddRecordingButton != null && DeleteRecordingButton != null && EditRecordingButton != null)
+                    {
+                        AddRecordingButton.IsEnabled = true;
+                        DeleteRecordingButton.IsEnabled = false;
+                        EditRecordingButton.IsEnabled = false;
+                        SearchButton.IsEnabled = false;
+                    }
                 }
-            }
-            else
-            {
-                recordingsList.Clear();
-                if (AddRecordingButton != null && DeleteRecordingButton != null && EditRecordingButton != null)
+                else
                 {
-                    AddRecordingButton.IsEnabled = false;
-                    DeleteRecordingButton.IsEnabled = false;
-                    EditRecordingButton.IsEnabled = false;
+                    recordingsList.Clear();
+                    if (AddRecordingButton != null && DeleteRecordingButton != null && EditRecordingButton != null)
+                    {
+                        AddRecordingButton.IsEnabled = false;
+                        DeleteRecordingButton.IsEnabled = false;
+                        EditRecordingButton.IsEnabled = false;
+                    }
                 }
+
+                if (RecordingsListView != null)
+                {
+                    RecordingsListView.SelectedIndex = oldIndex >= 0 && oldIndex < recordingsList.Count ? oldIndex : -1;
+                    RecordingsListView.ItemsSource = recordingsList;
+                    var view = CollectionViewSource.GetDefaultView(RecordingsListView.ItemsSource);
+                    view?.Refresh();
+                }
+
+                CreateSearchDialog();
             }
 
-            if (RecordingsListView != null)
-            {
-                RecordingsListView.SelectedIndex = oldIndex >= 0 && oldIndex < recordingsList.Count ? oldIndex : -1;
-                RecordingsListView.ItemsSource = recordingsList;
-                var view = CollectionViewSource.GetDefaultView(RecordingsListView.ItemsSource);
-                view?.Refresh();
-            }
-
-            CreateSearchDialog();
         }
 
         private void LabelledSegmentTextBlock_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
@@ -743,7 +840,7 @@ namespace BatRecordingManager
             var wavFile = selectedSegment.Recording.RecordingSession.OriginalFilePath +
                           selectedSegment.Recording.RecordingName;
             wavFile = wavFile.Replace(@"\\", @"\");
-            if (File.Exists(wavFile))
+            if (File.Exists(wavFile) && (new FileInfo(wavFile).Length>0L))
                 Tools.OpenWavFile(wavFile, selectedSegment.StartOffset, selectedSegment.EndOffset);
             e.Handled = true;
         }
@@ -753,9 +850,10 @@ namespace BatRecordingManager
             if (!e.Handled)
             {
                 e.Handled = true;
-                var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta);
-                eventArg.RoutedEvent = MouseWheelEvent;
-                eventArg.Source = sender;
+                var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
+                {
+                    RoutedEvent = MouseWheelEvent, Source = sender
+                };
                 var parent = ((Control) sender).Parent as UIElement;
                 parent.RaiseEvent(eventArg);
             }
@@ -803,6 +901,45 @@ namespace BatRecordingManager
                 LabelledSegmentTextBlock_MouseRightButtonUp((sender as ContentControl).Content, e);
                 e.Handled = true;
             }
+        }
+
+        /// <summary>
+        /// Allows the user to revise one or more labels in this recording by opening the recording in Audacity
+        /// On completion, if the .txt file has been modified in the last n mintes, call OnRecordingChanged in order
+        /// to update the entire page.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ReviseRecordingButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void OffsetsButton_Click(object sender, RoutedEventArgs e)
+        {
+            Refresh();
+        }
+
+        private void RecordingNameTextBox_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            
+        }
+
+        private void RecordingNameTextBox_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+            {
+                RecordingNameTextBox_MouseDoubleClick(sender, e);
+                e.Handled = true;
+            }
+        }
+
+        private void RecordingNameContentControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            
+                RecordingNameTextBox_MouseDoubleClick(sender, e);
+                e.Handled = true;
+            
         }
     } // End of Class RecordingDetailListControl
 
@@ -990,24 +1127,25 @@ namespace BatRecordingManager
             }
         }
 
-        /// <summary>
-        ///     ConvertBack not implemented
-        /// </summary>
-        /// <param name="value">
-        ///     The value.
-        /// </param>
-        /// <param name="targetType">
-        ///     Type of the target.
-        /// </param>
-        /// <param name="parameter">
-        ///     The parameter.
-        /// </param>
-        /// <param name="culture">
-        ///     The culture.
-        /// </param>
-        /// <returns>
-        /// </returns>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+
+            /// <summary>
+            ///     ConvertBack not implemented
+            /// </summary>
+            /// <param name="value">
+            ///     The value.
+            /// </param>
+            /// <param name="targetType">
+            ///     Type of the target.
+            /// </param>
+            /// <param name="parameter">
+            ///     The parameter.
+            /// </param>
+            /// <param name="culture">
+            ///     The culture.
+            /// </param>
+            /// <returns>
+            /// </returns>
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             // Not implemented
             return null;
@@ -1015,6 +1153,77 @@ namespace BatRecordingManager
     }
 
     #endregion RecordingDetailsConverter (ValueConverter)
+
+
+    #region RecordingDurationConverter (ValueConverter)
+
+    /// <summary>
+    ///     Converts the essential details of a Recording instance to a string
+    /// </summary>
+    public class RecordingDurationConverter : IValueConverter
+    {
+        /// <summary>
+        /// Converts a value.
+        /// </summary>
+        /// <param name="value">The value produced by the binding source.</param>
+        /// <param name="targetType">The type of the binding target property.</param>
+        /// <param name="parameter">The converter parameter to use.</param>
+        /// <param name="culture">The culture to use in the converter.</param>
+        /// <returns>
+        /// A converted value. If the method returns <see langword="null" />, the valid null value is used.
+        /// </returns>
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.
+                var result = "";
+
+                if (value is Recording recording)
+                {
+                    var dur = new TimeSpan();
+
+                    dur = Tools.GetRecordingDuration(recording);
+
+                    var durStr = dur.ToString(@"dd\:hh\:mm\:ss");
+                    while (durStr.StartsWith("00:")) durStr = durStr.Substring(3);
+                    var recDate = "";
+                    if (recording.RecordingDate != null)
+                    {
+                        recDate = recording.RecordingDate.Value.ToShortDateString();
+                        if (recording.RecordingDate.Value.Hour > 0 || recording.RecordingDate.Value.Minute > 0 ||
+                            recording.RecordingDate.Value.Second > 0)
+                            recDate = recDate + " " + recording.RecordingDate.Value.ToShortTimeString();
+                    }
+
+                    result = durStr;
+                }
+
+                return result;
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Converts a value.
+        /// </summary>
+        /// <param name="value">The value that is produced by the binding target.</param>
+        /// <param name="targetType">The type to convert to.</param>
+        /// <param name="parameter">The converter parameter to use.</param>
+        /// <param name="culture">The culture to use in the converter.</param>
+        /// <returns>
+        /// A converted value. If the method returns <see langword="null" />, the valid null value is used.
+        /// </returns>
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+    #endregion RecordingDurationConverter (ValueConverter)
 
     #region RecordingPassSummaryConverter (ValueConverter)
 

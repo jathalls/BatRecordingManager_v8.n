@@ -1,31 +1,33 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using DataVirtualizationLibrary;
 using Microsoft.VisualStudio.Language.Intellisense;
+using Task = Microsoft.Build.Utilities.Task;
 
 namespace BatRecordingManager
 {
@@ -107,11 +109,9 @@ namespace BatRecordingManager
             RecordingSession result = null;
             if (RecordingSessionListView?.SelectedItems != null && RecordingSessionListView.SelectedItems.Count > 0)
             {
-                var sessionData = RecordingSessionListView.SelectedItems[0] as RecordingSessionData;
-                if (sessionData != null)
-                    result = DBAccess.GetRecordingSession(sessionData.Id);
-                else
-                    result = null;
+                result = RecordingSessionListView.SelectedItems[0] is RecordingSessionData sessionData
+                    ? DBAccess.GetRecordingSession(sessionData.Id)
+                    : null;
             }
 
             return result;
@@ -124,6 +124,8 @@ namespace BatRecordingManager
                 new Action(() => { RefreshData(PageSize, CurrentTopOfScreen); }));
         }
 
+        //private WaitCursor storedWaitCursor = null;
+        internal int oldSelectionIndex { get; set; } = -1;
         /// <summary>
         ///     Refreshes the data in the display when this pane is made visible; It might slow down
         ///     context switches, but is necessary if other panes have changed the data. A more
@@ -135,19 +137,24 @@ namespace BatRecordingManager
         internal void RefreshData(int pageSize, int topOfScreen)
         {
             if (RecordingSessionListView == null) return;
+            //storedWaitCursor=new WaitCursor();
             using (new WaitCursor("Refresh screen data"))
             {
                 //  Stopwatch overallWatch = Stopwatch.StartNew();
-                var oldSelection = -1;
-                oldSelection = RecordingSessionListView.SelectedIndex;
+                oldSelectionIndex = -1;
+                oldSelectionIndex = RecordingSessionListView.SelectedIndex;
                 //recordingSessionDataList.Clear();
                 //recordingSessionDataList.AddRange(DBAccess.GetPagedRecordingSessionDataList(pageSize, topOfScreen, field));
                 recordingSessionDataList = null;
                 recordingSessionDataList =
-                    new AsyncVirtualizingCollection<RecordingSessionData>(new RecordingSessionDataProvider(), 50, 100);
-                if (!recordingSessionDataList.IsLoading) recordingSessionDataList.Refresh();
-                if (oldSelection >= 0 && oldSelection < recordingSessionDataList.Count)
-                    RecordingSessionListView.SelectedIndex = oldSelection;
+                    new VirtualizingCollection<RecordingSessionData>(new RecordingSessionDataProvider(), 50, 100);
+                //recordingSessionDataList.CollectionChanged += RecordingSessionDataList_CollectionChanged;
+                
+
+
+                //if (!recordingSessionDataList.IsLoading) recordingSessionDataList.Refresh();
+                if (oldSelectionIndex >= 0 && oldSelectionIndex < recordingSessionDataList.Count)
+                    RecordingSessionListView.SelectedIndex = oldSelectionIndex;
 
 
                 SegmentImageScroller.Clear();
@@ -167,9 +174,28 @@ namespace BatRecordingManager
                             .Recordings);
                     }
                 }
+
+                RecordingSessionListView_SelectionChanged(this, null);
             }
 
             //CollectionViewSource.GetDefaultView(RecordingSessionListView.ItemsSource).Refresh();
+        }
+
+        private void RecordingSessionDataList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (oldSelectionIndex >= 0 && oldSelectionIndex < RecordingSessionListView.Items.Count)
+            {
+                if (RecordingSessionListView.SelectedIndex != oldSelectionIndex)
+                {
+                    RecordingSessionListView.SelectedIndex = oldSelectionIndex;
+                }
+                else
+                {
+                    RecordingSessionListView_SelectionChanged(this,null);
+                }
+            }
+
+            
         }
 
         /// <summary>
@@ -200,8 +226,7 @@ namespace BatRecordingManager
             if (RecordingSessionListView.Items != null)
                 foreach (var item in RecordingSessionListView.Items)
                 {
-                    var rs = item as RecordingSessionData;
-                    if (rs != null && rs.SessionTag == sessionUpdated)
+                    if (item is RecordingSessionData rs && rs.SessionTag == sessionUpdated)
                     {
                         RecordingSessionListView.SelectedItem = rs;
                         RecordingSessionListView.ScrollIntoView(item);
@@ -212,17 +237,20 @@ namespace BatRecordingManager
 
         private void AddEditRecordingSession(RecordingSessionForm recordingSessionForm)
         {
-            Mouse.OverrideCursor = Cursors.Wait;
-            var selectedIndex = RecordingSessionListView.SelectedIndex;
+            using (new WaitCursor())
+            {
+                var selectedIndex = RecordingSessionListView.SelectedIndex;
 
-            var error = "No Data Entered";
-            Mouse.OverrideCursor = null;
-            if (!recordingSessionForm.ShowDialog() ?? false)
-                if (recordingSessionForm.DialogResult ?? false)
-                    if (!string.IsNullOrWhiteSpace(error))
-                        MessageBox.Show(error);
+                var error = "No Data Entered";
+                Mouse.OverrideCursor = null;
+                if (!recordingSessionForm.ShowDialog() ?? false)
+                    if (recordingSessionForm.DialogResult ?? false)
+                        if (!string.IsNullOrWhiteSpace(error))
+                            MessageBox.Show(error);
 
-            RefreshData(PageSize, CurrentTopOfScreen);
+                RefreshData(PageSize, CurrentTopOfScreen);
+            }
+
             /*this.recordingSessionList = DBAccess.GetRecordingSessionList();
 if (selectedIndex >= 0 && selectedIndex <= this.RecordingSessionListView.Items.Count)
 {
@@ -233,30 +261,30 @@ Mouse.OverrideCursor = null;*/
 
         private void AddRecordingSessionButton_Click(object sender, RoutedEventArgs e)
         {
-            Mouse.OverrideCursor = Cursors.Wait;
-            var recordingSessionForm = new RecordingSessionForm();
+            using (new WaitCursor())
+            {
+                var recordingSessionForm = new RecordingSessionForm();
 
-            recordingSessionForm.Clear();
-            var newSession = new RecordingSession();
-            newSession.LocationGPSLatitude = null;
-            newSession.LocationGPSLongitude = null;
-            newSession.SessionDate = DateTime.Today;
-            newSession.EndDate = newSession.SessionDate;
-            newSession.SessionStartTime = new TimeSpan(18, 0, 0);
-            newSession.SessionEndTime = new TimeSpan(24, 0, 0);
-            recordingSessionForm.SetRecordingSession(newSession);
-            Mouse.OverrideCursor = null;
-            AddEditRecordingSession(recordingSessionForm);
+                recordingSessionForm.Clear();
+                var newSession = new RecordingSession
+                {
+                    LocationGPSLatitude = null, LocationGPSLongitude = null, SessionDate = DateTime.Today
+                };
+                newSession.EndDate = newSession.SessionDate;
+                newSession.SessionStartTime = new TimeSpan(18, 0, 0);
+                newSession.SessionEndTime = new TimeSpan(24, 0, 0);
+                recordingSessionForm.SetRecordingSession(newSession);
+                Mouse.OverrideCursor = null;
+                AddEditRecordingSession(recordingSessionForm);
+            }
         }
 
         private void CompareImagesButton_Click(object sender, RoutedEventArgs e)
         {
             using (new WaitCursor("Add all images to the comparison window..."))
             {
-                var sessionData = RecordingSessionListView.SelectedItem as RecordingSessionData;
-
                 //BulkObservableCollection<StoredImage> images = DBAccess.GetAllImagesForSession(session);
-                if (sessionData != null)
+                if (RecordingSessionListView.SelectedItem is RecordingSessionData sessionData)
                 {
                     var session = DBAccess.GetRecordingSession(sessionData.Id);
                     if (session != null)
@@ -284,20 +312,28 @@ Mouse.OverrideCursor = null;*/
                     var session =
                         DBAccess.GetRecordingSession((RecordingSessionListView.SelectedItems[0] as RecordingSessionData)
                             .Id);
-                    //recordingSessionDataList.RemoveAt(oldIndex);
-                    if (RecordingSessionListView.Items.Count > 0)
+                    var result = MessageBox.Show(
+                        $"This will remove session {session.SessionTag} From the Database\nAre You Sure?",
+                        "Delete RecordingSession", MessageBoxButton.YesNo);
+                    if (result == MessageBoxResult.Yes)
                     {
-                        oldIndex--;
-                        if (oldIndex < 0) oldIndex = 0;
-                        RecordingSessionListView.SelectedIndex = oldIndex;
-                    }
-                    else
-                    {
-                        RecordingSessionControl.recordingSession = null;
-                        RecordingsListControl.recordingsList.Clear();
+                        //recordingSessionDataList.RemoveAt(oldIndex);
+                        if (RecordingSessionListView.Items.Count > 0)
+                        {
+                            oldIndex--;
+                            if (oldIndex < 0) oldIndex = 0;
+                            RecordingSessionListView.SelectedIndex = oldIndex;
+                        }
+                        else
+                        {
+                            RecordingSessionControl.recordingSession = null;
+                            RecordingsListControl.recordingsList.Clear();
+                        }
+
+
+                        DBAccess.DeleteSession(session);
                     }
 
-                    DBAccess.DeleteSession(session);
                     RefreshData(PageSize, CurrentTopOfScreen);
                     if (RecordingSessionListView.SelectedItem != null)
                         RecordingSessionListView.ScrollIntoView(RecordingSessionListView.SelectedItem);
@@ -326,6 +362,10 @@ Mouse.OverrideCursor = null;*/
 
         /// <summary>
         ///     Handles the Click event of the ExportSessionDataButton control.
+        /// Modified functionality - now rewrites all the text files for recordings in this session
+        /// using the comments in the relevant labelled segments.  By default will replace all the old text files
+        /// with new ones, but CTRL-Click will just write text files where they do not already exist and
+        /// existing text files will be left untouched.
         /// </summary>
         /// <param name="sender">
         ///     The source of the event.
@@ -335,13 +375,48 @@ Mouse.OverrideCursor = null;*/
         /// </param>
         private void ExportSessionDataButton_Click(object sender, RoutedEventArgs e)
         {
+            bool partial = false;
+            if (Keyboard.IsKeyDown(Key.RightCtrl) || Keyboard.IsKeyDown(Key.LeftCtrl))
+            {
+                partial = true;
+            }
+            RecordingSession selectedSession = GetSelectedSession();
+            if (selectedSession == null) return;
+            if (selectedSession.Recordings == null || selectedSession.Recordings.Count <= 0) return;
+            if (!Directory.Exists(selectedSession.OriginalFilePath)) return;
+            
+            // only carry on if we have just one session selected
+            using (new WaitCursor())
+            {
+                selectedSession.WriteTextFile(partial);
+                foreach (var recording in selectedSession.Recordings)
+                {
+                    recording.WriteTextFile(partial);
+                }
+
+            }
+
+            e.Handled = true;
+            return;
+        }
+
+        /// <summary>
+        ///     Handles the Click event of the ExportSessionDataButton control.
+        /// </summary>
+        /// <param name="sender">
+        ///     The source of the event.
+        /// </param>
+        /// <param name="e">
+        ///     The <see cref="RoutedEventArgs" /> instance containing the event data.
+        /// </param>
+        private void ExportSessionDataButton_Click_old(object sender, RoutedEventArgs e)
+        {
             using (new WaitCursor("Export session data"))
             {
                 if (RecordingSessionListView.SelectedItems.Count > 0)
                     foreach (var item in RecordingSessionListView.SelectedItems)
                     {
-                        var sessionData = item as RecordingSessionData;
-                        var session = DBAccess.GetRecordingSession(sessionData != null ? sessionData.Id : -1);
+                        var session = DBAccess.GetRecordingSession(item is RecordingSessionData sessionData ? sessionData.Id : -1);
                         if (session != null)
                         {
                             var statsForSession = session.GetStats();
@@ -409,142 +484,8 @@ Mouse.OverrideCursor = null;*/
                     }
             }
         }
-        /*
-        private void NavOrderByComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            using (new WaitCursor("Set default pre-load order"))
-            {
-                if (!e.Handled)
-                {
-                    e.Handled = true;
-                    if (e.AddedItems != null && e.AddedItems.Count > 0)
-                    {
-                        //string selectedItem = (NavOrderByComboBox.SelectedItem as ComboBoxItem).Content.ToString();
-                        string selectedItem = "NONE";
-                        if (!string.IsNullOrWhiteSpace(selectedItem))
-                        {
-                            field = selectedItem;
-                            RefreshData();
-                            if (field.StartsWith("DATE"))
-                            {
-                                Tools.SortColumn(RecordingSessionListView, DateColumn.DisplayIndex);
-                            }
-                            else if (field.StartsWith("TAG"))
-                            {
-                                Tools.SortColumn(RecordingSessionListView, TagColumn.DisplayIndex);
-                            }
-                            else if (field.StartsWith("LOCATION"))
-                            {
-                                Tools.SortColumn(RecordingSessionListView, LocationColumn.DisplayIndex);
-                            }
-                            else if (field.StartsWith("RECORDINGS"))
-                            {
-                                Tools.SortColumn(RecordingSessionListView, RecordingsColumn.DisplayIndex);
-                            }
-                        }
-                    }
-                }
-            }
-        }*/
+        
 
-        /*
-        /// <summary>
-        /// Move to the end of the list of sessions in the database
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void NavToLastPage_Click(object sender, RoutedEventArgs e)
-        {
-            using (new WaitCursor("Move to Last Page"))
-            {
-                if (!e.Handled)
-                {
-                    e.Handled = true;
-                    if (pageSize <= 0) return;
-                    currentTopOfScreen = MaxRecordingSessions - pageSize;
-                    if (currentTopOfScreen < 0)
-                    {
-                        currentTopOfScreen = 0;
-                    }
-                    RefreshData();
-                }
-            }
-        }*/
-
-        /*
-
-        /// <summary>
-        /// moves forward by 2/3 of a page in the database
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void NavToNextPage_Click(object sender, RoutedEventArgs e)
-        {
-            using (new WaitCursor("Move to Next Page"))
-            {
-                if (!e.Handled)
-                {
-                    e.Handled = true;
-                    if (pageSize <= 0) return;
-                    currentTopOfScreen += (int)(pageSize * 0.667);
-                    if (currentTopOfScreen > (MaxRecordingSessions - pageSize))
-                    {
-                        currentTopOfScreen = MaxRecordingSessions - pageSize;
-                    }
-                    if (currentTopOfScreen < 0)
-                    {
-                        currentTopOfScreen = 0;
-                    }
-                    RefreshData();
-                }
-            }
-        }*/
-
-        /*
-
-        /// <summary>
-        /// Moves up 2/3 of a  page in the list of sessions from the database
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void NavToPrevPage_Click(object sender, RoutedEventArgs e)
-        {
-            using (new WaitCursor("Load previous page"))
-            {
-                if (!e.Handled)
-                {
-                    e.Handled = true;
-                    if (pageSize <= 0) return;
-                    currentTopOfScreen -= (int)(pageSize * 0.667);
-                    if (currentTopOfScreen < 0)
-                    {
-                        currentTopOfScreen = 0;
-                    }
-                    RefreshData();
-                }
-            }
-        }*/
-
-        /*
-
-        /// <summary>
-        /// Moves to the start of the list of items in the database
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void NavToStartButton_Click(object sender, RoutedEventArgs e)
-        {
-            using (new WaitCursor("Move to First page"))
-            {
-                if (!e.Handled)
-                {
-                    e.Handled = true;
-                    if (pageSize <= 0) return;
-                    currentTopOfScreen = 0;
-                    RefreshData();
-                }
-            }
-        }*/
 
         private void OnListViewItemFocused(object sender, RoutedEventArgs e)
         {
@@ -552,55 +493,7 @@ Mouse.OverrideCursor = null;*/
             //lvi.IsSelected = true;
             //lvi.BringIntoView();
         }
-        /*
-        /// <summary>
-        /// Refreshes the page with the new pagesize settings
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PageSizeComboBox_DropDownClosed(object sender, EventArgs e)
-        {
-        }*/
-
-        /*
-
-        /// <summary>
-        /// Adjust the page size - re-population will be done on combobox closed
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PageSizeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            using (new WaitCursor("Changing page size"))
-            {
-                if (!e.Handled)
-                {
-                    e.Handled = true;
-                    if (e.AddedItems.Count > 0)
-                    {
-                        String selectedItem = (PageSizeComboBox.SelectedItem as ComboBoxItem).Content.ToString();
-                        if (!String.IsNullOrWhiteSpace(selectedItem))
-                        {
-                            if (selectedItem.ToUpper() == "ALL")
-                            {
-                                currentTopOfScreen = 0;
-                                pageSize = 0;
-                            }
-                            else
-                            {
-                                int size = 0;
-                                int.TryParse(selectedItem, out size);
-                                if (size > 0)
-                                {
-                                    pageSize = size;
-                                }
-                            }
-                            RefreshData(pageSize, currentTopOfScreen);
-                        }
-                    }
-                }
-            }
-        }*/
+        
 
         /// <summary>
         ///     called when the control is initialized and the data can be refreshed for the first time
@@ -631,6 +524,16 @@ Mouse.OverrideCursor = null;*/
             {
                 if (RecordingSessionListView.SelectedItems == null ||
                     RecordingSessionListView.SelectedItems.Count <= 0) return;
+                if (RecordingSessionListView.SelectedItems.Count == 1)
+                {
+                    ExportSessionDataButton.IsEnabled = true;
+                }
+                else
+                {
+                    ExportSessionDataButton.IsEnabled = false;
+                }
+                RecordingsListControl.recordingsList.Clear();
+                RecordingsListControl.Refresh();
                 var id = (RecordingSessionListView.SelectedItems[0] as RecordingSessionData).Id;
                 RecordingSessionControl.recordingSession = DBAccess.GetRecordingSession(id);
                 SegmentImageScroller.Clear();
@@ -660,8 +563,7 @@ Mouse.OverrideCursor = null;*/
                     var sessionSummary = Tools.GetSessionSummary(RecordingSessionControl.recordingSession);
                     foreach (var item in sessionSummary)
                     {
-                        var batPassSummary = new BatPassSummaryControl();
-                        batPassSummary.Content = item;
+                        var batPassSummary = new BatPassSummaryControl {Content = item};
                         SessionSummaryStackPanel.Children.Add(batPassSummary);
                     }
 
@@ -674,6 +576,8 @@ Mouse.OverrideCursor = null;*/
                     CompareImagesButton.IsEnabled = true;
                 }
             }
+
+            oldSelectionIndex = RecordingSessionListView.SelectedIndex;
         }
 
         private void RecordingsListControl_RecordingChanged(object sender, EventArgs e)
@@ -705,65 +609,128 @@ Mouse.OverrideCursor = null;*/
         /// <param name="e"></param>
         public void ReportSessionDataButton_Click(object sender, RoutedEventArgs e)
         {
-            var doFullExport = false || sender is AnalyseAndImportClass;
+           
+            //UiServices.SetBusyState();
+                GenerateReportSet(sender, e);
+            
+
+
+        }
+
+        public Task<bool> GenerateReportSetAsync(object sender, RoutedEventArgs e)
+        {
+            return Task<bool>.Run(() => GenerateReportSet(sender, e));
+        }
+
+        public bool GenerateReportSet(object sender, RoutedEventArgs e)
+        {
+            bool doFullExport = false;
+            if (sender is AnalyseAndImportClass) doFullExport = true;
+            return (GenerateReportSet(null, doFullExport));
+        }
+
+        /// <summary>
+        /// Alternative GenerateReport which actually does allthe work aand can be called
+        /// directly without a sender or eventArgs.  doFullExport flags that all report formats
+        /// should be exported as .csv files.
+        /// </summary>
+        /// <param name="doFullExport"></param>
+        /// <returns></returns>
+        public bool GenerateReportSet(RecordingSession SpecificSession=null, bool doFullExport=false)
+        { 
+
+        
             var reportBatStatsList = new List<BatStatistics>();
             var reportSessionList = new List<RecordingSession>();
             var reportRecordingList = new List<Recording>();
             var reportWindow = new ReportMainWindow();
             var statsForAllSessions = new BulkObservableCollection<BatStats>();
-
-            using (new WaitCursor("Generate Report Data"))
+            using (new WaitCursor())
             {
-                if (RecordingSessionListView.SelectedItems != null && RecordingSessionListView.SelectedItems.Count > 0)
+                Debug.WriteLine("GenerateReport at" + DateTime.Now.ToLongTimeString());
+                try
                 {
-                    foreach (var item in RecordingSessionListView.SelectedItems)
+                    if (SpecificSession != null)
                     {
-                        var sessionData = item as RecordingSessionData;
-                        if (sessionData == null) return;
-                        var session = DBAccess.GetRecordingSession(sessionData.Id);
-                        if (session == null) return;
-                        statsForAllSessions.AddRange(session.GetStats());
+                        statsForAllSessions.AddRange(SpecificSession.GetStats());
 
-                        reportSessionList.Add(session);
+                        reportSessionList.Add(SpecificSession);
                     }
-                }
-                else
-                {
-                    if (RecordingSessionListView.Items != null && RecordingSessionListView.Items.Count > 0)
-                        foreach (var item in RecordingSessionListView.Items)
+                    else
+                    {
+                        if (RecordingSessionListView.SelectedItems != null &&
+                            RecordingSessionListView.SelectedItems.Count > 0)
                         {
-                            var sessionData = item as RecordingSessionData;
-                            if (sessionData == null) return;
-                            var session = DBAccess.GetRecordingSession(sessionData.Id);
-                            if (session == null) return;
-                            statsForAllSessions.AddRange(session.GetStats());
+                            Debug.WriteLine("Get Data for " + RecordingSessionListView.SelectedItems.Count +
+                                            " items at " +
+                                            DateTime.Now.ToLongTimeString());
+                            foreach (var item in RecordingSessionListView.SelectedItems)
+                            {
 
-                            reportSessionList.Add(session);
+                                if (!(item is RecordingSessionData sessionData)) return (false);
+                                Debug.WriteLine("Get Data for Session " + sessionData.SessionTag + " at " +
+                                                DateTime.Now.ToLongTimeString());
+                                var session = DBAccess.GetRecordingSession(sessionData.Id);
+                                if (session == null) return (false);
+                                Debug.WriteLine("GetStats for Session at " + DateTime.Now.ToLongTimeString());
+                                statsForAllSessions.AddRange(session.GetStats());
+
+                                reportSessionList.Add(session);
+                                Debug.WriteLine(reportSessionList.Count + " items in the sessionList at " +
+                                                DateTime.Now.ToLongTimeString());
+                            }
                         }
+                        else
+                        {
+                            Debug.WriteLine("No selection made so reporting for all sessions!!!!!!! at " +
+                                            DateTime.Now.ToLongTimeString());
+                            if (RecordingSessionListView.Items != null && RecordingSessionListView.Items.Count > 0)
+                                foreach (var item in RecordingSessionListView.Items)
+                                {
+                                    if (!(item is RecordingSessionData sessionData)) return (false);
+                                    var session = DBAccess.GetRecordingSession(sessionData.Id);
+                                    if (session == null) return (false);
+                                    statsForAllSessions.AddRange(session.GetStats());
+
+                                    reportSessionList.Add(session);
+                                }
+                        }
+                    }
+
+                    Debug.WriteLine("Condensing Stats List at " + DateTime.Now.ToLongTimeString());
+                    statsForAllSessions = Tools.CondenseStatsList(statsForAllSessions);
+                    Debug.WriteLine("collating stats for " + statsForAllSessions.Count + " at " +
+                                    DateTime.Now.ToLongTimeString());
+                    foreach (var bs in statsForAllSessions)
+                    {
+                        Debug.WriteLine("Processing next stat at " + DateTime.Now.ToLongTimeString());
+                        var bstat = new BatStatistics(DBAccess.GetNamedBat(bs.batCommonName));
+                        reportBatStatsList.Add(bstat);
+                        var recordingsToreport = (from brLink in bstat.bat.BatRecordingLinks
+                            join sess in reportSessionList on brLink.Recording.RecordingSessionId equals sess.Id
+                            select brLink.Recording).Distinct();
+
+                        if (recordingsToreport != null)
+                            foreach (var rec in recordingsToreport)
+                                if (reportRecordingList.All(existingRec => existingRec.Id != rec.Id))
+                                    reportRecordingList.Add(rec);
+                        //ReportRecordingList.AddRange(recordingsToreport);
+                    }
+
+                    Debug.WriteLine("Setting ReportData at " + DateTime.Now.ToLongTimeString());
+                    reportWindow.SetReportData(reportBatStatsList, reportSessionList, reportRecordingList);
+                    Debug.WriteLine("Completed at " + DateTime.Now.ToLongTimeString());
+                    if (doFullExport) reportWindow.ExportAll();
                 }
-
-                statsForAllSessions = Tools.CondenseStatsList(statsForAllSessions);
-
-                foreach (var bs in statsForAllSessions)
+                catch (Exception ex)
                 {
-                    var bstat = new BatStatistics(DBAccess.GetNamedBat(bs.batCommonName));
-                    reportBatStatsList.Add(bstat);
-                    var recordingsToreport = (from brLink in bstat.bat.BatRecordingLinks
-                        join sess in reportSessionList on brLink.Recording.RecordingSessionId equals sess.Id
-                        select brLink.Recording).Distinct();
-
-                    if (recordingsToreport != null)
-                        foreach (var rec in recordingsToreport)
-                            if (reportRecordingList.All(existingRec => existingRec.Id != rec.Id))
-                                reportRecordingList.Add(rec);
-                    //ReportRecordingList.AddRange(recordingsToreport);
+                    Debug.WriteLine("Error generating Report:-" + ex.Message);
+                    return (false);
                 }
-
-                reportWindow.SetReportData(reportBatStatsList, reportSessionList, reportRecordingList);
-                if (doFullExport) reportWindow.ExportAll();
             }
 
             reportWindow.ShowDialog();
+            return (true);
         }
 
         #region recordingSessionList
@@ -778,17 +745,17 @@ Mouse.OverrideCursor = null;*/
         ///     recordingSessiondataList Dependency Property
         /// </summary>
         public static readonly DependencyProperty recordingSessionDataListProperty =
-            DependencyProperty.Register("recordingSessionDataList",
-                typeof(AsyncVirtualizingCollection<RecordingSessionData>), typeof(RecordingSessionListDetailControl),
+            DependencyProperty.Register(nameof(recordingSessionDataList),
+                typeof(VirtualizingCollection<RecordingSessionData>), typeof(RecordingSessionListDetailControl),
                 new FrameworkPropertyMetadata(null));
 
         /// <summary>
         ///     Gets or sets the recordingSessiondataList property.  This dependency property
         ///     indicates ....
         /// </summary>
-        public AsyncVirtualizingCollection<RecordingSessionData> recordingSessionDataList
+        public VirtualizingCollection<RecordingSessionData> recordingSessionDataList
         {
-            get => (AsyncVirtualizingCollection<RecordingSessionData>) GetValue(recordingSessionDataListProperty);
+            get => (VirtualizingCollection<RecordingSessionData>) GetValue(recordingSessionDataListProperty);
             set => SetValue(recordingSessionDataListProperty, value);
         }
 
@@ -805,7 +772,7 @@ Mouse.OverrideCursor = null;*/
         ///     IsLoading Dependency Property
         /// </summary>
         public static readonly DependencyProperty IsLoadingProperty =
-            DependencyProperty.Register("IsLoading", typeof(bool), typeof(RecordingSessionListDetailControl),
+            DependencyProperty.Register(nameof(IsLoading), typeof(bool), typeof(RecordingSessionListDetailControl),
                 new FrameworkPropertyMetadata(false));
 
         /// <summary>
@@ -816,13 +783,13 @@ Mouse.OverrideCursor = null;*/
         {
             get
             {
-                if (recordingSessionDataList is AsyncVirtualizingCollection<RecordingSessionData>)
+                if (recordingSessionDataList != null)
                     return recordingSessionDataList.IsLoading;
                 return false;
             }
             set
             {
-                if (recordingSessionDataList is AsyncVirtualizingCollection<RecordingSessionData>)
+                if (recordingSessionDataList != null)
                     recordingSessionDataList.IsLoading = value;
             }
         }

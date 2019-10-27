@@ -1,19 +1,18 @@
-﻿/*
- *  Copyright 2016 Justin A T Halls
-
-        Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-
- */
+﻿// *  Copyright 2016 Justin A T Halls
+//  *
+//  *  This file is part of the Bat Recording Manager Project
+// 
+//         Licensed under the Apache License, Version 2.0 (the "License");
+//         you may not use this file except in compliance with the License.
+//         You may obtain a copy of the License at
+// 
+//             http://www.apache.org/licenses/LICENSE-2.0
+// 
+//         Unless required by applicable law or agreed to in writing, software
+//         distributed under the License is distributed on an "AS IS" BASIS,
+//         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//         See the License for the specific language governing permissions and
+//         limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -76,6 +75,7 @@ namespace BatRecordingManager
         private EventHandler _analysingEvent;
         private EventHandler _analysingFinishedEvent;
         private EventHandler<EventArgs> _dataUpdatedEvent;
+        public Recording ThisRecording { get; set; } = null;
 
         private string _kaleidoscopeFolderPath = "";
 
@@ -89,9 +89,90 @@ namespace BatRecordingManager
         {
             FolderSelected = false;
             FilesRemaining = 0;
+            ThisRecording = null;
             FolderPath = SelectFolder();
             if (!string.IsNullOrWhiteSpace(FolderPath) && Directory.Exists(FolderPath) && !WavFileList.IsNullOrEmpty())
+            {
+
+
                 FolderSelected = true;
+                SetAudacityExportFolder(FolderPath);
+            }
+        }
+
+        public AnalyseAndImportClass(string sessionTag)
+        {
+            SessionTag = sessionTag;
+            FolderSelected = false;
+            FilesRemaining = 0;
+            ThisRecording = null;
+            FolderPath = SelectFolder();
+            if (!string.IsNullOrWhiteSpace(FolderPath) && Directory.Exists(FolderPath) && !WavFileList.IsNullOrEmpty())
+            {
+
+
+                FolderSelected = true;
+                SetAudacityExportFolder(FolderPath);
+            }
+        }
+
+        public AnalyseAndImportClass(Recording recordingToAnalyse)
+        {
+            FolderSelected = false;
+            FilesRemaining = 0;
+            FolderPath = "";
+            ThisRecording = recordingToAnalyse;
+
+            if (recordingToAnalyse != null)
+            {
+                FolderPath = recordingToAnalyse.RecordingSession.OriginalFilePath;
+                if (!FolderPath.EndsWith(@"\"))
+                {
+                    FolderPath += @"\";
+                }
+                if (Directory.Exists(FolderPath))
+                {
+                    FolderSelected = true;
+                    SetAudacityExportFolder(FolderPath);
+                    SessionTag = recordingToAnalyse.RecordingSession.SessionTag;
+                    FileToAnalyse = FolderPath+recordingToAnalyse.RecordingName;
+                    ThisRecordingSession = recordingToAnalyse.RecordingSession;
+                    ThisGpxHandler = new GpxHandler(FolderPath);
+                    //Analyse(FileToAnalyse);
+                }
+            }
+        }
+
+        public void AnalyseRecording()
+        {
+            if (ThisRecording != null && !string.IsNullOrWhiteSpace(FileToAnalyse))
+            {
+                Analyse(FileToAnalyse);
+            }
+        }
+
+        /// <summary>
+        /// Opens the C:\Audacity Config file and edits the export labels folder to
+        /// the current selected folder;
+        /// </summary>
+        /// <param name="folderPath"></param>
+        private void SetAudacityExportFolder(string folderPath)
+        {
+            string moddedFolderPath = folderPath.Replace(@"\\", @"\"); // first ensure that hte path only contains single backslashes - which it should
+            moddedFolderPath = moddedFolderPath.Replace(@"\", @"\\"); // then ensure that all backslashes are doubled for insertion into the config file
+            string configFile = @"C:\audacity-win-portable\Portable Settings\audacity.cfg";
+            if (File.Exists(configFile) && (new FileInfo(configFile).Length>0L))
+            {
+                var lines = File.ReadAllLines(configFile);
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    if (lines[i].StartsWith("DefaultExportPath"))
+                    {
+                        lines[i] = "DefaultExportPath=" + moddedFolderPath;
+                    }
+                }
+                File.WriteAllLines(configFile,lines);
+            }
         }
 
         public string SessionTag { get; set; }
@@ -100,6 +181,8 @@ namespace BatRecordingManager
         private string FolderPath { get; set; }
         private GpxHandler ThisGpxHandler { get; set; }
         private RecordingSession ThisRecordingSession { get; set; }
+
+        public DateTime? startedAt { get; set; } = null;
 
         /// <summary>
         ///     wavFileList is a list of all .wav files in the current folder which
@@ -183,33 +266,34 @@ namespace BatRecordingManager
             //using (System.Windows.Forms.OpenFileDialog dialog = new OpenFileDialog())
             //using(Ookii.Dialogs.Wpf.VistaOpenFileDialog dialog=new VistaOpenFileDialog())
             //{
-            var dialog = new OpenFileDialog
+            using (var dialog = new OpenFileDialog
             {
-                DefaultExt = "*.*",
+                DefaultExt = ".wav",
                 Filter = "Text files (*.txt)|*.txt|Wav files (*.wav)|*.wav|All Files (*.*)|*.*",
-                FilterIndex = 2,
+                FilterIndex = 3,
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 Title = "Select Folder or WAV file",
                 ValidateNames = false,
                 CheckFileExists = false,
                 CheckPathExists = true,
                 FileName = "Select Folder"
-            };
+            })
+            {
+                dialog.FileOk += Dialog_FileOk;
 
-            dialog.FileOk += Dialog_FileOk;
 
+                //dialog.Description = "Select the folder containing the .wav and descriptive text files";
+                //dialog.ShowNewFolderButton = true;
+                //dialog.RootFolder = Environment.SpecialFolder.MyComputer;
 
-            //dialog.Description = "Select the folder containing the .wav and descriptive text files";
-            //dialog.ShowNewFolderButton = true;
-            //dialog.RootFolder = Environment.SpecialFolder.MyComputer;
+                if (dialog.ShowDialog() == DialogResult.OK)
+                    //HeaderFileName = dialog.FileName;
 
-            if (dialog.ShowDialog() == DialogResult.OK)
-                //HeaderFileName = dialog.FileName;
-
-                FolderPath = Tools.GetPath(dialog.FileName);
-            //FolderPath = Path.GetDirectoryName(dialog.FileName);
-            else
-                return null;
+                    FolderPath = Tools.GetPath(dialog.FileName);
+                //FolderPath = Path.GetDirectoryName(dialog.FileName);
+                else
+                    return null;
+            }
 
 
             if (string.IsNullOrWhiteSpace(FolderPath)) return null;
@@ -217,10 +301,34 @@ namespace BatRecordingManager
 
 
             GetFileList();
-            SessionTag = GetSessionTag();
+            if (!string.IsNullOrWhiteSpace(SessionTag) && DBAccess.SessionTagExists(SessionTag))
+            {
+                ThisRecordingSession = DBAccess.GetRecordingSession(SessionTag);
+                if (ThisRecordingSession != null)
+                {
+                    var mbResult = MessageBox.Show($@"You will add analysis results for folder {FolderPath}
+to Existing RecordingSession {SessionTag}
+Are you sure this is correct?", "Append Analysis to current Session", MessageBoxButtons.YesNo);
+                    if (mbResult == DialogResult.No)
+                    {
+                        SessionTag = GetSessionTag();
+                        ThisRecordingSession = CreateSession();
+                    }
+                }
+            }
+            else
+            {
+                SessionTag = GetSessionTag();
 
-            ThisRecordingSession = CreateSession();
-            if (ThisRecordingSession == null) return null;
+                ThisRecordingSession = CreateSession();
+            }
+
+            if (ThisRecordingSession == null)
+            {
+                MessageBox.Show("Cannot find or create a session for this folder",
+                    "Aborting Analysis!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
 
             if (!WavFileList.IsNullOrEmpty())
             {
@@ -250,14 +358,22 @@ namespace BatRecordingManager
         /// <param name="e"></param>
         private void Dialog_FileOk(object sender, CancelEventArgs e)
         {
-            e.Cancel = false;
-            var f = (sender as OpenFileDialog).FileName;
-            if (string.IsNullOrWhiteSpace(f)) e.Cancel = true;
-            var folder = Tools.GetPath(f);
-            if (string.IsNullOrWhiteSpace(folder)) e.Cancel = true;
-            if (!Directory.Exists(folder)) e.Cancel = true;
-            var files = Directory.EnumerateFiles(folder, "*.wav");
-            if (files == null || !files.Any()) e.Cancel = true;
+            try
+            {
+                e.Cancel = false;
+                var f = (sender as OpenFileDialog).FileName;
+                if (string.IsNullOrWhiteSpace(f)) e.Cancel = true;
+                var folder = Tools.GetPath(f);
+                if (string.IsNullOrWhiteSpace(folder)) e.Cancel = true;
+                if (!Directory.Exists(folder)) e.Cancel = true;
+                var files = Directory.EnumerateFiles(folder ?? "", "*.wav");
+                if (!files.Any()) e.Cancel = true;
+            }
+            catch (Exception)
+            {
+                e.Cancel = true;
+            }
+
             if (e.Cancel) (sender as OpenFileDialog).FileName = "Select Folder";
         }
 
@@ -352,7 +468,7 @@ namespace BatRecordingManager
             if (bareFileName.LastIndexOf('.') > 0)
                 bareFileName = bareFileName.Substring(0, bareFileName.LastIndexOf('.'));
 
-            if (string.IsNullOrWhiteSpace(folder) || !File.Exists(folder)) return;
+            if (string.IsNullOrWhiteSpace(folder) || !File.Exists(folder)  || (new FileInfo(folder).Length<=0L)) return;
             if (ExternalProcess != null)
             {
                 MessageBox.Show("Close previous instance of Audacity First!");
@@ -369,7 +485,8 @@ namespace BatRecordingManager
 
             ExternalProcess.EnableRaisingEvents = true;
             ExternalProcess.Exited += ExternalProcess_Exited;
-
+            startedAt=DateTime.Now;
+            
             ExternalProcess = Tools.OpenWavAndTextFile(folder, ExternalProcess);
 
             try
@@ -437,7 +554,7 @@ namespace BatRecordingManager
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                Debug.WriteLine("From OpenWavFile:- "+ex.Message);
             }
         }
 
@@ -508,7 +625,7 @@ namespace BatRecordingManager
         /// <returns></returns>
         private bool Analyse(string file)
         {
-            if (!File.Exists(file)) return false;
+            if (!File.Exists(file) || (new FileInfo(file).Length<=0L)) return false;
             var bareFilename = file;
             if (file.Contains(@"\") && !file.EndsWith(@"\")) bareFilename = file.Substring(file.LastIndexOf(@"\") + 1);
             OnAnalysing(new AnalysingEventArgs(bareFilename));
@@ -549,10 +666,22 @@ namespace BatRecordingManager
             if (IsCurrentMatchingTextFile())
             {
                 SaveRecording();
-                AnalyseNextFile();
+                string result=AnalyseNextFile();
+                if (string.IsNullOrWhiteSpace(result))
+                {
+                    if (FilesRemaining <= 0)
+                    {
+                        Tools.SetFolderIconTick(FolderPath);
+                    }
+                    OnAnalysingFinished(new EventArgs());
+                }
             }
             else
             {
+                if (FilesRemaining <= 0)
+                {
+                    Tools.SetFolderIconTick(FolderPath);
+                }
                 OnAnalysingFinished(new EventArgs());
             }
         }
@@ -617,43 +746,93 @@ namespace BatRecordingManager
             return SessionManager.GetHeaderFile(FolderPath);
         }
 
+        /// <summary>
+        /// At start, wavFileList contains a list of .wav files to analyse, which may be empty
+        /// FileToAnalyse is the previous file that was selected from the list to analyse
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private string GetNextFile()
         {
-            if (!WavFileList.IsNullOrEmpty())
+            if (!WavFileList.IsNullOrEmpty()) // if the list is empty, no more files to analyse
             {
-                if (!string.IsNullOrWhiteSpace(FileToAnalyse))
+                if (!string.IsNullOrWhiteSpace(FileToAnalyse)) // if we have a file that we have been analysing...
                 {
-                    var matchingTextFile = FileToAnalyse.Substring(0, FileToAnalyse.LastIndexOf(".")) + ".txt";
-                    if (WavFileList.Contains(FileToAnalyse) && File.Exists(matchingTextFile))
+                    
+                    if (IsCurrentMatchingTextFile()) // if so...
                     {
-                        WavFileList.Remove(FileToAnalyse);
-                        FileToAnalyse = "";
-                        if (WavFileList.IsNullOrEmpty()) return null;
+                        WavFileList.Remove(FileToAnalyse); // remove the .wav file from the list
+                        FileToAnalyse = ""; // neutralise the current file
+                        if (WavFileList.IsNullOrEmpty())
+                        {
+                            // if so.. we had a file that was being analysed and it produced a matching .txt file and there are no more .wav files, SO
+                            // we can mark the folder with a Tick
+                            Tools.SetFolderIconTick(FolderPath);
+                            return null; // and if there are no more files in the list, return a null
+                        }
+
                     }
                 }
 
-                if (string.IsNullOrWhiteSpace(SessionTag))
+                /*
+
+                // if we get here we have removed the last analysed file (if any) and there are still items inn the list
+                if (string.IsNullOrWhiteSpace(SessionTag)) // if we do not have a valid sessiontag...
+                {
+                    FileToAnalyse = WavFileList.First(); // get the first file from the list
+                    if (File.Exists(FileToAnalyse)) // if it exists make it the fileToAnalyse
+                    {
+                        FilesRemaining--;       // decrement the files remaining counter
+                        return FileToAnalyse;   // and return the file name
+                    }
+
+                    FileToAnalyse = "";         // if the file does not exist, neutralise the FileTo Analyse
+                    return null;                // and return a null
+                }*/
+
+                // iterate through the wavfile list
+                // any file that has a matching .txt file is removed from the list
+                // if any files remain, the first one become the FileToAnalyse and the FilesRemaining
+                // equals the size of the list
+                List<String> filesToRemove=new List<string>();
+                foreach (var file in WavFileList)
+                {
+                    if (File.Exists(file) && (new FileInfo(file).Length>0L))
+                    {
+
+                        if (IsCurrentMatchingTextFile(file))
+                        {
+                            filesToRemove.Add(file);
+                            
+                        }
+
+                        
+                    }
+                    else
+                    {
+                        filesToRemove.Add(file);
+                    }
+                }
+
+                foreach (var file in filesToRemove )
+                {
+                    if (WavFileList.Contains(file))
+                    {
+                        WavFileList.Remove(file);
+                    }
+                }
+
+                FilesRemaining = WavFileList.Count;
+                if (FilesRemaining > 0)
                 {
                     FileToAnalyse = WavFileList.First();
-                    if (File.Exists(FileToAnalyse))
-                    {
-                        FilesRemaining--;
-                        return FileToAnalyse;
-                    }
-
-                    FileToAnalyse = "";
-                    return null;
+                    return (FileToAnalyse);
                 }
-
-                foreach (var file in WavFileList)
-                    if (File.Exists(file))
-                    {
-                        FileToAnalyse = file;
-                        FilesRemaining--;
-                        if (IsCurrentMatchingTextFile()) continue;
-
-                        return file;
-                    }
+                else
+                {
+                    Tools.SetFolderIconTick(FolderPath);
+                    return (null);
+                }
             }
 
             return null;
@@ -685,19 +864,41 @@ namespace BatRecordingManager
                     }
                 }
 
-            return "";
+            string path = Tools.GetPath(WavFileList.FirstOrDefault());
+            if (!string.IsNullOrWhiteSpace(path))
+            {
+                if (path.EndsWith("\\"))
+                {
+                    path = path.Substring(0, path.Length - 1);
+                }
+
+                if (path.Contains("\\"))
+                {
+                    SessionTag = path.Substring(path.LastIndexOf('\\')).Trim();
+                    if (SessionTag.StartsWith("\\"))
+                    {
+                        SessionTag = SessionTag.Substring(1);
+                    }
+                }
+            }
+
+            return SessionTag;
         }
 
         /// <summary>
         ///     returns true if there is a current file to analyse and it has a matching text file
         /// </summary>
         /// <returns></returns>
-        private bool IsCurrentMatchingTextFile()
+        private bool IsCurrentMatchingTextFile(string wavFile=null)
         {
-            var result = false;
-            if (!string.IsNullOrWhiteSpace(FileToAnalyse) && File.Exists(FileToAnalyse))
+            if (string.IsNullOrWhiteSpace(wavFile))
             {
-                var matchingTextFile = FileToAnalyse.Substring(0, FileToAnalyse.LastIndexOf(".")) + ".txt";
+                wavFile = FileToAnalyse;
+            }
+            var result = false;
+            if (!string.IsNullOrWhiteSpace(wavFile) && File.Exists(wavFile) && (new FileInfo(wavFile).Length>0L))
+            {
+                var matchingTextFile = wavFile.Substring(0, wavFile.LastIndexOf(".")) + ".txt";
                 if (File.Exists(matchingTextFile)) result = true;
             }
 
@@ -713,10 +914,24 @@ namespace BatRecordingManager
         {
             var batsFound = new Dictionary<string, BatStats>();
             var result = "Text File does not exist";
+            if (ThisGpxHandler == null)
+            {
+                ThisGpxHandler=new GpxHandler(FolderPath);
+            }
             var textFileToProcess = FileToAnalyse.Substring(0, FileToAnalyse.Length - 4) + ".txt";
             if (File.Exists(textFileToProcess))
-                result = FileProcessor.ProcessFile(textFileToProcess, ThisGpxHandler, ThisRecordingSession.Id,
-                    ref batsFound);
+            {
+                if (ThisRecording == null)
+                {
+                    result = FileProcessor.ProcessFile(textFileToProcess, ThisGpxHandler, ThisRecordingSession.Id,
+                        ref batsFound);
+                }
+                else
+                {
+                    result = FileProcessor.UpdateRecording(ThisRecording, textFileToProcess);
+                }
+            }
+
             Debug.WriteLine("AnalyseAndImport.SaveRecording:-" + FileToAnalyse + "\n" + result + "\n~~~~~~~~~~~~\n");
 
             OnDataUpdated(new EventArgs());
