@@ -101,22 +101,22 @@ namespace BatRecordingManager
             column = CreateColumn("Session", "session.SessionTag", Visibility = Visibility.Visible, "");
             ReportDataGrid.Columns.Add(column);
 
-            column = CreateColumn("Position", "session", Visibility.Visible, "GPSConverter");
+            column = CreateColumn("Position", "combinedGPS", Visibility.Visible, "");
             ReportDataGrid.Columns.Add(column);
 
-            column = CreateColumn("MapRef", "session", Visibility.Visible, "MapRefConverter");
+            column = CreateColumn("MapRef", "GridRef", Visibility.Visible, "");
             ReportDataGrid.Columns.Add(column);
 
-            column = CreateColumn("Start", "session", Visibility.Visible, "SessionStartDateTimeConverter");
+            column = CreateColumn("Start", "sessionStartDateTime", Visibility.Visible, "");
             ReportDataGrid.Columns.Add(column);
 
-            column = CreateColumn("End", "session", Visibility.Visible, "SessionEndDateTimeConverter");
+            column = CreateColumn("End", "sessionEndDateTime", Visibility.Visible, "");
             ReportDataGrid.Columns.Add(column);
 
             column = CreateColumn("Bat", "recordingStats.batCommonName");
             ReportDataGrid.Columns.Add(column);
 
-            column = CreateColumn("Passes/Segments", "recordingStats", Visibility.Visible, "BSPassesConverter");
+            column = CreateColumn("Passes/Segments", "passesAndSegments", Visibility.Visible, "");
             ReportDataGrid.Columns.Add(column);
 
             column = CreateColumn("Min", "recordingStats.minDuration",Visibility.Visible,"ShortTime_Converter");

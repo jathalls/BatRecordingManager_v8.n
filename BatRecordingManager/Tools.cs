@@ -2171,7 +2171,7 @@ namespace BatRecordingManager
 
                 var timeToDisplay = value as TimeSpan? ?? new TimeSpan();
 
-                return timeToDisplay.ToString(@"hh\:mm\:ss");
+                return timeToDisplay.ToString(@"hh\hmm\mss\s");
             }
             catch
             {

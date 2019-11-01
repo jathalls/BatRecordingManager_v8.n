@@ -331,24 +331,104 @@ namespace BatRecordingManager
     /// </summary>
     public class ReportData
     {
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+/// <summary>
+/// the bat to be reported
+/// </summary>
         public Bat bat { get; set; } = new Bat();
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+/// <summary>
+/// the session to be reported
+/// </summary>
         public RecordingSession session { get; set; } = new RecordingSession();
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+/// <summary>
+/// the stats for the bat to be reported
+/// </summary>
         public BatStats sessionStats { get; set; } = new BatStats();
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+/// <summary>
+/// the recording to be reported
+/// </summary>
         public Recording recording { get; set; } = new Recording();
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+/// <summary>
+/// the stats for the bat and recording to be reported
+/// </summary>
         public BatStats recordingStats { get; set; } = new BatStats();
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+
+/// <summary>
+/// the header for the report
+/// </summary>
         public string sessionHeader { get; set; } = "";
 
+    /// <summary>
+    /// returns the combined GPS location from the session data
+    /// </summary>
+    public string combinedGPS
+    {
+        get
+        {
+            if (session != null)
+            {
+                string result = session.LocationGPSLatitude?.ToString() + ", " + session.LocationGPSLongitude?.ToString();
+                if (!string.IsNullOrWhiteSpace(result)) return (result);
+                return (" - ");
+            }
+
+            return (" - ");
+        }
+    }
+
+
+    /// <summary>
+    /// returns a combined date and time string for the start of the session
+    /// </summary>
+    public string sessionStartDateTime
+    {
+        get
+        {
+            if (session != null)
+            {
+                string result = (session.SessionDate.Date +
+                             (session.SessionStartTime ?? new TimeSpan(18, 0, 0))).ToString();
+            return (result);
+            }
+
+            return (" - ");
+        }
+    }
+
+    public string sessionEndDateTime
+    {
+        get
+        {
+            if (session != null)
+            {
+                string result = ((session.EndDate ?? session.SessionDate).Date +
+                                 (session.SessionEndTime ?? new TimeSpan(23, 59, 0))).ToString();
+                return (result);
+            }
+
+            return (" - ");
+        }
+    }
+
+    public string passesAndSegments
+    {
+        get
+        {
+            if (recordingStats != null)
+            {
+                return (recordingStats.passes.ToString() + "/" + recordingStats.segments.ToString());
+            }
+
+            return (" - ");
+        }
+    }
+
+    /// <summary>
+/// the OS grid ref for the location
+/// </summary>
         public string GridRef
         {
             get

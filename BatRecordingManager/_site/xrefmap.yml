@@ -9400,6 +9400,19 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.ReportData.bat
   nameWithType: ReportData.bat
+- uid: BatRecordingManager.ReportData.combinedGPS
+  name: combinedGPS
+  href: api/BatRecordingManager.ReportData.html#BatRecordingManager_ReportData_combinedGPS
+  commentId: P:BatRecordingManager.ReportData.combinedGPS
+  fullName: BatRecordingManager.ReportData.combinedGPS
+  nameWithType: ReportData.combinedGPS
+- uid: BatRecordingManager.ReportData.combinedGPS*
+  name: combinedGPS
+  href: api/BatRecordingManager.ReportData.html#BatRecordingManager_ReportData_combinedGPS_
+  commentId: Overload:BatRecordingManager.ReportData.combinedGPS
+  isSpec: "True"
+  fullName: BatRecordingManager.ReportData.combinedGPS
+  nameWithType: ReportData.combinedGPS
 - uid: BatRecordingManager.ReportData.GridRef
   name: GridRef
   href: api/BatRecordingManager.ReportData.html#BatRecordingManager_ReportData_GridRef
@@ -9413,6 +9426,19 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.ReportData.GridRef
   nameWithType: ReportData.GridRef
+- uid: BatRecordingManager.ReportData.passesAndSegments
+  name: passesAndSegments
+  href: api/BatRecordingManager.ReportData.html#BatRecordingManager_ReportData_passesAndSegments
+  commentId: P:BatRecordingManager.ReportData.passesAndSegments
+  fullName: BatRecordingManager.ReportData.passesAndSegments
+  nameWithType: ReportData.passesAndSegments
+- uid: BatRecordingManager.ReportData.passesAndSegments*
+  name: passesAndSegments
+  href: api/BatRecordingManager.ReportData.html#BatRecordingManager_ReportData_passesAndSegments_
+  commentId: Overload:BatRecordingManager.ReportData.passesAndSegments
+  isSpec: "True"
+  fullName: BatRecordingManager.ReportData.passesAndSegments
+  nameWithType: ReportData.passesAndSegments
 - uid: BatRecordingManager.ReportData.recording
   name: recording
   href: api/BatRecordingManager.ReportData.html#BatRecordingManager_ReportData_recording
@@ -9452,6 +9478,19 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.ReportData.session
   nameWithType: ReportData.session
+- uid: BatRecordingManager.ReportData.sessionEndDateTime
+  name: sessionEndDateTime
+  href: api/BatRecordingManager.ReportData.html#BatRecordingManager_ReportData_sessionEndDateTime
+  commentId: P:BatRecordingManager.ReportData.sessionEndDateTime
+  fullName: BatRecordingManager.ReportData.sessionEndDateTime
+  nameWithType: ReportData.sessionEndDateTime
+- uid: BatRecordingManager.ReportData.sessionEndDateTime*
+  name: sessionEndDateTime
+  href: api/BatRecordingManager.ReportData.html#BatRecordingManager_ReportData_sessionEndDateTime_
+  commentId: Overload:BatRecordingManager.ReportData.sessionEndDateTime
+  isSpec: "True"
+  fullName: BatRecordingManager.ReportData.sessionEndDateTime
+  nameWithType: ReportData.sessionEndDateTime
 - uid: BatRecordingManager.ReportData.sessionHeader
   name: sessionHeader
   href: api/BatRecordingManager.ReportData.html#BatRecordingManager_ReportData_sessionHeader
@@ -9465,6 +9504,19 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.ReportData.sessionHeader
   nameWithType: ReportData.sessionHeader
+- uid: BatRecordingManager.ReportData.sessionStartDateTime
+  name: sessionStartDateTime
+  href: api/BatRecordingManager.ReportData.html#BatRecordingManager_ReportData_sessionStartDateTime
+  commentId: P:BatRecordingManager.ReportData.sessionStartDateTime
+  fullName: BatRecordingManager.ReportData.sessionStartDateTime
+  nameWithType: ReportData.sessionStartDateTime
+- uid: BatRecordingManager.ReportData.sessionStartDateTime*
+  name: sessionStartDateTime
+  href: api/BatRecordingManager.ReportData.html#BatRecordingManager_ReportData_sessionStartDateTime_
+  commentId: Overload:BatRecordingManager.ReportData.sessionStartDateTime
+  isSpec: "True"
+  fullName: BatRecordingManager.ReportData.sessionStartDateTime
+  nameWithType: ReportData.sessionStartDateTime
 - uid: BatRecordingManager.ReportData.sessionStats
   name: sessionStats
   href: api/BatRecordingManager.ReportData.html#BatRecordingManager_ReportData_sessionStats
