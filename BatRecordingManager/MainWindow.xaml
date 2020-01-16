@@ -1,76 +1,131 @@
 ﻿<Window
+    x:Class="BatRecordingManager.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="clr-namespace:BatRecordingManager" x:Class="BatRecordingManager.MainWindow"
+    xmlns:local="clr-namespace:BatRecordingManager"
     Title="{Binding Path=_windowTitle}"
-    Height="768"
     Width="1026"
+    Height="768"
+    Closed="Window_Closed"
     Closing="Window_Closing"
-    WindowState="Maximized"
-
-    SizeToContent="Manual" Closed="Window_Closed">
+    SizeToContent="Manual"
+    WindowState="Maximized">
 
     <DockPanel Background="{StaticResource WindowBackgroundBrush}">
         <StackPanel
-            Orientation="Horizontal"
             Height="25"
-            DockPanel.Dock="Top">
+            DockPanel.Dock="Top"
+            Orientation="Horizontal">
             <Menu
                 x:Name="MainMenu"
-                Style="{StaticResource SimpleMenu}"
-                Width="150">
+                Width="150"
+                Style="{StaticResource SimpleMenu}">
 
                 <MenuItem x:Name="FileMenu" Header="File">
 
-                    <MenuItem x:Name="MiCreateDatabase" Header="Create Database" ToolTip="Create a new empty database"
-                              Click="miCreateDatabase_Click" />
-                    <MenuItem x:Name="MiDatabase" Header="Choose Database" ToolTip="Open an alternate database"
-                              Click="miDatabase_Click" />
-                    <MenuItem x:Name="MiSetToDefaultDatabase" Header="Use Default Database"
-                              ToolTip="Return to the normal default database" Click="miSetToDefaultDatabase_Click" />
-                    
+                    <MenuItem
+                        x:Name="MiCreateDatabase"
+                        Click="miCreateDatabase_Click"
+                        Header="Create Database"
+                        ToolTip="Create a new empty database" />
+                    <MenuItem
+                        x:Name="MiDatabase"
+                        Click="miDatabase_Click"
+                        Header="Choose Database"
+                        ToolTip="Open an alternate database" />
+                    <MenuItem
+                        x:Name="MiSetToDefaultDatabase"
+                        Click="miSetToDefaultDatabase_Click"
+                        Header="Use Default Database"
+                        ToolTip="Return to the normal default database" />
+
 
                     <Separator />
-                    <MenuItem x:Name="MiImportBatData" Header="Import Bat Data" Click="miImportBatData_Click" />
+                    <MenuItem
+                        x:Name="MiImportBatData"
+                        Click="miImportBatData_Click"
+                        Header="Import Bat Data" />
                     <Separator />
-                    <MenuItem x:Name="MiExit" Header="Exit" Click="miExit_Click" />
+                    <MenuItem
+                        x:Name="MiExit"
+                        Click="miExit_Click"
+                        Header="Exit" />
                 </MenuItem>
                 <MenuItem x:Name="MainMenuView" Header="View">
-                    <MenuItem x:Name="MiNewLogFile" Header="Import"
-                              ToolTip="Import data from a folder of .wav or .txt files" Click="miNewLogFile_Click" />
-                    <MenuItem x:Name="MiAnalyseFiles" Header="Analyse and Import" Click="miAnalyseFiles_Click">
+                    <MenuItem
+                        x:Name="MiNewLogFile"
+                        Click="miNewLogFile_Click"
+                        Header="Import"
+                        ToolTip="Import data from a folder of .wav or .txt files" />
+                    <MenuItem
+                        x:Name="MiAnalyseFiles"
+                        Click="miAnalyseFiles_Click"
+                        Header="Analyse and Import">
                         <MenuItem.ToolTip>
                             <TextBlock>
-                                "Open a folder of files to Analyse sequentially using Audacity"<LineBreak />
-                                "CTRL-CLICK to open a folder of files to analyse using Kaleidoscope"<LineBreak />
-                                "+ &lt;SHIFT&gt; to force append to current selected session (where non-standard tag is used)"
-                            </TextBlock>
+                                &quot;Open a folder of files to Analyse sequentially using Audacity&quot;<LineBreak />
+                                &quot;CTRL-CLICK to open a folder of files to analyse using Kaleidoscope&quot;<LineBreak />
+                                &quot;+ &lt;SHIFT&gt; to force append to current selected session (where non-standard tag is used)&quot;</TextBlock>
                         </MenuItem.ToolTip>
                     </MenuItem>
-                    <MenuItem x:Name="MiBatReference" Header="Bat Reference"
-                              ToolTip="List reference data for all known species of bats" Click="miBatReference_Click" />
-                    <MenuItem x:Name="MiBatSearch" Header="List By Bats"
-                              ToolTip="List all recordings ordered by types of bat present" Click="miBatSearch_Click" />
-                    <MenuItem x:Name="MiRecordingSearch" Header="List Recordings" ToolTip="List all recording sessions"
-                              Click="miRecordingSearch_Click" />
+                    <MenuItem
+                        x:Name="MiBatReference"
+                        Click="miBatReference_Click"
+                        Header="Bat Reference"
+                        ToolTip="List reference data for all known species of bats" />
+                    <MenuItem
+                        x:Name="MiBatSearch"
+                        Click="miBatSearch_Click"
+                        Header="List By Bats"
+                        ToolTip="List all recordings ordered by types of bat present" />
+                    <MenuItem
+                        x:Name="MiRecordingSearch"
+                        Click="miRecordingSearch_Click"
+                        Header="List Recordings"
+                        ToolTip="List all recording sessions" />
+                </MenuItem>
+                <MenuItem
+                    x:Name="MainMenuApps"
+                    Header="Supp. Apps"
+                    ToolTip="Supplementary apps not affecting the database directly">
+                    <MenuItem
+                        x:Name="miFilter"
+                        Click="MiFilter_Click"
+                        Header="Filter"
+                        ToolTip="Extract files with keywords to a sub-folder" />
                 </MenuItem>
                 <MenuItem x:Name="MainMenuHelp" Header="Help">
-                    <MenuItem x:Name="MiHelp" Header="Help" Click="miHelp_Click" />
-                    <MenuItem x:Name="MiAbout" Header="About" Click="miAbout_Click" />
+                    <MenuItem
+                        x:Name="MiHelp"
+                        Click="miHelp_Click"
+                        Header="Help" />
+                    <MenuItem
+                        x:Name="MiAbout"
+                        Click="miAbout_Click"
+                        Header="About" />
                     <MenuItem
                         x:Name="MiDatabaseDisplay"
-                        Header="Database"
                         Click="MiDatabaseDisplay_Click"
-                        IsEnabled="{Binding Path=ShowDatabase,FallbackValue=false}" />
+                        Header="Database"
+                        IsEnabled="{Binding Path=ShowDatabase, FallbackValue=false}" />
                 </MenuItem>
+
             </Menu>
-            <Label x:Name="OutputLocationLabel" HorizontalContentAlignment="Stretch"
-                   Style="{StaticResource SimpleLabel}" />
-            <TextBox x:Name="StatusText" Text="{Binding Path=statusText}"  Width="800" HorizontalContentAlignment="Stretch"
-                     Style="{StaticResource SimpleTextBox}" IsReadOnly="True" TextChanged="StatusText_TextChanged" />
+            <Label
+                x:Name="OutputLocationLabel"
+                HorizontalContentAlignment="Stretch"
+                Style="{StaticResource SimpleLabel}" />
+            <TextBox
+                x:Name="StatusText"
+                Width="800"
+                HorizontalContentAlignment="Stretch"
+                IsReadOnly="True"
+                Style="{StaticResource SimpleTextBox}"
+                Text="{Binding Path=statusText}"
+                TextChanged="StatusText_TextChanged" />
         </StackPanel>
         <Grid x:Name="MainWindowPaneGrid" Background="{StaticResource WindowBackgroundBrush}">
-            
+
 
             <!--<local:RecordingSessionListDetailControl x:Name="recordingSessionListControl" Visibility="Visible" />-->
         </Grid>

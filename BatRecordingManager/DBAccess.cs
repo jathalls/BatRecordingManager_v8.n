@@ -176,6 +176,31 @@ namespace BatRecordingManager
         }
 
         /// <summary>
+        /// Looks for a recording session for which the originalFilePath parameter matches the path to the specified
+        /// wavFile.  Returns a null if such a session is not found.
+        /// </summary>
+        /// <param name="wavFile"></param>
+        /// <returns></returns>
+        internal static RecordingSession GetRecordingSessionForWavFile(string wavFile)
+        {
+            BatReferenceDBLinqDataContext dc = GetFastDataContext();
+            string path = Tools.GetPath(wavFile);
+            RecordingSession session = null;
+            try
+            {
+                session = (from sess in dc.RecordingSessions
+                    where sess.OriginalFilePath == path
+                    select sess).First();
+            }
+            catch (Exception)
+            {
+                return (null);
+            }
+
+            return (session);
+        }
+
+        /// <summary>
         ///     Adds an image to the specified labelled segment.
         /// </summary>
         /// <param name="segment"></param>

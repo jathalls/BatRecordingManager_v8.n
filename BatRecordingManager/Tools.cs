@@ -95,7 +95,7 @@ namespace BatRecordingManager
         {
             TimeSpan absTime = time;
             var result = "";
-            if (time != null )
+            if (time != null)
             {
                 absTime = time.Duration();
                 if (absTime.Hours > 0) result = result + absTime.Hours + "h";
@@ -104,9 +104,9 @@ namespace BatRecordingManager
                 result = result + $"{seconds:0.0#}\"";
             }
 
-            if (time.Ticks<0L)
+            if (time.Ticks < 0L)
             {
-                result = "(-" + result+")";
+                result = "(-" + result + ")";
             }
 
             return result;
@@ -135,7 +135,7 @@ namespace BatRecordingManager
                 var elementsToRemove = new List<UIElement>();
                 foreach (var child in canvas.Children)
                     if (!(child is Canvas || child is Grid))
-                        elementsToRemove.Add((UIElement) child);
+                        elementsToRemove.Add((UIElement)child);
                 if (!elementsToRemove.IsNullOrEmpty())
                     foreach (var element in elementsToRemove)
                         canvas.Children.Remove(element);
@@ -256,7 +256,7 @@ namespace BatRecordingManager
                 sfd.CheckFileExists = false;
                 sfd.CheckPathExists = true;
                 sfd.DefaultExt = desiredExtension;
-                
+
                 sfd.InitialDirectory = initialLocaltion;
                 var outcome = sfd.ShowDialog();
                 if (outcome == DialogResult.OK)
@@ -359,14 +359,14 @@ namespace BatRecordingManager
         /// </summary>
         /// <param name="thisRecording"></param>
         /// <returns></returns>
-        internal static bool IsTextFileModified(DateTime since,Recording thisRecording)
+        internal static bool IsTextFileModified(DateTime since, Recording thisRecording)
         {
             if (thisRecording == null) return false;
             string filename = (thisRecording.RecordingSession.OriginalFilePath ?? "") + thisRecording.RecordingName;
             filename = Tools.GetMatchingTextFile(filename);
             if (!File.Exists(filename)) return false;
             DateTime whenModified = File.GetLastWriteTime(filename);
-            if (whenModified>=since) return true;
+            if (whenModified >= since) return true;
             return false;
 
         }
@@ -409,8 +409,8 @@ namespace BatRecordingManager
         internal static TimeSpan ConvertDoubleToTimeSpan(double? value)
         {
             if (value == null) return new TimeSpan();
-            var seconds = (int) Math.Floor(value.Value);
-            var millis = (int) Math.Round((value.Value - seconds) * 1000.0d);
+            var seconds = (int)Math.Floor(value.Value);
+            var millis = (int)Math.Round((value.Value - seconds) * 1000.0d);
 
             var minutes = Math.DivRem(seconds, 60, out seconds);
             return new TimeSpan(0, 0, minutes, seconds, millis);
@@ -427,7 +427,7 @@ namespace BatRecordingManager
         /// </returns>
         /// <exception cref="System.NotImplementedException">
         /// </exception>
-        internal static string FormattedSegmentLine(LabelledSegment segment,bool offsets=true)
+        internal static string FormattedSegmentLine(LabelledSegment segment, bool offsets = true)
         {
             if (segment == null) return "";
 
@@ -444,12 +444,12 @@ namespace BatRecordingManager
                         end = ((segment.Recording.RecordingSession.EndDate??segment.Recording.RecordingSession.SessionDate).Date+segment.Recording.RecordingEndTime.Value + segment.StartOffset - sunset.Value).TimeOfDay;
                     }*/
                     var recordingStartTimeAfterSunset = segment.Recording.startTimeAfterSunset;
-                    if (recordingStartTimeAfterSunset != null )
+                    if (recordingStartTimeAfterSunset != null)
                     {
                         start = recordingStartTimeAfterSunset.Value + segment.StartOffset;
                         end = recordingStartTimeAfterSunset.Value + segment.EndOffset;
                     }
-                    
+
                 }
                 catch (Exception)
                 {
@@ -457,10 +457,10 @@ namespace BatRecordingManager
                     end = segment.EndOffset;
                 }
             }
-            
 
-            
-            var result = (!offsets?"SS + ":"")+
+
+
+            var result = (!offsets ? "SS + " : "") +
                          FormattedTimeSpan(start) + " - " +
                          FormattedTimeSpan(end) + " = " +
                          FormattedTimeSpan(segment.EndOffset - segment.StartOffset) + "; " +
@@ -522,46 +522,46 @@ namespace BatRecordingManager
             stat.Add(segment.EndOffset - segment.StartOffset);
             return stat.passes;
         }
-/*
-        internal static void OpenWavFile(Recording selectedRecording)
-        {
-            if (selectedRecording?.RecordingSession == null) return;
-            var folder = selectedRecording.RecordingSession.OriginalFilePath;
-            if (string.IsNullOrWhiteSpace(folder)) return;
-            folder = folder.Trim();
-
-            if (!Directory.Exists(folder))
-                // try to find the folder on a different drive if necessary
-                if (folder[1] == ':')
+        /*
+                internal static void OpenWavFile(Recording selectedRecording)
                 {
-                    // then the folder name starts with a drive letter - almost definite
-                    var drivelessFolder = folder.Substring(2);
-                    if (drivelessFolder.StartsWith(@"\")) drivelessFolder = drivelessFolder.Substring(1);
-                    if (!drivelessFolder.EndsWith(@"\")) drivelessFolder = drivelessFolder + @"\";
+                    if (selectedRecording?.RecordingSession == null) return;
+                    var folder = selectedRecording.RecordingSession.OriginalFilePath;
+                    if (string.IsNullOrWhiteSpace(folder)) return;
+                    folder = folder.Trim();
 
-                    var allDrives = DriveInfo.GetDrives();
-                    foreach (var drive in allDrives)
-                        if (Directory.Exists(drive.Name + drivelessFolder))
+                    if (!Directory.Exists(folder))
+                        // try to find the folder on a different drive if necessary
+                        if (folder[1] == ':')
                         {
-                            folder = drive.Name + drivelessFolder;
-                            break;
+                            // then the folder name starts with a drive letter - almost definite
+                            var drivelessFolder = folder.Substring(2);
+                            if (drivelessFolder.StartsWith(@"\")) drivelessFolder = drivelessFolder.Substring(1);
+                            if (!drivelessFolder.EndsWith(@"\")) drivelessFolder = drivelessFolder + @"\";
+
+                            var allDrives = DriveInfo.GetDrives();
+                            foreach (var drive in allDrives)
+                                if (Directory.Exists(drive.Name + drivelessFolder))
+                                {
+                                    folder = drive.Name + drivelessFolder;
+                                    break;
+                                }
+
+                            if (folder[1] != ':') return; // we didn't find a drive with the folder path so give up
                         }
 
-                    if (folder[1] != ':') return; // we didn't find a drive with the folder path so give up
-                }
+                    if (!Directory.Exists(folder))
+                    {
+                        // if after trying the folder still doesnt exist, give up
+                        return;
+                    }
 
-            if (!Directory.Exists(folder))
-            {
-                // if after trying the folder still doesnt exist, give up
-                return;
-            }
 
-            
-            if (selectedRecording.RecordingName.StartsWith(@"\"))
-                selectedRecording.RecordingName = selectedRecording.RecordingName.Substring(1);
-            folder = folder + @"\" + selectedRecording.RecordingName;
-            OpenWavFile(folder);
-        }*/
+                    if (selectedRecording.RecordingName.StartsWith(@"\"))
+                        selectedRecording.RecordingName = selectedRecording.RecordingName.Substring(1);
+                    folder = folder + @"\" + selectedRecording.RecordingName;
+                    OpenWavFile(folder);
+                }*/
 
         /// <summary>
         ///     Given a recording Session, returns a list of strings each of which contains a summary
@@ -602,8 +602,8 @@ namespace BatRecordingManager
             foreach (var stat in statsForSession)
             {
                 var matchingStats = from s in result
-                    where s.batCommonName == stat.batCommonName
-                    select s;
+                                    where s.batCommonName == stat.batCommonName
+                                    select s;
                 if (matchingStats != null && matchingStats.Any())
                 {
                     var existingStat = matchingStats.First();
@@ -670,7 +670,7 @@ namespace BatRecordingManager
                               ? normalisedSegmentStart
                               : normalisedSampleStart);
             if (overlap.TotalMinutes < 0) overlap = new TimeSpan();
-            return (int) Math.Ceiling(overlap.TotalMinutes);
+            return (int)Math.Ceiling(overlap.TotalMinutes);
         }
 
         /// <summary>
@@ -682,12 +682,12 @@ namespace BatRecordingManager
         {
             var performSortMethod =
                 typeof(DataGrid).GetMethod("PerformSort", BindingFlags.Instance | BindingFlags.NonPublic);
-            performSortMethod?.Invoke(dataGrid, new[] {dataGrid.Columns[columnIndex]});
+            performSortMethod?.Invoke(dataGrid, new[] { dataGrid.Columns[columnIndex] });
         }
 
         internal static void OpenWavFile(string folder)
         {
-            if (string.IsNullOrWhiteSpace(folder) || !File.Exists(folder) || (new FileInfo(folder).Length<=0L)) return;
+            if (string.IsNullOrWhiteSpace(folder) || !File.Exists(folder) || (new FileInfo(folder).Length <= 0L)) return;
             //Process externalProcess = new Process();
 
             //externalProcess.StartInfo.FileName = folder;
@@ -703,7 +703,7 @@ namespace BatRecordingManager
             Debug.WriteLine("Selected wavFile=" + wavFile);
             wavFile = wavFile.Replace(@"\\", @"\");
             Debug.WriteLine("Corrected wavFile=" + wavFile);
-            if (!File.Exists(wavFile) && (new FileInfo(wavFile).Length>0L))
+            if (!File.Exists(wavFile) && (new FileInfo(wavFile).Length > 0L))
             {
                 Debug.WriteLine("Wav file does not exist");
                 return null;
@@ -772,7 +772,7 @@ namespace BatRecordingManager
             {// may get an InvalidOperationException which can be ignored
             }
 
-            while (externalProcess.MainWindowHandle == (IntPtr) 0L)
+            while (externalProcess.MainWindowHandle == (IntPtr)0L)
                 if (externalProcess.HasExited)
                 {
                     externalProcess.Close();
@@ -798,7 +798,7 @@ namespace BatRecordingManager
 
                 //SetForegroundWindow(epHandle);
                 // CTRL-SHIFT-N - select nothing, i.e. clear current selection
-                ipSim.Keyboard.ModifiedKeyStroke(new[] {VirtualKeyCode.CONTROL, VirtualKeyCode.LSHIFT},
+                ipSim.Keyboard.ModifiedKeyStroke(new[] { VirtualKeyCode.CONTROL, VirtualKeyCode.LSHIFT },
                     VirtualKeyCode.VK_N);
 
                 if (!WaitForIdle(externalProcess)) return null;
@@ -844,7 +844,7 @@ namespace BatRecordingManager
         {
             if (externalProcess == null || ipSim == null || externalProcess.HasExited) return false;
             var epHandle = externalProcess.MainWindowHandle;
-            if (epHandle == (IntPtr) 0L) return false;
+            if (epHandle == (IntPtr)0L) return false;
             var result = true;
             var bareFileName = "LabelTrack";
             if (string.IsNullOrWhiteSpace(textFileName))
@@ -865,7 +865,7 @@ namespace BatRecordingManager
                 //s.Keyboard.ModifiedKeyStroke(VirtualKeyCode.LMENU, VirtualKeyCode.VK_S);
                 if (!WaitForIdle(externalProcess)) return false;
                 // CTRL-SHIFT-N - select nothing, i.e. clear current selection
-                ipSim.Keyboard.ModifiedKeyStroke(new[] {VirtualKeyCode.CONTROL, VirtualKeyCode.LSHIFT},
+                ipSim.Keyboard.ModifiedKeyStroke(new[] { VirtualKeyCode.CONTROL, VirtualKeyCode.LSHIFT },
                     VirtualKeyCode.VK_N);
                 //Thread.Sleep(2000);
                 //SetForegroundWindow(h);
@@ -874,14 +874,14 @@ namespace BatRecordingManager
                 // CTRL-SHIFT-B - create new laabel track
                 SetForegroundWindow(epHandle);
                 if (!WaitForIdle(externalProcess)) return false;
-                ipSim.Keyboard.ModifiedKeyStroke(new[] {VirtualKeyCode.CONTROL, VirtualKeyCode.LSHIFT},
+                ipSim.Keyboard.ModifiedKeyStroke(new[] { VirtualKeyCode.CONTROL, VirtualKeyCode.LSHIFT },
                     VirtualKeyCode.VK_B);
                 if (!WaitForIdle(externalProcess)) return false;
                 //Thread.Sleep(2000);
                 //Thread.Sleep(5000);
                 // CTRL-SHIFT-M - Open track menu
                 SetForegroundWindow(epHandle);
-                ipSim.Keyboard.ModifiedKeyStroke(new[] {VirtualKeyCode.CONTROL, VirtualKeyCode.LSHIFT},
+                ipSim.Keyboard.ModifiedKeyStroke(new[] { VirtualKeyCode.CONTROL, VirtualKeyCode.LSHIFT },
                     VirtualKeyCode.VK_M);
                 if (!WaitForIdle(externalProcess)) return false;
                 //Thread.Sleep(2000);
@@ -934,7 +934,7 @@ namespace BatRecordingManager
             var result = true;
             try
             {
-                ipSim.Keyboard.ModifiedKeyStroke(new[] {VirtualKeyCode.LMENU}, VirtualKeyCode.VK_F);
+                ipSim.Keyboard.ModifiedKeyStroke(new[] { VirtualKeyCode.LMENU }, VirtualKeyCode.VK_F);
                 if (!WaitForIdle(externalProcess)) return false;
                 ipSim.Keyboard.KeyPress(VirtualKeyCode.VK_I);
                 if (!WaitForIdle(externalProcess)) return false;
@@ -1100,7 +1100,7 @@ namespace BatRecordingManager
             {
             }
 
-            while (externalProcess.MainWindowHandle == (IntPtr) 0L)
+            while (externalProcess.MainWindowHandle == (IntPtr)0L)
                 if (externalProcess.HasExited)
                 {
                     externalProcess.Close();
@@ -1203,10 +1203,10 @@ namespace BatRecordingManager
         /// <param name="endOffset"></param>
         internal static void OpenWavFile(string wavFile, TimeSpan startOffset, TimeSpan endOffset)
         {
-            if (string.IsNullOrWhiteSpace(wavFile) || !File.Exists(wavFile) || (new FileInfo(wavFile).Length<=0L))
+            if (string.IsNullOrWhiteSpace(wavFile) || !File.Exists(wavFile) || (new FileInfo(wavFile).Length <= 0L))
                 return; // since we don't have a valid file name to work with
-            var startSeconds = (int) startOffset.TotalSeconds;
-            var endSeconds = (int) endOffset.TotalSeconds;
+            var startSeconds = (int)startOffset.TotalSeconds;
+            var endSeconds = (int)endOffset.TotalSeconds;
             if (endSeconds == startSeconds) endSeconds = startSeconds + 1;
             Debug.WriteLine("Open Audacity from " + startOffset.TotalSeconds + " to " + endOffset.TotalSeconds);
             var externalProcess = OpenWavAndTextFile(wavFile);
@@ -1293,7 +1293,7 @@ namespace BatRecordingManager
         {
             var result = new DateTime();
 
-            var dateField = tag.Substring(tag.LastIndexOfAny(new[] {'-', '_'}));
+            var dateField = tag.Substring(tag.LastIndexOfAny(new[] { '-', '_' }));
             if (dateField.Length == 9)
             {
                 var stryear = dateField.Substring(1, 4);
@@ -1385,7 +1385,7 @@ namespace BatRecordingManager
                 {
                     var s = "0." + result.Groups[3].Value;
                     var r3 = double.TryParse(s, out var dm);
-                    millis = (int) (dm * 1000);
+                    millis = (int)(dm * 1000);
                 }
             }
 
@@ -1684,7 +1684,120 @@ namespace BatRecordingManager
             comment = comment + "}";
             return comment;
         }
+
+        internal static string SelectWavFileFolder()
+        {
+            String FolderPath = "";
+
+
+            //using (System.Windows.Forms.OpenFileDialog dialog = new OpenFileDialog())
+            //using(Ookii.Dialogs.Wpf.VistaOpenFileDialog dialog=new VistaOpenFileDialog())
+            //{
+            using (var dialog = new OpenFileDialog
+            {
+                DefaultExt = ".wav",
+                Filter = "Text files (*.txt)|*.txt|Wav files (*.wav)|*.wav|All Files (*.*)|*.*",
+                FilterIndex = 3,
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                Title = "Select Folder or WAV file",
+                ValidateNames = false,
+                CheckFileExists = false,
+                CheckPathExists = true,
+                FileName = "Select Folder"
+            })
+            {
+
+
+
+                //dialog.Description = "Select the folder containing the .wav and descriptive text files";
+                //dialog.ShowNewFolderButton = true;
+                //dialog.RootFolder = Environment.SpecialFolder.MyComputer;
+
+                if (dialog.ShowDialog() == DialogResult.OK)
+                    //HeaderFileName = dialog.FileName;
+                    FolderPath = Path.GetDirectoryName(dialog.FileName);
+                //FolderPath = Tools.GetPath(dialog.FileName);
+                //FolderPath = Path.GetDirectoryName(dialog.FileName);
+                else
+                    return null;
+            }
+
+            return (FolderPath);
+        }
+
+        /// <summary>
+        /// Copies a directory and its contents recursively or not depending
+        /// on the boolean parameter
+        /// </summary>
+        /// <param name="sourceDirName"></param>
+        /// <param name="destDirName"></param>
+        /// <param name="copySubDirs"></param>
+        public static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
+        {
+            // Get the subdirectories for the specified directory.
+            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
+
+            if (!dir.Exists)
+            {
+                throw new DirectoryNotFoundException(
+                    "Source directory does not exist or could not be found: "
+                    + sourceDirName);
+            }
+
+            DirectoryInfo[] dirs = dir.GetDirectories();
+            // If the destination directory doesn't exist, create it.
+            if (!Directory.Exists(destDirName))
+            {
+                Directory.CreateDirectory(destDirName);
+            }
+
+            // Get the files in the directory and copy them to the new location.
+            FileInfo[] files = dir.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                string temppath = Path.Combine(destDirName, file.Name);
+                file.CopyTo(temppath, false);
+                File.SetAttributes(temppath, FileAttributes.Normal);
+                File.SetCreationTime(temppath, file.CreationTime);
+                File.SetLastAccessTime(temppath, file.LastAccessTime);
+            }
+
+            // If copying subdirectories, copy them and their contents to new location.
+            if (copySubDirs)
+            {
+                foreach (DirectoryInfo subdir in dirs)
+                {
+                    string temppath = Path.Combine(destDirName, subdir.Name);
+                    DirectoryCopy(subdir.FullName, temppath, copySubDirs);
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Recursively deletes this directory and all sub directories and allthe files in those
+        /// directories, setting attributes to Normal as it goes so even Read-Only items will get deleted
+        /// </summary>
+        /// <param name="topDir"></param>
+        public static void DirectoryDelete(string topDir)
+        {
+            if (!Directory.Exists(topDir)) return;
+            File.SetAttributes(topDir, FileAttributes.Normal);
+            var files = Directory.EnumerateFiles(topDir);
+            foreach (var file in files)
+            {
+                File.SetAttributes(file, FileAttributes.Normal);
+                File.Delete(file);
+            }
+            var folders = Directory.EnumerateDirectories(topDir);
+            foreach (var folder in folders)
+            {
+                Tools.DirectoryDelete(folder);
+            }
+            Directory.Delete(topDir);
+        }
     }
+
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static class ImagingConverterClass

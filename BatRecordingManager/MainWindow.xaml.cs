@@ -839,5 +839,58 @@ Do you wish to update that database to the latest specification?", "Out of Date 
         {
             // Not yet implemented
         }
+
+        /// <summary>
+        /// Extracts .wav files from a selected folder which contain certainn keywords, to a suitably named
+        /// sub-folder
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MiFilter_Click(object sender, RoutedEventArgs e)
+        {
+            string folderPath = "";
+
+#if DEBUG
+            string actual = @"C:\BRMTestData\Actual\";
+            string original = @"C:\BRMTestData\Original\";
+            using (new WaitCursor())
+            {
+                
+                if (Keyboard.IsKeyDown(Key.LeftCtrl))
+                {
+                    if (Directory.Exists(actual))
+                    {
+                        Tools.DirectoryDelete(actual);
+                    }
+                    if (Directory.Exists(original))
+                    {
+                        Tools.DirectoryCopy(original, actual, true);
+                    }
+                }
+            }
+            folderPath = Path.GetDirectoryName(actual+@"WAVFILES.DIR\");
+#endif //DEBUG
+            
+            if(recordingSessionListControl!=null)
+            {
+                var sess = recordingSessionListControl.GetSelectedSession();
+                if (sess != null)
+                {
+                    folderPath = sess.OriginalFilePath;
+                }
+            }
+            AppMainWindow amw=new AppMainWindow();
+            AppFilter appFilter = new AppFilter();
+            appFilter.SetDefaultFolderPath(folderPath);
+            amw.DisplayControl(appFilter);
+            amw.Show();
+
+
+            //AppFilter appFilter=new AppFilter();
+
+
+        }
+
+        
     }
 }

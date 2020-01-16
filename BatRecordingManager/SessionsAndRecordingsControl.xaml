@@ -84,7 +84,7 @@
                 VerticalScrollBarVisibility="Visible"
 
 
-                MouseRightButtonUp="RecordingsDataGrid_MouseRightButtonUp"
+                
                 IsSynchronizedWithCurrentItem="True">
 
                 <DataGrid.Columns>
@@ -102,6 +102,12 @@
                     <DataGridTextColumn Width="40*" Binding="{Binding ImageCount,IsAsync=True}" Header="Images"
                                         SortDirection="Ascending" CanUserSort="True" />
                 </DataGrid.Columns>
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem x:Name="miOpenImportPicture"  Header="Open Import Picture Window" Click="miOpenImportPicture_Click" />
+                        <MenuItem x:Name="miExportFiles" Header="Export selected Files" Click="miExportFiles_Click" />
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
             </DataGrid>
 
 

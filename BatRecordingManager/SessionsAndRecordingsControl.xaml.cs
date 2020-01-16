@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -509,6 +510,54 @@ namespace BatRecordingManager
         private void ImportPictureDialog_Closed(object sender, EventArgs e)
         {
             _isPictureDialogOpen = false;
+        }
+
+        private void miOpenImportPicture_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if (!_isPictureDialogOpen)
+            {
+                _importPictureDialog = new ImportPictureDialog();
+                _importPictureDialog.Closed += ImportPictureDialog_Closed;
+            }
+
+            if (RecordingsDataGrid.SelectedItem as BatSessionRecordingData != null)
+            {
+                var fileName = (RecordingsDataGrid.SelectedItem as BatSessionRecordingData).RecordingName;
+                _importPictureDialog.SetCaption(fileName);
+            }
+
+            if (!_isPictureDialogOpen)
+            {
+                _importPictureDialog.Show();
+                _isPictureDialogOpen = true;
+            }
+            
+        }
+
+        private void miExportFiles_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if ((RecordingsDataGrid.SelectedItems.Count-1) <= 0) return;
+            string folder = Tools.SelectWavFileFolder();
+            if (String.IsNullOrWhiteSpace(folder)) return;
+            if (!Directory.Exists(folder)) return;
+            foreach(var obj in RecordingsDataGrid.SelectedItems)
+            {
+                var bsrd = obj as BatSessionRecordingData;
+                var session = DBAccess.GetRecordingSession(bsrd?.SessionId??-1);
+                var parentFolder = session?.OriginalFilePath;
+                if (!Directory.Exists(parentFolder))
+                {
+                    Debug.WriteLine($"Session folder <{parentFolder}> does not exist");
+                    continue;
+                }
+                if (!File.Exists(parentFolder + bsrd.RecordingName))
+                {
+                    Debug.WriteLine($"Recording <{bsrd.RecordingName}> does not exist in folder <{parentFolder}>");
+                    continue;
+                }
+                string filename=parentFolder+ bsrd?.RecordingName;
+                AppFilter.TransferFile(filename, folder, false);
+            }
         }
     }
 

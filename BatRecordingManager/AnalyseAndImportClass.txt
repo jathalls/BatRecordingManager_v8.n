@@ -1,0 +1,74 @@
+﻿Globals:
+	_analysingEventLock
+	_analysingFinishedEventLock
+	_dataUpdatedEventLock
+	_analysingEvent
+	_anlysingFinishedEvent
+	_dataUpdatedEvent
+	thisRecording
+	_kaleidoscopeFolderPath
+	FilesRemaining
+	FolderSelected
+
+Constructors:
+	()
+		SelectFolder()
+		SetAudacityExportFolder(FolderPath)
+
+	(sessionTag)
+		SelectFolder()
+		SetAudacityExportFolder(FolderPath)
+
+	(recordingToAnalyse)
+		FolderPath=recordingToAnalyse.recordingSession.OriginalFilePath
+		SetAudacityExportFolder(FolderPath)
+		set Sessiontag
+		set FileToAnalyse
+		set ThisRecordingSession
+		create ThisGpxHandler(FolderPath)
+
+Actions:
+	AnalyseRecording()
+		Analyse(FileToAnalyse)
+
+	Analyse(file)
+		OnAnalysing(bareFileName)
+		OpenWavFile(file,bareFileName)
+
+	CreateSession()
+		SessionManager.CreateSession(FolderPath,Sessiontag,null)
+		OnDataUpdated()
+
+	SaveRecording()
+		create batsFound
+		create Result
+		create ThisGpxHandler(FolderPath)
+		set textFileToAnalyse from FileToAnalyse
+		FileProcessor.ProcessFile(textFileToprocess,ThisGpxHandler,ThisRecordingSession.Id,ref batsFound)
+		OR FileProcessor.UpdateRecording(ThisRecording,textFileToProcess)
+		OnDataUpdated()
+
+Events:
+	OnAnalysing(AnalysingEventArgs)
+
+	OnAnalysingFinished(EventArgs)
+
+	OnDataUpdated(EventArgs)
+
+EventHandlers:
+	ExternalProcessExited(sender,e)
+		ExternalProcess.Close()
+		if(matchingTxtFile)
+			SaveRecording()
+			result=AnalyseNextFile()
+			Tools.SetFolderIconTick(FolderPath)
+			OnAnalysingFinished()
+
+
+========================================================
+FileProcessor.UpdateRecording(recording,txtFile)
+	create result
+	create batsFound
+	DBAccess.DeleteAllSegmentsForRecording(recording.Id)
+	ProcessLabelOrManualFile(txtFile,new GPXHandler(recording.RecordingSession.Location),recording.RecordingSession.Id,recording,ref batsFound)
+

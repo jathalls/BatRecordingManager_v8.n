@@ -241,6 +241,8 @@ namespace BatRecordingManager
         ///     Does nothing if there is no GUANO/WAMD data but otherwise looks for an existing
         ///     matching recording entry for the file and updates it if so, or creates a new single segment
         ///     recording if not.
+        /// Amendment Dec 2019 - if there is a sidecar .txt file, imports that data as a set of labels
+        /// for the recording. 
         /// </summary>
         /// <param name="session"></param>
         /// <param name="file"></param>

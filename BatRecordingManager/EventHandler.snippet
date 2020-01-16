@@ -1,0 +1,49 @@
+﻿<CodeSnippet Format="1.0.0">
+  <Header>
+    <Title>eventHandler</Title>
+    <Description>Inserts a threadsafe eventHandler.</Description>
+    <Author>Justin Halls</Author>
+    <Shortcut>eventHandler</Shortcut>
+    <SnippetTypes>
+      <SnippetType>Expansion</SnippetType>
+    </SnippetTypes>
+  </Header>
+  <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>name</ID>
+          <Default>eventName</Default>
+        </Literal>
+        <Literal>
+          <ID>paramType</ID>
+          <Default>decimal</Default>
+        </Literal>
+        <Literal>
+          <ID>paramName</ID>
+          <Default>value</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="CSharp" Kind="any">
+        <![CDATA[
+        ///event handle arguments for $name$
+        public class $name$EventArgs : EventArgs
+        {
+          /// parameter for event args
+          public readonly $paramType$ $paramName$;
+          /// constructor for event args
+          public $name$EventArgs($paramType$ $paramName$)
+          {
+            this.$paramName$=$paramName$;
+          }
+          
+        }
+        ///$name$ eventhandler
+        public event EventHandler<$name$EventArgs> $name$;
+        ///$name$ event invoker
+        protected virtual void On$name$($name$EventArgs e) => $name$?.Invoke(this,e);
+        ]]>
+      </Code>
+  </Snippet>
+  
+</CodeSnippet>
+

@@ -199,8 +199,14 @@ namespace BatRecordingManager
         {
             using (new WaitCursor("Adding all images to Comparison Window..."))
             {
-                var images = SessionsAndRecordings.RecordingImageScroller.imageList;
-                ComparisonHost.Instance.AddImageRange(images);
+                //var images = SessionsAndRecordings.RecordingImageScroller.imageList;
+                var sessionList = SessionsAndRecordings.GetSelectedSessions();
+                foreach (var session in sessionList)
+                {
+                    var images = session.GetImageList();
+                    ComparisonHost.Instance.AddImageRange(images);
+                }
+                //ComparisonHost.Instance.AddImageRange(images);
             }
         }
     }

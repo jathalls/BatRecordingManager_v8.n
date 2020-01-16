@@ -375,6 +375,12 @@
     <Compile Include="AnalyzeAndImportClass.cs" />
     <Compile Include="APIKeys.cs" />
     <Compile Include="APIKeysLocal.cs" />
+    <Compile Include="AppFilter.xaml.cs">
+      <DependentUpon>AppFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AppMainWindow.xaml.cs">
+      <DependentUpon>AppMainWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="AudioHost.cs" />
     <Compile Include="AudioPlayer.xaml.cs">
       <DependentUpon>AudioPlayer.xaml</DependentUpon>
@@ -519,6 +525,9 @@
     <Compile Include="SearchDialog.xaml.cs">
       <DependentUpon>SearchDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SelectOneDialog.xaml.cs">
+      <DependentUpon>SelectOneDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SessionManager.cs" />
     <Compile Include="SessionsAndRecordingsControl.xaml.cs">
       <DependentUpon>SessionsAndRecordingsControl.xaml</DependentUpon>
@@ -535,6 +544,14 @@
     <Compile Include="WavFileMetaData.cs" />
     <Compile Include="Weather.cs" />
     <Page Include="AboutScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AppFilter.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AppMainWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -713,6 +730,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="SelectOneDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="SessionsAndRecordingsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -772,6 +793,7 @@
     <None Include="CodeAnalysisRules.ruleset" />
     <None Include="DeadCodeRules.ruleset" />
     <None Include="docfx.json" />
+    <None Include="EventHandler.snippet" />
     <None Include="Forms.docx" />
     <None Include="index.md" />
     <None Include="packages.config" />
@@ -830,6 +852,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
+    <Resource Include="AnalyseAndImportClass.txt" />
     <Content Include="api\.gitignore" />
     <AdditionalFiles Include="Pelfusion-Flat-Folder-Tick-Folder.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

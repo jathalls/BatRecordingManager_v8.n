@@ -134,6 +134,8 @@ namespace BatRecordingManager
 
         private string m_source { get; set; }
 
+        private string m_Notes { get; set; } = "";
+
         internal string FormattedText()
         {
             var text = "";
@@ -348,12 +350,16 @@ namespace BatRecordingManager
                             break;
 
                         case "Species Manual ID":
-                            m_ManualID = entry.Value;
+                            if (string.IsNullOrWhiteSpace(m_ManualID)) m_ManualID = "";
+                            
+                            m_ManualID = (m_ManualID+" "+entry.Value).Trim();
+                            
                             result = true;
                             break;
 
                         case "Species Auto ID":
-                            m_AutoID = "(" + entry.Value + ")";
+                            if (string.IsNullOrWhiteSpace(m_AutoID)) m_AutoID = "";
+                            m_AutoID = "(" + (m_AutoID+" "+ entry.Value ).Trim() + ")";
                             result = true;
                             break;
 
@@ -469,13 +475,14 @@ namespace BatRecordingManager
                         break;
 
                     case 0x000C:
-                        m_ManualID = entry.Value;
+                        if (string.IsNullOrWhiteSpace(m_ManualID)) m_ManualID = "";
+                        m_ManualID = (m_ManualID+" "+entry.Value).Trim();
                         result = true;
                         break;
 
                     case 0x000B:
                         if (string.IsNullOrWhiteSpace(m_AutoID)) m_AutoID = "";
-                        m_AutoID = "(" + entry.Value + m_AutoID + ")";
+                        m_AutoID = "(" + (entry.Value +" "+ m_AutoID).Trim() + ")";
                         result = true;
                         break;
 

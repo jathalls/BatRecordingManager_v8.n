@@ -304,7 +304,7 @@ namespace BatRecordingManager
         ///     database and the RecordingSessiontag is used to replace the current Sessiontag
         /// </summary>
         /// <returns></returns>
-        internal static RecordingSession CreateSession(string folderPath, string sessionTag, GpxHandler gpxHandler)
+        internal static RecordingSession CreateSession(string folderPath, string sessionTag = "", GpxHandler gpxHandler = null)
         {
             var newSession = new RecordingSession();
             string headerFile = "";

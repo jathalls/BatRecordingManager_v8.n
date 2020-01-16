@@ -509,3 +509,9 @@ namespace ScreenGrab2 {
         }
     }
 }
+
+
+==================
+BUGS
+wamd data length is being ignored and irrelevant padding gets included in the final string
+For basic access to Actual\WAVFILES.DIR the final \ is missing and Filtered is added without the separator

@@ -81,7 +81,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.AddValueConverter.html",
-          "hash": "DU3iyubp17fBrzo0kfxdbg=="
+          "hash": "V5oaqePNg0IME9liiSqBMA=="
         }
       },
       "is_incremental": true,
@@ -106,6 +106,42 @@
         ".html": {
           "relative_path": "api/BatRecordingManager.App.html",
           "hash": "VHkh7gfGzafzAnpxMJAwWQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/BatRecordingManager.AppFilter.CloseClickedEventArgs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/BatRecordingManager.AppFilter.CloseClickedEventArgs.html",
+          "hash": "23/IVk0RaUIXfxpTENS2rQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/BatRecordingManager.AppFilter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/BatRecordingManager.AppFilter.html",
+          "hash": "amYcZ1AMwvIycouMrZq0pw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/BatRecordingManager.AppMainWindow.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/BatRecordingManager.AppMainWindow.html",
+          "hash": "fVfi833zbUEZsslRXRGhYw=="
         }
       },
       "is_incremental": true,
@@ -141,7 +177,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.BSPassesConverter.html",
-          "hash": "oWxhFHpyi2/f0vZZx5z7ow=="
+          "hash": "wvCfI7iB0g3wX4CKzesQGA=="
         }
       },
       "is_incremental": true,
@@ -201,7 +237,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.BatCallConverter.html",
-          "hash": "xP3HcOzvhmgoPQ/YbiB/1w=="
+          "hash": "UdawKy9Qykl/0Ia4uNjabQ=="
         }
       },
       "is_incremental": true,
@@ -297,7 +333,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.BatRecording.html",
-          "hash": "b41t7AUx3QA7+ChoR5Nu2g=="
+          "hash": "JZ8GNQm55nynG98nlWmsUQ=="
         }
       },
       "is_incremental": true,
@@ -357,7 +393,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.BatSession.html",
-          "hash": "e5FX/QvTlAA7uNNaXVgsvw=="
+          "hash": "O/nNfNVc277DBuag2d4lvQ=="
         }
       },
       "is_incremental": true,
@@ -405,7 +441,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.BatStatistics.Displayable.html",
-          "hash": "+QG4PZ9nNQik8HxVXSabWQ=="
+          "hash": "ypTqEhKG7ej/uTFEN+jfBw=="
         }
       },
       "is_incremental": true,
@@ -417,7 +453,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.BatStatistics.html",
-          "hash": "LcDXILQDQFLK+RPiv2GWnQ=="
+          "hash": "ZEq9T4tDnZZsHvlr0G4+Lw=="
         }
       },
       "is_incremental": true,
@@ -477,7 +513,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.BottomMarginConverter.html",
-          "hash": "l7rIz7mayqVsGHqZnuHRsQ=="
+          "hash": "64vcwowp5vHBl4/HBJC4ZA=="
         }
       },
       "is_incremental": true,
@@ -585,7 +621,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.ConvertGetNumberOfImages.html",
-          "hash": "eqWf+ccalKX7dZ1C+uswPQ=="
+          "hash": "jNqYHhO+2KC19WS3zuWlSQ=="
         }
       },
       "is_incremental": true,
@@ -609,7 +645,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.DBAccess.html",
-          "hash": "uYzJILB5pINMpZd2kphV6g=="
+          "hash": "mU+DJfaFYyVyG6XiBTTlSA=="
         }
       },
       "is_incremental": true,
@@ -645,7 +681,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.DbMemberHelpers.html",
-          "hash": "54fWy0gJ2P7i7/SEFEHELg=="
+          "hash": "vgjV/30MHpkeeoTJPvhA/Q=="
         }
       },
       "is_incremental": true,
@@ -657,7 +693,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.DebugBreak.html",
-          "hash": "QjF8EpBGHurFGpI7l5eIzQ=="
+          "hash": "BdhVWULW/h0IyY9df70APg=="
         }
       },
       "is_incremental": true,
@@ -669,7 +705,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.DecimalToStringConverter.html",
-          "hash": "UDLeFWgMy6RoZoUi33NUjg=="
+          "hash": "+2boy3jOZJdsFppwbTMiDA=="
         }
       },
       "is_incremental": true,
@@ -705,7 +741,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.DivideConverter.html",
-          "hash": "O5s8Zv+jPa6P1IN0/06vjQ=="
+          "hash": "SK2dSPAPE8QmJy/a1ZIS6A=="
         }
       },
       "is_incremental": true,
@@ -717,7 +753,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.DoubleStringConverter.html",
-          "hash": "xgUjn6MPSGLBTUEAhN/8Bw=="
+          "hash": "1MEHswh0kl2G8UL1IPYoTg=="
         }
       },
       "is_incremental": true,
@@ -789,7 +825,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.FilePathBrushConverter.html",
-          "hash": "06ZJEiomRxjGAQkvk7K5bQ=="
+          "hash": "crcJJgPQ5f9YaoJxYg/RXw=="
         }
       },
       "is_incremental": true,
@@ -825,7 +861,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.GPSConverter.html",
-          "hash": "bPVq1kigfMc39pd+LbZ8cg=="
+          "hash": "UzHDmU39HWy17WdTaDaRrA=="
         }
       },
       "is_incremental": true,
@@ -837,7 +873,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.GPSLocation.html",
-          "hash": "tYyMTLLvUJtl6k1MOAioaQ=="
+          "hash": "XbmA/CqdrZsJ91FnCD++MQ=="
         }
       },
       "is_incremental": true,
@@ -861,7 +897,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.GridScaleConverter.html",
-          "hash": "/wIvJbzS4/e/41ke4G3qHg=="
+          "hash": "putO1Tz5ppIC5jlwsPOIrQ=="
         }
       },
       "is_incremental": true,
@@ -885,7 +921,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.HGridLineConverter.html",
-          "hash": "A5UbNKtXnrWro79LD424NQ=="
+          "hash": "budZSvLMWCcDbFaps4SOhg=="
         }
       },
       "is_incremental": true,
@@ -897,7 +933,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.ImageConverter.html",
-          "hash": "wWDVpiCI3Am+KV6DQYghEg=="
+          "hash": "zzRVoklpUtvi4ryXoFkdYg=="
         }
       },
       "is_incremental": true,
@@ -981,7 +1017,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.ImageWithGridConverter.html",
-          "hash": "OYKfjo94FD+qEHaKB+Ca0A=="
+          "hash": "0YWh3A8G8xjYUAk1yfKTLw=="
         }
       },
       "is_incremental": true,
@@ -993,7 +1029,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.ImagesForAllRecordingsConverter.html",
-          "hash": "AQvVQtMRua9tN83r7RhtgA=="
+          "hash": "WMMAzt5V4XLeznd+ry4KFg=="
         }
       },
       "is_incremental": true,
@@ -1005,7 +1041,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.ImagingConverterClass.html",
-          "hash": "oDUsJshtt1qOR9jptO3tog=="
+          "hash": "eX32ZC6smpHQqOHG+NORLw=="
         }
       },
       "is_incremental": true,
@@ -1053,7 +1089,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.LabelledSegment.html",
-          "hash": "0l6QJ0FqiruROuGFQMd1cw=="
+          "hash": "0S59QpOyQx+Tc13igdfwdw=="
         }
       },
       "is_incremental": true,
@@ -1077,7 +1113,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.LabelledSegmentConverter.html",
-          "hash": "U+i8M6ntYTL3zWfUg+R/+w=="
+          "hash": "YkAndzZc1Hznq4n+QyWVmA=="
         }
       },
       "is_incremental": true,
@@ -1101,7 +1137,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.LeftMarginConverter.html",
-          "hash": "JXj0N+pdBzanZm+qkXNwsg=="
+          "hash": "WTtRninbYVNQT3QsvbzJpw=="
         }
       },
       "is_incremental": true,
@@ -1137,7 +1173,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.MapRefConverter.html",
-          "hash": "ZcysUwJpxS+S+mb33wtckg=="
+          "hash": "F3pg+KNNTOhDHvz0rDWcYA=="
         }
       },
       "is_incremental": true,
@@ -1161,7 +1197,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.MultiscaleConverter.html",
-          "hash": "xybFspZANKjpbkaBvxXAfg=="
+          "hash": "a5rVnScR/it+1M6glG2cKQ=="
         }
       },
       "is_incremental": true,
@@ -1245,7 +1281,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.NumberOfImagesConverter.html",
-          "hash": "Sq4YJA9U1BR1kq9J7DMzPg=="
+          "hash": "yhSeU2295PCaDv7fd39ivg=="
         }
       },
       "is_incremental": true,
@@ -1281,7 +1317,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.Recording.html",
-          "hash": "fRnEau1UezHhGNQgX8JTmQ=="
+          "hash": "FLTs01PPAnWV7HKVEm8z6Q=="
         }
       },
       "is_incremental": true,
@@ -1365,7 +1401,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.RecordingSession.html",
-          "hash": "/zYT5E5uWmiJ13Of5rye4Q=="
+          "hash": "6z91We2nvfrCZVyJ0k4/9w=="
         }
       },
       "is_incremental": true,
@@ -1545,7 +1581,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.RightMarginConverter.html",
-          "hash": "SfWLgubj5e6GxbFSz8ugDA=="
+          "hash": "57xEes0D0zTjJPizDDvgQQ=="
         }
       },
       "is_incremental": true,
@@ -1617,7 +1653,19 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.SegmentToTextConverter.html",
-          "hash": "Z9hXeLMsm6qHF4HBiMsCLw=="
+          "hash": "OjZlBnhPCswFKKwi0KjR6g=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/BatRecordingManager.SelectOneDialog.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/BatRecordingManager.SelectOneDialog.html",
+          "hash": "WVJVIMeklblMw6dUu8PdOQ=="
         }
       },
       "is_incremental": true,
@@ -1629,7 +1677,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.SessionActionEventArgs.html",
-          "hash": "qvFpPjZoy+EKwJr1mGU+vg=="
+          "hash": "DLtHc39J5p7PwV/84LCK9Q=="
         }
       },
       "is_incremental": true,
@@ -1641,7 +1689,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.SessionEndDateTimeConverter.html",
-          "hash": "z2k6QE6By8arZA/86500AQ=="
+          "hash": "mdJwNOzR8/QYd/K9W2TO/Q=="
         }
       },
       "is_incremental": true,
@@ -1665,7 +1713,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.SessionStartDateTimeConverter.html",
-          "hash": "z07ydKkOZDcCYe3j1IgUlg=="
+          "hash": "bo6x4E7xtCb4E79EcTY1xA=="
         }
       },
       "is_incremental": true,
@@ -1677,7 +1725,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.SessionsAndRecordingsControl.html",
-          "hash": "H7ce99WWeIiifTkPSGquRQ=="
+          "hash": "2I2k9iiPlJKvusUP1R8dyw=="
         }
       },
       "is_incremental": true,
@@ -1689,7 +1737,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.ShortDateConverter.html",
-          "hash": "QKkw80NvJ4tozGC8g0Eqyg=="
+          "hash": "yDMGHLz1hFSx+KWkyt1Okg=="
         }
       },
       "is_incremental": true,
@@ -1701,7 +1749,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.ShortTimeConverter.html",
-          "hash": "Q6BLV36RaTJ0h5rzs439Lw=="
+          "hash": "dz63PqbswEa9mlvOpdS+/Q=="
         }
       },
       "is_incremental": true,
@@ -1725,7 +1773,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.StringExtensions.html",
-          "hash": "i8tS/PMlQm2o1ZpJ3ZNWpA=="
+          "hash": "kqqWBBrPr8FMHDSNv6SG4g=="
         }
       },
       "is_incremental": true,
@@ -1737,7 +1785,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.TextColourConverter.html",
-          "hash": "0u+OfcW/f4roquicG9sOCA=="
+          "hash": "Ap2fJx7BTfMAJA1gsJ/05g=="
         }
       },
       "is_incremental": true,
@@ -1773,7 +1821,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.TimeSpanDateConverter.html",
-          "hash": "rKchCdq5IbHtvEq89Tbzfg=="
+          "hash": "eUezLWsz+Fm/1XURrZW5YQ=="
         }
       },
       "is_incremental": true,
@@ -1785,7 +1833,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.Times2Converter.html",
-          "hash": "ATEbYWkM3WYlYJFPmG0JGg=="
+          "hash": "dQbmwCaMmBNlKuuIalo7Ig=="
         }
       },
       "is_incremental": true,
@@ -1809,7 +1857,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.Tools.html",
-          "hash": "oGdsbvDl1UKAvMaLbXJ8ZQ=="
+          "hash": "p54mpHhN9yH5nMVYnluQbg=="
         }
       },
       "is_incremental": true,
@@ -1821,7 +1869,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.TopMarginConverter.html",
-          "hash": "1s9lwbgJ5zoSfmxPXyPj8g=="
+          "hash": "xUetQztZIFFbhLkTjGloxg=="
         }
       },
       "is_incremental": true,
@@ -1833,7 +1881,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.UiHelper.html",
-          "hash": "Jvf3yptJfosxxJfvsfxrow=="
+          "hash": "5NGi79Ykva8kB4brGUmrSA=="
         }
       },
       "is_incremental": true,
@@ -1845,7 +1893,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.UiServices.html",
-          "hash": "tZuooL36qqBcUTCsmR/V8Q=="
+          "hash": "/V0jTK0K1aIHFtnBumDPZg=="
         }
       },
       "is_incremental": true,
@@ -1857,7 +1905,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.VGridLineConverter.html",
-          "hash": "IQvwg/7/egIX0ndKsfvtIw=="
+          "hash": "vEL5VAVbNTklEhVCCNYIRQ=="
         }
       },
       "is_incremental": true,
@@ -1881,7 +1929,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.WAMD_Data.html",
-          "hash": "gZ4f/CiRzxEepwyiMfG6/w=="
+          "hash": "CQS/bpEFbk7T2Y0+QLqjJQ=="
         }
       },
       "is_incremental": true,
@@ -1893,7 +1941,7 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.WaitCursor.html",
-          "hash": "wUmj6yo8ukKjW1wKMjg2pw=="
+          "hash": "1ZlbCiJZst6bQEam4WU5KA=="
         }
       },
       "is_incremental": true,
@@ -1917,10 +1965,10 @@
       "output": {
         ".html": {
           "relative_path": "api/BatRecordingManager.html",
-          "hash": "G5+mx5Nrc+o9Xq4Rll5Wgg=="
+          "hash": "bxz3qcuFs3yOJbb2fVuURQ=="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -1929,7 +1977,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "gg0oZzvWI7EjFRC90jvD4Q=="
+          "hash": "P7Gq0eVtkee+wpSXOQ3P7Q=="
         }
       },
       "is_incremental": false,
@@ -1973,8 +2021,8 @@
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 156,
-          "skipped_file_count": 156
+          "total_file_count": 160,
+          "skipped_file_count": 158
         }
       }
     },

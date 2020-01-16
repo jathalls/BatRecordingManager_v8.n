@@ -1,16 +1,23 @@
+C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\obj\Debug\BatRecordingManagerTests.csprojAssemblyReference.cache
+C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\obj\Debug\BatRecordingManagerTests.csproj.CoreCompileInputs.cache
+C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\BatReferenceDBv5.31.mdf
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\DatabaseTableControl.xaml.cs
+C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Properties\Settings.Designer.cs
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Bat Recording Manager.chm
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Properties\app.manifest
+C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Properties\Settings.settings
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\BatReferenceXMLFile.xml
-C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll
-C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.Interface.dll
-C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.dll
+C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\NUnit3.TestAdapter.dll
+C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\NUnit3.TestAdapter.pdb
+C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\nunit.engine.dll
+C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\nunit.engine.api.dll
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\BatRecordingManagerTests.dll
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\BatRecordingManagerTests.pdb
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\BatRecordingManager.exe
-C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Microsoft.VisualStudio.TestPlatform.TestFramework.dll
-C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll
+C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\nunit.framework.dll
+C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\WindowsBase.dll
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\WindowsInput.dll
+C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Microsoft.VisualStudio.Language.Intellisense.dll
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Xceed.Wpf.Toolkit.dll
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\CSCore.dll
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Microsoft.Maps.MapControl.WPF.dll
@@ -18,6 +25,7 @@ C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\NAudio.dl
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\DataVirtualizationLibrary.dll
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Mm.ExportableDataGrid.dll
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Magick.NET-Q8-AnyCPU.dll
+C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\DarkSkyApi.dll
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\System.Linq.Dynamic.dll
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Microsoft.VisualStudio.CoreUtility.dll
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Microsoft.VisualStudio.Text.Data.dll
@@ -26,6 +34,8 @@ C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Microsoft
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\BatRecordingManager.pdb
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\BatRecordingManager.xml
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\BatRecordingManager.exe.config
+C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\nunit.framework.pdb
+C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\nunit.framework.xml
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\WindowsInput.pdb
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\WindowsInput.xml
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\CSCore.xml
@@ -38,18 +48,9 @@ C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Microsoft
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Microsoft.VisualStudio.Text.Data.xml
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Microsoft.VisualStudio.Text.UI.xml
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Microsoft.VisualStudio.Text.Logic.xml
-C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\obj\Debug\BatRecordingManagerTests.csprojAssemblyReference.cache
-C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\obj\Debug\BatRecordingManagerTests.csproj.CoreCompileInputs.cache
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\obj\Debug\BatRecordingManagerTests.csproj.CopyComplete
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\obj\Debug\BatRecordingManagerTests.dll
 C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\obj\Debug\BatRecordingManagerTests.pdb
-C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\BatReferenceDBv5.31.mdf
-C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\FluentAssertions.Core.dll
-C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\FluentAssertions.dll
-C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\HSNXT.Unirest.Net.dll
-C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Newtonsoft.Json.dll
-C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\FluentAssertions.pdb
-C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\FluentAssertions.xml
-C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\FluentAssertions.Core.pdb
-C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\FluentAssertions.Core.xml
-C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\bin\Debug\Newtonsoft.Json.xml
+C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\obj\Debug\Simple Styles.baml
+C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\obj\Debug\BatRecordingManagerTests_MarkupCompile.cache
+C:\Users\justi\source\repos\BRMv8.n\BatRecordingManagerTests\obj\Debug\BatRecordingManagerTests.g.resources

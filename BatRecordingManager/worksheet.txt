@@ -457,5 +457,14 @@ DONEish
 22 Sep 2019
 	Slight mod to the AddPushpin routines to ensure that the chosen location is the exact mouse location and is shown as the point of the pushpin.  Also changed the routine to add the new chosen location to the session data (which is bound to the location text boxes) rather than writing to the text boxes, possibly destroying the binding.
 
+2 Dec 2019
+	Compare all from the list by bats view only added the images from the currently selected recording (if any) instead of all the images for the bat.  This is now corrected and adds all the images for all the sessions selected in the session window, or if no sessions are selected for all the sessions listed in the session window.
 
+12 Dec 2019
+	Add a main menu item - Apps - for supplementary applicatios which do not affect the databse directly but which provide ancillary services which are useful.
+	The first one of these will search a selected folder for files in which the embedded or .txt comment contains the word unknown or one of a defined set of key words (witht he option of searching all the text or just that outside curly braces).  The identified files are copied to a sub-folder where they can be examined and annotated in ore detail.  The sub-folder will contain and id file so that if the files are imported to the databse they will first be moved to the parent directory but only if they no-longer contain the keywords.  An update option allows externally modified files to be moved back to the parent directory and included or updated in the database.
+
+11/1/2020
+	Above section mostly complete but not fully tested.
+	New feature to be added:- In the ListByBats view, select one or more recordings and right click to show a context menu which offers the choice of opening the Import picture dialog (which is the current right click effect) and exporting those .wav files to another folder.  The user will select a folder and the files will be copied with their dates preserved.  In general start to substitute right-click context menus throughou instead of multiple SHIFT-Click, CTRL-Click, Right click variations.
 
