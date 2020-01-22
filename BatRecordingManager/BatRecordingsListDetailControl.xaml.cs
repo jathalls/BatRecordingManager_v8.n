@@ -150,7 +150,7 @@ namespace BatRecordingManager
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void BatStatsDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void BatStatsDataGrid_MouseDoubleClick(object sender, EventArgs e)
         {
             using (new WaitCursor("Adding all images to Comparison Window..."))
             {
@@ -209,6 +209,8 @@ namespace BatRecordingManager
                 //ComparisonHost.Instance.AddImageRange(images);
             }
         }
+
+       
     }
 
     #endregion BatRecordingListDetailControl

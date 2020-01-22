@@ -599,6 +599,16 @@ namespace BatRecordingManager
         }
 
         #endregion IsReadOnly
+
+        private void MiDeleteFromdatabase_Click(object sender, RoutedEventArgs e)
+        {
+            if (imageIndex >= 0 && imageIndex < imageList.Count)
+            {
+                var fromDatabase = true;
+                var args = new ButtonPressedEventArgs(DelImageButton, imageList[imageIndex], fromDatabase);
+                OnButtonPressed(args);
+            }
+        }
     }
 
     /// end class ImageScrollerControl

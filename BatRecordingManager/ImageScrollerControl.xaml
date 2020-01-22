@@ -68,7 +68,14 @@
                     x:Name="DelImageButton"
                     Style="{StaticResource SimpleButton}"
                     ToolTip="Delete this image from the list; &lt;SHIFT&gt;&lt;CLICK&gt; to delete from the database"
-                    Content="DEL" Click="DelImageButton_Click" />
+                    Content="DEL" Click="DelImageButton_Click" >
+                    <Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem x:Name="miRemoveFromList" Header="Remove Image from the List" Click="DelImageButton_Click"/>
+                            <MenuItem x:Name="miDeleteFromdatabase" Header="Delete Image From database" Click="MiDeleteFromdatabase_Click" />
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
                 <Button
                     x:Name="ImportImageButton"
                     Style="{StaticResource SimpleButton}"
@@ -110,12 +117,7 @@
 
             Style="{StaticResource SimpleTextBox}" IsReadOnly="True" MaxLines="1" />
 
-        <!--<Image
-            x:Name="Currentimage"
-            Source="{Binding Path=image, Converter={StaticResource ImageConverter}}"
-            Grid.Row="3" MouseWheel="Currentimage_MouseWheel"
-
-            />-->
+        
         <Image
             x:Name="Currentimage"
 

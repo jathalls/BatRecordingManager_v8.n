@@ -67,6 +67,11 @@
                 EnableRowVirtualization="True"
                 VirtualizingPanel.VirtualizationMode="Recycling"
                 ToolTip="Double-click to compare all recording images for this bat">
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem x:Name="miCompareAllImages" Header="Compare All Images" Click="BatStatsDataGrid_MouseDoubleClick"/>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
 
                 <DataGrid.Columns>
                     <DataGridTextColumn Width="120*" Binding="{Binding Path=displayable.Name}" Header="Name"

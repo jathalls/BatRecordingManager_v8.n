@@ -330,7 +330,7 @@ namespace BatRecordingManager
 
         private Recording thisRecording { get; set; } = null;
         private AnalyseAndImportClass aai = null;
-        private void RecordingsDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void RecordingsDataGrid_MouseDoubleClick(object sender, EventArgs e)
         {
             var dg = sender as DataGrid;
             var selectedItem = dg.SelectedItem as BatSessionRecordingData;
@@ -380,7 +380,7 @@ namespace BatRecordingManager
             topParent.RefreshData();
         }
 
-        private void SessionsDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void SessionsDataGrid_MouseDoubleClick(object sender, EventArgs e)
         {
             var dg = sender as DataGrid;
             if (!(dg.SelectedItem is BatSessionData selectedSession)) return;
@@ -536,7 +536,7 @@ namespace BatRecordingManager
 
         private void miExportFiles_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            if ((RecordingsDataGrid.SelectedItems.Count-1) <= 0) return;
+            if ((RecordingsDataGrid.SelectedItems.Count) <= 0) return;
             string folder = Tools.SelectWavFileFolder();
             if (String.IsNullOrWhiteSpace(folder)) return;
             if (!Directory.Exists(folder)) return;
@@ -559,6 +559,8 @@ namespace BatRecordingManager
                 AppFilter.TransferFile(filename, folder, false);
             }
         }
+
+        
     }
 
     /// <summary>

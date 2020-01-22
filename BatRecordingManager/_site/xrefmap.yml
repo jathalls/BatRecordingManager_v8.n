@@ -249,6 +249,12 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.AppFilter._parentFolderPath
   nameWithType: AppFilter._parentFolderPath
+- uid: BatRecordingManager.AppFilter._parentFolderPathProperty
+  name: _parentFolderPathProperty
+  href: api/BatRecordingManager.AppFilter.html#BatRecordingManager_AppFilter__parentFolderPathProperty
+  commentId: F:BatRecordingManager.AppFilter._parentFolderPathProperty
+  fullName: BatRecordingManager.AppFilter._parentFolderPathProperty
+  nameWithType: AppFilter._parentFolderPathProperty
 - uid: BatRecordingManager.AppFilter.ApplyFilter(System.Collections.Generic.IEnumerable{System.String})
   name: ApplyFilter(IEnumerable<String>)
   href: api/BatRecordingManager.AppFilter.html#BatRecordingManager_AppFilter_ApplyFilter_System_Collections_Generic_IEnumerable_System_String__

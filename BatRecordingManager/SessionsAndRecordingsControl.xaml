@@ -36,6 +36,11 @@
             EnableRowVirtualization="True"
             VirtualizingPanel.VirtualizationMode="Recycling"
             ToolTip="Double-click to Open Recording-sessions view">
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem x:Name="miListBySessions" Header="Open Recording Sessions View" Click="SessionsDataGrid_MouseDoubleClick"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
 
             <DataGrid.Columns>
                 <DataGridTextColumn Width="100*" Binding="{Binding SessionTag}" Header="Tag" />
@@ -86,6 +91,8 @@
 
                 
                 IsSynchronizedWithCurrentItem="True">
+                
+               
 
                 <DataGrid.Columns>
                     <DataGridTextColumn Width="180*" Binding="{Binding RecordingName,IsAsync=True}" Header="File"
@@ -106,6 +113,7 @@
                     <ContextMenu>
                         <MenuItem x:Name="miOpenImportPicture"  Header="Open Import Picture Window" Click="miOpenImportPicture_Click" />
                         <MenuItem x:Name="miExportFiles" Header="Export selected Files" Click="miExportFiles_Click" />
+                        <MenuItem x:Name="miOpenWavFile" Header="Open .Wav File" Click="RecordingsDataGrid_MouseDoubleClick"/>
                     </ContextMenu>
                 </DataGrid.ContextMenu>
             </DataGrid>

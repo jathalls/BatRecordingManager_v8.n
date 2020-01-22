@@ -31,7 +31,29 @@ namespace BatRecordingManager
         /// <summary>
         /// Name of the parent folder holding files to be filtered
         /// </summary>
-        public String _parentFolderPath { get; set; } = "";
+        #region _parentFolderPath
+
+        /// <summary>
+        /// _parentFolderPath Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty _parentFolderPathProperty =
+            DependencyProperty.Register("_parentFolderPath", typeof(string), typeof(AppFilter),
+                new FrameworkPropertyMetadata((string)""));
+
+        /// <summary>
+        /// Gets or sets the _parentFolderPath property.  This dependency property 
+        /// indicates ....
+        /// </summary>
+        public string _parentFolderPath
+        {
+            get { return (string)GetValue(_parentFolderPathProperty); }
+            set { SetValue(_parentFolderPathProperty, value); }
+        }
+
+        #endregion
+
+
+        //public String _parentFolderPath { get; set; } = "";
 
         public String _defaultSubFolderName { get; set; }
 
@@ -102,13 +124,14 @@ namespace BatRecordingManager
 
         private void AppFilterSelectFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            _parentFolderPath=Tools.SelectWavFileFolder();
-            if (string.IsNullOrWhiteSpace(_parentFolderPath) || !Directory.Exists(_parentFolderPath))
+            string FolderPath=Tools.SelectWavFileFolder();
+            if (string.IsNullOrWhiteSpace(FolderPath) || !Directory.Exists(FolderPath))
             {
                 _ = MessageBox.Show($"Directory not found, unable to search", "Directory not found", MessageBoxButton.OK);
                 return;
             }
-            _parentFileList = Directory.EnumerateFiles(_parentFolderPath, "*.wav");
+            SetDefaultFolderPath(FolderPath);
+            //_parentFileList = Directory.EnumerateFiles(_parentFolderPath, "*.wav");
             //AppFilterFolderText.Text = _parentFolderPath;
             
 
@@ -453,9 +476,9 @@ namespace BatRecordingManager
             bool bracketed = AppFilterBrackets.IsChecked ?? false;
             var keywords = AppFilterComboBox.Items;
             List<String> keywordList=new List<string>();
-            foreach (ComboBoxItem item in keywords)
+            foreach (var item in keywords)
             {
-                keywordList.Add(item.Content as String);
+                keywordList.Add(item as String);
             }
 
             if (keywordList.IsNullOrEmpty()) return (true); // if no keywords, all files are selected
