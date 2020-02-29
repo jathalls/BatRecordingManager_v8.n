@@ -164,9 +164,16 @@ namespace BatRecordingManager
 
         private void DisplayImage_DelButtonPressed(object sender, EventArgs e)
         {
+            BoolEventArgs be = e as BoolEventArgs;
             var item = sender as DisplayStoredImageControl;
             ComparisonStackPanel.SelectedItem = item;
+            var storedImage = item.storedImage;
+            
             if (ComparisonStackPanel.SelectedIndex >= 0) storedImageList.RemoveAt(ComparisonStackPanel.SelectedIndex);
+            if (be?.state ?? false)
+            {
+                storedImage.Delete();
+            }
         }
 
         private void DisplayImage_DownButtonPressed(object sender, EventArgs e)
@@ -269,6 +276,16 @@ namespace BatRecordingManager
         {
             var isPng = true;
             if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) isPng = false;
+            ExportPictures(isPng);
+        }
+
+        /// <summary>
+        /// Exports pictures in .PNG or .JPG format depending on value of isPng
+        /// </summary>
+        /// <param name="isPNG"></param>
+        private void ExportPictures(bool isPNG)
+        { 
+
             if (!storedImageList.IsNullOrEmpty())
             {
                 var folderPath = GetFolderPath();
@@ -283,7 +300,7 @@ namespace BatRecordingManager
                         {
                             var displayImage = displayObject;
                             displayImage.Save();
-                            var fname = displayImage.Export(folderPath, fileNumber, storedImageList.Count, isPng);
+                            var fname = displayImage.Export(folderPath, fileNumber, storedImageList.Count, isPNG);
                             captionsText = captionsText + fname + "|" + displayImage.storedImage.caption + "|" +
                                            displayImage.storedImage.description + "\n";
 
@@ -305,7 +322,7 @@ namespace BatRecordingManager
         private string GetFolderPath()
         {
             var folderPath = Directory.GetCurrentDirectory();
-
+            /*
             using (var dialog = new OpenFileDialog())
             {
                 dialog.DefaultExt = "*.*";
@@ -328,7 +345,8 @@ namespace BatRecordingManager
                     folderPath = Tools.GetPath(dialog.FileName);
                 else
                     return null;
-            }
+            }*/
+            folderPath = Tools.SelectWavFileFolder("");
 
             return folderPath;
         }
@@ -424,6 +442,16 @@ namespace BatRecordingManager
         }
 
         #endregion storedImageList
+
+        private void MiExportNormal_Click(object sender, RoutedEventArgs e)
+        {
+            ExportPictures(true);
+        }
+
+        private void MiExportJpg_Click(object sender, RoutedEventArgs e)
+        {
+            ExportPictures(false);
+        }
     }
 
     #region DivideBy2Converter (ValueConverter)

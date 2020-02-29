@@ -26,12 +26,21 @@
                 x:Name="ExportPicturesButton"
                 Style="{StaticResource SimpleButton}"
                 Width="50"
-                Content="Export" Click="ExportPicturesButton_Click">
+                Content="Export*" 
+                Click="ExportPicturesButton_Click" 
+                >
+                <Button.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem x:Name="miExportNormal" Header="Export as .PNG" ToolTip="Export selected files as .PNG images with sidecar .TXT files" Click="MiExportNormal_Click"/>
+                        <MenuItem x:Name="miExportJpg" Header="Export as .JPG" ToolTip="Export selected images as .JPG files with embedded text" Click="MiExportJpg_Click"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
 
                 <Button.ToolTip>
                     <TextBlock>
                         "Export pictures in comparison window to a folder as .PNG with sidecar .TXT files"<LineBreak />
-                        "SHIFT-Click to Export as .JPG files with embedded IPTC Title and Subject"
+                        "SHIFT-Click to Export as .JPG files with embedded IPTC Title and Subject"<LineBreak />
+                        "RIGHT-Click for context menu options"
                     </TextBlock>
                 </Button.ToolTip>
             </Button>

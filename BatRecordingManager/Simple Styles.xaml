@@ -88,8 +88,13 @@
         </Setter>
     </Style>
 
+    <Style x:Key="TooltipDefaults">
+        <Setter Property="ToolTipService.ShowDuration" Value="10000"/>
+        
+    </Style>
+
     <!-- Simple Button - This control sets brushes on each state. Note that these brushes must be listed above since they are static resources -->
-    <Style x:Key="SimpleButton" TargetType="{x:Type Button}" BasedOn="{x:Null}">
+    <Style x:Key="SimpleButton" TargetType="{x:Type Button}" BasedOn="{StaticResource TooltipDefaults}">
         <Setter Property="FocusVisualStyle" Value="{DynamicResource SimpleButtonFocusVisual}" />
         <Setter Property="Background" Value="{DynamicResource NormalBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource NormalBorderBrush}" />

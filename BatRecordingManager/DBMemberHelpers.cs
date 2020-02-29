@@ -260,6 +260,7 @@ namespace BatRecordingManager
             var existingRecording = DBAccess.GetRecordingForWavFile(file);
 
             var fileMetaData = new WavFileMetaData(file);
+            
 
             var recordingDate = File.GetCreationTime(file).Date;
             var recordingTime = File.GetCreationTime(file).TimeOfDay;

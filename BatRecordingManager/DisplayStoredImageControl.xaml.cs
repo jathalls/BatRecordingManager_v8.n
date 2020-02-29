@@ -37,6 +37,30 @@ namespace BatRecordingManager
             DependencyProperty.Register(nameof(storedImage), typeof(StoredImage), typeof(DisplayStoredImageControl),
                 new PropertyMetadata(new StoredImage(null, "", "", -1)));
 
+        #region GridControlsVisibility
+
+        /// <summary>
+        /// GridControlsVisibility Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty GridControlsVisibilityProperty =
+            DependencyProperty.Register("GridControlsVisibility", typeof(Visibility), typeof(DisplayStoredImageControl),
+                new FrameworkPropertyMetadata((Visibility)Visibility.Hidden,
+                    FrameworkPropertyMetadataOptions.None));
+
+        /// <summary>
+        /// Gets or sets the GridControlsVisibility property.  This dependency property 
+        /// indicates whether the Grid controls are visible or not
+        /// </summary>
+        public Visibility GridControlsVisibility
+        {
+            get { return (Visibility)GetValue(GridControlsVisibilityProperty); }
+            set { SetValue(GridControlsVisibilityProperty, value); }
+        }
+
+        #endregion
+
+
+
         private readonly double _defaultGridLeftMargin = 0.28d;
         private readonly double _defaultGridScale = 0.6782d;
 
@@ -67,7 +91,20 @@ namespace BatRecordingManager
 
         private int _selectedLine = -1;
 
-        private bool _showGrid;
+        private bool __showGrid = false;
+        private bool _showGrid
+        {
+            get
+            {
+                return (__showGrid);
+            }
+            set
+            {
+                __showGrid = value;
+                miFidsCopyGridFids.IsEnabled = value;
+                Debug.WriteLine("_showGrid and miFidsCopyGridFids.IsEnabled set to " + value);
+            }
+        }
         private StoredImage _storedImage = new StoredImage(null, "", "", -1);
 
         private EventHandler<EventArgs> _upButtonPressedEvent;
@@ -89,6 +126,13 @@ namespace BatRecordingManager
             DataContext = storedImage;
             AxisGrid675.DataContext = this;
             AxisGrid7029A.DataContext = this;
+            miGridSpacer.DataContext = this;
+            miEnlargeGrid5.DataContext = this;
+            miEnlargeGrid1.DataContext = this;
+            miShrinkGrid5.DataContext = this;
+            miShrinkGrid1.DataContext = this;
+            miCopyGridFids.DataContext = this;
+            
 
             gridTopMargin = _defaultGridTopMargin;
             gridLeftMargin = _defaultGridLeftMargin;
@@ -98,6 +142,7 @@ namespace BatRecordingManager
             _showGrid = false;
             AxisGrid7029A.Visibility = Visibility.Hidden;
             AxisGrid675.Visibility = Visibility.Hidden;
+            GridControlsVisibility = Visibility.Hidden;
 
 
             DisplayImageCanvas.Focus();
@@ -286,10 +331,14 @@ namespace BatRecordingManager
 
         /// <summary>
         ///     Raises the <see cref="e_DelButtonPressed" /> event.
+        ///     If the EventArgs flag is false (default state) then the image is deleted from the window
+        ///     and not from the database.
+        ///     If the flag is true then image is deleted from the database.
         /// </summary>
         /// <param name="e"><see cref="EventArgs" /> object that provides the arguments for the event.</param>
-        protected virtual void OnDelButtonPressed(EventArgs e)
+        protected virtual void OnDelButtonPressed(BoolEventArgs e)
         {
+            
             EventHandler<EventArgs> handler = null;
 
             lock (_delButtonPressedEventLock)
@@ -415,6 +464,7 @@ namespace BatRecordingManager
             }
 
             DisplayImageCanvas.UpdateLayout();
+            DisplayImageCanvas.Focus();
             return result;
         }
 
@@ -507,7 +557,10 @@ namespace BatRecordingManager
         private bool DecrementSelectedLine()
         {
             var result = false;
-            _selectedLine--;
+            if (!isGridHighlighted)
+            {
+                _selectedLine--;
+            }
             while (_selectedLine >= 0 && !(DisplayImageCanvas.Children[_selectedLine] is Line)) _selectedLine--;
             if (_selectedLine < -1) _selectedLine = DisplayImageCanvas.Children.Count - 1;
             HighlightSelectedLine();
@@ -566,7 +619,7 @@ namespace BatRecordingManager
 
         private void DeleteImageButton_Click(object sender, RoutedEventArgs e)
         {
-            OnDelButtonPressed(new EventArgs());
+            OnDelButtonPressed(new BoolEventArgs());
             DisplayImageCanvas.Focus();
         }
 
@@ -596,72 +649,85 @@ namespace BatRecordingManager
             if (!e.Handled)
             {
                 e.Handled = true;
-                if (FiducialsButton.IsChecked ?? false)
+                var pos = e.GetPosition(DisplayImageCanvas);
+                bool horizontal = true;
+                if (Keyboard.IsKeyDown(Key.LeftShift))
                 {
-                    var pos = e.GetPosition(DisplayImageCanvas);
-                    Debug.WriteLine("X=" + pos.X + " Y=" + pos.Y + " dic.W=" + DisplayImageCanvas.ActualWidth +
-                                    " dic.H=" + DisplayImageCanvas.ActualHeight + "\n");
+                    horizontal = false;
+                }
+                DisplayImage_AddFiducial(horizontal,pos);
+            }
+        }
 
-                    if (pos.X >= 0 && pos.X < DisplayImageCanvas.ActualWidth && pos.Y >= 0 &&
-                        pos.Y < DisplayImageCanvas.ActualHeight)
+        private void DisplayImage_AddFiducial(bool horizontal,Point pos)
+        {
+
+            if (FiducialsButton.IsChecked ?? false)
+            {
+                //var pos = e.GetPosition(DisplayImageCanvas);
+                Debug.WriteLine("X=" + pos.X + " Y=" + pos.Y + " dic.W=" + DisplayImageCanvas.ActualWidth +
+                                " dic.H=" + DisplayImageCanvas.ActualHeight + "\n");
+
+                if (pos.X >= 0 && pos.X < DisplayImageCanvas.ActualWidth && pos.Y >= 0 &&
+                    pos.Y < DisplayImageCanvas.ActualHeight)
+                {
+                    //Tools.InfoLog("Right Mouse Button");
+                    _selectedLine = -1;
+                    HighlightSelectedLine();
+                    var isVertical = false;
+                    var imageLineIndex = -1;
+
+                    var line = new Line();
+                    if (!horizontal)
                     {
-                        //Tools.InfoLog("Right Mouse Button");
-                        _selectedLine = -1;
-                        HighlightSelectedLine();
-                        var isVertical = false;
-                        var imageLineIndex = -1;
+                        isVertical = true;
 
-                        var line = new Line();
-                        if (Keyboard.IsKeyDown(Key.LeftShift))
-                        {
-                            isVertical = true;
+                        if (storedImage.VerticalGridLines == null) storedImage.VerticalGridLines = new List<int>();
+                        storedImage.VerticalGridLines.Add(WidthDeScale(pos.X));
+                        imageLineIndex = storedImage.VerticalGridLines.Count - 1;
+                        DrawLine(imageLineIndex, Orientation.VERTICAL);
 
-                            if (storedImage.VerticalGridLines == null) storedImage.VerticalGridLines = new List<int>();
-                            storedImage.VerticalGridLines.Add(WidthDeScale(pos.X));
-                            imageLineIndex = storedImage.VerticalGridLines.Count - 1;
-                            DrawLine(imageLineIndex, Orientation.VERTICAL);
-
-                            //TOD add binding to VGL of storedImage
-                        }
-                        else
-                        {
-                            try
-                            {
-                                isVertical = false;
-
-                                var newGl = HeightDeScale(pos.Y);
-
-                                if (storedImage.HorizontalGridlines == null)
-                                    storedImage.HorizontalGridlines = new List<int>();
-                                storedImage.HorizontalGridlines.Add(newGl);
-                                //Tools.InfoLog("At canvas=" + pos.Y + " Image=" + newGL);
-
-                                imageLineIndex = storedImage.HorizontalGridlines.Count - 1;
-                                DrawLine(imageLineIndex, Orientation.HORIZONTAL);
-                            }
-                            catch (Exception ex)
-                            {
-                                Tools.ErrorLog("££££££££££   " + ex.Message + "::" + ex);
-                                ClearGridlines();
-                                DrawAllLines();
-                                return;
-                            }
-                        }
-
-                        _selectedLine = DisplayImageCanvas.Children.Count - 1;
-                        //Tools.InfoLog("Selected line " + selectedLine);
-                        if (VLineMap == null) VLineMap = new Dictionary<int, int>();
-                        if (HLineMap == null) HLineMap = new Dictionary<int, int>();
-
-                        VLineMap.Add(_selectedLine, imageLineIndex);
-                        HLineMap.Add(_selectedLine, imageLineIndex);
-
-                        HighlightSelectedLine();
-                        DisplayImageCanvas.UpdateLayout();
-                        IsModified = true;
+                        //TOD add binding to VGL of storedImage
                     }
+                    else
+                    {
+                        try
+                        {
+                            isVertical = false;
+
+                            var newGl = HeightDeScale(pos.Y);
+
+                            if (storedImage.HorizontalGridlines == null)
+                                storedImage.HorizontalGridlines = new List<int>();
+                            storedImage.HorizontalGridlines.Add(newGl);
+                            //Tools.InfoLog("At canvas=" + pos.Y + " Image=" + newGL);
+
+                            imageLineIndex = storedImage.HorizontalGridlines.Count - 1;
+                            DrawLine(imageLineIndex, Orientation.HORIZONTAL);
+                        }
+                        catch (Exception ex)
+                        {
+                            Tools.ErrorLog("££££££££££   " + ex.Message + "::" + ex);
+                            ClearGridlines();
+                            DrawAllLines();
+                            return;
+                        }
+                    }
+
+                    _selectedLine = DisplayImageCanvas.Children.Count - 1;
+                    //Tools.InfoLog("Selected line " + selectedLine);
+                    if (VLineMap == null) VLineMap = new Dictionary<int, int>();
+                    if (HLineMap == null) HLineMap = new Dictionary<int, int>();
+
+                    VLineMap.Add(_selectedLine, imageLineIndex);
+                    HLineMap.Add(_selectedLine, imageLineIndex);
+
+                    HighlightSelectedLine();
+                    DisplayImageCanvas.UpdateLayout();
+                    IsModified = true;
                 }
             }
+
         }
 
         private void DisplayImage_Unloaded(object sender, RoutedEventArgs e)
@@ -686,6 +752,7 @@ namespace BatRecordingManager
                 Focus();
 
                 if ((FiducialsButton.IsChecked ?? false) && isCtrlPressed && e.Key == Key.D)
+                {
                     // CTRL-D while fiducials is active causes the fiducial lines of the current image (if any)
                     // to be duplicated to all images that do not already have some fiducial lines
                     // through an event handler so that the action is taken by the parent which has access to allthe sibling images
@@ -703,6 +770,7 @@ namespace BatRecordingManager
 
                         return;
                     }
+                }
 
                 var moveSize = 5;
                 var scaleSize = 1.1d;
@@ -721,7 +789,7 @@ namespace BatRecordingManager
 
                 if (canvas != null)
                 {
-                    if (FiducialsButton.IsChecked ?? false)
+                    if ((FiducialsButton.IsChecked ?? false) && !isGridHighlighted)
                     {
                         //Debug.WriteLine("Adjust Fiducials");
                         if (AdjustFiducials(sender, e, moveSize))
@@ -750,6 +818,14 @@ namespace BatRecordingManager
 
                                 switch (e.Key)
                                 {
+                                    case Key.Tab:
+                                        if (AdjustFiducials(sender, e, moveSize))
+                                        {
+                                            IsModified = true;
+                                        }
+                                        e.Handled = true;
+                                        break;
+
                                     case Key.PageUp:
                                         gridScaleValue = gridScaleValue * scaleSize;
                                         e.Handled = true;
@@ -1184,15 +1260,18 @@ namespace BatRecordingManager
 
             if (_showGrid)
             {
+                HighlightGrid(false);
                 _gridToShow = 0;
                 if (AxisGrid675.Visibility == Visibility.Visible) _gridToShow = 675;
                 if (AxisGrid7029A.Visibility == Visibility.Visible) _gridToShow = 7029;
                 AxisGrid675.Visibility = Visibility.Hidden;
                 AxisGrid7029A.Visibility = Visibility.Hidden;
                 GridSelectionComboBox.Visibility = Visibility.Hidden;
+                GridControlsVisibility = Visibility.Hidden;
                 //FiducialGrid.Visibility = Visibility.Hidden;
 
                 _showGrid = false;
+                
             }
             else
             {
@@ -1201,6 +1280,7 @@ namespace BatRecordingManager
                 {
                     AxisGrid675.Visibility = Visibility.Visible;
                     _axisGrid = AxisGrid675;
+                    GridControlsVisibility = Visibility.Visible;
                 }
                 else
                 {
@@ -1211,6 +1291,7 @@ namespace BatRecordingManager
                 {
                     AxisGrid7029A.Visibility = Visibility.Visible;
                     _axisGrid = AxisGrid7029A;
+                    GridControlsVisibility = Visibility.Visible;
                 }
                 else
                 {
@@ -1220,6 +1301,7 @@ namespace BatRecordingManager
                 GridSelectionComboBox.Visibility = Visibility.Visible;
                 GridSelectionComboBox.IsDropDownOpen = true;
                 _showGrid = true;
+                
             }
         }
 
@@ -1236,6 +1318,7 @@ namespace BatRecordingManager
                     //gridTopMargin = 0.1d;
                     //gridLeftMargin = 0.1d;
                     _gridToShow = 675;
+                    GridControlsVisibility = Visibility.Visible;
                     //FiducialGrid.Visibility = Visibility.Hidden;
                 }
 
@@ -1247,6 +1330,7 @@ namespace BatRecordingManager
                     //gridTopMargin = 0.1d;
                     //gridLeftMargin = 0.1d;
                     _gridToShow = 7029;
+                    GridControlsVisibility = Visibility.Visible;
                     //FiducialGrid.Visibility = Visibility.Hidden;
                 }
 
@@ -1255,6 +1339,7 @@ namespace BatRecordingManager
                     AxisGrid675.Visibility = Visibility.Hidden;
                     AxisGrid7029A.Visibility = Visibility.Hidden;
                     _gridToShow = 0;
+                    GridControlsVisibility = Visibility.Hidden;
                     //FiducialGrid.Visibility = Visibility.Visible;
                 }
             }
@@ -1360,20 +1445,72 @@ namespace BatRecordingManager
                     if (child is Line line)
                         line.StrokeThickness = 1;
                 if (_selectedLine >= 0)
+                {
                     if (DisplayImageCanvas.Children[_selectedLine] is Line)
                         (DisplayImageCanvas.Children[_selectedLine] as Line).StrokeThickness = 2;
+                }
+                else
+                {
+                    if (_showGrid)
+                    {
+                        if (isGridHighlighted)
+                        {
+                            HighlightGrid(false);
+                        }
+                        else
+                        {
+                            HighlightGrid(true);
+                            
+                        }
+                    }
+                    
+                }
             }
 
             DisplayImageCanvas.UpdateLayout();
             DisplayImageCanvas.Focus();
         }
 
+        private bool isGridHighlighted = false;
+
+        private void HighlightGrid(bool setHighlighted)
+        {
+            var currentGrid = AxisGrid675;
+
+            if (_gridToShow == 675)
+            {
+                currentGrid = AxisGrid675;
+            }
+            else
+            {
+                currentGrid = AxisGrid7029A;
+            }
+            foreach(var child in currentGrid.Children)
+            {
+                if (child is Line)
+                {
+                    if (setHighlighted)
+                    {
+                        (child as Line).StrokeThickness = 2;
+                    }
+                    else
+                    {
+                        (child as Line).StrokeThickness = 1;
+                    }
+                }
+            }
+            isGridHighlighted = setHighlighted;
+        }
+
         private bool IncrementSelectedLine()
         {
             Debug.Write("Incrementing from " + _selectedLine);
             var result = false;
-            _selectedLine++;
-            while (_selectedLine < DisplayImageCanvas.Children.Count &&
+            if (!isGridHighlighted)
+            {
+                _selectedLine++;
+            }
+            while (_selectedLine < DisplayImageCanvas.Children.Count && _selectedLine>=0 &&
                    !(DisplayImageCanvas.Children[_selectedLine] is Line)) _selectedLine++;
 
             if (_selectedLine >= DisplayImageCanvas.Children.Count) _selectedLine = -1;
@@ -1596,53 +1733,59 @@ namespace BatRecordingManager
             if (!_showGrid) return; // GRID is not displayed so do nothing
             if (!e.Handled)
             {
-                var gridWidth = 0.0d;
-                var gridHeight = 0.0d;
-                var gridTop = 0.0d;
-                var gridLeft = 0.0d;
-                var numHLines = 0;
-                var numVLines = 0;
                 e.Handled = true;
-                ClearGridlines();
-                storedImage.HorizontalGridlines.Clear();
-                storedImage.VerticalGridLines.Clear();
-                if (_axisGrid != null)
+                CopyGridToFids();
+            }
+        }
+
+        private void CopyGridToFids()
+        {
+            var gridWidth = 0.0d;
+            var gridHeight = 0.0d;
+            var gridTop = 0.0d;
+            var gridLeft = 0.0d;
+            var numHLines = 0;
+            var numVLines = 0;
+
+            ClearGridlines();
+            storedImage.HorizontalGridlines.Clear();
+            storedImage.VerticalGridLines.Clear();
+            if (_axisGrid != null)
+            {
+                gridWidth = _axisGrid.ActualWidth;
+                gridHeight = _axisGrid.ActualHeight;
+                gridLeft = gridLeftMargin * DisplayImageCanvas.ActualWidth;
+                gridTop = gridTopMargin * DisplayImageCanvas.ActualHeight;
+                if (_gridToShow == 675)
                 {
-                    gridWidth = _axisGrid.ActualWidth;
-                    gridHeight = _axisGrid.ActualHeight;
-                    gridLeft = gridLeftMargin * DisplayImageCanvas.ActualWidth;
-                    gridTop = gridTopMargin * DisplayImageCanvas.ActualHeight;
-                    if (_gridToShow == 675)
-                    {
-                        numHLines = 7;
-                        numVLines = 6;
-                    }
-                    else
-                    {
-                        numHLines = 9;
-                        numVLines = 6;
-                    }
-
-                    var hLineSpacing = gridHeight / (numHLines - 1);
-                    var vLineSpacing = gridWidth / (numVLines - 1);
-                    var pos = gridTop;
-                    for (var i = 0; i < numHLines; i++)
-                    {
-                        var newGl = HeightDeScale(pos);
-                        storedImage.HorizontalGridlines.Add(newGl);
-                        pos += hLineSpacing;
-                    }
-
-                    pos = gridLeft;
-                    for (var i = 0; i < numVLines; i++)
-                    {
-                        var newGl = WidthDeScale(pos);
-                        storedImage.VerticalGridLines.Add(newGl);
-                        pos += vLineSpacing;
-                    }
-
-                    DrawAllLines();
+                    numHLines = 7;
+                    numVLines = 6;
                 }
+                else
+                {
+                    numHLines = 9;
+                    numVLines = 6;
+                }
+
+                var hLineSpacing = gridHeight / (numHLines - 1);
+                var vLineSpacing = gridWidth / (numVLines - 1);
+                var pos = gridTop;
+                for (var i = 0; i < numHLines; i++)
+                {
+                    var newGl = HeightDeScale(pos);
+                    storedImage.HorizontalGridlines.Add(newGl);
+                    pos += hLineSpacing;
+                }
+
+                pos = gridLeft;
+                for (var i = 0; i < numVLines; i++)
+                {
+                    var newGl = WidthDeScale(pos);
+                    storedImage.VerticalGridLines.Add(newGl);
+                    pos += vLineSpacing;
+                }
+
+                DrawAllLines();
             }
         }
 
@@ -1826,6 +1969,156 @@ namespace BatRecordingManager
         private EventHandler<EventArgs> _fullButtonRClickedEvent;
 
         #endregion FullButtonRClickedEvent
+
+        private void MiRotateRight_Click(object sender, RoutedEventArgs e)
+        {
+            RotateImage90(true);
+        }
+
+        private void MiRotateLeft_Click(object sender, RoutedEventArgs e)
+        {
+            RotateImage90(false);
+        }
+
+        private void MiDeleteImageFromList_Click(object sender, RoutedEventArgs e)
+        {
+            OnDelButtonPressed(new BoolEventArgs());
+            DisplayImageCanvas.Focus();
+        }
+
+        private void MiDeleteImageFromDB_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show(@"This will permanently remove this image from the database.
+Are you sure?", "Delete Image from database", MessageBoxButton.OKCancel);
+            if (result == MessageBoxResult.OK)
+            {
+                OnDelButtonPressed(new BoolEventArgs(true));
+            }
+            DisplayImageCanvas.Focus();
+        }
+
+        private void MiDeleteFiducialLine_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedLine >= 0)  DeleteGridLine();
+            DisplayImageCanvas.Focus();
+        }
+
+        private void MiAddHorizontalLine_Click(object sender, RoutedEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+
+                var pos = rightMousePos;
+                bool horizontal = true;
+                
+                DisplayImage_AddFiducial(horizontal, pos);
+            }
+        }
+
+        private Point rightMousePos { get; set; } = new Point();
+        private void DisplayImageCanvas_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            rightMousePos = e.GetPosition(DisplayImageCanvas);
+            e.Handled = false;
+        }
+
+        private void MiAddVerticalLine_Click(object sender, RoutedEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+
+                var pos = rightMousePos;
+                bool horizontal = false;
+                DisplayImage_AddFiducial(horizontal, pos);
+            }
+        }
+
+        private void MiFidsOn_Click(object sender, RoutedEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                FiducialsButton.IsChecked = true;
+            }
+        }
+
+        private void MiFidsOff_Click(object sender, RoutedEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                FiducialsButton.IsChecked = false;
+            }
+        }
+
+        private void MiFidsOnGlobal_Click(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("Context All Fids On");
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                FiducialsButton.IsChecked = true;
+                OnFidsButtonRClicked(FiducialsButton, e);
+                BringIntoView();
+                Focus();
+                DisplayImageCanvas.Focus();
+            }
+        }
+
+        private void MiFidsOffGlobal_Click(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("Context All FIDS off");
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                FiducialsButton.IsChecked = false;
+                OnFidsButtonRClicked(FiducialsButton, e);
+                BringIntoView();
+                Focus();
+                DisplayImageCanvas.Focus();
+            }
+        }
+
+        private void MiFidsCopyGridFids_Click(object sender, RoutedEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                CopyGridToFids();
+            }
+        }
+
+        private void MiFidsDeselectFids_Click(object sender, RoutedEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+
+                if (DisplayImageCanvas.Children != null)
+                {
+                    foreach (var child in DisplayImageCanvas.Children)
+                        if (child is Line line)
+                            line.StrokeThickness = 1;
+                    _selectedLine = -1;
+                    HighlightGrid(false);
+                }
+            }
+            DisplayImageCanvas.Focus();
+        }
+
+        private void MiFidsDeleteAll_Click(object sender, RoutedEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                storedImage.HorizontalGridlines.Clear();
+                storedImage.VerticalGridLines.Clear();
+                ClearGridlines();
+                
+            }
+        }
     }
 
     //================================================================================================================================

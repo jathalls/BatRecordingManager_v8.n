@@ -3403,6 +3403,38 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.BinaryData.SendPropertyChanging
   nameWithType: BinaryData.SendPropertyChanging
+- uid: BatRecordingManager.BoolEventArgs
+  name: BoolEventArgs
+  href: api/BatRecordingManager.BoolEventArgs.html
+  commentId: T:BatRecordingManager.BoolEventArgs
+  fullName: BatRecordingManager.BoolEventArgs
+  nameWithType: BoolEventArgs
+- uid: BatRecordingManager.BoolEventArgs.#ctor(System.Boolean)
+  name: BoolEventArgs(Boolean)
+  href: api/BatRecordingManager.BoolEventArgs.html#BatRecordingManager_BoolEventArgs__ctor_System_Boolean_
+  commentId: M:BatRecordingManager.BoolEventArgs.#ctor(System.Boolean)
+  fullName: BatRecordingManager.BoolEventArgs.BoolEventArgs(System.Boolean)
+  nameWithType: BoolEventArgs.BoolEventArgs(Boolean)
+- uid: BatRecordingManager.BoolEventArgs.#ctor*
+  name: BoolEventArgs
+  href: api/BatRecordingManager.BoolEventArgs.html#BatRecordingManager_BoolEventArgs__ctor_
+  commentId: Overload:BatRecordingManager.BoolEventArgs.#ctor
+  isSpec: "True"
+  fullName: BatRecordingManager.BoolEventArgs.BoolEventArgs
+  nameWithType: BoolEventArgs.BoolEventArgs
+- uid: BatRecordingManager.BoolEventArgs.state
+  name: state
+  href: api/BatRecordingManager.BoolEventArgs.html#BatRecordingManager_BoolEventArgs_state
+  commentId: P:BatRecordingManager.BoolEventArgs.state
+  fullName: BatRecordingManager.BoolEventArgs.state
+  nameWithType: BoolEventArgs.state
+- uid: BatRecordingManager.BoolEventArgs.state*
+  name: state
+  href: api/BatRecordingManager.BoolEventArgs.html#BatRecordingManager_BoolEventArgs_state_
+  commentId: Overload:BatRecordingManager.BoolEventArgs.state
+  isSpec: "True"
+  fullName: BatRecordingManager.BoolEventArgs.state
+  nameWithType: BoolEventArgs.state
 - uid: BatRecordingManager.BottomMarginConverter
   name: BottomMarginConverter
   href: api/BatRecordingManager.BottomMarginConverter.html
@@ -4811,6 +4843,25 @@ references:
   isSpec: "True"
   fullName: BatRecordingManager.DisplayStoredImageControl.FindVScaleProportion
   nameWithType: DisplayStoredImageControl.FindVScaleProportion
+- uid: BatRecordingManager.DisplayStoredImageControl.GridControlsVisibility
+  name: GridControlsVisibility
+  href: api/BatRecordingManager.DisplayStoredImageControl.html#BatRecordingManager_DisplayStoredImageControl_GridControlsVisibility
+  commentId: P:BatRecordingManager.DisplayStoredImageControl.GridControlsVisibility
+  fullName: BatRecordingManager.DisplayStoredImageControl.GridControlsVisibility
+  nameWithType: DisplayStoredImageControl.GridControlsVisibility
+- uid: BatRecordingManager.DisplayStoredImageControl.GridControlsVisibility*
+  name: GridControlsVisibility
+  href: api/BatRecordingManager.DisplayStoredImageControl.html#BatRecordingManager_DisplayStoredImageControl_GridControlsVisibility_
+  commentId: Overload:BatRecordingManager.DisplayStoredImageControl.GridControlsVisibility
+  isSpec: "True"
+  fullName: BatRecordingManager.DisplayStoredImageControl.GridControlsVisibility
+  nameWithType: DisplayStoredImageControl.GridControlsVisibility
+- uid: BatRecordingManager.DisplayStoredImageControl.GridControlsVisibilityProperty
+  name: GridControlsVisibilityProperty
+  href: api/BatRecordingManager.DisplayStoredImageControl.html#BatRecordingManager_DisplayStoredImageControl_GridControlsVisibilityProperty
+  commentId: F:BatRecordingManager.DisplayStoredImageControl.GridControlsVisibilityProperty
+  fullName: BatRecordingManager.DisplayStoredImageControl.GridControlsVisibilityProperty
+  nameWithType: DisplayStoredImageControl.GridControlsVisibilityProperty
 - uid: BatRecordingManager.DisplayStoredImageControl.gridLeftMargin
   name: gridLeftMargin
   href: api/BatRecordingManager.DisplayStoredImageControl.html#BatRecordingManager_DisplayStoredImageControl_gridLeftMargin
@@ -4874,12 +4925,12 @@ references:
   commentId: F:BatRecordingManager.DisplayStoredImageControl.IsModified
   fullName: BatRecordingManager.DisplayStoredImageControl.IsModified
   nameWithType: DisplayStoredImageControl.IsModified
-- uid: BatRecordingManager.DisplayStoredImageControl.OnDelButtonPressed(System.EventArgs)
-  name: OnDelButtonPressed(EventArgs)
-  href: api/BatRecordingManager.DisplayStoredImageControl.html#BatRecordingManager_DisplayStoredImageControl_OnDelButtonPressed_System_EventArgs_
-  commentId: M:BatRecordingManager.DisplayStoredImageControl.OnDelButtonPressed(System.EventArgs)
-  fullName: BatRecordingManager.DisplayStoredImageControl.OnDelButtonPressed(System.EventArgs)
-  nameWithType: DisplayStoredImageControl.OnDelButtonPressed(EventArgs)
+- uid: BatRecordingManager.DisplayStoredImageControl.OnDelButtonPressed(BatRecordingManager.BoolEventArgs)
+  name: OnDelButtonPressed(BoolEventArgs)
+  href: api/BatRecordingManager.DisplayStoredImageControl.html#BatRecordingManager_DisplayStoredImageControl_OnDelButtonPressed_BatRecordingManager_BoolEventArgs_
+  commentId: M:BatRecordingManager.DisplayStoredImageControl.OnDelButtonPressed(BatRecordingManager.BoolEventArgs)
+  fullName: BatRecordingManager.DisplayStoredImageControl.OnDelButtonPressed(BatRecordingManager.BoolEventArgs)
+  nameWithType: DisplayStoredImageControl.OnDelButtonPressed(BoolEventArgs)
 - uid: BatRecordingManager.DisplayStoredImageControl.OnDelButtonPressed*
   name: OnDelButtonPressed
   href: api/BatRecordingManager.DisplayStoredImageControl.html#BatRecordingManager_DisplayStoredImageControl_OnDelButtonPressed_

@@ -332,7 +332,8 @@ namespace BatRecordingManager
         private AnalyseAndImportClass aai = null;
         private void RecordingsDataGrid_MouseDoubleClick(object sender, EventArgs e)
         {
-            var dg = sender as DataGrid;
+            //var dg = sender as DataGrid;
+            var dg = RecordingsDataGrid;
             var selectedItem = dg.SelectedItem as BatSessionRecordingData;
             thisRecording = DBAccess.GetRecording(selectedItem.RecordingId??-1);
             if (thisRecording != null)
@@ -382,7 +383,7 @@ namespace BatRecordingManager
 
         private void SessionsDataGrid_MouseDoubleClick(object sender, EventArgs e)
         {
-            var dg = sender as DataGrid;
+            var dg = SessionsDataGrid;
             if (!(dg.SelectedItem is BatSessionData selectedSession)) return;
 
             OnSessionAction(new SessionActionEventArgs(selectedSession.SessionTag));
@@ -391,7 +392,7 @@ namespace BatRecordingManager
         private void SessionsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             //BatSession selected;
-            var dg = sender as DataGrid;
+            var dg = SessionsDataGrid;
             Debug.WriteLine("Session selection changed:-");
             foreach (var item in e.AddedItems ?? new List<BatSessionData>())
                 Debug.Write("+" + (item as BatSessionData).id + ", ");
@@ -537,7 +538,7 @@ namespace BatRecordingManager
         private void miExportFiles_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             if ((RecordingsDataGrid.SelectedItems.Count) <= 0) return;
-            string folder = Tools.SelectWavFileFolder();
+            string folder = Tools.SelectWavFileFolder("");
             if (String.IsNullOrWhiteSpace(folder)) return;
             if (!Directory.Exists(folder)) return;
             foreach(var obj in RecordingsDataGrid.SelectedItems)

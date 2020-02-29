@@ -774,6 +774,10 @@ Duration: " + new TimeSpan((long) (durationInSecs * 10000000L)).ToString(@"hh\:m
             }
             catch (Exception ex)
             {
+                if(ex.Message.Contains("used by another process"))
+                {
+                    
+                }
                 Tools.ErrorLog(ex.Message);
                 Debug.WriteLine(ex);
             }

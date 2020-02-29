@@ -28,6 +28,8 @@ namespace BatRecordingManager
 
         private List<String> _filteredFileList;
 
+        private List<string> _errors = new List<string>();
+
         /// <summary>
         /// Name of the parent folder holding files to be filtered
         /// </summary>
@@ -119,12 +121,12 @@ namespace BatRecordingManager
                 _parentFileList = (new List<string>()).AsEnumerable();
             }
             _filteredFileList = new List<string>();
-            statusText += $"Set parent folder to {_parentFolderPath}/n";
+            statusText += $"Set parent folder to {_parentFolderPath}\n";
         }
 
         private void AppFilterSelectFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            string FolderPath=Tools.SelectWavFileFolder();
+            string FolderPath=Tools.SelectWavFileFolder("");
             if (string.IsNullOrWhiteSpace(FolderPath) || !Directory.Exists(FolderPath))
             {
                 _ = MessageBox.Show($"Directory not found, unable to search", "Directory not found", MessageBoxButton.OK);
@@ -139,6 +141,7 @@ namespace BatRecordingManager
 
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
+            _errors = new List<string>();
             string destination = _defaultSubFolderName;
             Debug.WriteLine("Extract...");
             if (string.IsNullOrWhiteSpace(_parentFolderPath))
@@ -154,7 +157,7 @@ namespace BatRecordingManager
             
             if (_parentFileList == null || !_parentFileList.Any())
             {
-                statusText += $"Extract Failed - Nofiles in the parent folder {_parentFolderPath}\n";
+                statusText += $"Extract Failed - No files in the parent folder {_parentFolderPath}\n";
                 return;  // no .wav files in the selected folder
             }
             if (!_parentFolderPath.EndsWith(@"\")) _parentFolderPath += @"\";
@@ -220,6 +223,7 @@ namespace BatRecordingManager
         /// </summary>
         private int RestoreFilteredFiles(string filteredFileFolderName)
         {
+            _errors = new List<string>();
             List<string> filesToRestore = unFilterFiles(filteredFileFolderName);
             foreach (string file in filesToRestore??new List<string>())
             {
@@ -445,6 +449,7 @@ namespace BatRecordingManager
                 {
                     if(!File.Exists(fileName)) continue;
                     string comments = GetCommentsForFile(fileName);
+                    if (comments == null) continue;
                     if (ContainsKeywords(comments))
                     {
                         Debug.WriteLine($"<{comments}> contains a keyword fomr fileName");
@@ -459,7 +464,24 @@ namespace BatRecordingManager
             Debug.WriteLine("FilteredFileList:-");
             foreach(var name in filteredFileList)
             {
-                Debug.WriteLine($"\t->\t{name}");
+                Debug.Write($"\t->\t{name}");
+                if (_errors.Contains(name))
+                {
+                    Debug.WriteLine(" Was not examined!");
+                }
+                else
+                {
+                    Debug.WriteLine("");
+                }
+            }
+            if (_errors.Any())
+            {
+                string failedFiles = "Unable to search the following files:-\n";
+                foreach(var file in _errors)
+                {
+                    failedFiles += file + "\n";
+                }
+                _ = MessageBox.Show(failedFiles, "File search error", MessageBoxButton.OK);
             }
             return (filteredFileList);
         }
@@ -505,7 +527,9 @@ namespace BatRecordingManager
         /// <returns></returns>
         public bool ContainsKeyword(string comments, string key, bool matchCase, bool bracketed)
         {
+            if (key == null) return (false);
             if (key == "<EMPTY>" && string.IsNullOrWhiteSpace(comments)) return (true);
+            if (string.IsNullOrEmpty(comments)) return (false);
             if (!matchCase)
             {
                 comments = comments.ToUpper();
@@ -539,6 +563,11 @@ namespace BatRecordingManager
             string result = "";
             if (!fileName.ToUpper().EndsWith(".WAV")) return (result);
             var wavFileMetadata=new WavFileMetaData(fileName);
+            if (!wavFileMetadata.success)
+            {
+                _errors.Add(fileName);
+                return (null);
+            }
             if (AppFilterSearchNotes.IsChecked ?? false) result += wavFileMetadata.m_Note;
             if (AppFilterSearchManualID.IsChecked ?? true) result += " " + wavFileMetadata.m_ManualID;
             if (AppFilterSearchAutoId.IsChecked ?? false) result += " " + wavFileMetadata.m_AutoID;

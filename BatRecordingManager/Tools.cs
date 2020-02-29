@@ -1685,10 +1685,14 @@ namespace BatRecordingManager
             return comment;
         }
 
-        internal static string SelectWavFileFolder()
+        internal static string SelectWavFileFolder(string initialDirectory)
         {
             String FolderPath = "";
 
+            if(string.IsNullOrWhiteSpace(initialDirectory) || !Directory.Exists(initialDirectory))
+            {
+                initialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            }
 
             //using (System.Windows.Forms.OpenFileDialog dialog = new OpenFileDialog())
             //using(Ookii.Dialogs.Wpf.VistaOpenFileDialog dialog=new VistaOpenFileDialog())
@@ -1698,7 +1702,7 @@ namespace BatRecordingManager
                 DefaultExt = ".wav",
                 Filter = "Text files (*.txt)|*.txt|Wav files (*.wav)|*.wav|All Files (*.*)|*.*",
                 FilterIndex = 3,
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                InitialDirectory = initialDirectory,
                 Title = "Select Folder or WAV file",
                 ValidateNames = false,
                 CheckFileExists = false,

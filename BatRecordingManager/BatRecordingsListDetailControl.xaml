@@ -1,14 +1,14 @@
-﻿<UserControl x:Class="BatRecordingManager.BatRecordingsListDetailControl"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:BatRecordingManager"
-
-             mc:Ignorable="d"
-             d:DesignHeight="700" d:DesignWidth="1000">
-    <Grid
-        Background="{StaticResource WindowBackgroundBrush}">
+﻿<UserControl
+    x:Class="BatRecordingManager.BatRecordingsListDetailControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:BatRecordingManager"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="700"
+    d:DesignWidth="1000"
+    mc:Ignorable="d">
+    <Grid Background="{StaticResource WindowBackgroundBrush}">
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="25*" />
@@ -20,99 +20,139 @@
             <RowDefinition Height="314*" />
 
         </Grid.RowDefinitions>
-        <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Stretch" />
+        <GridSplitter
+            Grid.Row="0"
+            Grid.RowSpan="2"
+            Grid.Column="1"
+            HorizontalAlignment="Stretch" />
         <StackPanel
-            Orientation="Horizontal"
-            Grid.Row="0" Grid.Column="0"
-            Background="{StaticResource BlueGradientBackground}">
+            Grid.Row="0"
+            Grid.Column="0"
+            Background="{StaticResource BlueGradientBackground}"
+            Orientation="Horizontal">
             <Button
                 x:Name="BatListReportButton"
+                Click="BatListReportButton_Click"
+                Content="Report"
                 Style="{StaticResource SimpleButton}"
-                Content="Report" Click="BatListReportButton_Click"
                 ToolTip="Select Bats, sessions and recordings to export a .csv report" />
             <Button
                 x:Name="CompareImagesButton"
-                Style="{StaticResource SimpleButton}"
                 Width="70"
+                Click="CompareImagesButton_Click"
                 Content="COMP-ALL"
-                ToolTip="Add all images for this type of bat to the comparison window"
-                Click="CompareImagesButton_Click" />
-            <!--  For Buttons and Headers-->
+                Style="{StaticResource SimpleButton}"
+                ToolTip="Add all images for this type of bat to the comparison window" />
+            <!--  For Buttons and Headers  -->
         </StackPanel>
 
-        <Grid
-            Grid.Column="0"
-            Grid.Row="1">
+        <Grid Grid.Row="1" Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="150*" />
                 <RowDefinition Height="5" />
                 <RowDefinition Height="150*" />
             </Grid.RowDefinitions>
-            <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+            <GridSplitter
+                Grid.Row="1"
+                Height="5"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch" />
 
             <DataGrid
                 x:Name="BatStatsDataGrid"
                 Grid.Row="0"
-                Background="{StaticResource WindowBackgroundBrush}"
-
+                AlternatingRowBackground="{StaticResource WindowBackgroundBrushLight}"
                 AutoGenerateColumns="False"
+                Background="{StaticResource WindowBackgroundBrush}"
                 CanUserAddRows="False"
                 CanUserDeleteRows="False"
-                ItemsSource="{Binding Path=BatStatisticsList}"
-                AlternatingRowBackground="{StaticResource WindowBackgroundBrushLight}"
-                SelectionChanged="BatStatsDataGrid_SelectionChanged"
-                IsReadOnly="True"
-                MouseDoubleClick="BatStatsDataGrid_MouseDoubleClick"
                 EnableColumnVirtualization="True"
                 EnableRowVirtualization="True"
-                VirtualizingPanel.VirtualizationMode="Recycling"
-                ToolTip="Double-click to compare all recording images for this bat">
+                IsReadOnly="True"
+                ItemsSource="{Binding Path=BatStatisticsList}"
+                MouseDoubleClick="BatStatsDataGrid_MouseDoubleClick"
+                SelectionChanged="BatStatsDataGrid_SelectionChanged"
+                ToolTip="Double-click to compare all recording images for this bat"
+                VirtualizingPanel.VirtualizationMode="Recycling">
                 <DataGrid.ContextMenu>
                     <ContextMenu>
-                        <MenuItem x:Name="miCompareAllImages" Header="Compare All Images" Click="BatStatsDataGrid_MouseDoubleClick"/>
+                        <MenuItem
+                            x:Name="miCompareAllImages"
+                            Click="BatStatsDataGrid_MouseDoubleClick"
+                            Header="Compare All Images" />
                     </ContextMenu>
                 </DataGrid.ContextMenu>
 
                 <DataGrid.Columns>
-                    <DataGridTextColumn Width="120*" Binding="{Binding Path=displayable.Name}" Header="Name"
-                                        CanUserSort="True" />
+                    <DataGridTextColumn
+                        Width="120*"
+                        Binding="{Binding Path=displayable.Name}"
+                        CanUserSort="True"
+                        Header="Name" />
 
-                    <DataGridTextColumn Width="60*" Binding="{Binding Path=displayable.Genus}" Header="Genus"
-                                        FontStyle="Italic" CanUserSort="True" />
-                    <DataGridTextColumn Width="60*" Binding="{Binding Path=displayable.Species}" Header="Species"
-                                        FontStyle="Italic" CanUserSort="True" />
+                    <DataGridTextColumn
+                        Width="60*"
+                        Binding="{Binding Path=displayable.Genus}"
+                        CanUserSort="True"
+                        FontStyle="Italic"
+                        Header="Genus" />
+                    <DataGridTextColumn
+                        Width="60*"
+                        Binding="{Binding Path=displayable.Species}"
+                        CanUserSort="True"
+                        FontStyle="Italic"
+                        Header="Species" />
 
-                    <DataGridTextColumn Width="40*" Binding="{Binding displayable.Sessions,IsAsync=True}"
-                                        Header="Sessions" CanUserSort="True" />
-                    <DataGridTextColumn Width="40*" Binding="{Binding displayable.Recordings,IsAsync=True}"
-                                        Header="Recordings" CanUserSort="True" />
-                    <DataGridTextColumn Width="40*" Binding="{Binding displayable.Passes,IsAsync=True}" Header="Passes"
-                                        CanUserSort="True" />
-                    <DataGridTextColumn Width="40*" Binding="{Binding displayable.BatImages}" Header="Bat Images"
-                                        CanUserSort="True" />
-                    <DataGridTextColumn Width="40*" Binding="{Binding displayable.RecImages,IsAsync=True}"
-                                        Header="Rec. Images" CanUserSort="True" />
+                    <DataGridTextColumn
+                        Width="40*"
+                        Binding="{Binding displayable.Sessions, IsAsync=True}"
+                        CanUserSort="True"
+                        Header="Sessions" />
+                    <DataGridTextColumn
+                        Width="40*"
+                        Binding="{Binding displayable.Recordings, IsAsync=True}"
+                        CanUserSort="True"
+                        Header="Recordings" />
+                    <DataGridTextColumn
+                        Width="40*"
+                        Binding="{Binding displayable.Passes, IsAsync=True}"
+                        CanUserSort="True"
+                        Header="Passes" />
+                    <DataGridTextColumn
+                        Width="40*"
+                        Binding="{Binding displayable.BatImages}"
+                        CanUserSort="True"
+                        Header="Bat Images" />
+                    <DataGridTextColumn
+                        Width="40*"
+                        Binding="{Binding displayable.RecImages, IsAsync=True}"
+                        CanUserSort="True"
+                        Header="Rec. Images" />
                 </DataGrid.Columns>
             </DataGrid>
 
             <local:BatAndCallImageScrollerControl
-                Grid.Row="2"
                 x:Name="ListByBatsImageScroller"
+                Grid.Row="2"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch" />
         </Grid>
 
         <!--
-        _________________________________________________________________________
-        =================================RIGHT PANE==============================
+            _________________________________________________________________________
+            =================================RIGHT PANE==============================
         -->
-        <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" />
+        <GridSplitter
+            Grid.Row="0"
+            Grid.RowSpan="2"
+            Grid.Column="1" />
 
 
         <local:SessionsAndRecordingsControl
             x:Name="SessionsAndRecordings"
-            Grid.Column="2"
             Grid.Row="0"
-            Background="{StaticResource WindowBackgroundBrush}" Grid.RowSpan="2" />
+            Grid.RowSpan="2"
+            Grid.Column="2"
+            Background="{StaticResource WindowBackgroundBrush}" />
     </Grid>
 </UserControl>

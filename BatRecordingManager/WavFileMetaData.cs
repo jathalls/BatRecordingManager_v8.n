@@ -30,6 +30,7 @@ namespace BatRecordingManager
     /// </summary>
     internal class WavFileMetaData
     {
+        public bool success { get; set; } = false;
         /// <summary>
         ///     Constructor for WavFileMetaData.  Given a path to a .wav file reads the WAMD or
         ///     GUANO metdata from that file and uses it and other file information to populate the
@@ -39,24 +40,34 @@ namespace BatRecordingManager
         public WavFileMetaData(string filename)
         {
             // set a default start date as the file creation or modified date
-            if (m_Start == null)
-                if (File.Exists(filename) && (new FileInfo(filename).Length>0L))
-                {
-                    if (DBAccess.GetDateTimeFromFilename(filename, out var dt))
+            try
+            {
+                if (m_Start == null)
+                    if (File.Exists(filename) && (new FileInfo(filename).Length > 0L))
                     {
-                        m_Start = dt;
+                        if (DBAccess.GetDateTimeFromFilename(filename, out var dt))
+                        {
+                            m_Start = dt;
+                        }
+                        else
+                        {
+                            m_Start = File.GetCreationTime(filename);
+                            m_Created = m_Start;
+                            if (m_Start == null || m_Start.Value.Year < 1960) m_Start = File.GetLastAccessTime(filename);
+                        }
                     }
-                    else
-                    {
-                        m_Start = File.GetCreationTime(filename);
-                        m_Created = m_Start;
-                        if (m_Start == null || m_Start.Value.Year < 1960) m_Start = File.GetLastAccessTime(filename);
-                    }
-                }
 
-            Read_MetaData(filename);
+                Read_MetaData(filename);
+                if (metadata != null) success = true;
 
-            if (m_Start != null && m_Duration != null) m_End = m_Start + m_Duration;
+                if (m_Start != null && m_Duration != null) m_End = m_Start + m_Duration;
+            }catch(Exception ex)
+            {
+                Tools.ErrorLog(ex.Message);
+                Debug.WriteLine("Error in WavFileMetaData:- " + ex.Message);
+                m_Note = "Metadata not read\n";
+                success = false;
+            }
         }
 
         /// <summary>
@@ -171,7 +182,7 @@ namespace BatRecordingManager
         /// <summary>
         ///     Retrieves the metadata sections from a .wav file for either WAMD or GUANO formatted data.
         ///     The file from which to extract the data is wavFilename and the metadata chunk itself is returned as
-        ///     a byte[] called metdata.  Formatted versions of the data are returned in the out parameters wamd_data
+        ///     a byte[] called metadata.  Formatted versions of the data are returned in the out parameters wamd_data
         ///     and guano_data.  If not present in that format the classes will be returned empty.
         ///     The function returns a string comprising the metadate note section followed by a ; followed by the manual
         ///     species identification string and an optional auto-identification string in brackets.
@@ -275,6 +286,7 @@ namespace BatRecordingManager
                             }
                             catch (Exception ex)
                             {
+
                                 Debug.WriteLine("Overflowed the data file - " + reader.BaseStream.Position + "/" +
                                                 reader.BaseStream.Length);
                                 break;

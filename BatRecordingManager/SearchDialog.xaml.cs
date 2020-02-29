@@ -263,4 +263,25 @@ namespace BatRecordingManager
 
         #endregion Public Properties
     }
+
+    /// <summary>
+    /// general purpose EventArgs which can pass back a boolean flag
+    /// </summary>
+    public class BoolEventArgs : EventArgs
+    {
+        /// <summary>
+        /// boolean flag, defaults to false
+        /// </summary>
+        public bool state { get; set; } = false;
+
+        /// <summary>
+        /// Constructor for an event args which carries a boolean flag.
+        /// The flag defaults to false and is false if no parameter is supplied.
+        /// </summary>
+        /// <param name="state"></param>
+        public BoolEventArgs(bool state=false)
+        {
+            this.state = state;
+        }
+    }
 }

@@ -34,14 +34,41 @@
             Orientation="Horizontal">
             <Button
                 x:Name="RotateImageButton"
-                ToolTip="rotates the image through 90 degrees"
+                
                 Style="{StaticResource SimpleButton}"
-                Content="ROT" Click="RotateImageButton_Click" />
+                Content="ROT*" Click="RotateImageButton_Click" >
+                <Button.ToolTip>
+                    <TextBlock>
+                        "Click to rotate the image clockwise 90 degrees"<LineBreak/>
+                        "Right-Click for context menu to rotate clockwise or anti-clockwise"
+                    </TextBlock>
+                </Button.ToolTip>
+                <Button.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem x:Name="miRotateRight" Header="Rotate 90deg CW" Click="MiRotateRight_Click"/>
+                        <MenuItem x:Name="miRotateLeft" Header="Rotate 90deg CCW" Click="MiRotateLeft_Click"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
             <Button
                 x:Name="DeleteImageButton"
-                ToolTip="Deletes this image from the comparison window, but not from the database"
+                ToolTipService.ShowDuration="10000"
                 Style="{StaticResource SimpleButton}"
-                Content="DEL" Click="DeleteImageButton_Click" />
+                Content="DEL*" Click="DeleteImageButton_Click" >
+                <Button.ToolTip>
+                    <TextBlock>
+                        "Click to delete this image from the comparison window, but not from the database"<LineBreak/>
+                        "Right-Click for conext menu, to delete from database or to delete fiducial lines"
+                    </TextBlock>
+                </Button.ToolTip>
+                <Button.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem x:Name="miDeleteImageFromList" Header="Delete image from window" Click="MiDeleteImageFromList_Click"/>
+                        <MenuItem x:Name="miDeleteImageFromDB" Header="Delete image from database" Click="MiDeleteImageFromDB_Click"/>
+                        <MenuItem x:Name="miDeleteFiducialLine" Header="Delete selected Fiducial Line" Click="MiDeleteFiducialLine_Click"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
             <Button
                 x:Name="UpImageButton"
                 ToolTip="Moves this image up one place"
@@ -86,19 +113,30 @@
             <ToggleButton
                 x:Name="FiducialsButton"
                 Style="{StaticResource ToggleButton}"
-                Content="FIDS"
+                Content="FIDS*"
                 Checked="FiducialsButton_Checked"
                 Unchecked="FiducialsButton_Unchecked"
-                PreviewMouseRightButtonUp="FiducialsButton_PreviewMouseRightButtonUp"
+                
                 PreviewMouseLeftButtonUp="FiducialsButton_PreviewMouseLeftButtonUp">
                 <ToggleButton.ToolTip>
                     <TextBlock>
                         "Toggles the display of Fiducial Lines"<LineBreak />
                         "Use TAB key to select and Arrow keys to adjust, DEL key to delete selected line"<LineBreak />
-                        "Right click to set state for all images"<LineBreak />
-                        "CTRL-click with GRID ON to replace all fiducial lines with ones matched to the current grid"
+                        "CTRL-click with GRID ON to replace all fiducial lines with ones matched to the current grid"<LineBreak/>
+                        "Right-Click for context menu with additional options"
                     </TextBlock>
                 </ToggleButton.ToolTip>
+                <ToggleButton.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem x:Name="miFidsOn" Header="Display Fiducials" ToolTip="Display Fiducial lines for this image" Click="MiFidsOn_Click"/>
+                        <MenuItem x:Name="miFidsOff" Header="Hide Fiducials" ToolTip="Hide Fiducial lines for this image" Click="MiFidsOff_Click"/>
+                        <MenuItem x:Name="miFidsOnGlobal" Header="Display Fiducials All" ToolTip="Display Fiducial Lines on all images" Click="MiFidsOnGlobal_Click"/>
+                        <MenuItem x:Name="miFidsOffGlobal" Header="Hide Fiducials All" ToolTip="Hide Fiducial Lines on all images" Click="MiFidsOffGlobal_Click"/>
+                        <MenuItem x:Name="miFidsCopyGridFids" Header="Copy Grid to Fiducials" ToolTip="Copy grid lines to fiducial lines" IsEnabled="False" Click="MiFidsCopyGridFids_Click"/>
+                        <MenuItem x:Name="miFidsDeselectFids" Header="De-select All Fiducials" ToolTip="De-select the grid and all fiducial lines for this image" Click="MiFidsDeselectFids_Click"/>
+                        <MenuItem x:Name="miFidsDeleteAll" Header="Delete all Fiducials" ToolTip="Delete all fiducial lines for this image" Click="MiFidsDeleteAll_Click" />
+                    </ContextMenu>
+                </ToggleButton.ContextMenu>
             </ToggleButton>
             <Button
                 x:Name="CpyButton"
@@ -138,14 +176,31 @@
             Focusable="True"
             Loaded="DisplayImage_Loaded"
             Unloaded="DisplayImage_Unloaded"
-            MouseRightButtonDown="DisplayImage_MouseRightButtonDown"
+            
             PreviewKeyDown="displayImageCanvas_PreviewKeyDown"
             MouseLeftButtonDown="displayImageCanvas_MouseLeftButtonDown"
-            SnapsToDevicePixels="True">
+            SnapsToDevicePixels="True" MouseRightButtonDown="DisplayImageCanvas_MouseRightButtonDown">
             <Canvas.Background>
                 <ImageBrush
                     ImageSource="{Binding Path=image}" Stretch="Uniform" />
             </Canvas.Background>
+
+            <Canvas.ContextMenu>
+                <ContextMenu>
+                    <MenuItem x:Name="miAddHorizontalLine" Header="Add Horizontal Line" Click="MiAddHorizontalLine_Click" />
+                    <MenuItem x:Name="miAddVerticalLine" Header="Add Vertical Line" Click="MiAddVerticalLine_Click"/>
+                    <MenuItem x:Name="miDeleteSelectedLine" Header="Delete Selected Line"/>
+                    <MenuItem x:Name="miGridSpacer" Header="----------" Visibility="{Binding GridControlsVisibility}"/>
+                    <MenuItem x:Name="miEnlargeGrid5" Header="Enlarge grid by 5" Visibility="{Binding GridControlsVisibility}"/>
+                    <MenuItem x:Name="miEnlargeGrid1" Header="Enlarge Grid by 1" Visibility="{Binding GridControlsVisibility}"/>
+                    <MenuItem x:Name="miShrinkGrid5" Header="Shrink Grid by 5" Visibility="{Binding GridControlsVisibility}"/>
+                    <MenuItem x:Name="miShrinkGrid1" Header="Shrink Grid by 1" Visibility="{Binding GridControlsVisibility}"/>
+                    <MenuItem x:Name="miCopyGridFids" Header="Copy Grid to Fids" Visibility="{Binding GridControlsVisibility}"/>
+                    <MenuItem Header="----------"/>
+                    <MenuItem x:Name="miToggleGrid" Header="Toggle Grid On/Off"/>
+                    <MenuItem x:Name="miToggleFids" Header="Toggle Fids On/Off"/>
+                </ContextMenu>
+            </Canvas.ContextMenu>
 
             <Canvas
                 x:Name="AxisGrid675"
