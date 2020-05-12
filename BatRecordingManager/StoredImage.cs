@@ -14,6 +14,7 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using GraphicsMagick;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -29,7 +30,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using ImageMagick;
+//using ImageMagick;
 using Color = System.Drawing.Color;
 using Encoder = System.Drawing.Imaging.Encoder;
 using Pen = System.Drawing.Pen;

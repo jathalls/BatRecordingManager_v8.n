@@ -27,7 +27,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using DataVirtualizationLibrary;
 using Microsoft.VisualStudio.Language.Intellisense;
-using Task = Microsoft.Build.Utilities.Task;
+//using Task = Microsoft.Build.Utilities.Task;
 
 namespace BatRecordingManager
 {

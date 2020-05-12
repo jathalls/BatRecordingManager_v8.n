@@ -62,7 +62,12 @@ namespace Mm.ExportableDataGrid
 
             File.WriteAllText(exportPath, sb.ToString().Trim());
             sb.Clear();
+            OnExportCompleted(new EventArgs());
             return exportPath;
         }
+
+        public event EventHandler<EventArgs> ExportCompleted;
+
+        protected virtual void OnExportCompleted(EventArgs e) => ExportCompleted?.Invoke(this, e);
     }
 }

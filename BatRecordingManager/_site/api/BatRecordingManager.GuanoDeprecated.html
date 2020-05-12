@@ -1,0 +1,1074 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class GuanoDeprecated
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class GuanoDeprecated
+   ">
+    <meta name="generator" content="docfx 2.51.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="BatRecordingManager.GuanoDeprecated">
+  
+  
+  <h1 id="BatRecordingManager_GuanoDeprecated" data-uid="BatRecordingManager.GuanoDeprecated" class="text-break">Class GuanoDeprecated
+  </h1>
+  <div class="markdown level0 summary"><p>A class to represent a Guano metadata chunk included in a .wav file.
+The guano data should be extracted with Tools.Get_WAV_MetaData(wavfilename)
+and the string can be parsed with ParseGuanoChunk(string chunk) which will
+return an instance of this class.
+The class copes with a number of known fields for GUANO data according to
+specification 1.0 but is intended to work with GUANO data embedded by
+the Android App BatRecorder.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">GuanoDeprecated</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="BatRecordingManager.html">BatRecordingManager</a></h6>
+  <h6><strong>Assembly</strong>: BatRecordingManager.dll</h6>
+  <h5 id="BatRecordingManager_GuanoDeprecated_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class GuanoDeprecated</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated__ctor_System_String_.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.%23ctor(System.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L98">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated__ctor_" data-uid="BatRecordingManager.GuanoDeprecated.#ctor*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated__ctor_System_String_" data-uid="BatRecordingManager.GuanoDeprecated.#ctor(System.String)">GuanoDeprecated(String)</h4>
+  <div class="markdown level1 summary"><p>Constructor for the Guano class.  May be initialized with either the name
+and path of a .wav file which has a Guano metadata section, or with the text of a
+Guano Metadata chunk as returned by Tools.Get_WAV_MetaData(wavfile)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public GuanoDeprecated(string guanoText)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">guanoText</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="fields">Fields
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_RawText.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.RawText%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L88">View Source</a>
+  </span>
+  <h4 id="BatRecordingManager_GuanoDeprecated_RawText" data-uid="BatRecordingManager.GuanoDeprecated.RawText">RawText</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string RawText</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_deviceVersion.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.deviceVersion%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L572">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_deviceVersion_" data-uid="BatRecordingManager.GuanoDeprecated.deviceVersion*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_deviceVersion" data-uid="BatRecordingManager.GuanoDeprecated.deviceVersion">deviceVersion</h4>
+  <div class="markdown level1 summary"><p>BATREC|Version:</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string deviceVersion { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_duration.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.duration%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L104">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_duration_" data-uid="BatRecordingManager.GuanoDeprecated.duration*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_duration" data-uid="BatRecordingManager.GuanoDeprecated.duration">duration</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TimeSpan? duration { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.TimeSpan</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_expansion.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.expansion%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L527">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_expansion_" data-uid="BatRecordingManager.GuanoDeprecated.expansion*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_expansion" data-uid="BatRecordingManager.GuanoDeprecated.expansion">expansion</h4>
+  <div class="markdown level1 summary"><p>TE:</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int? expansion { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Int32</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_filterHP.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.filterHP%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L248">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_filterHP_" data-uid="BatRecordingManager.GuanoDeprecated.filterHP*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_filterHP" data-uid="BatRecordingManager.GuanoDeprecated.filterHP">filterHP</h4>
+  <div class="markdown level1 summary"><p>Filter HP: (in kHz)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double? filterHP { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Double</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_filterLP.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.filterLP%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L270">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_filterLP_" data-uid="BatRecordingManager.GuanoDeprecated.filterLP*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_filterLP" data-uid="BatRecordingManager.GuanoDeprecated.filterLP">filterLP</h4>
+  <div class="markdown level1 summary"><p>Filter LP: (in kHz)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double? filterLP { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Double</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_firmwareVersion.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.firmwareVersion%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L292">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_firmwareVersion_" data-uid="BatRecordingManager.GuanoDeprecated.firmwareVersion*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_firmwareVersion" data-uid="BatRecordingManager.GuanoDeprecated.firmwareVersion">firmwareVersion</h4>
+  <div class="markdown level1 summary"><p>MAKER|Version:</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string firmwareVersion { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_hardwareVersion.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.hardwareVersion%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L312">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_hardwareVersion_" data-uid="BatRecordingManager.GuanoDeprecated.hardwareVersion*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_hardwareVersion" data-uid="BatRecordingManager.GuanoDeprecated.hardwareVersion">hardwareVersion</h4>
+  <div class="markdown level1 summary"><p>MAKER|Version:</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string hardwareVersion { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_hostDevice.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.hostDevice%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L592">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_hostDevice_" data-uid="BatRecordingManager.GuanoDeprecated.hostDevice*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_hostDevice" data-uid="BatRecordingManager.GuanoDeprecated.hostDevice">hostDevice</h4>
+  <div class="markdown level1 summary"><p>BATREC|Host Device:</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string hostDevice { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_hostOS.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.hostOS%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L612">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_hostOS_" data-uid="BatRecordingManager.GuanoDeprecated.hostOS*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_hostOS" data-uid="BatRecordingManager.GuanoDeprecated.hostOS">hostOS</h4>
+  <div class="markdown level1 summary"><p>BATREC|Host OS:</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string hostOS { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_humidity.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.humidity%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L332">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_humidity_" data-uid="BatRecordingManager.GuanoDeprecated.humidity*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_humidity" data-uid="BatRecordingManager.GuanoDeprecated.humidity">humidity</h4>
+  <div class="markdown level1 summary"><p>Humidity: (0.0 - 100.0)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double? humidity { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Double</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_length.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.length%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L354">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_length_" data-uid="BatRecordingManager.GuanoDeprecated.length*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_length" data-uid="BatRecordingManager.GuanoDeprecated.length">length</h4>
+  <div class="markdown level1 summary"><p>Length: (in secs)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double? length { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Double</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_location.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.location%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L420">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_location_" data-uid="BatRecordingManager.GuanoDeprecated.location*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_location" data-uid="BatRecordingManager.GuanoDeprecated.location">location</h4>
+  <div class="markdown level1 summary"><p>Loc Position: (32.1878016 -86.1057312)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Tuple&lt;double, double&gt; location { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Tuple</span>&lt;<span class="xref">System.Double</span>, <span class="xref">System.Double</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_locationAccuracy.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.locationAccuracy%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L376">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_locationAccuracy_" data-uid="BatRecordingManager.GuanoDeprecated.locationAccuracy*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_locationAccuracy" data-uid="BatRecordingManager.GuanoDeprecated.locationAccuracy">locationAccuracy</h4>
+  <div class="markdown level1 summary"><p>Loc Accuracy:</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double? locationAccuracy { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Double</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_locationElevation.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.locationElevation%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L398">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_locationElevation_" data-uid="BatRecordingManager.GuanoDeprecated.locationElevation*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_locationElevation" data-uid="BatRecordingManager.GuanoDeprecated.locationElevation">locationElevation</h4>
+  <div class="markdown level1 summary"><p>Loc Elevation:</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double? locationElevation { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Double</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_make.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.make%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L447">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_make_" data-uid="BatRecordingManager.GuanoDeprecated.make*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_make" data-uid="BatRecordingManager.GuanoDeprecated.make">make</h4>
+  <div class="markdown level1 summary"><p>MAKER|Make:</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string make { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_model.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.model%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L467">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_model_" data-uid="BatRecordingManager.GuanoDeprecated.model*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_model" data-uid="BatRecordingManager.GuanoDeprecated.model">model</h4>
+  <div class="markdown level1 summary"><p>MAKER|Model:</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string model { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_note.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.note%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L206">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_note_" data-uid="BatRecordingManager.GuanoDeprecated.note*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_note" data-uid="BatRecordingManager.GuanoDeprecated.note">note</h4>
+  <div class="markdown level1 summary"><p>Note: text/nsecond line/nthird line</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string note { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_samplerate.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.samplerate%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L226">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_samplerate_" data-uid="BatRecordingManager.GuanoDeprecated.samplerate*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_samplerate" data-uid="BatRecordingManager.GuanoDeprecated.samplerate">samplerate</h4>
+  <div class="markdown level1 summary"><p>Samplerate:</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int? samplerate { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Int32</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_speciesAutoID.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.speciesAutoID%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L487">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_speciesAutoID_" data-uid="BatRecordingManager.GuanoDeprecated.speciesAutoID*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_speciesAutoID" data-uid="BatRecordingManager.GuanoDeprecated.speciesAutoID">speciesAutoID</h4>
+  <div class="markdown level1 summary"><p>Species Auto ID: a,b,c</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string speciesAutoID { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_speciesManualID.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.speciesManualID%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L507">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_speciesManualID_" data-uid="BatRecordingManager.GuanoDeprecated.speciesManualID*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_speciesManualID" data-uid="BatRecordingManager.GuanoDeprecated.speciesManualID">speciesManualID</h4>
+  <div class="markdown level1 summary"><p>Species Manual ID: a,b,c</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string speciesManualID { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_tags.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.tags%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L186">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_tags_" data-uid="BatRecordingManager.GuanoDeprecated.tags*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_tags" data-uid="BatRecordingManager.GuanoDeprecated.tags">tags</h4>
+  <div class="markdown level1 summary"><p>Tags: a,b,c</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string[] tags { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_temperature.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.temperature%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L550">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_temperature_" data-uid="BatRecordingManager.GuanoDeprecated.temperature*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_temperature" data-uid="BatRecordingManager.GuanoDeprecated.temperature">temperature</h4>
+  <div class="markdown level1 summary"><p>Temperature Ext:
+Temperature Int:</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double? temperature { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Double</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_timestamp.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.timestamp%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L161">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_timestamp_" data-uid="BatRecordingManager.GuanoDeprecated.timestamp*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_timestamp" data-uid="BatRecordingManager.GuanoDeprecated.timestamp">timestamp</h4>
+  <div class="markdown level1 summary"><p>Timestamp:</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public DateTime? timestamp { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.DateTime</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_version.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.version%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L128">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_version_" data-uid="BatRecordingManager.GuanoDeprecated.version*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_version" data-uid="BatRecordingManager.GuanoDeprecated.version">version</h4>
+  <div class="markdown level1 summary"><p>MAKER|Version:</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double? version { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Double</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_Get_WAVFile_MetaData_System_String_System_Byte____BatRecordingManager_WAMD_Data__.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.Get_WAVFile_MetaData(System.String%2CSystem.Byte%5B%5D%40%2CBatRecordingManager.WAMD_Data%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L683">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_Get_WAVFile_MetaData_" data-uid="BatRecordingManager.GuanoDeprecated.Get_WAVFile_MetaData*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_Get_WAVFile_MetaData_System_String_System_Byte____BatRecordingManager_WAMD_Data__" data-uid="BatRecordingManager.GuanoDeprecated.Get_WAVFile_MetaData(System.String,System.Byte[]@,BatRecordingManager.WAMD_Data@)">Get_WAVFile_MetaData(String, out Byte[], out WAMD_Data)</h4>
+  <div class="markdown level1 summary"><p>Retrieves the metadata sections from a .wav file for either WAMD or GUANO formatted data.
+The file from which to extract the data is wavFilename and the metadata chunk itself is returned as
+a byte[] called metdata.  Formatted versions of the data are returned in the out parameters wamd_data
+and guano_data.  If not present in that format the classes will be returned empty.
+The function returns a string comprising the metadate note section followed by a ; followed by the manual
+species identification string and an optional auto-identification string in brackets.
+the data out parameters will be null if not found.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string Get_WAVFile_MetaData(string wavFilename, out byte[] metadata, out WAMD_Data wamdData)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">wavFilename</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">metadata</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="BatRecordingManager.WAMD_Data.html">WAMD_Data</a></td>
+        <td><span class="parametername">wamdData</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated_SetMetaData_System_String_.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated.SetMetaData(System.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L633">View Source</a>
+  </span>
+  <a id="BatRecordingManager_GuanoDeprecated_SetMetaData_" data-uid="BatRecordingManager.GuanoDeprecated.SetMetaData*"></a>
+  <h4 id="BatRecordingManager_GuanoDeprecated_SetMetaData_System_String_" data-uid="BatRecordingManager.GuanoDeprecated.SetMetaData(System.String)">SetMetaData(String)</h4>
+  <div class="markdown level1 summary"><p>reads and loads the metadata from a string</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetMetaData(string guanoText)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">guanoText</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=BatRecordingManager_GuanoDeprecated.md&amp;value=---%0Auid%3A%20BatRecordingManager.GuanoDeprecated%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/BatRecordingManager/Guano.cs/#L34" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

@@ -2696,6 +2696,9 @@ namespace BatRecordingManager
 
     }
 
+    /// <summary>
+    /// Universal wait cursor class
+    /// </summary>
     public class WaitCursor : IDisposable
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
@@ -2703,8 +2706,14 @@ namespace BatRecordingManager
         private Cursor _previousCursor = Cursors.Arrow;
         private int Depth = 0;
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
+        /// <summary>
+        /// creates and displays a wait cursor which will revert when the class instance is disposed.
+        /// Allows for nested calls.
+        /// </summary>
+        /// <param name="status"></param>
+        /// <param name="caller"></param>
+        /// <param name="linenumber"></param>
         public WaitCursor(string status = "null",[CallerMemberName] string caller=null,[CallerLineNumber] int linenumber=0)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {

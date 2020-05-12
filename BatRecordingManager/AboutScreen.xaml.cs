@@ -28,13 +28,15 @@ namespace BatRecordingManager
         /// <summary>
         ///     Initializes a new instance of the <see cref="AboutScreen" /> class.
         /// </summary>
+        /// 
+        
         public AboutScreen()
         {
             var build = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             AssemblyVersion = "Build " + build;
             InitializeComponent();
             DataContext = this;
-            Version.Content = "v 6.2 (" + build + ")";
+            Version.Content = "v  " + build ;
             DbVer.Content = "    Database Version " + DBAccess.GetDatabaseVersion() + " named:- " +
                             DBAccess.GetWorkingDatabaseName(DBAccess.GetWorkingDatabaseLocation());
         }

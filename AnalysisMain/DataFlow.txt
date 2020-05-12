@@ -1,0 +1,242 @@
+﻿MainWindow
+	TestButtonClick
+		new PassAnalysis()
+		passAnalysis.GetResult()
+		passAnalysis.GetAverageLevels()
+		passAnalysis.getPeaks()
+		passAnalysis.GetGraph()
+		passAnalysis.getSpectra()
+		passAnalysis.WriteLabelFile()
+
+PassAnalysis
+	PassAnalysis()
+		ReadSample(sample)
+			using(AudioFileReader())
+				auddioFileReader.Read()
+				BiQuadFilter.HighPassFilter(15000Hz)
+				filter.Execute()
+		GetEnvelope(sample)
+			BiQuadFilter.LowPassFilter(2000Hz)
+			filter.Execute()
+		ReadSample(quiet)
+		GetEnvelope(quiet)
+
+	GetAverageLevels()
+		sampleEnvelope.RootMeanSquare()
+		sampleEnvelope.StandardDeviation()
+		quietEnvelope.RootMeanSquare()
+		quietEnvelop.StandardDeviation()
+
+	getPeaks()
+		{stateMachine}
+		makePeak()
+			new Peak()
+		peakList.Add()
+
+	WriteLabelFile()
+		File.Exists()
+		File.Delete()
+		File.AppendText()
+		streamWriter.WriteLine()
+		streamWriter.Close()
+
+	GetGraph()
+		new List<float>()
+		data.Skip().Take().Average()
+		shortData.Add()
+		using(Graphics g)
+			shortData.Max()
+			shortData.Min()
+			shortData.Average()
+			new Pen()
+			new Point()
+			g.DrawLine()
+			g.DrawString()
+
+	GetSpectra()
+		File.Exists()
+		File.Delete()
+		new float[] sectionData
+		new float[] preData
+		new Spectrum()
+		spectrum.GetSpectralData()
+		spectrumPerPulse.Add(spectrum)
+		spectraList.Add(spectrum)
+		new SpectrumDetails(spectrum)
+		spectralDetails.GetDetailesFromSpectrum()
+		spectralDetailsPerPulse.Add(SpectrumDetails)
+
+Spectrum
+	Spectrum()
+	GetSpectralData()
+		new Double[frameSize] sampleFFT
+		new Double[frameSize] pre_sampleFFT
+		GetSpectrum(sample)
+			new Double[frameSize/2] dataFFT
+			new Double[FrameSize] fft
+			new Complex[frameSize] dataBlock
+			GetDataBlock()
+				new Complex[frameSize] dataBlock
+				Naudio.Dsp.FastFourierTransform.HammingWindow()
+			FastFourierTransform.FFT(dataBlock)
+			Math.Sqrt()
+		GetSpectrum(pre_sample)
+		fft=sampleFFT-pre_sampleFFT
+		File.AppendText()
+		streamWriter.Write()
+		streamWriter.WriteLine()
+		streamWriter.Close()
+
+SpectrumDetails
+	SpectrumDetails()
+	{convert data to float[]}
+	PassAnalysis.getPeaks(out peakList);
+	peakList=peakList.orderby(maxVal)
+
+
+///////////////////////////////////////////////////////
+MainWindow
+	TestButton_Click
+		new OpenFileDialog()
+		dialog.ShowDialog()
+		textFileName=wavFileName.reaplce .wav,.txt
+		if(textFileExists)
+			using(new WaitCursor())
+				recording=new bpaRecording(1,wavFileName)
+				recording.CreateSegment(thresholdFactor)
+				AnalysisA_Tab.SetRecording(recording)
+		else
+			folder=Path.GetDirectoryName(wavFileName)
+			allWavFiles=Directory.Enumerate(wavFiles)
+			allRecordings=new List<bpaRecording>()
+			foreach(wavfile in allwavfiles)
+				recording=new bpaRecording(recNumber,wavFile)
+				recording.CreateSegment(thresholdFactor)
+				allRecordings.Add(recording)
+			AnalysisA_Tab.SetRecording(allRecordings);
+
+bpaRecording
+	bpaRecording()
+		save filename
+		save creationTime
+		save recNumber
+	CreateSegments(thresholdFactor)
+		afr=new AudioFileReader(filename)
+		sampleRate=af.WaveFormat.sampleRate
+		duration=afr.TotalTime
+		segmentList.Clear()
+		if(textfile exists)
+			foreach line in textfile
+				double start,double end=getLabelLine(line)
+				segmentLength=end-start
+				dab=new DataAccessBlock(filename,startSample,segmentlengthSecs)
+				segment=new bpaSegment(recNumber,segNumber,startPos,dab,sampleRate)
+				segmentList.Add(segment)
+		else
+			totalSamples=duration*sampleRate
+			dab=new DataAccessBlock(filename,0,totalSamples)
+			segment=new bpaSegment(recNumber,segNumber,startPos:0,dab,sampleRate)
+			segmentList.Add(segment)
+		foreach(segment in segmentList)
+			segment.CreatePasses(thresholdFactor)
+
+bpaSegment
+	bpaSegment(recNumber,segNumber,startPos,DAB,sampleRate)
+	CreatePasses()
+		PassList.Clear()
+		startPos=0;
+		blockSize=5*sampleRate (i.e.5s is the length of a pass)
+		extendedBlockSize=7.5*sampleRate (i.e. 7.5s is the maximum length of a pass when the last one)
+		remainingLength=segmentLengthInSamples
+		while(remainingLength>extendedBlockSize) // i.e. the remaining length needs to be split into more than one pass
+			dab=new DataAccessBlock(segmentAccessBlock.filename,segmentAccessBlock.startPos+startPos,blockSize)
+			pass=new bpaPass(recNumber,segNumber,index,startPos,dab,sampleRate)
+			PassList.Add(pass)
+		if(remainingLength>0)
+			dab=new DataAccessBlock(segmentAccessBlock.filename,segmentAccessBloc.startPos+startPos,remainingLength)
+			pass=new new bpaPass(recNumber,segNumber,index,startPos,dab,sampleRate)
+			PassList.Add(pass)
+		foreach(pass in PassList)
+			pass.CreatePass(thresholdFactor)
+
+
+bpaPass
+	bpaPass(recNumber,segNumber,index,offsetInSegment,dab,sampleRate)
+	CreatePass(thresholdFactor)
+		float[] passData=passDataAccessBlock.getData()
+		HighPassFilter(passData,15000)
+		envelope=PassAnalysis.GetEnvelope(ref passData,sampleRate)
+		leadInLimit=0.2ms
+		leadOutLimit=1ms
+		peakList=new ObservableList<Peak>()
+		PassAnalysis.getPeaks(ref envelope,sampleRate,leadInLimit,thresholdFactor,peakList,OffsetInSegmentInSecs,PassNumber)
+		foreach(peak in peakList)
+			pulseList.Add(new Pulse(ref passData,peak,index))
+
+Pulse
+	Pulse(ref float[] data,passStartInSegment,Peak peak,int passNumber)
+		peakStartInSeg=peak.GetStartAsSampleInSeg()
+		peakStartInpass=peakStartInSeg-passStartInSegment
+		peakWidth=peak.getPeakWidthSamples()
+
+		startPos=peakStartInPas-(max(peakWidth,FFTSize))
+		endPos=startPos
+		while(endpos<peakStartInPass+peakWidth+FFTSize/2) endpos+=FFTSize/2
+		sectionData=dataInPass.Skip(startPos.Take(endpos-startpos))
+
+		prestartpos=startpos-(FFTSize*2)
+		preData=dataInPass.skip(prestartpos).take(FFTSize*2)
+
+		spectrum=new Spectrum(sectionData,preData,peak.getsampleRate,FFTSize,peak.PulseNumber)
+		spectrum.GetSpectralData()
+
+		details=new SpectrumDetails(spectrum)
+		details.getDetailsFromSpectrum(peak,pass)
+
+Spectrum
+	Spectrum(sampleRate,FFTSize,pulseNumber)
+	GetSpectralData(sample,pre-sample)
+		GetSpectrum(sample,framesize,overlap,out sampleFFT)
+		scale(1000,ref sampleFFT)
+		GetSpectrum(pre_sample,framesize,overlap,out pre_sampleFFT)
+		scale(1000,ref pre_sampleFFT)
+		fft=new double[sampleFFT.Length()]
+		fft=abs(sqrt(abs(sampleFFT^2-pre_sampleFFT^2)))
+		scale(1000,ref fft)
+		fftMean=fft.Average()
+		write FFT File
+
+	GetSpectrum(data,framesize,overlap,out dataFFT)
+		locationOfData=0
+		while(locationOfData>=0)
+			locationOfData=GetDataBlock(data,locationOfData,framesize,overlap,out dataBlock)
+			FFT(true,10,dataBlock)
+			dataFFT+=sqrt(dataBlock.X^2+dataBlock.Y^2)
+			numBlocks++
+		dataFFT/=numBlocks
+
+
+
+
+=======================================================================================================
+bpaRecording
+	segmentList<bpaSegment>
+		recNumber
+		segmentNumber
+		PassList<bpaPass>
+			recNumber
+			segmentNumber
+			PassNumber
+			pulseList<Pulse>
+				passNumber
+				SpectrumDetails
+					Spectrum
+					parentPeak
+					passNumber
+					pulseNumber
+				Peak
+
+				
+				
+			
+		

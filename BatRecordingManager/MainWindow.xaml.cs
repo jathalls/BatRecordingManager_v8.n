@@ -891,6 +891,23 @@ Do you wish to update that database to the latest specification?", "Out of Date 
 
         }
 
-        
+        private void miAnalyse_Click(object sender, RoutedEventArgs e)
+        {
+            string workingFolder=Environment.CurrentDirectory;
+            if (Directory.Exists(workingFolder))
+            {
+                string excutable = Path.Combine(new string[]{ workingFolder,@"PulseTrainAnalysis.exe"});
+                Process ExternalProcess = new Process();
+                if (ExternalProcess == null) return;
+
+                ExternalProcess.StartInfo.FileName = excutable;
+                //externalProcess.StartInfo.Arguments = folder;
+                ExternalProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
+
+
+
+                ExternalProcess.Start();
+            }
+        }
     }
 }

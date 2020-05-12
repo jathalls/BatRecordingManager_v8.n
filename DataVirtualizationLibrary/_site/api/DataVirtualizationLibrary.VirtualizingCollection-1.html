@@ -1,0 +1,1750 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class VirtualizingCollection&lt;T&gt;
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class VirtualizingCollection&lt;T&gt;
+   ">
+    <meta name="generator" content="docfx 2.51.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1">
+  
+  
+  <h1 id="DataVirtualizationLibrary_VirtualizingCollection_1" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1" class="text-break">Class VirtualizingCollection&lt;T&gt;
+  </h1>
+  <div class="markdown level0 summary"><p>Specialized list implementation that provides data virtualization. The collection is divided up into pages,
+and pages are dynamically fetched from the IItemsProvider when required. Stale pages are removed after a
+configurable period of time.
+Intended for use with large collections on a network or disk resource that cannot be instantiated locally
+due to memory consumption or fetch latency.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">VirtualizingCollection&lt;T&gt;</span></div>
+      <div class="level2"><a class="xref" href="DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html">AsyncVirtualizingCollection&lt;T&gt;</a></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><span class="xref">System.Collections.Generic.IList</span>&lt;T&gt;</div>
+    <div><span class="xref">System.Collections.Generic.ICollection</span>&lt;T&gt;</div>
+    <div><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;T&gt;</div>
+    <div><span class="xref">System.Collections.IList</span></div>
+    <div><span class="xref">System.Collections.ICollection</span></div>
+    <div><span class="xref">System.Collections.IEnumerable</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="DataVirtualizationLibrary.html">DataVirtualizationLibrary</a></h6>
+  <h6><strong>Assembly</strong>: DataVirtualizationLibrary.dll</h6>
+  <h5 id="DataVirtualizationLibrary_VirtualizingCollection_1_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class VirtualizingCollection&lt;T&gt; : IList&lt;T&gt;, ICollection&lt;T&gt;, IEnumerable&lt;T&gt;, IList, ICollection, IEnumerable</code></pre>
+  </div>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 id="DataVirtualizationLibrary_VirtualizingCollection_1_remarks"><strong>Remarks</strong></h5>
+  <div class="markdown level0 remarks"><p>The IList implmentation is not fully complete, but should be sufficient for use as read only collection
+data bound to a suitable ItemsControl.</p>
+</div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1__ctor.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.%23ctor%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L82">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1__ctor_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.#ctor*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1__ctor" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.#ctor">VirtualizingCollection()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public VirtualizingCollection()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1__ctor_DataVirtualizationLibrary_IItemsProvider__0__.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.%23ctor(DataVirtualizationLibrary.IItemsProvider%7B%600%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L69">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1__ctor_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.#ctor*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1__ctor_DataVirtualizationLibrary_IItemsProvider__0__" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.#ctor(DataVirtualizationLibrary.IItemsProvider{`0})">VirtualizingCollection(IItemsProvider&lt;T&gt;)</h4>
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="DataVirtualizationLibrary.VirtualizingCollection-1.html">VirtualizingCollection&lt;T&gt;</a> class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public VirtualizingCollection(IItemsProvider&lt;T&gt; itemsProvider)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="DataVirtualizationLibrary.IItemsProvider-1.html">IItemsProvider</a>&lt;T&gt;</td>
+        <td><span class="parametername">itemsProvider</span></td>
+        <td><p>The items provider.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1__ctor_DataVirtualizationLibrary_IItemsProvider__0__System_Int32_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.%23ctor(DataVirtualizationLibrary.IItemsProvider%7B%600%7D%2CSystem.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L59">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1__ctor_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.#ctor*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1__ctor_DataVirtualizationLibrary_IItemsProvider__0__System_Int32_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.#ctor(DataVirtualizationLibrary.IItemsProvider{`0},System.Int32)">VirtualizingCollection(IItemsProvider&lt;T&gt;, Int32)</h4>
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="DataVirtualizationLibrary.VirtualizingCollection-1.html">VirtualizingCollection&lt;T&gt;</a> class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public VirtualizingCollection(IItemsProvider&lt;T&gt; itemsProvider, int pageSize)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="DataVirtualizationLibrary.IItemsProvider-1.html">IItemsProvider</a>&lt;T&gt;</td>
+        <td><span class="parametername">itemsProvider</span></td>
+        <td><p>The items provider.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">pageSize</span></td>
+        <td><p>Size of the page.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1__ctor_DataVirtualizationLibrary_IItemsProvider__0__System_Int32_System_Int32_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.%23ctor(DataVirtualizationLibrary.IItemsProvider%7B%600%7D%2CSystem.Int32%2CSystem.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L47">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1__ctor_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.#ctor*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1__ctor_DataVirtualizationLibrary_IItemsProvider__0__System_Int32_System_Int32_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.#ctor(DataVirtualizationLibrary.IItemsProvider{`0},System.Int32,System.Int32)">VirtualizingCollection(IItemsProvider&lt;T&gt;, Int32, Int32)</h4>
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="DataVirtualizationLibrary.VirtualizingCollection-1.html">VirtualizingCollection&lt;T&gt;</a> class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public VirtualizingCollection(IItemsProvider&lt;T&gt; itemsProvider, int pageSize, int pageTimeout)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="DataVirtualizationLibrary.IItemsProvider-1.html">IItemsProvider</a>&lt;T&gt;</td>
+        <td><span class="parametername">itemsProvider</span></td>
+        <td><p>The items provider.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">pageSize</span></td>
+        <td><p>Size of the page.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">pageTimeout</span></td>
+        <td><p>The page timeout.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_Count.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.Count%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L132">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_Count_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.Count*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_Count" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.Count">Count</h4>
+  <div class="markdown level1 summary"><p>Gets the number of elements contained in the <span class="xref">System.Collections.Generic.ICollection&lt;T&gt;</span>.
+The first time this property is accessed, it will fetch the count from the IItemsProvider.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual int Count { get; protected set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_IsFixedSize.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.IsFixedSize%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L484">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_IsFixedSize_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.IsFixedSize*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_IsFixedSize" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.IsFixedSize">IsFixedSize</h4>
+  <div class="markdown level1 summary"><p>Gets a value indicating whether the <span class="xref">System.Collections.IList</span> has a fixed size.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsFixedSize { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_IsLoading.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.IsLoading%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L142">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_IsLoading_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.IsLoading*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_IsLoading" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.IsLoading">IsLoading</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual bool IsLoading { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_IsReadOnly.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.IsReadOnly%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L475">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_IsReadOnly_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.IsReadOnly*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_IsReadOnly" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.IsReadOnly">IsReadOnly</h4>
+  <div class="markdown level1 summary"><p>Gets a value indicating whether the <span class="xref">System.Collections.Generic.ICollection&lt;T&gt;</span> is read-only.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsReadOnly { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_IsSynchronized.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.IsSynchronized%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L466">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_IsSynchronized_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.IsSynchronized*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_IsSynchronized" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.IsSynchronized">IsSynchronized</h4>
+  <div class="markdown level1 summary"><p>Gets a value indicating whether access to the <span class="xref">System.Collections.ICollection</span> is synchronized
+(thread safe).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsSynchronized { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_Item_System_Int32_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.Item(System.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L157">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_Item_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.Item*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_Item_System_Int32_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.Item(System.Int32)">Item[Int32]</h4>
+  <div class="markdown level1 summary"><p>Gets the item at the specified index. This property will fetch
+the corresponding page from the IItemsProvider if required.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public T this[int index] { get; set; }</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">index</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">T</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_ItemsProvider.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.ItemsProvider%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L94">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_ItemsProvider_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.ItemsProvider*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_ItemsProvider" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.ItemsProvider">ItemsProvider</h4>
+  <div class="markdown level1 summary"><p>Gets the items provider.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IItemsProvider&lt;T&gt; ItemsProvider { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="DataVirtualizationLibrary.IItemsProvider-1.html">IItemsProvider</a>&lt;T&gt;</td>
+        <td><p>The items provider.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_PageSize.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.PageSize%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L104">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_PageSize_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.PageSize*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_PageSize" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.PageSize">PageSize</h4>
+  <div class="markdown level1 summary"><p>Gets the size of the page.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int PageSize { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><p>The size of the page.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_PageTimeout.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.PageTimeout%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L114">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_PageTimeout_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.PageTimeout*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_PageTimeout" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.PageTimeout">PageTimeout</h4>
+  <div class="markdown level1 summary"><p>Gets the page timeout.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public long PageTimeout { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int64</span></td>
+        <td><p>The page timeout.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_sortColumn.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.sortColumn%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L74">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_sortColumn_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.sortColumn*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_sortColumn" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.sortColumn">sortColumn</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string sortColumn { set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_SyncRoot.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.SyncRoot%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L456">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_SyncRoot_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.SyncRoot*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_SyncRoot" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.SyncRoot">SyncRoot</h4>
+  <div class="markdown level1 summary"><p>Gets an object that can be used to synchronize access to the <span class="xref">System.Collections.ICollection</span>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public object SyncRoot { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_Add__0_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.Add(%600)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L272">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_Add_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.Add*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_Add__0_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.Add(`0)">Add(T)</h4>
+  <div class="markdown level1 summary"><p>Not supported.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Add(T item)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">T</span></td>
+        <td><span class="parametername">item</span></td>
+        <td><p>The object to add to the <span class="xref">System.Collections.Generic.ICollection&lt;T&gt;</span>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="exceptions">Exceptions</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Condition</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.NotSupportedException</span></td>
+        <td><p>The <span class="xref">System.Collections.Generic.ICollection&lt;T&gt;</span> is read-only.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_CleanUpPages.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.CleanUpPages%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L498">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_CleanUpPages_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.CleanUpPages*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_CleanUpPages" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.CleanUpPages">CleanUpPages()</h4>
+  <div class="markdown level1 summary"><p>Cleans up any stale pages that have not been accessed in the period dictated by PageTimeout.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void CleanUpPages()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_Clear.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.Clear%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L314">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_Clear_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.Clear*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_Clear" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.Clear">Clear()</h4>
+  <div class="markdown level1 summary"><p>Not supported.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Clear()</code></pre>
+  </div>
+  <h5 class="exceptions">Exceptions</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Condition</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.NotSupportedException</span></td>
+        <td><p>The <span class="xref">System.Collections.Generic.ICollection&lt;T&gt;</span> is read-only.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_Contains__0_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.Contains(%600)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L299">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_Contains_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.Contains*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_Contains__0_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.Contains(`0)">Contains(T)</h4>
+  <div class="markdown level1 summary"><p>Not supported.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Contains(T item)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">T</span></td>
+        <td><span class="parametername">item</span></td>
+        <td><p>The object to locate in the <span class="xref">System.Collections.Generic.ICollection&lt;T&gt;</span>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>Always false.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_CopyTo__0___System_Int32_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.CopyTo(%600%5B%5D%2CSystem.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L435">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_CopyTo_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.CopyTo*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_CopyTo__0___System_Int32_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.CopyTo(`0[],System.Int32)">CopyTo(T[], Int32)</h4>
+  <div class="markdown level1 summary"><p>Not supported.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void CopyTo(T[] array, int arrayIndex)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>T[]</td>
+        <td><span class="parametername">array</span></td>
+        <td><p>The one-dimensional <span class="xref">System.Array</span> that is the destination of the elements copied
+from <span class="xref">System.Collections.Generic.ICollection&lt;T&gt;</span>. The <span class="xref">System.Array</span> must have
+zero-based indexing.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">arrayIndex</span></td>
+        <td><p>The zero-based index in <code data-dev-comment-type="paramref" class="paramref">array</code> at which copying begins.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="exceptions">Exceptions</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Condition</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.ArgumentNullException</span></td>
+        <td><p><code data-dev-comment-type="paramref" class="paramref">array</code> is null.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.ArgumentOutOfRangeException</span></td>
+        <td><p><code data-dev-comment-type="paramref" class="paramref">arrayIndex</code> is less than 0.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.ArgumentException</span></td>
+        <td><p><code data-dev-comment-type="paramref" class="paramref">array</code> is multidimensional.
+-or-
+<code data-dev-comment-type="paramref" class="paramref">arrayIndex</code> is equal to or greater than the length of <code data-dev-comment-type="paramref" class="paramref">array</code>.
+-or-
+The number of elements in the source <span class="xref">System.Collections.Generic.ICollection&lt;T&gt;</span> is greater than the
+available space from <code data-dev-comment-type="paramref" class="paramref">arrayIndex</code> to the end of the destination <code data-dev-comment-type="paramref" class="paramref">array</code>.
+-or-
+Type <code data-dev-comment-type="paramref" class="paramref">T</code> cannot be cast automatically to the type of the destination <code data-dev-comment-type="paramref" class="paramref">array</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_FetchCount.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.FetchCount%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L618">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_FetchCount_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.FetchCount*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_FetchCount" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.FetchCount">FetchCount()</h4>
+  <div class="markdown level1 summary"><p>Fetches the count of itmes from the IItemsProvider.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected int FetchCount()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_FetchPage_System_Int32_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.FetchPage(System.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L607">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_FetchPage_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.FetchPage*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_FetchPage_System_Int32_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.FetchPage(System.Int32)">FetchPage(Int32)</h4>
+  <div class="markdown level1 summary"><p>Fetches the requested page from the IItemsProvider.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected IList&lt;T&gt; FetchPage(int pageIndex)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">pageIndex</span></td>
+        <td><p>Index of the page.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IList</span>&lt;T&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_GetEnumerator.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.GetEnumerator%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L245">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_GetEnumerator_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.GetEnumerator*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_GetEnumerator" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.GetEnumerator">GetEnumerator()</h4>
+  <div class="markdown level1 summary"><p>Returns an enumerator that iterates through the collection.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerator&lt;T&gt; GetEnumerator()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerator</span>&lt;T&gt;</td>
+        <td><p>A <span class="xref">System.Collections.Generic.IEnumerator&lt;T&gt;</span> that can be used to iterate through the collection.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 id="DataVirtualizationLibrary_VirtualizingCollection_1_GetEnumerator_remarks">Remarks</h5>
+  <div class="markdown level1 remarks"><p>This method should be avoided on large collections due to poor performance.</p>
+</div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_IndexOf__0_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.IndexOf(%600)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L335">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_IndexOf_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.IndexOf*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_IndexOf__0_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.IndexOf(`0)">IndexOf(T)</h4>
+  <div class="markdown level1 summary"><p>Not supported</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int IndexOf(T item)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">T</span></td>
+        <td><span class="parametername">item</span></td>
+        <td><p>The object to locate in the <span class="xref">System.Collections.Generic.IList&lt;T&gt;</span>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><p>Always -1.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_Insert_System_Int32__0_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.Insert(System.Int32%2C%600)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L355">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_Insert_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.Insert*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_Insert_System_Int32__0_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.Insert(System.Int32,`0)">Insert(Int32, T)</h4>
+  <div class="markdown level1 summary"><p>Not supported.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Insert(int index, T item)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">index</span></td>
+        <td><p>The zero-based index at which <code data-dev-comment-type="paramref" class="paramref">item</code> should be inserted.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">T</span></td>
+        <td><span class="parametername">item</span></td>
+        <td><p>The object to insert into the <span class="xref">System.Collections.Generic.IList&lt;T&gt;</span>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="exceptions">Exceptions</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Condition</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.ArgumentOutOfRangeException</span></td>
+        <td><p><code data-dev-comment-type="paramref" class="paramref">index</code> is not a valid index in the <span class="xref">System.Collections.Generic.IList&lt;T&gt;</span>.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.NotSupportedException</span></td>
+        <td><p>The <span class="xref">System.Collections.Generic.IList&lt;T&gt;</span> is read-only.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_LoadCount.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.LoadCount%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L584">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_LoadCount_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.LoadCount*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_LoadCount" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.LoadCount">LoadCount()</h4>
+  <div class="markdown level1 summary"><p>Loads the count of items.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected virtual void LoadCount()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_LoadPage_System_Int32_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.LoadPage(System.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L593">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_LoadPage_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.LoadPage*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_LoadPage_System_Int32_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.LoadPage(System.Int32)">LoadPage(Int32)</h4>
+  <div class="markdown level1 summary"><p>Loads the page of items.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected virtual void LoadPage(int pageIndex)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">pageIndex</span></td>
+        <td><p>Index of the page.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_PopulatePage_System_Int32_System_Collections_Generic_IList__0__.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.PopulatePage(System.Int32%2CSystem.Collections.Generic.IList%7B%600%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L536">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_PopulatePage_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.PopulatePage*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_PopulatePage_System_Int32_System_Collections_Generic_IList__0__" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.PopulatePage(System.Int32,System.Collections.Generic.IList{`0})">PopulatePage(Int32, IList&lt;T&gt;)</h4>
+  <div class="markdown level1 summary"><p>Populates the page within the dictionary.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected virtual void PopulatePage(int pageIndex, IList&lt;T&gt; page)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">pageIndex</span></td>
+        <td><p>Index of the page.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IList</span>&lt;T&gt;</td>
+        <td><span class="parametername">page</span></td>
+        <td><p>The page.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_Refresh.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.Refresh%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L216">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_Refresh_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.Refresh*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_Refresh" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.Refresh">Refresh()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Refresh()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_Remove__0_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.Remove(%600)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L401">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_Remove_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.Remove*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_Remove__0_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.Remove(`0)">Remove(T)</h4>
+  <div class="markdown level1 summary"><p>Not supported.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Remove(T item)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">T</span></td>
+        <td><span class="parametername">item</span></td>
+        <td><p>The object to remove from the <span class="xref">System.Collections.Generic.ICollection&lt;T&gt;</span>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>true if <code data-dev-comment-type="paramref" class="paramref">item</code> was successfully removed from the
+<span class="xref">System.Collections.Generic.ICollection&lt;T&gt;</span>; otherwise, false. This method also returns false if
+<code data-dev-comment-type="paramref" class="paramref">item</code> is not found in the original <span class="xref">System.Collections.Generic.ICollection&lt;T&gt;</span>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="exceptions">Exceptions</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Condition</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.NotSupportedException</span></td>
+        <td><p>The <span class="xref">System.Collections.Generic.ICollection&lt;T&gt;</span> is read-only.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_RemoveAt_System_Int32_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.RemoveAt(System.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L379">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_RemoveAt_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.RemoveAt*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_RemoveAt_System_Int32_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.RemoveAt(System.Int32)">RemoveAt(Int32)</h4>
+  <div class="markdown level1 summary"><p>Not supported.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void RemoveAt(int index)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">index</span></td>
+        <td><p>The zero-based index of the item to remove.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="exceptions">Exceptions</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Condition</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.ArgumentOutOfRangeException</span></td>
+        <td><p><code data-dev-comment-type="paramref" class="paramref">index</code> is not a valid index in the <span class="xref">System.Collections.Generic.IList&lt;T&gt;</span>.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.NotSupportedException</span></td>
+        <td><p>The <span class="xref">System.Collections.Generic.IList&lt;T&gt;</span> is read-only.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_RequestPage_System_Int32_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.RequestPage(System.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L555">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_RequestPage_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.RequestPage*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_RequestPage_System_Int32_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.RequestPage(System.Int32)">RequestPage(Int32)</h4>
+  <div class="markdown level1 summary"><p>Makes a request for the specified page, creating the necessary slots in the dictionary,
+and updating the page touch time.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected virtual void RequestPage(int pageIndex)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">pageIndex</span></td>
+        <td><p>Index of the page.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="eii">Explicit Interface Implementations
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_ICollection_CopyTo_System_Array_System_Int32_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.System%23Collections%23ICollection%23CopyTo(System.Array%2CSystem.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L440">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_ICollection_CopyTo_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#ICollection#CopyTo*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_ICollection_CopyTo_System_Array_System_Int32_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#ICollection#CopyTo(System.Array,System.Int32)">ICollection.CopyTo(Array, Int32)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">void ICollection.CopyTo(Array array, int index)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Array</span></td>
+        <td><span class="parametername">array</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">index</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IEnumerable_GetEnumerator.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.System%23Collections%23IEnumerable%23GetEnumerator%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L256">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IEnumerable_GetEnumerator_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IEnumerable#GetEnumerator*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IEnumerable_GetEnumerator" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IEnumerable#GetEnumerator">IEnumerable.GetEnumerator()</h4>
+  <div class="markdown level1 summary"><p>Returns an enumerator that iterates through a collection.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IEnumerator IEnumerable.GetEnumerator()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.IEnumerator</span></td>
+        <td><p>An <span class="xref">System.Collections.IEnumerator</span> object that can be used to iterate through the collection.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Add_System_Object_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.System%23Collections%23IList%23Add(System.Object)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L277">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Add_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Add*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Add_System_Object_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Add(System.Object)">IList.Add(Object)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">int IList.Add(object value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Contains_System_Object_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.System%23Collections%23IList%23Contains(System.Object)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L286">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Contains_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Contains*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Contains_System_Object_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Contains(System.Object)">IList.Contains(Object)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">bool IList.Contains(object value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_IndexOf_System_Object_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.System%23Collections%23IList%23IndexOf(System.Object)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L323">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_IndexOf_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#IndexOf*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_IndexOf_System_Object_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#IndexOf(System.Object)">IList.IndexOf(Object)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">int IList.IndexOf(object value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Insert_System_Int32_System_Object_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.System%23Collections%23IList%23Insert(System.Int32%2CSystem.Object)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L360">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Insert_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Insert*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Insert_System_Int32_System_Object_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Insert(System.Int32,System.Object)">IList.Insert(Int32, Object)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">void IList.Insert(int index, object value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">index</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Item_System_Int32_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.System%23Collections%23IList%23Item(System.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L226">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Item_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Item*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Item_System_Int32_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Item(System.Int32)">IList.Item[Int32]</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">object IList.this[int index] { get; set; }</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">index</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Remove_System_Object_.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601.System%23Collections%23IList%23Remove(System.Object)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L384">View Source</a>
+  </span>
+  <a id="DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Remove_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Remove*"></a>
+  <h4 id="DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Remove_System_Object_" data-uid="DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Remove(System.Object)">IList.Remove(Object)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">void IList.Remove(object value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <span class="xref">System.Collections.Generic.IList&lt;T&gt;</span>
+  </div>
+  <div>
+      <span class="xref">System.Collections.Generic.ICollection&lt;T&gt;</span>
+  </div>
+  <div>
+      <span class="xref">System.Collections.Generic.IEnumerable&lt;T&gt;</span>
+  </div>
+  <div>
+      <span class="xref">System.Collections.IList</span>
+  </div>
+  <div>
+      <span class="xref">System.Collections.ICollection</span>
+  </div>
+  <div>
+      <span class="xref">System.Collections.IEnumerable</span>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/new/Analysis/apiSpec/new?filename=DataVirtualizationLibrary_VirtualizingCollection_1.md&amp;value=---%0Auid%3A%20DataVirtualizationLibrary.VirtualizingCollection%601%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jathalls/BatRecordingManager_v8.n/blob/Analysis/DataVirtualizationLibrary/VirtualizingCollection.cs/#L37" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

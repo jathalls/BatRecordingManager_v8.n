@@ -99,7 +99,10 @@
             ItemsSource="{Binding Path=recordingsList}"
             ScrollViewer.VerticalScrollBarVisibility="Visible" 
             IsSynchronizedWithCurrentItem="True"
-            HorizontalAlignment="Stretch" VerticalContentAlignment="Stretch" VerticalAlignment="Center" HorizontalContentAlignment="Stretch"
+            HorizontalAlignment="Stretch" 
+            VerticalContentAlignment="Stretch" 
+            VerticalAlignment="Center" 
+            HorizontalContentAlignment="Stretch"
             >
 <!-- 
             4 Oct 2019 8.0.7217 Debug 
@@ -121,6 +124,7 @@
 
                             <Border BorderThickness="0,2,0,0" BorderBrush="Black">
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" >
+                                    
                                     <ContentControl MouseDoubleClick="RecordingNameContentControl_MouseDoubleClick">
                                         <TextBlock
                                             
@@ -129,9 +133,24 @@
                                             
                                             Text="{Binding Path=RecordingName}"
                                             
-                                            ToolTip="Double-click to open file in Audacity"
+                                            ToolTip="Double-click to open file in Audacity, or right click for menu"
                                             
-                                             FontSize="17" FontWeight="Normal"   />
+                                             FontSize="17" FontWeight="Normal"   >
+                                            <TextBlock.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem 
+                                                        x:Name="cmiRecordingNameOpen" 
+                                                        Header="Open in Audacity" 
+                                                        ToolTip="Opens the .wav file in Audacity"
+                                                        Click="cmiRecordingNameOpen_Click" />
+                                                    <MenuItem 
+                                                        x:Name="cmiRecordingNameAnalyse" 
+                                                        Header="Analyse calls" 
+                                                        ToolTip="Opens a window to display an analysis of each pulse in the recordings"
+                                                        Click="cmiRecordingNameAnalyse_Click"/>
+                                                </ContextMenu>
+                                            </TextBlock.ContextMenu>
+                                        </TextBlock>
                                     </ContentControl>
                                          <Label Content=" On "/>
                                         <TextBlock

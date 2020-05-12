@@ -1,0 +1,98 @@
+﻿<Window x:Class="AnalysisMain.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:local="clr-namespace:AnalysisMain"
+        xmlns:pa="clr-namespace:BatPassAnalysisFW;assembly=BatPassAnalysisFW"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <DockPanel Grid.Row="0" Grid.Column="0" Visibility="Visible">
+            <pa:AnalysisMainControl
+                x:Name="AnalysisMain"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                />
+        </DockPanel>
+        <!--
+        <Grid Grid.Row="0" Grid.Column="0" Visibility="Hidden">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0">
+            <Button 
+                x:Name="testButton" 
+                Content="Click to Start" 
+                Click="TestButton_Click" 
+                Height="20" 
+                VerticalAlignment="Top" 
+                HorizontalAlignment="Stretch" 
+                Width="397"/>
+            <StackPanel Orientation="Horizontal" Grid.Column="0">
+            <TextBox
+                x:Name="ResultsTextBox"
+                Text="Not Run Yet"
+                
+                />
+                <Label
+                    Margin="20,0,0,0"
+                    Content="Threshold:-"/>
+                <tk:DecimalUpDown
+                    x:Name="thresholdFactorUD"
+                    Width="80"
+                    Value="{Binding thresholdFactor, Mode=TwoWay}" Minimum="0.1" Maximum="10.0"/>
+
+            </StackPanel>
+
+
+
+        </StackPanel>
+        <TabControl 
+            x:Name="tabControl" 
+            HorizontalAlignment="Stretch" 
+            
+             
+            Grid.Row="1" 
+            VerticalAlignment="Stretch" 
+            >
+            <TabItem Header="Wave Envelope">
+                <Image 
+            x:Name="image" 
+            HorizontalAlignment="Stretch" 
+            
+            
+            VerticalAlignment="Stretch" 
+            Stretch="UniformToFill" 
+            
+            />
+            </TabItem>
+            <TabItem Header="Peak Table">
+                <Grid Background="#FFE5E5E5">
+                    <DataGrid
+                        x:Name="PeakTableDataGrid"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        />
+                </Grid>
+            </TabItem>
+            <TabItem Header="Spectra Table">
+                <Grid Background="Aqua">
+                    <DataGrid
+                        x:Name="SpectraGrid"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Analysis A">
+                <pa:AnalysisTableA
+                   x:Name="AnalysisA_Tab"
+                   />
+            </TabItem>
+        </TabControl>
+
+        </Grid>-->
+    </Grid>
+</Window>

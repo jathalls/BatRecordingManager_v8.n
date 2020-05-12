@@ -27,6 +27,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using BatPassAnalysisFW;
 using Microsoft.Maps.MapControl.WPF;
 using Microsoft.VisualStudio.Language.Intellisense;
 
@@ -443,26 +444,23 @@ namespace BatRecordingManager
         private AnalyseAndImportClass aai;
         private void RecordingNameTextBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var thisTextBox = sender as TextBlock;
+
+            RecordingNameTextBox_OpenRecording(sender as TextBlock);
+        }
+
+        private void RecordingNameTextBox_OpenRecording(TextBlock thisTextBox)
+        {
+            //var thisTextBox = sender as TextBlock;
             var recording = RecordingsListView.SelectedItem as Recording;
             if (!File.Exists(recording.RecordingSession.OriginalFilePath + recording.RecordingName))
             {
                 thisTextBox.Foreground = Brushes.Red;
                 return;
             }
-            /*var labelContent = thisTextBox.Text as string;
-            if (!string.IsNullOrWhiteSpace(labelContent))
-                if (labelContent.ToUpper().Contains(".WAV"))
-                {
-                    var pos = labelContent.ToUpper().IndexOf(".WAV");
-                    labelContent = labelContent.Substring(0, pos) + ".wav";
-                    labelContent = selectedSession.OriginalFilePath + labelContent;
 
-                    //Tools.OpenWavFile(recording);*/
-                    aai=new AnalyseAndImportClass(recording);
-                    aai.e_DataUpdated += Aai_e_DataUpdated;
-                    aai.AnalyseRecording();
-               // }
+            aai = new AnalyseAndImportClass(recording);
+            aai.e_DataUpdated += Aai_e_DataUpdated;
+            aai.AnalyseRecording();
         }
 
         private void Aai_e_DataUpdated(object sender, EventArgs e)
@@ -936,9 +934,95 @@ namespace BatRecordingManager
 
         private void RecordingNameContentControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            
+            using (new WaitCursor())
+            {
                 RecordingNameTextBox_MouseDoubleClick(sender, e);
                 e.Handled = true;
+            }
+            
+        }
+
+        private void cmiRecordingNameAnalyse_Click(object sender, RoutedEventArgs e)
+        {
+            TextBlock tb = null;
+            MenuItem mi = sender as MenuItem;
+            if (mi != null)
+            {
+                tb = ((ContextMenu)mi.Parent).PlacementTarget as TextBlock;
+            }
+            Recording recording = RecordingsListView?.SelectedItem as Recording;
+            if (recording != null)
+            {
+                AnalyseRecordingPulses(recording);
+            }
+            
+        }
+
+        private void AnalyseRecordingPulses(Recording recording)
+        {
+            PulseAnalysisWindow pulseWindow=null;
+            string[] parameters = new string[2];
+            if (recording == null) return;
+            using (new WaitCursor())
+            {
+                string folder = recording.RecordingSession.OriginalFilePath;
+                string file = recording.RecordingName;
+                try
+                {
+                    if (folder.EndsWith(@"\") && file.StartsWith(@"\"))
+                    {
+                        folder = folder.Substring(0, folder.Length - 1);
+                    }
+                    else if (!folder.EndsWith(@"\") && !file.StartsWith(@"\"))
+                    {
+                        folder = folder + @"\" + file;
+                    }
+                    string fqFileName = folder + file;
+
+                    pulseWindow = new PulseAnalysisWindow();
+                    //string[] parameters = new string[2];
+                    parameters[0] = "BatRecordingManager";
+                    parameters[1] = fqFileName;
+                }catch(Exception ex)
+                {
+                    AnalysisMainControl.ErrorLog($"AnalyseRecordingPulses: settinup recording {recording.GetFileName()}:-{ex.Message}");
+                }
+
+                try
+                {
+                    pulseWindow?.AnalysisControlMain.CommandLineArgs(parameters);
+                    pulseWindow?.Show();
+                }catch(Exception ex)
+                {
+                    AnalysisMainControl.ErrorLog($"AnalyseRecordingPulses: set parameters and Show:-{ex.Message}");
+                }
+            }
+            return;
+
+
+            
+
+           
+        }
+
+        private void ExternalProcess_Exited(object sender, EventArgs e)
+        {
+            Debug.WriteLine("Exited Analysis");
+        }
+
+        private void cmiRecordingNameOpen_Click(object sender, RoutedEventArgs e)
+        {
+            TextBlock tb = null;
+            MenuItem mi = sender as MenuItem;
+            if (mi != null)
+            {
+                tb = ((ContextMenu)mi.Parent).PlacementTarget as TextBlock;
+            }
+            using (new WaitCursor())
+            {
+                RecordingNameTextBox_OpenRecording(tb);
+            }
+
             
         }
     } // End of Class RecordingDetailListControl

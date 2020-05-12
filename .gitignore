@@ -19,3 +19,9 @@ Properties
 /BatRecordingManager/MapResourceDictionary.xaml
 /BatRecordingManagerTests/WeatherTests.cs
 /BatRecordingManager/APIKeysLocal.cs
+/AnalysisMain/obj
+/AnalysisMain/_site
+/BatPassAnalysis/obj
+/BatPassAnalysisFW/obj
+/BatPassAnalysisFW/_site
+/BatPassAnalysis

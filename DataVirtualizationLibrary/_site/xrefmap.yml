@@ -1,0 +1,956 @@
+### YamlMime:XRefMap
+sorted: true
+references:
+- uid: DataVirtualizationLibrary
+  name: DataVirtualizationLibrary
+  href: api/DataVirtualizationLibrary.html
+  commentId: N:DataVirtualizationLibrary
+  fullName: DataVirtualizationLibrary
+  nameWithType: DataVirtualizationLibrary
+- uid: DataVirtualizationLibrary.AsyncVirtualizingCollection`1
+  name: AsyncVirtualizingCollection<T>
+  href: api/DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html
+  commentId: T:DataVirtualizationLibrary.AsyncVirtualizingCollection`1
+  name.vb: AsyncVirtualizingCollection(Of T)
+  fullName: DataVirtualizationLibrary.AsyncVirtualizingCollection<T>
+  fullName.vb: DataVirtualizationLibrary.AsyncVirtualizingCollection(Of T)
+  nameWithType: AsyncVirtualizingCollection<T>
+  nameWithType.vb: AsyncVirtualizingCollection(Of T)
+- uid: DataVirtualizationLibrary.AsyncVirtualizingCollection`1.#ctor(DataVirtualizationLibrary.IItemsProvider{`0})
+  name: AsyncVirtualizingCollection(IItemsProvider<T>)
+  href: api/DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html#DataVirtualizationLibrary_AsyncVirtualizingCollection_1__ctor_DataVirtualizationLibrary_IItemsProvider__0__
+  commentId: M:DataVirtualizationLibrary.AsyncVirtualizingCollection`1.#ctor(DataVirtualizationLibrary.IItemsProvider{`0})
+  name.vb: AsyncVirtualizingCollection(IItemsProvider(Of T))
+  fullName: DataVirtualizationLibrary.AsyncVirtualizingCollection<T>.AsyncVirtualizingCollection(DataVirtualizationLibrary.IItemsProvider<T>)
+  fullName.vb: DataVirtualizationLibrary.AsyncVirtualizingCollection(Of T).AsyncVirtualizingCollection(DataVirtualizationLibrary.IItemsProvider(Of T))
+  nameWithType: AsyncVirtualizingCollection<T>.AsyncVirtualizingCollection(IItemsProvider<T>)
+  nameWithType.vb: AsyncVirtualizingCollection(Of T).AsyncVirtualizingCollection(IItemsProvider(Of T))
+- uid: DataVirtualizationLibrary.AsyncVirtualizingCollection`1.#ctor(DataVirtualizationLibrary.IItemsProvider{`0},System.Int32)
+  name: AsyncVirtualizingCollection(IItemsProvider<T>, Int32)
+  href: api/DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html#DataVirtualizationLibrary_AsyncVirtualizingCollection_1__ctor_DataVirtualizationLibrary_IItemsProvider__0__System_Int32_
+  commentId: M:DataVirtualizationLibrary.AsyncVirtualizingCollection`1.#ctor(DataVirtualizationLibrary.IItemsProvider{`0},System.Int32)
+  name.vb: AsyncVirtualizingCollection(IItemsProvider(Of T), Int32)
+  fullName: DataVirtualizationLibrary.AsyncVirtualizingCollection<T>.AsyncVirtualizingCollection(DataVirtualizationLibrary.IItemsProvider<T>, System.Int32)
+  fullName.vb: DataVirtualizationLibrary.AsyncVirtualizingCollection(Of T).AsyncVirtualizingCollection(DataVirtualizationLibrary.IItemsProvider(Of T), System.Int32)
+  nameWithType: AsyncVirtualizingCollection<T>.AsyncVirtualizingCollection(IItemsProvider<T>, Int32)
+  nameWithType.vb: AsyncVirtualizingCollection(Of T).AsyncVirtualizingCollection(IItemsProvider(Of T), Int32)
+- uid: DataVirtualizationLibrary.AsyncVirtualizingCollection`1.#ctor(DataVirtualizationLibrary.IItemsProvider{`0},System.Int32,System.Int32)
+  name: AsyncVirtualizingCollection(IItemsProvider<T>, Int32, Int32)
+  href: api/DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html#DataVirtualizationLibrary_AsyncVirtualizingCollection_1__ctor_DataVirtualizationLibrary_IItemsProvider__0__System_Int32_System_Int32_
+  commentId: M:DataVirtualizationLibrary.AsyncVirtualizingCollection`1.#ctor(DataVirtualizationLibrary.IItemsProvider{`0},System.Int32,System.Int32)
+  name.vb: AsyncVirtualizingCollection(IItemsProvider(Of T), Int32, Int32)
+  fullName: DataVirtualizationLibrary.AsyncVirtualizingCollection<T>.AsyncVirtualizingCollection(DataVirtualizationLibrary.IItemsProvider<T>, System.Int32, System.Int32)
+  fullName.vb: DataVirtualizationLibrary.AsyncVirtualizingCollection(Of T).AsyncVirtualizingCollection(DataVirtualizationLibrary.IItemsProvider(Of T), System.Int32, System.Int32)
+  nameWithType: AsyncVirtualizingCollection<T>.AsyncVirtualizingCollection(IItemsProvider<T>, Int32, Int32)
+  nameWithType.vb: AsyncVirtualizingCollection(Of T).AsyncVirtualizingCollection(IItemsProvider(Of T), Int32, Int32)
+- uid: DataVirtualizationLibrary.AsyncVirtualizingCollection`1.#ctor*
+  name: AsyncVirtualizingCollection
+  href: api/DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html#DataVirtualizationLibrary_AsyncVirtualizingCollection_1__ctor_
+  commentId: Overload:DataVirtualizationLibrary.AsyncVirtualizingCollection`1.#ctor
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.AsyncVirtualizingCollection<T>.AsyncVirtualizingCollection
+  fullName.vb: DataVirtualizationLibrary.AsyncVirtualizingCollection(Of T).AsyncVirtualizingCollection
+  nameWithType: AsyncVirtualizingCollection<T>.AsyncVirtualizingCollection
+  nameWithType.vb: AsyncVirtualizingCollection(Of T).AsyncVirtualizingCollection
+- uid: DataVirtualizationLibrary.AsyncVirtualizingCollection`1.CollectionChanged
+  name: CollectionChanged
+  href: api/DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html#DataVirtualizationLibrary_AsyncVirtualizingCollection_1_CollectionChanged
+  commentId: E:DataVirtualizationLibrary.AsyncVirtualizingCollection`1.CollectionChanged
+  fullName: DataVirtualizationLibrary.AsyncVirtualizingCollection<T>.CollectionChanged
+  fullName.vb: DataVirtualizationLibrary.AsyncVirtualizingCollection(Of T).CollectionChanged
+  nameWithType: AsyncVirtualizingCollection<T>.CollectionChanged
+  nameWithType.vb: AsyncVirtualizingCollection(Of T).CollectionChanged
+- uid: DataVirtualizationLibrary.AsyncVirtualizingCollection`1.IsLoading
+  name: IsLoading
+  href: api/DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html#DataVirtualizationLibrary_AsyncVirtualizingCollection_1_IsLoading
+  commentId: P:DataVirtualizationLibrary.AsyncVirtualizingCollection`1.IsLoading
+  fullName: DataVirtualizationLibrary.AsyncVirtualizingCollection<T>.IsLoading
+  fullName.vb: DataVirtualizationLibrary.AsyncVirtualizingCollection(Of T).IsLoading
+  nameWithType: AsyncVirtualizingCollection<T>.IsLoading
+  nameWithType.vb: AsyncVirtualizingCollection(Of T).IsLoading
+- uid: DataVirtualizationLibrary.AsyncVirtualizingCollection`1.IsLoading*
+  name: IsLoading
+  href: api/DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html#DataVirtualizationLibrary_AsyncVirtualizingCollection_1_IsLoading_
+  commentId: Overload:DataVirtualizationLibrary.AsyncVirtualizingCollection`1.IsLoading
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.AsyncVirtualizingCollection<T>.IsLoading
+  fullName.vb: DataVirtualizationLibrary.AsyncVirtualizingCollection(Of T).IsLoading
+  nameWithType: AsyncVirtualizingCollection<T>.IsLoading
+  nameWithType.vb: AsyncVirtualizingCollection(Of T).IsLoading
+- uid: DataVirtualizationLibrary.AsyncVirtualizingCollection`1.LoadCount
+  name: LoadCount()
+  href: api/DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html#DataVirtualizationLibrary_AsyncVirtualizingCollection_1_LoadCount
+  commentId: M:DataVirtualizationLibrary.AsyncVirtualizingCollection`1.LoadCount
+  fullName: DataVirtualizationLibrary.AsyncVirtualizingCollection<T>.LoadCount()
+  fullName.vb: DataVirtualizationLibrary.AsyncVirtualizingCollection(Of T).LoadCount()
+  nameWithType: AsyncVirtualizingCollection<T>.LoadCount()
+  nameWithType.vb: AsyncVirtualizingCollection(Of T).LoadCount()
+- uid: DataVirtualizationLibrary.AsyncVirtualizingCollection`1.LoadCount*
+  name: LoadCount
+  href: api/DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html#DataVirtualizationLibrary_AsyncVirtualizingCollection_1_LoadCount_
+  commentId: Overload:DataVirtualizationLibrary.AsyncVirtualizingCollection`1.LoadCount
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.AsyncVirtualizingCollection<T>.LoadCount
+  fullName.vb: DataVirtualizationLibrary.AsyncVirtualizingCollection(Of T).LoadCount
+  nameWithType: AsyncVirtualizingCollection<T>.LoadCount
+  nameWithType.vb: AsyncVirtualizingCollection(Of T).LoadCount
+- uid: DataVirtualizationLibrary.AsyncVirtualizingCollection`1.LoadPage(System.Int32)
+  name: LoadPage(Int32)
+  href: api/DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html#DataVirtualizationLibrary_AsyncVirtualizingCollection_1_LoadPage_System_Int32_
+  commentId: M:DataVirtualizationLibrary.AsyncVirtualizingCollection`1.LoadPage(System.Int32)
+  fullName: DataVirtualizationLibrary.AsyncVirtualizingCollection<T>.LoadPage(System.Int32)
+  fullName.vb: DataVirtualizationLibrary.AsyncVirtualizingCollection(Of T).LoadPage(System.Int32)
+  nameWithType: AsyncVirtualizingCollection<T>.LoadPage(Int32)
+  nameWithType.vb: AsyncVirtualizingCollection(Of T).LoadPage(Int32)
+- uid: DataVirtualizationLibrary.AsyncVirtualizingCollection`1.LoadPage*
+  name: LoadPage
+  href: api/DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html#DataVirtualizationLibrary_AsyncVirtualizingCollection_1_LoadPage_
+  commentId: Overload:DataVirtualizationLibrary.AsyncVirtualizingCollection`1.LoadPage
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.AsyncVirtualizingCollection<T>.LoadPage
+  fullName.vb: DataVirtualizationLibrary.AsyncVirtualizingCollection(Of T).LoadPage
+  nameWithType: AsyncVirtualizingCollection<T>.LoadPage
+  nameWithType.vb: AsyncVirtualizingCollection(Of T).LoadPage
+- uid: DataVirtualizationLibrary.AsyncVirtualizingCollection`1.OnCollectionChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs)
+  name: OnCollectionChanged(NotifyCollectionChangedEventArgs)
+  href: api/DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html#DataVirtualizationLibrary_AsyncVirtualizingCollection_1_OnCollectionChanged_System_Collections_Specialized_NotifyCollectionChangedEventArgs_
+  commentId: M:DataVirtualizationLibrary.AsyncVirtualizingCollection`1.OnCollectionChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs)
+  fullName: DataVirtualizationLibrary.AsyncVirtualizingCollection<T>.OnCollectionChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs)
+  fullName.vb: DataVirtualizationLibrary.AsyncVirtualizingCollection(Of T).OnCollectionChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs)
+  nameWithType: AsyncVirtualizingCollection<T>.OnCollectionChanged(NotifyCollectionChangedEventArgs)
+  nameWithType.vb: AsyncVirtualizingCollection(Of T).OnCollectionChanged(NotifyCollectionChangedEventArgs)
+- uid: DataVirtualizationLibrary.AsyncVirtualizingCollection`1.OnCollectionChanged*
+  name: OnCollectionChanged
+  href: api/DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html#DataVirtualizationLibrary_AsyncVirtualizingCollection_1_OnCollectionChanged_
+  commentId: Overload:DataVirtualizationLibrary.AsyncVirtualizingCollection`1.OnCollectionChanged
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.AsyncVirtualizingCollection<T>.OnCollectionChanged
+  fullName.vb: DataVirtualizationLibrary.AsyncVirtualizingCollection(Of T).OnCollectionChanged
+  nameWithType: AsyncVirtualizingCollection<T>.OnCollectionChanged
+  nameWithType.vb: AsyncVirtualizingCollection(Of T).OnCollectionChanged
+- uid: DataVirtualizationLibrary.AsyncVirtualizingCollection`1.OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs)
+  name: OnPropertyChanged(PropertyChangedEventArgs)
+  href: api/DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html#DataVirtualizationLibrary_AsyncVirtualizingCollection_1_OnPropertyChanged_System_ComponentModel_PropertyChangedEventArgs_
+  commentId: M:DataVirtualizationLibrary.AsyncVirtualizingCollection`1.OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs)
+  fullName: DataVirtualizationLibrary.AsyncVirtualizingCollection<T>.OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs)
+  fullName.vb: DataVirtualizationLibrary.AsyncVirtualizingCollection(Of T).OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs)
+  nameWithType: AsyncVirtualizingCollection<T>.OnPropertyChanged(PropertyChangedEventArgs)
+  nameWithType.vb: AsyncVirtualizingCollection(Of T).OnPropertyChanged(PropertyChangedEventArgs)
+- uid: DataVirtualizationLibrary.AsyncVirtualizingCollection`1.OnPropertyChanged*
+  name: OnPropertyChanged
+  href: api/DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html#DataVirtualizationLibrary_AsyncVirtualizingCollection_1_OnPropertyChanged_
+  commentId: Overload:DataVirtualizationLibrary.AsyncVirtualizingCollection`1.OnPropertyChanged
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.AsyncVirtualizingCollection<T>.OnPropertyChanged
+  fullName.vb: DataVirtualizationLibrary.AsyncVirtualizingCollection(Of T).OnPropertyChanged
+  nameWithType: AsyncVirtualizingCollection<T>.OnPropertyChanged
+  nameWithType.vb: AsyncVirtualizingCollection(Of T).OnPropertyChanged
+- uid: DataVirtualizationLibrary.AsyncVirtualizingCollection`1.PropertyChanged
+  name: PropertyChanged
+  href: api/DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html#DataVirtualizationLibrary_AsyncVirtualizingCollection_1_PropertyChanged
+  commentId: E:DataVirtualizationLibrary.AsyncVirtualizingCollection`1.PropertyChanged
+  fullName: DataVirtualizationLibrary.AsyncVirtualizingCollection<T>.PropertyChanged
+  fullName.vb: DataVirtualizationLibrary.AsyncVirtualizingCollection(Of T).PropertyChanged
+  nameWithType: AsyncVirtualizingCollection<T>.PropertyChanged
+  nameWithType.vb: AsyncVirtualizingCollection(Of T).PropertyChanged
+- uid: DataVirtualizationLibrary.AsyncVirtualizingCollection`1.SynchronizationContext
+  name: SynchronizationContext
+  href: api/DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html#DataVirtualizationLibrary_AsyncVirtualizingCollection_1_SynchronizationContext
+  commentId: P:DataVirtualizationLibrary.AsyncVirtualizingCollection`1.SynchronizationContext
+  fullName: DataVirtualizationLibrary.AsyncVirtualizingCollection<T>.SynchronizationContext
+  fullName.vb: DataVirtualizationLibrary.AsyncVirtualizingCollection(Of T).SynchronizationContext
+  nameWithType: AsyncVirtualizingCollection<T>.SynchronizationContext
+  nameWithType.vb: AsyncVirtualizingCollection(Of T).SynchronizationContext
+- uid: DataVirtualizationLibrary.AsyncVirtualizingCollection`1.SynchronizationContext*
+  name: SynchronizationContext
+  href: api/DataVirtualizationLibrary.AsyncVirtualizingCollection-1.html#DataVirtualizationLibrary_AsyncVirtualizingCollection_1_SynchronizationContext_
+  commentId: Overload:DataVirtualizationLibrary.AsyncVirtualizingCollection`1.SynchronizationContext
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.AsyncVirtualizingCollection<T>.SynchronizationContext
+  fullName.vb: DataVirtualizationLibrary.AsyncVirtualizingCollection(Of T).SynchronizationContext
+  nameWithType: AsyncVirtualizingCollection<T>.SynchronizationContext
+  nameWithType.vb: AsyncVirtualizingCollection(Of T).SynchronizationContext
+- uid: DataVirtualizationLibrary.CustomControl1
+  name: CustomControl1
+  href: api/DataVirtualizationLibrary.CustomControl1.html
+  commentId: T:DataVirtualizationLibrary.CustomControl1
+  fullName: DataVirtualizationLibrary.CustomControl1
+  nameWithType: CustomControl1
+- uid: DataVirtualizationLibrary.IItemsProvider`1
+  name: IItemsProvider<T>
+  href: api/DataVirtualizationLibrary.IItemsProvider-1.html
+  commentId: T:DataVirtualizationLibrary.IItemsProvider`1
+  name.vb: IItemsProvider(Of T)
+  fullName: DataVirtualizationLibrary.IItemsProvider<T>
+  fullName.vb: DataVirtualizationLibrary.IItemsProvider(Of T)
+  nameWithType: IItemsProvider<T>
+  nameWithType.vb: IItemsProvider(Of T)
+- uid: DataVirtualizationLibrary.IItemsProvider`1.Default
+  name: Default()
+  href: api/DataVirtualizationLibrary.IItemsProvider-1.html#DataVirtualizationLibrary_IItemsProvider_1_Default
+  commentId: M:DataVirtualizationLibrary.IItemsProvider`1.Default
+  fullName: DataVirtualizationLibrary.IItemsProvider<T>.Default()
+  fullName.vb: DataVirtualizationLibrary.IItemsProvider(Of T).Default()
+  nameWithType: IItemsProvider<T>.Default()
+  nameWithType.vb: IItemsProvider(Of T).Default()
+- uid: DataVirtualizationLibrary.IItemsProvider`1.Default*
+  name: Default
+  href: api/DataVirtualizationLibrary.IItemsProvider-1.html#DataVirtualizationLibrary_IItemsProvider_1_Default_
+  commentId: Overload:DataVirtualizationLibrary.IItemsProvider`1.Default
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.IItemsProvider<T>.Default
+  fullName.vb: DataVirtualizationLibrary.IItemsProvider(Of T).Default
+  nameWithType: IItemsProvider<T>.Default
+  nameWithType.vb: IItemsProvider(Of T).Default
+- uid: DataVirtualizationLibrary.IItemsProvider`1.FetchCount
+  name: FetchCount()
+  href: api/DataVirtualizationLibrary.IItemsProvider-1.html#DataVirtualizationLibrary_IItemsProvider_1_FetchCount
+  commentId: M:DataVirtualizationLibrary.IItemsProvider`1.FetchCount
+  fullName: DataVirtualizationLibrary.IItemsProvider<T>.FetchCount()
+  fullName.vb: DataVirtualizationLibrary.IItemsProvider(Of T).FetchCount()
+  nameWithType: IItemsProvider<T>.FetchCount()
+  nameWithType.vb: IItemsProvider(Of T).FetchCount()
+- uid: DataVirtualizationLibrary.IItemsProvider`1.FetchCount*
+  name: FetchCount
+  href: api/DataVirtualizationLibrary.IItemsProvider-1.html#DataVirtualizationLibrary_IItemsProvider_1_FetchCount_
+  commentId: Overload:DataVirtualizationLibrary.IItemsProvider`1.FetchCount
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.IItemsProvider<T>.FetchCount
+  fullName.vb: DataVirtualizationLibrary.IItemsProvider(Of T).FetchCount
+  nameWithType: IItemsProvider<T>.FetchCount
+  nameWithType.vb: IItemsProvider(Of T).FetchCount
+- uid: DataVirtualizationLibrary.IItemsProvider`1.FetchRange(System.Int32,System.Int32)
+  name: FetchRange(Int32, Int32)
+  href: api/DataVirtualizationLibrary.IItemsProvider-1.html#DataVirtualizationLibrary_IItemsProvider_1_FetchRange_System_Int32_System_Int32_
+  commentId: M:DataVirtualizationLibrary.IItemsProvider`1.FetchRange(System.Int32,System.Int32)
+  fullName: DataVirtualizationLibrary.IItemsProvider<T>.FetchRange(System.Int32, System.Int32)
+  fullName.vb: DataVirtualizationLibrary.IItemsProvider(Of T).FetchRange(System.Int32, System.Int32)
+  nameWithType: IItemsProvider<T>.FetchRange(Int32, Int32)
+  nameWithType.vb: IItemsProvider(Of T).FetchRange(Int32, Int32)
+- uid: DataVirtualizationLibrary.IItemsProvider`1.FetchRange*
+  name: FetchRange
+  href: api/DataVirtualizationLibrary.IItemsProvider-1.html#DataVirtualizationLibrary_IItemsProvider_1_FetchRange_
+  commentId: Overload:DataVirtualizationLibrary.IItemsProvider`1.FetchRange
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.IItemsProvider<T>.FetchRange
+  fullName.vb: DataVirtualizationLibrary.IItemsProvider(Of T).FetchRange
+  nameWithType: IItemsProvider<T>.FetchRange
+  nameWithType.vb: IItemsProvider(Of T).FetchRange
+- uid: DataVirtualizationLibrary.IItemsProvider`1.RefreshCount
+  name: RefreshCount()
+  href: api/DataVirtualizationLibrary.IItemsProvider-1.html#DataVirtualizationLibrary_IItemsProvider_1_RefreshCount
+  commentId: M:DataVirtualizationLibrary.IItemsProvider`1.RefreshCount
+  fullName: DataVirtualizationLibrary.IItemsProvider<T>.RefreshCount()
+  fullName.vb: DataVirtualizationLibrary.IItemsProvider(Of T).RefreshCount()
+  nameWithType: IItemsProvider<T>.RefreshCount()
+  nameWithType.vb: IItemsProvider(Of T).RefreshCount()
+- uid: DataVirtualizationLibrary.IItemsProvider`1.RefreshCount*
+  name: RefreshCount
+  href: api/DataVirtualizationLibrary.IItemsProvider-1.html#DataVirtualizationLibrary_IItemsProvider_1_RefreshCount_
+  commentId: Overload:DataVirtualizationLibrary.IItemsProvider`1.RefreshCount
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.IItemsProvider<T>.RefreshCount
+  fullName.vb: DataVirtualizationLibrary.IItemsProvider(Of T).RefreshCount
+  nameWithType: IItemsProvider<T>.RefreshCount
+  nameWithType.vb: IItemsProvider(Of T).RefreshCount
+- uid: DataVirtualizationLibrary.IItemsProvider`1.SetSortColumn(System.String)
+  name: SetSortColumn(String)
+  href: api/DataVirtualizationLibrary.IItemsProvider-1.html#DataVirtualizationLibrary_IItemsProvider_1_SetSortColumn_System_String_
+  commentId: M:DataVirtualizationLibrary.IItemsProvider`1.SetSortColumn(System.String)
+  fullName: DataVirtualizationLibrary.IItemsProvider<T>.SetSortColumn(System.String)
+  fullName.vb: DataVirtualizationLibrary.IItemsProvider(Of T).SetSortColumn(System.String)
+  nameWithType: IItemsProvider<T>.SetSortColumn(String)
+  nameWithType.vb: IItemsProvider(Of T).SetSortColumn(String)
+- uid: DataVirtualizationLibrary.IItemsProvider`1.SetSortColumn*
+  name: SetSortColumn
+  href: api/DataVirtualizationLibrary.IItemsProvider-1.html#DataVirtualizationLibrary_IItemsProvider_1_SetSortColumn_
+  commentId: Overload:DataVirtualizationLibrary.IItemsProvider`1.SetSortColumn
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.IItemsProvider<T>.SetSortColumn
+  fullName.vb: DataVirtualizationLibrary.IItemsProvider(Of T).SetSortColumn
+  nameWithType: IItemsProvider<T>.SetSortColumn
+  nameWithType.vb: IItemsProvider(Of T).SetSortColumn
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1
+  name: VirtualizingCollection<T>
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html
+  commentId: T:DataVirtualizationLibrary.VirtualizingCollection`1
+  name.vb: VirtualizingCollection(Of T)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T)
+  nameWithType: VirtualizingCollection<T>
+  nameWithType.vb: VirtualizingCollection(Of T)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.#ctor
+  name: VirtualizingCollection()
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1__ctor
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.#ctor
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.VirtualizingCollection()
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).VirtualizingCollection()
+  nameWithType: VirtualizingCollection<T>.VirtualizingCollection()
+  nameWithType.vb: VirtualizingCollection(Of T).VirtualizingCollection()
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.#ctor(DataVirtualizationLibrary.IItemsProvider{`0})
+  name: VirtualizingCollection(IItemsProvider<T>)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1__ctor_DataVirtualizationLibrary_IItemsProvider__0__
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.#ctor(DataVirtualizationLibrary.IItemsProvider{`0})
+  name.vb: VirtualizingCollection(IItemsProvider(Of T))
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.VirtualizingCollection(DataVirtualizationLibrary.IItemsProvider<T>)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).VirtualizingCollection(DataVirtualizationLibrary.IItemsProvider(Of T))
+  nameWithType: VirtualizingCollection<T>.VirtualizingCollection(IItemsProvider<T>)
+  nameWithType.vb: VirtualizingCollection(Of T).VirtualizingCollection(IItemsProvider(Of T))
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.#ctor(DataVirtualizationLibrary.IItemsProvider{`0},System.Int32)
+  name: VirtualizingCollection(IItemsProvider<T>, Int32)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1__ctor_DataVirtualizationLibrary_IItemsProvider__0__System_Int32_
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.#ctor(DataVirtualizationLibrary.IItemsProvider{`0},System.Int32)
+  name.vb: VirtualizingCollection(IItemsProvider(Of T), Int32)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.VirtualizingCollection(DataVirtualizationLibrary.IItemsProvider<T>, System.Int32)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).VirtualizingCollection(DataVirtualizationLibrary.IItemsProvider(Of T), System.Int32)
+  nameWithType: VirtualizingCollection<T>.VirtualizingCollection(IItemsProvider<T>, Int32)
+  nameWithType.vb: VirtualizingCollection(Of T).VirtualizingCollection(IItemsProvider(Of T), Int32)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.#ctor(DataVirtualizationLibrary.IItemsProvider{`0},System.Int32,System.Int32)
+  name: VirtualizingCollection(IItemsProvider<T>, Int32, Int32)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1__ctor_DataVirtualizationLibrary_IItemsProvider__0__System_Int32_System_Int32_
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.#ctor(DataVirtualizationLibrary.IItemsProvider{`0},System.Int32,System.Int32)
+  name.vb: VirtualizingCollection(IItemsProvider(Of T), Int32, Int32)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.VirtualizingCollection(DataVirtualizationLibrary.IItemsProvider<T>, System.Int32, System.Int32)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).VirtualizingCollection(DataVirtualizationLibrary.IItemsProvider(Of T), System.Int32, System.Int32)
+  nameWithType: VirtualizingCollection<T>.VirtualizingCollection(IItemsProvider<T>, Int32, Int32)
+  nameWithType.vb: VirtualizingCollection(Of T).VirtualizingCollection(IItemsProvider(Of T), Int32, Int32)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.#ctor*
+  name: VirtualizingCollection
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1__ctor_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.#ctor
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.VirtualizingCollection
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).VirtualizingCollection
+  nameWithType: VirtualizingCollection<T>.VirtualizingCollection
+  nameWithType.vb: VirtualizingCollection(Of T).VirtualizingCollection
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.Add(`0)
+  name: Add(T)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_Add__0_
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.Add(`0)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.Add(T)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).Add(T)
+  nameWithType: VirtualizingCollection<T>.Add(T)
+  nameWithType.vb: VirtualizingCollection(Of T).Add(T)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.Add*
+  name: Add
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_Add_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.Add
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.Add
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).Add
+  nameWithType: VirtualizingCollection<T>.Add
+  nameWithType.vb: VirtualizingCollection(Of T).Add
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.CleanUpPages
+  name: CleanUpPages()
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_CleanUpPages
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.CleanUpPages
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.CleanUpPages()
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).CleanUpPages()
+  nameWithType: VirtualizingCollection<T>.CleanUpPages()
+  nameWithType.vb: VirtualizingCollection(Of T).CleanUpPages()
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.CleanUpPages*
+  name: CleanUpPages
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_CleanUpPages_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.CleanUpPages
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.CleanUpPages
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).CleanUpPages
+  nameWithType: VirtualizingCollection<T>.CleanUpPages
+  nameWithType.vb: VirtualizingCollection(Of T).CleanUpPages
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.Clear
+  name: Clear()
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_Clear
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.Clear
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.Clear()
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).Clear()
+  nameWithType: VirtualizingCollection<T>.Clear()
+  nameWithType.vb: VirtualizingCollection(Of T).Clear()
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.Clear*
+  name: Clear
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_Clear_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.Clear
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.Clear
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).Clear
+  nameWithType: VirtualizingCollection<T>.Clear
+  nameWithType.vb: VirtualizingCollection(Of T).Clear
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.Contains(`0)
+  name: Contains(T)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_Contains__0_
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.Contains(`0)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.Contains(T)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).Contains(T)
+  nameWithType: VirtualizingCollection<T>.Contains(T)
+  nameWithType.vb: VirtualizingCollection(Of T).Contains(T)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.Contains*
+  name: Contains
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_Contains_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.Contains
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.Contains
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).Contains
+  nameWithType: VirtualizingCollection<T>.Contains
+  nameWithType.vb: VirtualizingCollection(Of T).Contains
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.CopyTo(`0[],System.Int32)
+  name: CopyTo(T[], Int32)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_CopyTo__0___System_Int32_
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.CopyTo(`0[],System.Int32)
+  name.vb: CopyTo(T(), Int32)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.CopyTo(T[], System.Int32)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).CopyTo(T(), System.Int32)
+  nameWithType: VirtualizingCollection<T>.CopyTo(T[], Int32)
+  nameWithType.vb: VirtualizingCollection(Of T).CopyTo(T(), Int32)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.CopyTo*
+  name: CopyTo
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_CopyTo_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.CopyTo
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.CopyTo
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).CopyTo
+  nameWithType: VirtualizingCollection<T>.CopyTo
+  nameWithType.vb: VirtualizingCollection(Of T).CopyTo
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.Count
+  name: Count
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_Count
+  commentId: P:DataVirtualizationLibrary.VirtualizingCollection`1.Count
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.Count
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).Count
+  nameWithType: VirtualizingCollection<T>.Count
+  nameWithType.vb: VirtualizingCollection(Of T).Count
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.Count*
+  name: Count
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_Count_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.Count
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.Count
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).Count
+  nameWithType: VirtualizingCollection<T>.Count
+  nameWithType.vb: VirtualizingCollection(Of T).Count
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.FetchCount
+  name: FetchCount()
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_FetchCount
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.FetchCount
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.FetchCount()
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).FetchCount()
+  nameWithType: VirtualizingCollection<T>.FetchCount()
+  nameWithType.vb: VirtualizingCollection(Of T).FetchCount()
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.FetchCount*
+  name: FetchCount
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_FetchCount_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.FetchCount
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.FetchCount
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).FetchCount
+  nameWithType: VirtualizingCollection<T>.FetchCount
+  nameWithType.vb: VirtualizingCollection(Of T).FetchCount
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.FetchPage(System.Int32)
+  name: FetchPage(Int32)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_FetchPage_System_Int32_
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.FetchPage(System.Int32)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.FetchPage(System.Int32)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).FetchPage(System.Int32)
+  nameWithType: VirtualizingCollection<T>.FetchPage(Int32)
+  nameWithType.vb: VirtualizingCollection(Of T).FetchPage(Int32)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.FetchPage*
+  name: FetchPage
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_FetchPage_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.FetchPage
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.FetchPage
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).FetchPage
+  nameWithType: VirtualizingCollection<T>.FetchPage
+  nameWithType.vb: VirtualizingCollection(Of T).FetchPage
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.GetEnumerator
+  name: GetEnumerator()
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_GetEnumerator
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.GetEnumerator
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.GetEnumerator()
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).GetEnumerator()
+  nameWithType: VirtualizingCollection<T>.GetEnumerator()
+  nameWithType.vb: VirtualizingCollection(Of T).GetEnumerator()
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.GetEnumerator*
+  name: GetEnumerator
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_GetEnumerator_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.GetEnumerator
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.GetEnumerator
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).GetEnumerator
+  nameWithType: VirtualizingCollection<T>.GetEnumerator
+  nameWithType.vb: VirtualizingCollection(Of T).GetEnumerator
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.IndexOf(`0)
+  name: IndexOf(T)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_IndexOf__0_
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.IndexOf(`0)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.IndexOf(T)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).IndexOf(T)
+  nameWithType: VirtualizingCollection<T>.IndexOf(T)
+  nameWithType.vb: VirtualizingCollection(Of T).IndexOf(T)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.IndexOf*
+  name: IndexOf
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_IndexOf_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.IndexOf
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.IndexOf
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).IndexOf
+  nameWithType: VirtualizingCollection<T>.IndexOf
+  nameWithType.vb: VirtualizingCollection(Of T).IndexOf
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.Insert(System.Int32,`0)
+  name: Insert(Int32, T)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_Insert_System_Int32__0_
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.Insert(System.Int32,`0)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.Insert(System.Int32, T)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).Insert(System.Int32, T)
+  nameWithType: VirtualizingCollection<T>.Insert(Int32, T)
+  nameWithType.vb: VirtualizingCollection(Of T).Insert(Int32, T)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.Insert*
+  name: Insert
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_Insert_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.Insert
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.Insert
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).Insert
+  nameWithType: VirtualizingCollection<T>.Insert
+  nameWithType.vb: VirtualizingCollection(Of T).Insert
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.IsFixedSize
+  name: IsFixedSize
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_IsFixedSize
+  commentId: P:DataVirtualizationLibrary.VirtualizingCollection`1.IsFixedSize
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.IsFixedSize
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).IsFixedSize
+  nameWithType: VirtualizingCollection<T>.IsFixedSize
+  nameWithType.vb: VirtualizingCollection(Of T).IsFixedSize
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.IsFixedSize*
+  name: IsFixedSize
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_IsFixedSize_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.IsFixedSize
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.IsFixedSize
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).IsFixedSize
+  nameWithType: VirtualizingCollection<T>.IsFixedSize
+  nameWithType.vb: VirtualizingCollection(Of T).IsFixedSize
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.IsLoading
+  name: IsLoading
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_IsLoading
+  commentId: P:DataVirtualizationLibrary.VirtualizingCollection`1.IsLoading
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.IsLoading
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).IsLoading
+  nameWithType: VirtualizingCollection<T>.IsLoading
+  nameWithType.vb: VirtualizingCollection(Of T).IsLoading
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.IsLoading*
+  name: IsLoading
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_IsLoading_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.IsLoading
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.IsLoading
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).IsLoading
+  nameWithType: VirtualizingCollection<T>.IsLoading
+  nameWithType.vb: VirtualizingCollection(Of T).IsLoading
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.IsReadOnly
+  name: IsReadOnly
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_IsReadOnly
+  commentId: P:DataVirtualizationLibrary.VirtualizingCollection`1.IsReadOnly
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.IsReadOnly
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).IsReadOnly
+  nameWithType: VirtualizingCollection<T>.IsReadOnly
+  nameWithType.vb: VirtualizingCollection(Of T).IsReadOnly
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.IsReadOnly*
+  name: IsReadOnly
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_IsReadOnly_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.IsReadOnly
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.IsReadOnly
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).IsReadOnly
+  nameWithType: VirtualizingCollection<T>.IsReadOnly
+  nameWithType.vb: VirtualizingCollection(Of T).IsReadOnly
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.IsSynchronized
+  name: IsSynchronized
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_IsSynchronized
+  commentId: P:DataVirtualizationLibrary.VirtualizingCollection`1.IsSynchronized
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.IsSynchronized
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).IsSynchronized
+  nameWithType: VirtualizingCollection<T>.IsSynchronized
+  nameWithType.vb: VirtualizingCollection(Of T).IsSynchronized
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.IsSynchronized*
+  name: IsSynchronized
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_IsSynchronized_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.IsSynchronized
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.IsSynchronized
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).IsSynchronized
+  nameWithType: VirtualizingCollection<T>.IsSynchronized
+  nameWithType.vb: VirtualizingCollection(Of T).IsSynchronized
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.Item(System.Int32)
+  name: Item[Int32]
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_Item_System_Int32_
+  commentId: P:DataVirtualizationLibrary.VirtualizingCollection`1.Item(System.Int32)
+  name.vb: Item(Int32)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.Item[System.Int32]
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).Item(System.Int32)
+  nameWithType: VirtualizingCollection<T>.Item[Int32]
+  nameWithType.vb: VirtualizingCollection(Of T).Item(Int32)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.Item*
+  name: Item
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_Item_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.Item
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.Item
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).Item
+  nameWithType: VirtualizingCollection<T>.Item
+  nameWithType.vb: VirtualizingCollection(Of T).Item
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.ItemsProvider
+  name: ItemsProvider
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_ItemsProvider
+  commentId: P:DataVirtualizationLibrary.VirtualizingCollection`1.ItemsProvider
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.ItemsProvider
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).ItemsProvider
+  nameWithType: VirtualizingCollection<T>.ItemsProvider
+  nameWithType.vb: VirtualizingCollection(Of T).ItemsProvider
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.ItemsProvider*
+  name: ItemsProvider
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_ItemsProvider_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.ItemsProvider
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.ItemsProvider
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).ItemsProvider
+  nameWithType: VirtualizingCollection<T>.ItemsProvider
+  nameWithType.vb: VirtualizingCollection(Of T).ItemsProvider
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.LoadCount
+  name: LoadCount()
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_LoadCount
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.LoadCount
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.LoadCount()
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).LoadCount()
+  nameWithType: VirtualizingCollection<T>.LoadCount()
+  nameWithType.vb: VirtualizingCollection(Of T).LoadCount()
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.LoadCount*
+  name: LoadCount
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_LoadCount_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.LoadCount
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.LoadCount
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).LoadCount
+  nameWithType: VirtualizingCollection<T>.LoadCount
+  nameWithType.vb: VirtualizingCollection(Of T).LoadCount
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.LoadPage(System.Int32)
+  name: LoadPage(Int32)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_LoadPage_System_Int32_
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.LoadPage(System.Int32)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.LoadPage(System.Int32)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).LoadPage(System.Int32)
+  nameWithType: VirtualizingCollection<T>.LoadPage(Int32)
+  nameWithType.vb: VirtualizingCollection(Of T).LoadPage(Int32)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.LoadPage*
+  name: LoadPage
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_LoadPage_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.LoadPage
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.LoadPage
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).LoadPage
+  nameWithType: VirtualizingCollection<T>.LoadPage
+  nameWithType.vb: VirtualizingCollection(Of T).LoadPage
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.PageSize
+  name: PageSize
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_PageSize
+  commentId: P:DataVirtualizationLibrary.VirtualizingCollection`1.PageSize
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.PageSize
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).PageSize
+  nameWithType: VirtualizingCollection<T>.PageSize
+  nameWithType.vb: VirtualizingCollection(Of T).PageSize
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.PageSize*
+  name: PageSize
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_PageSize_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.PageSize
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.PageSize
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).PageSize
+  nameWithType: VirtualizingCollection<T>.PageSize
+  nameWithType.vb: VirtualizingCollection(Of T).PageSize
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.PageTimeout
+  name: PageTimeout
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_PageTimeout
+  commentId: P:DataVirtualizationLibrary.VirtualizingCollection`1.PageTimeout
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.PageTimeout
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).PageTimeout
+  nameWithType: VirtualizingCollection<T>.PageTimeout
+  nameWithType.vb: VirtualizingCollection(Of T).PageTimeout
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.PageTimeout*
+  name: PageTimeout
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_PageTimeout_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.PageTimeout
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.PageTimeout
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).PageTimeout
+  nameWithType: VirtualizingCollection<T>.PageTimeout
+  nameWithType.vb: VirtualizingCollection(Of T).PageTimeout
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.PopulatePage(System.Int32,System.Collections.Generic.IList{`0})
+  name: PopulatePage(Int32, IList<T>)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_PopulatePage_System_Int32_System_Collections_Generic_IList__0__
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.PopulatePage(System.Int32,System.Collections.Generic.IList{`0})
+  name.vb: PopulatePage(Int32, IList(Of T))
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.PopulatePage(System.Int32, System.Collections.Generic.IList<T>)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).PopulatePage(System.Int32, System.Collections.Generic.IList(Of T))
+  nameWithType: VirtualizingCollection<T>.PopulatePage(Int32, IList<T>)
+  nameWithType.vb: VirtualizingCollection(Of T).PopulatePage(Int32, IList(Of T))
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.PopulatePage*
+  name: PopulatePage
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_PopulatePage_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.PopulatePage
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.PopulatePage
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).PopulatePage
+  nameWithType: VirtualizingCollection<T>.PopulatePage
+  nameWithType.vb: VirtualizingCollection(Of T).PopulatePage
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.Refresh
+  name: Refresh()
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_Refresh
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.Refresh
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.Refresh()
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).Refresh()
+  nameWithType: VirtualizingCollection<T>.Refresh()
+  nameWithType.vb: VirtualizingCollection(Of T).Refresh()
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.Refresh*
+  name: Refresh
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_Refresh_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.Refresh
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.Refresh
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).Refresh
+  nameWithType: VirtualizingCollection<T>.Refresh
+  nameWithType.vb: VirtualizingCollection(Of T).Refresh
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.Remove(`0)
+  name: Remove(T)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_Remove__0_
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.Remove(`0)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.Remove(T)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).Remove(T)
+  nameWithType: VirtualizingCollection<T>.Remove(T)
+  nameWithType.vb: VirtualizingCollection(Of T).Remove(T)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.Remove*
+  name: Remove
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_Remove_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.Remove
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.Remove
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).Remove
+  nameWithType: VirtualizingCollection<T>.Remove
+  nameWithType.vb: VirtualizingCollection(Of T).Remove
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.RemoveAt(System.Int32)
+  name: RemoveAt(Int32)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_RemoveAt_System_Int32_
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.RemoveAt(System.Int32)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.RemoveAt(System.Int32)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).RemoveAt(System.Int32)
+  nameWithType: VirtualizingCollection<T>.RemoveAt(Int32)
+  nameWithType.vb: VirtualizingCollection(Of T).RemoveAt(Int32)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.RemoveAt*
+  name: RemoveAt
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_RemoveAt_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.RemoveAt
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.RemoveAt
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).RemoveAt
+  nameWithType: VirtualizingCollection<T>.RemoveAt
+  nameWithType.vb: VirtualizingCollection(Of T).RemoveAt
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.RequestPage(System.Int32)
+  name: RequestPage(Int32)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_RequestPage_System_Int32_
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.RequestPage(System.Int32)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.RequestPage(System.Int32)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).RequestPage(System.Int32)
+  nameWithType: VirtualizingCollection<T>.RequestPage(Int32)
+  nameWithType.vb: VirtualizingCollection(Of T).RequestPage(Int32)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.RequestPage*
+  name: RequestPage
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_RequestPage_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.RequestPage
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.RequestPage
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).RequestPage
+  nameWithType: VirtualizingCollection<T>.RequestPage
+  nameWithType.vb: VirtualizingCollection(Of T).RequestPage
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.sortColumn
+  name: sortColumn
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_sortColumn
+  commentId: P:DataVirtualizationLibrary.VirtualizingCollection`1.sortColumn
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.sortColumn
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).sortColumn
+  nameWithType: VirtualizingCollection<T>.sortColumn
+  nameWithType.vb: VirtualizingCollection(Of T).sortColumn
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.sortColumn*
+  name: sortColumn
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_sortColumn_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.sortColumn
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.sortColumn
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).sortColumn
+  nameWithType: VirtualizingCollection<T>.sortColumn
+  nameWithType.vb: VirtualizingCollection(Of T).sortColumn
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.SyncRoot
+  name: SyncRoot
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_SyncRoot
+  commentId: P:DataVirtualizationLibrary.VirtualizingCollection`1.SyncRoot
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.SyncRoot
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).SyncRoot
+  nameWithType: VirtualizingCollection<T>.SyncRoot
+  nameWithType.vb: VirtualizingCollection(Of T).SyncRoot
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.SyncRoot*
+  name: SyncRoot
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_SyncRoot_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.SyncRoot
+  isSpec: "True"
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.SyncRoot
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).SyncRoot
+  nameWithType: VirtualizingCollection<T>.SyncRoot
+  nameWithType.vb: VirtualizingCollection(Of T).SyncRoot
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#ICollection#CopyTo(System.Array,System.Int32)
+  name: ICollection.CopyTo(Array, Int32)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_ICollection_CopyTo_System_Array_System_Int32_
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#ICollection#CopyTo(System.Array,System.Int32)
+  name.vb: System.Collections.ICollection.CopyTo(Array, Int32)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.System.Collections.ICollection.CopyTo(System.Array, System.Int32)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).System.Collections.ICollection.CopyTo(System.Array, System.Int32)
+  nameWithType: VirtualizingCollection<T>.ICollection.CopyTo(Array, Int32)
+  nameWithType.vb: VirtualizingCollection(Of T).System.Collections.ICollection.CopyTo(Array, Int32)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#ICollection#CopyTo*
+  name: ICollection.CopyTo
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_ICollection_CopyTo_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#ICollection#CopyTo
+  isSpec: "True"
+  name.vb: System.Collections.ICollection.CopyTo
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.System.Collections.ICollection.CopyTo
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).System.Collections.ICollection.CopyTo
+  nameWithType: VirtualizingCollection<T>.ICollection.CopyTo
+  nameWithType.vb: VirtualizingCollection(Of T).System.Collections.ICollection.CopyTo
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IEnumerable#GetEnumerator
+  name: IEnumerable.GetEnumerator()
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IEnumerable_GetEnumerator
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IEnumerable#GetEnumerator
+  name.vb: System.Collections.IEnumerable.GetEnumerator()
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.System.Collections.IEnumerable.GetEnumerator()
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).System.Collections.IEnumerable.GetEnumerator()
+  nameWithType: VirtualizingCollection<T>.IEnumerable.GetEnumerator()
+  nameWithType.vb: VirtualizingCollection(Of T).System.Collections.IEnumerable.GetEnumerator()
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IEnumerable#GetEnumerator*
+  name: IEnumerable.GetEnumerator
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IEnumerable_GetEnumerator_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IEnumerable#GetEnumerator
+  isSpec: "True"
+  name.vb: System.Collections.IEnumerable.GetEnumerator
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.System.Collections.IEnumerable.GetEnumerator
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).System.Collections.IEnumerable.GetEnumerator
+  nameWithType: VirtualizingCollection<T>.IEnumerable.GetEnumerator
+  nameWithType.vb: VirtualizingCollection(Of T).System.Collections.IEnumerable.GetEnumerator
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Add(System.Object)
+  name: IList.Add(Object)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Add_System_Object_
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Add(System.Object)
+  name.vb: System.Collections.IList.Add(Object)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.System.Collections.IList.Add(System.Object)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).System.Collections.IList.Add(System.Object)
+  nameWithType: VirtualizingCollection<T>.IList.Add(Object)
+  nameWithType.vb: VirtualizingCollection(Of T).System.Collections.IList.Add(Object)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Add*
+  name: IList.Add
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Add_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Add
+  isSpec: "True"
+  name.vb: System.Collections.IList.Add
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.System.Collections.IList.Add
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).System.Collections.IList.Add
+  nameWithType: VirtualizingCollection<T>.IList.Add
+  nameWithType.vb: VirtualizingCollection(Of T).System.Collections.IList.Add
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Contains(System.Object)
+  name: IList.Contains(Object)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Contains_System_Object_
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Contains(System.Object)
+  name.vb: System.Collections.IList.Contains(Object)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.System.Collections.IList.Contains(System.Object)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).System.Collections.IList.Contains(System.Object)
+  nameWithType: VirtualizingCollection<T>.IList.Contains(Object)
+  nameWithType.vb: VirtualizingCollection(Of T).System.Collections.IList.Contains(Object)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Contains*
+  name: IList.Contains
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Contains_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Contains
+  isSpec: "True"
+  name.vb: System.Collections.IList.Contains
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.System.Collections.IList.Contains
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).System.Collections.IList.Contains
+  nameWithType: VirtualizingCollection<T>.IList.Contains
+  nameWithType.vb: VirtualizingCollection(Of T).System.Collections.IList.Contains
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#IndexOf(System.Object)
+  name: IList.IndexOf(Object)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_IndexOf_System_Object_
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#IndexOf(System.Object)
+  name.vb: System.Collections.IList.IndexOf(Object)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.System.Collections.IList.IndexOf(System.Object)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).System.Collections.IList.IndexOf(System.Object)
+  nameWithType: VirtualizingCollection<T>.IList.IndexOf(Object)
+  nameWithType.vb: VirtualizingCollection(Of T).System.Collections.IList.IndexOf(Object)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#IndexOf*
+  name: IList.IndexOf
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_IndexOf_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#IndexOf
+  isSpec: "True"
+  name.vb: System.Collections.IList.IndexOf
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.System.Collections.IList.IndexOf
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).System.Collections.IList.IndexOf
+  nameWithType: VirtualizingCollection<T>.IList.IndexOf
+  nameWithType.vb: VirtualizingCollection(Of T).System.Collections.IList.IndexOf
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Insert(System.Int32,System.Object)
+  name: IList.Insert(Int32, Object)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Insert_System_Int32_System_Object_
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Insert(System.Int32,System.Object)
+  name.vb: System.Collections.IList.Insert(Int32, Object)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.System.Collections.IList.Insert(System.Int32, System.Object)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).System.Collections.IList.Insert(System.Int32, System.Object)
+  nameWithType: VirtualizingCollection<T>.IList.Insert(Int32, Object)
+  nameWithType.vb: VirtualizingCollection(Of T).System.Collections.IList.Insert(Int32, Object)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Insert*
+  name: IList.Insert
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Insert_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Insert
+  isSpec: "True"
+  name.vb: System.Collections.IList.Insert
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.System.Collections.IList.Insert
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).System.Collections.IList.Insert
+  nameWithType: VirtualizingCollection<T>.IList.Insert
+  nameWithType.vb: VirtualizingCollection(Of T).System.Collections.IList.Insert
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Item(System.Int32)
+  name: IList.Item[Int32]
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Item_System_Int32_
+  commentId: P:DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Item(System.Int32)
+  name.vb: System.Collections.IList.Item(Int32)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.System.Collections.IList.Item[System.Int32]
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).System.Collections.IList.Item(System.Int32)
+  nameWithType: VirtualizingCollection<T>.IList.Item[Int32]
+  nameWithType.vb: VirtualizingCollection(Of T).System.Collections.IList.Item(Int32)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Item*
+  name: IList.Item
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Item_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Item
+  isSpec: "True"
+  name.vb: System.Collections.IList.Item
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.System.Collections.IList.Item
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).System.Collections.IList.Item
+  nameWithType: VirtualizingCollection<T>.IList.Item
+  nameWithType.vb: VirtualizingCollection(Of T).System.Collections.IList.Item
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Remove(System.Object)
+  name: IList.Remove(Object)
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Remove_System_Object_
+  commentId: M:DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Remove(System.Object)
+  name.vb: System.Collections.IList.Remove(Object)
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.System.Collections.IList.Remove(System.Object)
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).System.Collections.IList.Remove(System.Object)
+  nameWithType: VirtualizingCollection<T>.IList.Remove(Object)
+  nameWithType.vb: VirtualizingCollection(Of T).System.Collections.IList.Remove(Object)
+- uid: DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Remove*
+  name: IList.Remove
+  href: api/DataVirtualizationLibrary.VirtualizingCollection-1.html#DataVirtualizationLibrary_VirtualizingCollection_1_System_Collections_IList_Remove_
+  commentId: Overload:DataVirtualizationLibrary.VirtualizingCollection`1.System#Collections#IList#Remove
+  isSpec: "True"
+  name.vb: System.Collections.IList.Remove
+  fullName: DataVirtualizationLibrary.VirtualizingCollection<T>.System.Collections.IList.Remove
+  fullName.vb: DataVirtualizationLibrary.VirtualizingCollection(Of T).System.Collections.IList.Remove
+  nameWithType: VirtualizingCollection<T>.IList.Remove
+  nameWithType.vb: VirtualizingCollection(Of T).System.Collections.IList.Remove

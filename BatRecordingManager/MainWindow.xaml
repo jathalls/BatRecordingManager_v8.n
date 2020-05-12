@@ -93,6 +93,10 @@
                         Click="MiFilter_Click"
                         Header="Filter"
                         ToolTip="Extract files with keywords to a sub-folder" />
+                    <MenuItem
+                        x:Name="miAnalyse"
+                        Header="Pulse Train Analysis"
+                        ToolTip="Analyse files for detailed parameters for each pulse" Click="miAnalyse_Click"/>
                 </MenuItem>
                 <MenuItem x:Name="MainMenuHelp" Header="Help">
                     <MenuItem

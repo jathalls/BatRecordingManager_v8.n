@@ -21,7 +21,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
-using FluentAssertions;
+//using FluentAssertions;
 using Microsoft.VisualStudio.Language.Intellisense;
 using NAudio.Wave;
 

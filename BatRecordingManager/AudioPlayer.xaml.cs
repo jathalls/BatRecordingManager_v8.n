@@ -24,6 +24,9 @@ using System.Windows.Controls;
 using Microsoft.VisualStudio.Language.Intellisense;
 using NAudio.Wave;
 
+
+
+
 namespace BatRecordingManager
 {
     /// <summary>
@@ -283,7 +286,7 @@ namespace BatRecordingManager
         {
             get => (double) GetValue(FrequencyProperty);
             set
-            {
+            { 
                 if (_wrapper != null) _wrapper.Frequency = (decimal) value;
                 SetValue(FrequencyProperty, value);
             }
