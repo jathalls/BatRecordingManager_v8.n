@@ -6,7 +6,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:BatPassAnalysisFW"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" >
+             d:DesignHeight="500" d:DesignWidth="1000" >
     <Grid>
         <DockPanel 
             HorizontalAlignment="Stretch" 
@@ -30,6 +30,8 @@
                         </MenuItem>
                         <MenuItem x:Name="settings" Header="Settings" Click="Settings_Click"
                                   ToolTip="Make permanent adjustments to selection criteria"/>
+                        <MenuItem x:Name="miSaveToDB" Header="Save To DB" IsEnabled="False"
+                                  ToolTip="Save the displayed data to the local database" Click="miSaveToDB_Click"/>
                         <Separator/>
                         <MenuItem x:Name="Exit" Header="Exit" Click="Exit_Click"
                                   ToolTip="Close the window"/>
@@ -62,6 +64,7 @@
                 </TabItem>
                 <TabItem
                     x:Name="EnvelopeTab"
+                    IsEnabled="{Binding EnvelopeEnabled}"
                     Header="Envelope">
                     <Image 
                         x:Name="EnvelopeImage"
@@ -71,6 +74,7 @@
                 </TabItem>
                 <TabItem
                     x:Name="SpectrumTab"
+                    IsEnabled="{Binding SpectrumEnabled}"
                     Header="Spectrum">
                     <Image 
                         x:Name="SpectrumImage" 
@@ -80,6 +84,7 @@
                 </TabItem>
                 <TabItem
                     x:Name="AutoCorTab"
+                    IsEnabled="{Binding AutoCorEnabled}"
                     Header="AutoCorrelation">
                     <Image 
                         x:Name="AutoCorImage" 
@@ -87,8 +92,8 @@
                         HorizontalAlignment="Stretch" 
                         VerticalAlignment="Stretch" />
                 </TabItem>
-                
-                    
+
+
             </TabControl>
         </DockPanel>
 

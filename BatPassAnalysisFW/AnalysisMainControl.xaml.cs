@@ -33,7 +33,7 @@ namespace BatPassAnalysisFW
 
         public AnalysisMainControl()
         {
-            
+            PTA_DBAccess.InitialiseDatabase();
             InitializeComponent();
             try
             {
@@ -90,8 +90,21 @@ namespace BatPassAnalysisFW
                 {
                     if(File.Exists(entry) || Directory.Exists(entry))
                     {
-                        AnalysisTable.ClearTabledata();
-                        AnalysisTable.ProcessFile(entry);
+                        using (new WaitCursor())
+                        {
+                            AnalysisTable.ClearTabledata();
+                            miSaveToDB.IsEnabled = false;
+                            try
+                            {
+                                AnalysisTable.ProcessFile(entry);
+                                miSaveToDB.IsEnabled = true;
+                            }
+                            catch (Exception ex)
+                            {
+                                ErrorLog("Process File Failed:- " + ex.Message);
+                            }
+                        }
+                        
                     }
                 }
             }
@@ -109,7 +122,7 @@ namespace BatPassAnalysisFW
         private void FileOpen_Click(object sender, RoutedEventArgs e)
         {
 
-            string selectedFileName;
+            string selectedFQ_FileName;
             string initialDirectory = CrossSettings.Current.Get<string>("InitialDirectory");
             if (!Directory.Exists(initialDirectory??""))
             {
@@ -135,25 +148,33 @@ namespace BatPassAnalysisFW
                 if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                     //HeaderFileName = dialog.FileName;
                     //folderPath = System.IO.Path.GetDirectoryName(dialog.FileName);
-                    selectedFileName = dialog.FileName;
+                    selectedFQ_FileName = dialog.FileName;
                 else
                     return;
             }
-            try
+            using (new WaitCursor())
             {
-                AnalysisTable.ClearTabledata();
-            }catch(Exception ex)
-            {
-                AnalysisMainControl.ErrorLog($"Error clearing Tabledata in FileOpen:{ex.Message}");
-            }
+                try
+                {
+                    AnalysisTable.ClearTabledata();
+                    miSaveToDB.IsEnabled = false;
+                }
+                catch (Exception ex)
+                {
+                    AnalysisMainControl.ErrorLog($"Error clearing Tabledata in FileOpen:{ex.Message}");
+                }
 
-            try
-            {
-                AnalysisTable.ProcessFile(selectedFileName);
+                try
+                {
+                    AnalysisTable.ProcessFile(selectedFQ_FileName);
+                    miSaveToDB.IsEnabled = true;
 
-            }catch(Exception ex)
-            {
-                AnalysisMainControl.ErrorLog($"FileOpenError in processFile:{ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    AnalysisMainControl.ErrorLog($"FileOpenError in processFile:{ex.Message}");
+                    miSaveToDB.IsEnabled = false;
+                }
             }
 
 
@@ -212,6 +233,20 @@ namespace BatPassAnalysisFW
         {
             var helpfile = @"Bat Pulse Analyser.chm";
             if (File.Exists(helpfile)) Help.ShowHelp(null, helpfile);
+        }
+
+        /// <summary>
+        /// Saves the displayed data set to the local database, updating or creating records
+        /// as necessary
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void miSaveToDB_Click(object sender, RoutedEventArgs e)
+        {
+            using (new WaitCursor())
+            {
+                AnalysisTable.tableData.SaveToDatabase();
+            }
         }
     }
 }

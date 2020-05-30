@@ -127,6 +127,14 @@ namespace BatPassAnalysisFW
             }
         }
 
+        private bool _envelopeEnabled = false;
+        public bool EnvelopeEnabled {
+            get { return _envelopeEnabled; }
+            set { _envelopeEnabled = value;
+                NotifyPropertyChanged(nameof(EnvelopeEnabled));
+            }
+        } 
+
         private BitmapImage _spectrumImage;
         public BitmapImage SpectrumImage 
         {
@@ -141,6 +149,17 @@ namespace BatPassAnalysisFW
             }
         }
 
+        private bool _spectrumEnabled = false;
+        public bool SpectrumEnabled
+        {
+            get { return _spectrumEnabled; }
+            set
+            {
+                _spectrumEnabled = value;
+                NotifyPropertyChanged(nameof(SpectrumEnabled));
+            }
+        }
+
         private BitmapImage _correlationImage;
         public BitmapImage CorrelationImage
         {
@@ -152,6 +171,17 @@ namespace BatPassAnalysisFW
             {
                 _correlationImage = value;
                 NotifyPropertyChanged(nameof(CorrelationImage));
+            }
+        }
+
+        private bool _autoCorEnabled = false;
+        public bool AutoCorEnabled
+        {
+            get { return _autoCorEnabled; }
+            set
+            {
+                _autoCorEnabled = value;
+                NotifyPropertyChanged(nameof(AutoCorEnabled));
             }
         }
 
@@ -261,14 +291,25 @@ namespace BatPassAnalysisFW
         internal void RefreshFrequencyheader()
         {
             int? sampleRate = 384000;
-            
-            sampleRate = combinedPassList?.First().SampleRate;
+            if (combinedPassList != null && combinedPassList.Any())
+            {
+                sampleRate = combinedPassList?.First().SampleRate;
+            }
             if (sampleRate == null)
             {
                 sampleRate = 384000;
             }
             FrequencyHeader = createFrequencyHeaderBitmap((int)(sampleRate.Value / 1000.0f));
             
+        }
+
+        internal void SaveToDatabase()
+        {
+            foreach(var rec in combinedRecordingList)
+            {
+                
+                PTA_DBAccess.SaveRecording(rec);
+            }
         }
 
         /// <summary>
@@ -366,6 +407,8 @@ namespace BatPassAnalysisFW
         /// <param name="selectedItems"></param>
         public void spectralPeakDataGrid_SelectionChanged(IList selectedItems)
         {
+            SpectrumEnabled = false;
+            AutoCorEnabled = false;
             if (selectedItems != null && selectedItems.Count == 1)
             {
                 if (selectedItems[0] != null)
@@ -379,22 +422,30 @@ namespace BatPassAnalysisFW
 
                         var details = pulse.GetSpectrumDetails();
                         var peakList = details.spectralPeakList;
-                        var fft = details.getFFT();
-                        float[] autoCorr = details.getAutoCorrelation(byFft:true);
+                        List<float> corrData = new List<float>();
+                        List<float> fftData = new List<float>();
+                         pulse.getFFT(out fftData, out corrData);
+                        //float[] autoCorr = pulse.getAutoCorrelation(byFft:true);
 
                         //ObservableList<Peak> peakList = new ObservableList<Peak>();
 
-                        var bmp = PassAnalysis.GetBitmap(fft.ToList<float>(), ref peakList, spectrumFactor);
+                        
+                        var bmp = PassAnalysis.GetBitmap(ref fftData, ref peakList, spectrumFactor);
                         var bmpi = bpaPass.loadBitmap(bmp);
                         SpectrumImage = bmpi;
+                        SpectrumEnabled = true;
                         ObservableList<Peak> emptyList = new ObservableList<Peak>();
-                        var acBmp = PassAnalysis.GetBitmap(autoCorr.ToList<float>(), ref emptyList, 0.0m);
+                        //var corrData = autoCorr.ToList<float>();
+                        var acBmp = PassAnalysis.GetBitmap(ref corrData, ref emptyList, 0.0m);
                         CorrelationImage = bpaPass.loadBitmap(acBmp);
+                        AutoCorEnabled = true;
                         //OnBmpiCreated(new BmpiEventArgs(bmpi,BmpiEventArgs.ImageType.SPECTRUM));
 
-                        float[] TDCorrelation = details.getAutoCorrelation(byFft: false);
-                        bmp = PassAnalysis.GetBitmap(TDCorrelation.ToList<float>(), ref emptyList, 0.0m);
-                        TDCorrelationImage = bpaPass.loadBitmap(bmp);
+                        //float[] TDCorrelation = details.getAutoCorrelation(byFft: false);
+
+                        //var TDCorrData = TDCorrelation.ToList<float>();
+                        //bmp = PassAnalysis.GetBitmap(ref TDCorrData, ref emptyList, 0.0m);
+                        //TDCorrelationImage = bpaPass.loadBitmap(bmp);
                     }
 
                 }
@@ -480,7 +531,7 @@ namespace BatPassAnalysisFW
                         bpaPass pass = item as bpaPass;
                         if (selectedItems.Count == 1)
                         {
-                            DisplayEnvelope(pass);
+                            //DisplayEnvelope(pass);
                         }
                         foreach(var pulse in pass.getPulseList())
                         {
@@ -492,22 +543,26 @@ namespace BatPassAnalysisFW
                     }
                 }
             }
+            EnvelopeEnabled = false;
 
             pulseDataGrid_SelectionChange(combinedPulseList);
             
             
         }
 
+
+
         /// <summary>
         /// Given a pass, extracts the envelope and displays that in a bitmapImage.
         /// The BitmapImage is passed through an event handler to a window which can display it.
         /// </summary>
         /// <param name="pass"></param>
-        private void DisplayEnvelope(bpaPass pass)
+        internal void DisplayEnvelope(bpaPass pass)
         {
             BitmapImage bmpi = pass.GetEnvelopeBitmap();
             //OnBmpiCreated(new BmpiEventArgs(bmpi,BmpiEventArgs.ImageType.ENVELOPE));
             EnvelopeImage = bmpi;
+            EnvelopeEnabled = true;
         }
 
         

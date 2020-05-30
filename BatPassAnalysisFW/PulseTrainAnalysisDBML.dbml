@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="PTADebugDatabase" Class="PulseTrainAnalysisDBMLDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="AppSettings" ConnectionString="Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Echolocation\PTADebugDatabase.mdf;Integrated Security=True;Connect Timeout=30" SettingsObjectName="BatPassAnalysisFW.Properties.Settings" SettingsPropertyName="PTADebugDatabaseConnectionString" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.PTAPass" Member="PTAPasses">
+    <Type Name="PTAPass">
+      <Column Name="PTAPassID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="OffsetInSegmentInSamples" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="PassLengthInSamples" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="PassNumber" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="Segment" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="PTAPass_PTAPulse" Member="PTAPulses" ThisKey="PTAPassID" OtherKey="Pass" Type="PTAPulse" />
+      <Association Name="PTASegment_PTAPass" Member="PTASegment" ThisKey="Segment" OtherKey="PTASegmentID" Type="PTASegment" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.PTASegment" Member="PTASegments">
+    <Type Name="PTASegment">
+      <Column Name="PTASegmentID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="StartTimeInRec" Type="System.TimeSpan" DbType="Time NOT NULL" CanBeNull="false" />
+      <Column Name="Duration" Type="System.TimeSpan" DbType="Time NOT NULL" CanBeNull="false" />
+      <Column Name="Comment" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Recording" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="SegmentNumber" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Association Name="PTASegment_PTAPass" Member="PTAPasses" ThisKey="PTASegmentID" OtherKey="Segment" Type="PTAPass" />
+      <Association Name="PTARecording_PTASegment" Member="PTARecording" ThisKey="Recording" OtherKey="PTARecordingID" Type="PTARecording" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.PTAPulse" Member="PTAPulses">
+    <Type Name="PTAPulse">
+      <Column Name="PTAPulseID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="PulseNumber" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Column Name="OffsetInPassInSamples" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="DurationInSamples" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="PrevIntervalSamples" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="MaxVal" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="PeakArea" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="AbsoluteThreshold" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="PeakFrequency" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="HighFrequency" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="LowFrequency" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="HalfHeightWidth" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="HalfHeightHighFrequency" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="HalfHeightLowFrequency" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="AutoCorrelationWidth" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="FFTSize" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Pass" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="QuietStart" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="SpectrumThresholdFactor" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Association Name="PTAPass_PTAPulse" Member="PTAPass" ThisKey="Pass" OtherKey="PTAPassID" Type="PTAPass" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.PTARecording" Member="PTARecordings">
+    <Type Name="PTARecording">
+      <Column Name="PTARecordingID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="FileName" Type="System.String" DbType="NVarChar(MAX) NOT NULL" CanBeNull="false" />
+      <Column Name="FilePath" Type="System.String" DbType="NVarChar(MAX) NOT NULL" CanBeNull="false" />
+      <Column Name="SampleRate" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="RecordingNumber" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="PTARecording_PTASegment" Member="PTASegments" ThisKey="PTARecordingID" OtherKey="Recording" Type="PTASegment" />
+    </Type>
+  </Table>
+</Database>

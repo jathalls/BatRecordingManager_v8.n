@@ -1,0 +1,142 @@
+﻿BatPassAnalysisFW Data structures and public members
+private members in ()
+
+bpaRecording
+	File_Name - get returns name part of filename
+	recorded
+	recNumber
+	filename - fully qualified path and name of wav file
+	(segmentList)
+	segmentCount - get returns segmentList.Count
+	passCount - get returns sum from segmentList
+	pulseCount - get returns sum from segmentList
+	getSegmentList() - returns segmentList
+	Comment
+	SampleRate
+
+bpaSegment
+	No - segment number in the pass
+	Start - formatted offset of the segment nto the recording mins:sescs:ms
+	Length - formatted duration of the segment in secs
+	Number_Of_Passes - get returns PassList.Count
+	Number_Of_Pulses - get return sum from PassList
+	Comment
+	(OffsetInRecordingInSamples)
+	(SampleRate)
+	(SegmentLengthInSamples)
+	(startTime)
+	(duration)
+	(segmentAccessBlock)
+	(PassList)
+	(recNumber)
+	(segNumber)
+	getPassList() - returns the PassList
+
+bpaPass
+	Pass_Number
+	Pass_Length_s - get returns PassLengthInSamples/SampleRate
+	Number_of_Pulses - get returns pulseList.Count
+	peak_kHz - formatted string with average peak frequency of all pulses +/- 1SD
+	start_kHz - formatted string with average start frequency of all pulses +/- 1SD
+	endkHz - formatted string with average end frequency of all pulses +/- 1SD
+	(_peakFrequency)
+	(peakFrequency) - as a float - calculated by get{peak_kHz}
+	(peakFrequencySD) - calculated by get{peak_khz}
+	(_endFrequency)
+	(endFrequency)
+	(endFrequencySD)
+	(_startFrequency)
+	(startFrequency)
+	(startFrequencySD)
+	Frequency - bitmap image of frequency data for the pass - calculated in get{}
+	(OffsetInSegmentInSamples)
+	(PassLengthInSamples)
+	SampleRate
+	passdataAccessBlock
+	segStart
+	segLength
+	(passNumber)
+	segmentNumber
+	recordingNumber
+	Comment
+	fileName
+	(thresholdFactor)
+	(spectrumfactor)
+	(pulseList)
+	getPulseList() - returns the pulseList
+
+Pulse
+	(peak)
+	Pass - number of the pass in the segment
+	Pulse_Number - get returns peak.pulse_Number
+	Pulse_Length_ms - get returns peak.peakWidthms
+	Pulse_Interval_ms - get returns peak.prevIntervalMs
+	(details) - spectrum details of the peak
+	getSpectrumDetails() - returns details
+	getPeak() - returns peak
+
+Peak
+	pulse_Number
+	GetMaxVal() - returns maxVal
+	peakWidthMs - get return ConvertSamplesToSecs()
+	(peakWidthSamples)
+	(startAsSampleInPass)
+	(endAsSampleInpass)
+	(startAsSampleInSegment)
+	(endAsSampleInSegment)
+	prevIntervalMs - get calculates from prevIntervalSamples
+	(prevIntervalSamples)
+	(maxVal)
+	(sampleRatePerSecond)
+	(peakArea)
+	recordingNumber
+	AbsoluteThreshold
+	GetStartAsSampleInSeg() - returns startAsSampleInSegment
+	getPeakWidthSamples() - returns peakWidthSamples
+	GetSampleRatePerSecond() - returns sampleRatePerSecond
+
+SpectralPeak : Peak
+	parentPulseIndex
+	Pass_
+	Pulse_
+	Pulse_Length_ms
+	Pulse_Interval_ms
+	AbsoluteThreshold
+	peakFrequency
+	highFrequency
+	lowFrequency
+	halfHeightWidthHz
+	halfHeightLowFrequency
+	halfHeightHighFrequency
+	AutoCorrelationWidth
+	AutoCorrelationWidthCms - get calculates from AutoCorrelationWidth
+	(HzPerSample)
+	(sampleRate)
+	recordingNumber
+	autoCorrelation
+	(parentPulse)
+	getAutoCorrelationWidth() - calculates width from autoCorrelation
+	getPulsePeak() - returns parentPulse
+	GetHzPerSample() - returns HzPerSample
+
+Spectrum
+	fft
+	autoCorrelation
+	fftMean
+	pulseNumber
+	sampleRate
+	(HzPerBin)
+	(frameSize)
+
+SpectrumDetails
+	(Spectrum)
+	pulse
+	spectralPeakList
+	pfMeanOfPeakFrequenciesInSpectralPeaksList - get calculates from spectralPeakList
+	pfStart
+	pfEnd
+	getFFT() - returns fft from Spectrum
+	getAutoCorrelation - returns autoCorrelationFrom Spectrum
+
+
+	

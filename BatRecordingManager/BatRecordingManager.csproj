@@ -85,10 +85,10 @@
     <CodeAnalysisIgnoreGeneratedCode>true</CodeAnalysisIgnoreGeneratedCode>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>C90EB481B3E4BCC20D2454132BED98DEAD5147C1</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>0F18A6376F3087116DAC0C358E838A84EF9DFA53</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>BatRecordingManager_3_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>BatRecordingManager_5_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -266,6 +266,7 @@
     </Reference>
     <Reference Include="System">
       <Private>True</Private>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.dll</HintPath>
     </Reference>
     <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
@@ -857,6 +858,8 @@
     <None Include="BatRecordingManager_1_TemporaryKey.pfx" />
     <None Include="BatRecordingManager_2_TemporaryKey.pfx" />
     <None Include="BatRecordingManager_3_TemporaryKey.pfx" />
+    <None Include="BatRecordingManager_4_TemporaryKey.pfx" />
+    <None Include="BatRecordingManager_5_TemporaryKey.pfx" />
     <None Include="BatRecordingManager_TemporaryKey.pfx" />
     <None Include="BatReferenceDBLinq.dbml.layout">
       <DependentUpon>BatReferenceDBLinq.dbml</DependentUpon>

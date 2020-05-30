@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using Mm.ExportableDataGrid;
 using Microsoft.VisualStudio.Text.Editor.Commanding.Commands;
+using System.Threading.Tasks;
 
 namespace BatPassAnalysisFW
 {
@@ -31,7 +32,7 @@ namespace BatPassAnalysisFW
 
         public AnalysisTableA()
         {
-            AnalysisMainControl.ErrorLog("Initialising AnalysisTableA");
+            
             try
             {
                 InitializeComponent();
@@ -127,7 +128,7 @@ namespace BatPassAnalysisFW
             {
                 if(tableData.combinedRecordingList!=null && tableData.combinedRecordingList.Count > 0)
                 {
-                    ProcessFile(tableData.combinedRecordingList[0].filename);
+                    ProcessFile(tableData.combinedRecordingList[0].FQfilename);
                     
                     
                 }
@@ -135,38 +136,24 @@ namespace BatPassAnalysisFW
             
         }
 
-        internal void ProcessFile(string selectedFileName)
+        internal async void ProcessFile(string selectedFQ_FileName)
         {
+            bool result = false;
             using (new WaitCursor())
             {
+
+
                 //var x=CrossSettings.Current.Get<int>("EnvelopeLeadIn");
                 //CrossSettings.Current.Set("EnvelopeLeadIn", 20);
                 //x=CrossSettings.Current.Get<int>("EnvelopeLeadIn");
                 RecalcButton.IsEnabled = false;
-                string textFileName = System.IO.Path.ChangeExtension(selectedFileName, ".txt");
+                string textFQ_FileName = System.IO.Path.ChangeExtension(selectedFQ_FileName, ".txt");
 
-                if (File.Exists(textFileName))
+                if (File.Exists(textFQ_FileName))
                 {
-                    // The selected .wav file has a corresponding .txt file
-                    // Therefore we assume it is an Audacity analysed long file
-                    // with multiple segments and analyse just that file
-
-                    if (File.Exists(selectedFileName))
-                    {
-                        try
-                        {
-                            ProcessSingleWavFile(selectedFileName);
-                        }
-                        catch (Exception ex)
-                        {
-                            AnalysisMainControl.ErrorLog($"ProcessFile error single file:" + ex.Message);
-                        }
-                    }
 
 
-
-
-
+                    result=await ProcessSingleFileAsync(selectedFQ_FileName);
                 }
                 else
                 {
@@ -178,11 +165,7 @@ namespace BatPassAnalysisFW
 
                     //AnalysisTable.setTableData(AnalysisTable.tableData);
 
-                    string folder = System.IO.Path.GetDirectoryName(selectedFileName);
-                    if (Directory.Exists(folder))
-                    {
-                        ProcessWavFileFolder(folder);
-                    }
+                    result=await ProcessFileGroupAsync(selectedFQ_FileName);
 
                 }
                 var previous = passDataGrid.Columns[11].ActualWidth;
@@ -195,22 +178,79 @@ namespace BatPassAnalysisFW
                 
                 
             }
+            
         }
 
-    private void ProcessWavFileFolder(string folder)
+        private async Task<bool> ProcessFileGroupAsync(string selectedFQ_FileName)
+        {
+            string folderPath = System.IO.Path.GetDirectoryName(selectedFQ_FileName);
+            if (Directory.Exists(folderPath))
+            {
+                try
+                {
+                    ProcessWavFileFolder(folderPath);
+                }catch(Exception ex)
+                {
+                    AnalysisMainControl.ErrorLog($"Process multiple files error:- {ex.Message}");
+                    return (false);
+                }
+            }
+            return (true);
+        }
+
+        private async Task<bool> ProcessSingleFileAsync(string selectedFQ_FileName)
+        {
+
+            // The selected .wav file has a corresponding .txt file
+            // Therefore we assume it is an Audacity analysed long file
+            // with multiple segments and analyse just that file
+
+            if (File.Exists(selectedFQ_FileName))
+            {
+                try
+                {
+                    ProcessSingleWavFile(selectedFQ_FileName);
+                }
+                catch (Exception ex)
+                {
+                    AnalysisMainControl.ErrorLog($"ProcessFile error single file:" + ex.Message);
+                    return (false);
+                }
+            }
+            return (true);
+        }
+
+    private void ProcessWavFileFolder(string folderPath)
     {
         
         
 
-        var allWavFiles = Directory.EnumerateFiles(folder, "*.wav");
-            if (allWavFiles != null && allWavFiles.Count() > 0)
+        var allFQWavFiles = Directory.EnumerateFiles(folderPath, "*.wav");
+            if (allFQWavFiles != null && allFQWavFiles.Count() > 0)
             {
                 List<bpaRecording> allRecordings = new List<bpaRecording>();
                 int recNumber = 1;
-                foreach (var wavFile in allWavFiles)
+                long totSize = 0l;
+                bpaRecording recording;
+                foreach (var FQwavFile in allFQWavFiles)
                 {
-                    bpaRecording recording = new bpaRecording(recNumber++, wavFile);
-                    recording.CreateSegments(tableData.thresholdFactor, tableData.spectrumFactor);
+                    if (PTA_DBAccess.RecordingExists(FQwavFile))
+                    {
+                        recording = PTA_DBAccess.getBPARecordingAndDescendants(FQwavFile);
+                    }
+                    else
+                    {
+                        var size = new FileInfo(FQwavFile).Length;
+                        totSize += size;
+                        if (totSize > 1000000000L)
+                        {
+                            MessageBox.Show("Total size of files too large, process truncated!");
+                            break;
+                        }
+                        recording = new bpaRecording(recNumber++, FQwavFile);
+                        recording.CreateSegments(tableData.thresholdFactor, tableData.spectrumFactor);
+                        PTA_DBAccess.SaveRecording(recording);
+                    }
                     allRecordings.Add(recording);
                 }
                 tableData.SetRecordings(allRecordings);
@@ -221,19 +261,35 @@ namespace BatPassAnalysisFW
 
         private void ProcessSingleWavFile(string file)
         {
-            bpaRecording recording = new bpaRecording(recNumber: 1, file);
-
-            try
+            bpaRecording recording = null;
+            long size = new FileInfo(file).Length;
+            if (size > 1000000000L)
             {
-                recording.CreateSegments(tableData.thresholdFactor, tableData.spectrumFactor);
-            }catch(Exception ex)
-            {
-                AnalysisMainControl.ErrorLog($"Error creating segments:{ex.Message}");
+                MessageBox.Show("File too large to process");
+                return;
             }
 
+            if (PTA_DBAccess.RecordingExists(file))
+            {
+                recording = PTA_DBAccess.getBPARecordingAndDescendants(file);
+            }
+            else {
+                recording = new bpaRecording(recNumber: 1, file);
+
+                try
+                {
+                    recording.CreateSegments(tableData.thresholdFactor, tableData.spectrumFactor);
+                } catch (Exception ex)
+                {
+                    AnalysisMainControl.ErrorLog($"Error creating segments:{ex.Message}");
+                }
+                PTA_DBAccess.SaveRecording(recording);
+            }
             tableData.SetRecording(recording);
+            
             viewRecordings(false);
             RecalcButton.IsEnabled = true;
+
         }
 
         internal void ClearTabledata()
@@ -386,6 +442,19 @@ namespace BatPassAnalysisFW
                 {
                     passToFilter.RemoveOutliers();
                     tableData.segmentDataGrid_SelectionChanged(tableData.combinedSegmentList);
+                }
+            }
+        }
+
+        private void cmiEnvelope_Click(object sender, RoutedEventArgs e)
+        {
+            if (passDataGrid.SelectedItem != null)
+            {
+                using (new WaitCursor())
+                {
+                    bpaPass selectedPass = passDataGrid.SelectedItem as bpaPass;
+                    tableData.DisplayEnvelope(selectedPass);
+                    tableData.EnvelopeEnabled = true;
                 }
             }
         }

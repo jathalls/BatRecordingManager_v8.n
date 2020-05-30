@@ -24,13 +24,13 @@ namespace BatPassAnalysisFW
             get
             {
                 string fn;
-                if (filename.Contains(@"\"))
+                if (FQfilename.Contains(@"\"))
                 {
-                    fn = filename.Substring(filename.LastIndexOf(@"\"));
+                    fn = FQfilename.Substring(FQfilename.LastIndexOf(@"\"));
                 }
                 else
                 {
-                    fn = filename;
+                    fn = FQfilename;
                 }
                 return (fn);
             }
@@ -47,7 +47,7 @@ namespace BatPassAnalysisFW
         
         /// the name of the file containing the recording being processed
         /// </summary>
-        public string filename { get; set; } = "";
+        public string FQfilename { get; set; } = "";
 
         /// <summary>
         /// A list of all the segments in the recording and their associated data
@@ -82,25 +82,30 @@ namespace BatPassAnalysisFW
             }
         }
 
-        private float[] data;
+        //private float[] data;
 
-        public bpaRecording(int recNumber, string fileName)
+        public bpaRecording(int recNumber, string FQfileName)
         {
-            if (!string.IsNullOrWhiteSpace(fileName))
+            if (!string.IsNullOrWhiteSpace(FQfileName))
             {
-                this.filename = fileName;
+                this.FQfilename = FQfileName;
             }
             else
             {
-                this.filename = "";
+                this.FQfilename = "";
             }
-            if (File.Exists(filename))
+            if (File.Exists(FQfilename))
             {
-                var created = File.GetCreationTime(filename);
+                var created = File.GetCreationTime(FQfilename);
                 recorded = created.ToShortDateString() + " " + created.ToShortTimeString();
             }
             this.recNumber = recNumber;
 
+        }
+
+        public void AddSegment(bpaSegment segment)
+        {
+            segmentList.Add(segment);
         }
 
         public ObservableList<bpaSegment> getSegmentList()
@@ -117,7 +122,7 @@ namespace BatPassAnalysisFW
         {
             bool result = false;
 
-            if (!string.IsNullOrWhiteSpace(filename) && File.Exists(filename) && filename.ToUpper().EndsWith(".WAV"))
+            if (!string.IsNullOrWhiteSpace(FQfilename) && File.Exists(FQfilename) && FQfilename.ToUpper().EndsWith(".WAV"))
             {
                 int segNumber = 1;
                 try
@@ -127,7 +132,7 @@ namespace BatPassAnalysisFW
                     TimeSpan duration = new TimeSpan();
                     try
                     {
-                        using (AudioFileReader afr = new AudioFileReader(filename))
+                        using (AudioFileReader afr = new AudioFileReader(FQfilename))
                         {
                             SampleRate = afr.WaveFormat.SampleRate;
                             duration = afr.TotalTime;
@@ -138,10 +143,10 @@ namespace BatPassAnalysisFW
                         AnalysisMainControl.ErrorLog($"Error using AudioFileReader ({segNumber}):" + ex.Message);
                     }
                     segmentList.Clear();
-                    string textFileName = filename.Substring(0, filename.LastIndexOf(".")) + ".txt";
-                    if (File.Exists(textFileName))
+                    string textFQFileName = FQfilename.Substring(0, FQfilename.LastIndexOf(".")) + ".txt";
+                    if (File.Exists(textFQFileName))
                     {
-                        using (var sr = File.OpenText(textFileName))
+                        using (var sr = File.OpenText(textFQFileName))
                         {
                             if (sr != null)
                             {
@@ -152,7 +157,7 @@ namespace BatPassAnalysisFW
                                     {
                                         continue; // no text or a continuation line so ignore it
                                     }
-                                    getLabelLine(line, out double start, out double end,out string comment);
+                                    getLabelLine(line, out double startTimeOfSegment, out double end,out string comment);
                                     if (!String.IsNullOrWhiteSpace(comment))
                                     {
                                         Comment = comment;
@@ -161,15 +166,15 @@ namespace BatPassAnalysisFW
                                     {
                                         Comment = "";
                                     }
-                                    var segmentLength = (int)((end - start) * SampleRate);
+                                    var segmentLength = (int)((end - startTimeOfSegment) * SampleRate);
                                     //data = new float[segmentLength];
                                     //afr.Position = 0;
                                     //var sp = afr.ToSampleProvider();
                                     //sp.Skip(TimeSpan.FromSeconds(start));
                                     //sp.Read(data, 0, data.Length);
 
-                                    DataAccessBlock dab = new DataAccessBlock(filename, (long)(start * SampleRate), (long)segmentLength,(long)segmentLength);
-                                    bpaSegment segment = new bpaSegment(recNumber, segNumber++, (int)(start * SampleRate), dab, SampleRate,Comment);
+                                    DataAccessBlock dab = new DataAccessBlock(FQfilename, (long)(startTimeOfSegment * SampleRate), (long)segmentLength);
+                                    bpaSegment segment = new bpaSegment(recNumber, segNumber++, (int)(startTimeOfSegment * SampleRate), dab, SampleRate,Comment);
 
                                     segmentList.Add(segment);
                                 }
@@ -187,7 +192,7 @@ namespace BatPassAnalysisFW
                             throw new Exception("File to large to handle");
                         }
                         Comment = "";
-                        using(var wfr=new WaveFileReader(filename))
+                        using(var wfr=new WaveFileReader(FQfilename))
                         {
                             var metadata = wfr.ExtraChunks;
                             foreach(var md in metadata)
@@ -205,7 +210,7 @@ namespace BatPassAnalysisFW
                         }
                         //data = new float[totalSamples];
                         //afr.ToSampleProvider().Read(data, 0, (int)totalSamples);
-                        DataAccessBlock dab = new DataAccessBlock(filename, 0, totalSamples,totalSamples);
+                        DataAccessBlock dab = new DataAccessBlock(FQfilename, 0, totalSamples); // dab for the whole recording is a single segment
                         bpaSegment segment = new bpaSegment(recNumber, segNumber++, 0, dab, SampleRate,Comment);
 
                         segmentList.Add(segment);
@@ -228,6 +233,8 @@ namespace BatPassAnalysisFW
             }
             return (result);
         }
+
+
 
         private string ReadWAMDComment(WaveFileReader wfr, RiffChunk md)
         {

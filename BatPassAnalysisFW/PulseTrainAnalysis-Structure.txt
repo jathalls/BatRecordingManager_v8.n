@@ -1,0 +1,55 @@
+﻿Pulse Train Analysis Structure
+Justin A T halls
+May 2020
+
+
+AnalysisMainControl
+	/// hosts a menu structure and tabs for data tables and graphs
+	AnalysisMainControl()
+		new AnalysisTable()
+		SetDefaultSettings()
+	FileOpenClick
+		OpenFileDialog()
+		AnalysisTable.ClearTabledata()
+		AnalysisTable.ProcessFile()
+	SettingsClick
+		new Settings()
+		settings.ShowDialog()
+		settings.Close()
+	Exit_Click()
+		FindParent<Window>(this)
+		window?.Close();
+	HelpHelp_Click
+		Help.showHelp(helpfile)
+
+AnalysisTableA
+	/// Hosts main dataGrids and operations buttons and controls
+	tabledata=new AnalysisTableData()
+	AnalysisTableA()
+		DataContext=tableData
+		headerImage.Source=tableData.FrequencyHeader{}
+	async ProcessFile(file)
+		new WaitCursor()
+		enable ReCalc Button
+		if(file.txt Exists)
+			await ProcessSingleFileAsync(file)
+		else
+			await ProcessFileGroupAsync(file)
+		tabledata.refreshFrequencyHeader()
+	async ProcessSingleFileAsync(file)
+		ProcessSingleWavFile(file)
+	async ProcessFileGroupAsync(file)
+		ProcessWavFileFolder(folder)
+	ProcessSingleWavFile(file)
+		new Recording(file)
+		recording.CreateSegments()
+		tableData.setRecording()
+		viewRecordings(false)
+	ProcessWavFileFolder(folder)
+		foreach wavfile in folder
+			new Recording(wavfile)
+			recording.CreateSegments()
+		tableData.SetRecordings(allRecordings)
+		viewRecordings(true)
+
+

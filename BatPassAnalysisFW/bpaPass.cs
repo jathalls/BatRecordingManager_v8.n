@@ -22,7 +22,9 @@ namespace BatPassAnalysisFW
     public class bpaPass
     {
         
-
+        /// <summary>
+        /// number of the pass in the segment
+        /// </summary>
         public int Pass_Number
         {
             get
@@ -31,6 +33,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// duration of the Pass
+        /// </summary>
         public double Pass_Length_s
         {
             get
@@ -39,6 +44,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// Number of pulses in the pass
+        /// </summary>
         public int Number_Of_Pulses
         {
             get
@@ -46,14 +54,18 @@ namespace BatPassAnalysisFW
                 return (pulseList.Count());
             }
         }
-        
+
+        /// <summary>
+        /// formatted string with average peak frequency of all pulses +/- 1SD
+        /// Bound to column in datagrid
+        /// </summary>
         public string Peak_kHz
         {
             get
             {
                 var pfMeanList = (from pulse in pulseList
-                                  where pulse.GetSpectrumDetails().pfMean>15000
-                                select pulse.GetSpectrumDetails().pfMean);
+                                  where pulse.GetSpectrumDetails().pfMeanOfPeakFrequenciesInSpectralPeaksList>15000
+                                select pulse.GetSpectrumDetails().pfMeanOfPeakFrequenciesInSpectralPeaksList);
                 if (pfMeanList != null && pfMeanList.Any())
                 {
                     _peakFrequency = (float)(pfMeanList.Average() / 1000.0f);
@@ -79,6 +91,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// formatted string with average start frequency of all pulses +/- 1SD
+        /// </summary>
         public string Start_kHz
         {
             get
@@ -111,6 +126,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// formatted string with average end frequency of all pulses +/- 1SD
+        /// </summary>
         public string End_kHz
         {
             get
@@ -282,9 +300,9 @@ namespace BatPassAnalysisFW
 
         public TimeSpan segStart { get; set; }
 
-        public float segLength { get; set; }
+        public float SegLengthSecs { get; set; }
         //private float[] quiet;
-        private float[] envelope;
+        //private float[] envelope;
 
         private int passNumber { get; set; }
 
@@ -294,7 +312,7 @@ namespace BatPassAnalysisFW
 
         public string Comment { get; set; }
 
-        public string fileName { get; set; }
+        public string shtFileName { get; set; }
 
         private decimal thresholdFactor { get; set; }
 
@@ -303,16 +321,16 @@ namespace BatPassAnalysisFW
         private ObservableList<Pulse> pulseList = new ObservableList<Pulse>();
         
 
-        public bpaPass(int recNumber, int segmentNumber, int passNumber, int offsetInSegment, DataAccessBlock dab,int sampleRate,string Comment)
+        public bpaPass(int recNumber, int segmentNumber, int passNumber, int offsetInSegment, DataAccessBlock dab,int sampleRate,string Comment,float segLengthSecs)
         {
             OffsetInSegmentInSamples = offsetInSegment;
-            PassLengthInSamples = (int)(dab.length);
+            PassLengthInSamples = (int)(dab.Length);
             SampleRate = sampleRate;
             passDataAccessBlock = dab;
-            segStart = TimeSpan.FromSeconds((float)(offsetInSegment + dab.startLocation) / (float)sampleRate);
-            segLength = (float)dab.segLength / (float)sampleRate;
-
-            fileName = Path.GetFileName(dab.fileName);
+            segStart = TimeSpan.FromSeconds((float)(offsetInSegment + dab.BlockStartInFileInSamples) / (float)sampleRate);
+            //segLength = (float)dab.segLength / (float)sampleRate;
+            this.SegLengthSecs = segLengthSecs;
+            shtFileName = Path.GetFileName(dab.FQfileName);
             
             this.passNumber = passNumber;
             this.segmentNumber = segmentNumber > recNumber ? segmentNumber : recNumber;
@@ -321,30 +339,40 @@ namespace BatPassAnalysisFW
             this.Comment = Comment;
         }
 
+        /// <summary>
+        /// returns the pulse List
+        /// </summary>
+        /// <returns></returns>
         public ObservableList<Pulse> getPulseList()
         {
             return (pulseList);
         }
 
-        public enum peakState { NOTINPEAK, INPEAKLEADIN, INPEAK, INPEAKLEADOUT };
-        public void CreatePass(decimal thresholdFactor,decimal spectrumFactor)
+        public void AddPulse(Pulse pulse)
         {
-            float[] passData = passDataAccessBlock.getData();
+            pulseList.Add(pulse);
+        }
+
+        public enum peakState { NOTINPEAK, INPEAKLEADIN, INPEAK, INPEAKLEADOUT };
+        public void CreatePass(decimal thresholdFactor, decimal spectrumFactor)
+        {
+
 
             this.thresholdFactor = thresholdFactor;
             this.spectrumfactor = spectrumfactor;
 
+            ObservableList<Peak> peakList = new ObservableList<Peak>();
+            int quietStart = -1;
 
-            HighPassFilter(ref passData, frequency: 15000, SampleRate);
             //quiet = getQuietPortion(secs: 0.1f,factor:1.0f);
-            envelope = PassAnalysis.GetEnvelope(ref passData, SampleRate);
+            float[] envelope = GetEnvelope(passDataAccessBlock, SampleRate);
             float leadInms = CrossSettings.Current.Get<float>("EnvelopeLeadInMS");
             if (leadInms <= 0.0f)
             {
                 leadInms = 0.2f;
                 CrossSettings.Current.Set<float>("EnvelopeLeadInMS", leadInms);
             }
-            int leadinLimit = (int)((SampleRate/1000) * leadInms); //0.2ms minimum duration
+            int leadinLimit = (int)((SampleRate / 1000) * leadInms); //0.2ms minimum duration
 
             float leadOutms = CrossSettings.Current.Get<float>("EnvelopeLeadOutMS");
             if (leadOutms <= 0.0f)
@@ -352,30 +380,65 @@ namespace BatPassAnalysisFW
                 leadOutms = 1.0f;
                 CrossSettings.Current.Set<float>("EnvelopeLeadOutMS", 1.0f);
             }
-            int leadoutLimit = (int)((SampleRate/1000) * leadOutms); //1ms silence between peaks
-            ObservableList<Peak> peakList = new ObservableList<Peak>();
-            int quietStart=getQuietStart((float)(envelope.Average()*(float)thresholdFactor));
+            int leadoutLimit = (int)((SampleRate / 1000) * leadOutms); //1ms silence between peaks
+
+            quietStart = getQuietStart(ref envelope, (float)(envelope.Average() * (float)thresholdFactor));
             if (quietStart < 0)
             {
-                quietStart=getQuietStart((float)(envelope.Average() * (float)thresholdFactor * 2));
+                quietStart = getQuietStart(ref envelope, (float)(envelope.Average() * (float)thresholdFactor * 2));
             }
-            float[] dummy = new float[0];
-            PassAnalysis.getPeaks(ref envelope, SampleRate, leadinLimit, leadoutLimit, (float)thresholdFactor, 
-                out peakList,autoCorrelation:ref dummy, OffsetInSegmentInSamples ,PassNumber:passNumber,RecordingNumber:segmentNumber);
+            float acWidth = 0.0f;
+            PassAnalysis.getPeaks(ref envelope, SampleRate, leadinLimit, leadoutLimit, (float)thresholdFactor,
+                out peakList, autoCorrelationWidth: acWidth, OffsetInSegmentInSamples, PassNumber: passNumber, RecordingNumber: segmentNumber);
+            envelope = new float[0];
+            //float[] passData = passDataAccessBlock.getData();
             foreach (var peak in peakList)
             {
-                pulseList.Add(new Pulse(ref passData,OffsetInSegmentInSamples, peak,passNumber,quietStart,spectrumFactor));
+                pulseList.Add(new Pulse(passDataAccessBlock,  OffsetInSegmentInSamples, peak, passNumber, quietStart, spectrumFactor));
             }
             //Debug.WriteLine($"Pass at Offset {OffsetInSegmentInSamples} of length {Pass_Length_s}s has {pulseList.Count} pulses");
 
 
         }
 
+        internal static float[] GetEnvelope(DataAccessBlock passDab, int sampleRate)
+        {
+            float[] data = passDab.getData();
+            HighPassFilter(ref data, frequency: 15000, sampleRate);
+            
+            //float[] result2 = new float[data.Length];
+            if (data != null && data.Length > 384)
+            {
+                //for (int s = 0; s < data.Length; s++)
+                //{
+                //    data[s] = Math.Abs(data[s]);
+                //}
+                
+                var filter = BiQuadFilter.LowPassFilter(sampleRate, 2000, 1);
+                for (int s = 0; s < data.Length; s++)
+                {
+                    data[s] = filter.Transform(Math.Abs(data[s]));
+                }
+
+            }
+            return (data);
+        }
+
+        internal int getOffsetInSegmentInSamples()
+        {
+            return (OffsetInSegmentInSamples);
+        }
+
+        internal int getPassLengthInSamples()
+        {
+            return (PassLengthInSamples);
+        }
+
         /// <summary>
         /// Searches the envelope for a section in which all the envelope is below the threshold for a duration of 5000 samples
         /// </summary>
         /// <returns></returns>
-        private int getQuietStart(float threshold)
+        private int getQuietStart(ref float[] envelope, float threshold)
         {
             peakState currentPeakState = peakState.NOTINPEAK;
             int counter = 0;
@@ -403,7 +466,7 @@ namespace BatPassAnalysisFW
         /// <returns></returns>
         internal BitmapImage GetEnvelopeBitmap()
         {
-
+            float[] envelope = bpaPass.GetEnvelope(passDataAccessBlock,SampleRate);
             if (envelope != null && pulseList != null && envelope.Length > 5 && pulseList.Any())
             {
                 ObservableList<Peak> peakList = new ObservableList<Peak>();
@@ -413,7 +476,7 @@ namespace BatPassAnalysisFW
                     peakList.Add(pulse.getPeak());
                 }
 
-                var bmp = PassAnalysis.GetGraph(envelope, ref peakList, thresholdFactor);
+                var bmp = PassAnalysis.GetGraph(ref envelope, ref peakList, thresholdFactor);
                 return (loadBitmap(bmp));
             }
 
@@ -441,7 +504,7 @@ namespace BatPassAnalysisFW
                 var endfSD = (from p in orderedList
                               select p.GetSpectrumDetails().pfEnd).StandardDeviation();
                 var startSD = orderedList.Select(p => p.GetSpectrumDetails().pfStart).StandardDeviation();
-                var peakSD = orderedList.Select(p => p.GetSpectrumDetails().pfMean).StandardDeviation();
+                var peakSD = orderedList.Select(p => p.GetSpectrumDetails().pfMeanOfPeakFrequenciesInSpectralPeaksList).StandardDeviation();
 
                 var shortList = orderedList.ToList();
                 shortList.RemoveAt(0);
@@ -471,13 +534,13 @@ namespace BatPassAnalysisFW
 
             var meanEnd = plist.Select(p => p.GetSpectrumDetails().pfEnd).Average();
             var meanStart= plist.Select(p => p.GetSpectrumDetails().pfStart).Average();
-            var meanPeak= plist.Select(p => p.GetSpectrumDetails().pfMean).Average();
+            var meanPeak= plist.Select(p => p.GetSpectrumDetails().pfMeanOfPeakFrequenciesInSpectralPeaksList).Average();
 
             if (pulse != null)
             {
                 variance = Math.Sqrt(Math.Pow(pulse.GetSpectrumDetails().pfEnd - meanEnd, 2) +
                             Math.Pow(pulse.GetSpectrumDetails().pfStart - meanStart, 2) +
-                            Math.Pow(pulse.GetSpectrumDetails().pfMean - meanPeak, 2));
+                            Math.Pow(pulse.GetSpectrumDetails().pfMeanOfPeakFrequenciesInSpectralPeaksList - meanPeak, 2));
             }
             else
             {
@@ -507,7 +570,7 @@ namespace BatPassAnalysisFW
             float avg = data.Average()*factor;
             for(int i = 0; i < data.Length - sizeInSamples; i++)
             {
-                float[] sampleData = passDataAccessBlock.getData((int)(passDataAccessBlock.startLocation + i), sizeInSamples);
+                float[] sampleData = passDataAccessBlock.getData((int)(passDataAccessBlock.BlockStartInFileInSamples + i), sizeInSamples);
                 if (sampleData.Max() < avg)
                 {
                     result = sampleData;

@@ -40,38 +40,12 @@ namespace BatPassAnalysisFW
 
   
 
-        internal static float[] GetEnvelope(ref float[] data,int sampleRate)
-        {
-            float[] result1 = new float[data.Length];
-            float[] result2 = new float[data.Length];
-            if (data != null && data.Length > 384)
-            {
-                for (int s = 0; s < data.Length; s++)
-                {
-                    result1[s] = Math.Abs(data[s]);
-                }
-                //for (int s = 384; s < result1.Length; s++)
-                //{
-                //    var tot = 0.0d;
-                //    for (int d = s - 384; d < s; d++)
-                //    {
-                //        tot += result1[d];
-                //    }
-                //    result2[s] = (float)(tot / 384);
-                var filter = BiQuadFilter.LowPassFilter(sampleRate, 2000, 1);
-                for(int s = 0; s < data.Length; s++)
-                {
-                    result2[s] = filter.Transform(result1[s]);
-                }
-                
-            }
-            return (result2);
-        }
+        
        
 
         public enum peakState { NOTINPEAK,INPEAKLEADIN,INPEAK,INPEAKLEADOUT};
         
-        public static string getPeaks(ref float[] dataInPass,int sampleRate, int leadInSamples,int leadOutSamples,float thresholdFactor,out ObservableList<Peak> peakList, ref float[] autoCorrelation,
+        public static string getPeaks(ref float[] dataInPass,int sampleRate, int leadInSamples,int leadOutSamples,float thresholdFactor,out ObservableList<Peak> peakList, float autoCorrelationWidth,
             int startOfstartOfPassInSegment = 0,bool asSpectralPeak=false,Peak parentPulse=null,int PassNumber=1,int RecordingNumber=1)
         {
             peakList = new ObservableList<Peak>();
@@ -82,7 +56,7 @@ namespace BatPassAnalysisFW
            
             limit = dataInPass.Average()*thresholdFactor;
 
-            Debug.WriteLine($"GetPeaks (asSpectrum={asSpectralPeak}) data Average={dataInPass.Average()} Limit={limit} Factor={thresholdFactor} Leadin={leadInSamples} LeadOut={leadOutSamples}");
+            //Debug.WriteLine($"GetPeaks (asSpectrum={asSpectralPeak}) data Average={dataInPass.Average()} Limit={limit} Factor={thresholdFactor} Leadin={leadInSamples} LeadOut={leadOutSamples}");
             //Debug.WriteLine($"Threshold={limit}");
             int lastStart = 0;
             bool inPeak = false;
@@ -178,8 +152,25 @@ namespace BatPassAnalysisFW
                                 {
                                     if (asSpectralPeak)
                                     {
-                                        SpectralPeak peak=SpectralPeak.Create(++peakNumber, peakStartInPass, peakCount, peakArea, maxValue, lastStart > 0 ? peakStartInPass - lastStart : 0, sampleRate, 
-                                            ref autoCorrelation, parentPulse, startOfstartOfPassInSegment,dataInPass.Skip(peakStartInPass).Take(peakCount).ToArray<float>(),(sampleRate/2)/dataInPass.Length,PassNumber,RecordingNumber,limit);
+                                        int HzPerSample = (sampleRate / 2) / dataInPass.Length;
+                                        SpectralPeak peak = SpectralPeak.Create(
+                                            ++peakNumber,
+                                            peakStartInPass,
+                                            peakCount,
+                                            peakArea,
+                                            maxValue,
+                                            lastStart > 0 ? peakStartInPass - lastStart : 0,
+                                            sampleRate,
+                                            autoCorrelationWidth,
+                                            parentPulse,
+                                            startOfstartOfPassInSegment,
+                                            dataInPass.Skip(peakStartInPass).Take(peakCount).ToArray<float>(),
+                                            HzPerSample,
+                                            PassNumber,
+                                            RecordingNumber,
+                                            limit
+
+                                            );
                                         peakList.Add(peak);
                                     }
                                     else
@@ -211,7 +202,7 @@ namespace BatPassAnalysisFW
         
         
 
-        public static Bitmap GetGraph(float[] data, ref ObservableList<Peak> pulseList,decimal Factor)
+        public static Bitmap GetGraph(ref float[] data, ref ObservableList<Peak> pulseList,decimal Factor)
         {
 
             
@@ -232,7 +223,7 @@ namespace BatPassAnalysisFW
                 foreach (var val in data) shortData.Add(val);
             }
 
-            Bitmap bmp = GetBitmap(shortData,ref pulseList,Factor,blocksize);
+            Bitmap bmp = GetBitmap(ref shortData,ref pulseList,Factor,blocksize);
             return (bmp);
         }
 
@@ -243,7 +234,7 @@ namespace BatPassAnalysisFW
         /// <param name="pulseList">optional list of Peak of the detected peaks in the graph</param>
         /// <param name="blocksize">If the datasize was reduced by averaging over a number of points, this is the number of points averaged</param>
         /// <returns></returns>
-        public static Bitmap GetBitmap(List<float> shortData, ref ObservableList<Peak> pulseList, decimal Factor, int blocksize = 1)
+        public static Bitmap GetBitmap(ref List<float> shortData, ref ObservableList<Peak> pulseList, decimal Factor, int blocksize = 1)
 
         {
             shortData = (from d in shortData select (float)Math.Abs(d)).ToList<float>();

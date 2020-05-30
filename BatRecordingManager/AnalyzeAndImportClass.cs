@@ -83,7 +83,7 @@ namespace BatRecordingManager
         internal bool FolderSelected;
 
         /// <summary>
-        ///     class constructor
+        ///     class constructor - default mode for allowing user to select a new folder to analyse
         /// </summary>
         public AnalyseAndImportClass()
         {
@@ -462,13 +462,13 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
             Debug.WriteLine("Recordings imported at " + DateTime.Now);
         }
 
-        internal void OpenWavFile(string folder, string bareFileName)
+        internal void OpenWavFile(string FQFileName, string bareFileName)
         {
             if (string.IsNullOrWhiteSpace(bareFileName)) bareFileName = "LabelTrack";
             if (bareFileName.LastIndexOf('.') > 0)
                 bareFileName = bareFileName.Substring(0, bareFileName.LastIndexOf('.'));
 
-            if (string.IsNullOrWhiteSpace(folder) || !File.Exists(folder)  || (new FileInfo(folder).Length<=0L)) return;
+            if (string.IsNullOrWhiteSpace(FQFileName) || !File.Exists(FQFileName)  || (new FileInfo(FQFileName).Length<=0L)) return;
             if (ExternalProcess != null)
             {
                 MessageBox.Show("Close previous instance of Audacity First!");
@@ -478,7 +478,7 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
             ExternalProcess = new Process();
             if (ExternalProcess == null) return;
 
-            ExternalProcess.StartInfo.FileName = folder;
+            ExternalProcess.StartInfo.FileName = FQFileName;
             //externalProcess.StartInfo.Arguments = folder;
             ExternalProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
 
@@ -487,7 +487,7 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
             ExternalProcess.Exited += ExternalProcess_Exited;
             startedAt=DateTime.Now;
             
-            ExternalProcess = Tools.OpenWavAndTextFile(folder, ExternalProcess);
+            ExternalProcess = Tools.OpenWavAndTextFile(FQFileName, ExternalProcess);
 
             try
             {
@@ -621,15 +621,15 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
         /// <summary>
         ///     Opens Audacity with the fileToaAnalyse
         /// </summary>
-        /// <param name="file"></param>
+        /// <param name="FQFileName"></param>
         /// <returns></returns>
-        private bool Analyse(string file)
+        private bool Analyse(string FQFileName)
         {
-            if (!File.Exists(file) || (new FileInfo(file).Length<=0L)) return false;
-            var bareFilename = file;
-            if (file.Contains(@"\") && !file.EndsWith(@"\")) bareFilename = file.Substring(file.LastIndexOf(@"\") + 1);
+            if (!File.Exists(FQFileName) || (new FileInfo(FQFileName).Length<=0L)) return false;
+            var bareFilename = Path.GetFileName(FQFileName);
+            //if (file.Contains(@"\") && !file.EndsWith(@"\")) bareFilename = file.Substring(file.LastIndexOf(@"\") + 1);
             OnAnalysing(new AnalysingEventArgs(bareFilename));
-            OpenWavFile(file, bareFilename);
+            OpenWavFile(FQFileName, bareFilename);
             return true;
         }
 
@@ -823,7 +823,7 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
                 }
 
                 FilesRemaining = WavFileList.Count;
-                if (FilesRemaining > 0)
+                if (FilesRemaining > 0 && WavFileList.Any())
                 {
                     FileToAnalyse = WavFileList.First();
                     return (FileToAnalyse);

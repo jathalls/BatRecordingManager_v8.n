@@ -226,6 +226,11 @@
             SelectionChanged="passDataGrid_SelectionChanged"
             Style="{StaticResource SimpleDataGridStyle}"
             >
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem x:Name="cmiEnvelope" Header="Generate Envelope Graph" Click="cmiEnvelope_Click"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
                     <Setter Property="Background">
@@ -240,13 +245,18 @@
                             </Binding>
                         </Setter.Value>
                     </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="LightCyan"/>
+                        </Trigger>
+                    </Style.Triggers>
 
 
                 </Style>
             </DataGrid.RowStyle>
             <DataGrid.Columns>
 
-                <DataGridTextColumn Binding="{Binding fileName}" Header="Recording" />
+                <DataGridTextColumn Binding="{Binding shtFileName}" Header="Recording" />
                 <DataGridTextColumn
                     x:Name="PassRecColumn"
                     Binding="{Binding segmentNumber}"
@@ -254,14 +264,14 @@
                     Header="Rec/Seg No"
                     />
                 <DataGridTextColumn Binding="{Binding segStart, StringFormat={}{0:mm}\'{0:ss}.{0:fff}s}" Header="Seg Start" />
-                <DataGridTextColumn Binding="{Binding segLength, StringFormat=##.##}" Header="Seg Length s" />
+                <DataGridTextColumn Binding="{Binding SegLengthSecs, StringFormat=##.##}" Header="Seg Length s" />
                 <DataGridTextColumn
                     Binding="{Binding Pass_Number}"
                     ClipboardContentBinding="{x:Null}"
                     Header="Pass No"
                     />
                 <DataGridTextColumn
-                    Binding="{Binding Pass_Length_s,StringFormat=##.#}"
+                    Binding="{Binding Pass_Length_s,StringFormat=##.##}"
                     ClipboardContentBinding="{x:Null}"
                     Header="Pass Length s"
                     />

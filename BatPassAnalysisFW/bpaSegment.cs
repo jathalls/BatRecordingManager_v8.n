@@ -20,6 +20,9 @@ namespace BatPassAnalysisFW
     public class bpaSegment
     {
 
+        /// <summary>
+        /// segment number in the pass
+        /// </summary>
         public int No
         {
             get
@@ -27,6 +30,10 @@ namespace BatPassAnalysisFW
                 return (segNumber);
             }
         }
+
+        /// <summary>
+        /// formatted offset of the segment nto the recording mins:sescs:ms
+        /// </summary>
         public String Start
         {
             get
@@ -39,6 +46,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// formatted duration of the segment in secs
+        /// </summary>
         public string Length
         {
             get
@@ -47,6 +57,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// Number of passes in PassList
+        /// </summary>
         public int Number_Of_Passes
         {
             get
@@ -55,6 +68,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// sum of the pulses in the passes in PassList
+        /// </summary>
         public int Number_Of_Pulses
         {
             get
@@ -68,6 +84,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// Original analysers comments from metadata or .txt file
+        /// </summary>
         public string Comment { get; set; }
 
         /// <summary>
@@ -90,7 +109,7 @@ namespace BatPassAnalysisFW
         private TimeSpan duration { get; set; }
 
 
-        DataAccessBlock segmentAccessBlock { get; set; }
+        private DataAccessBlock segmentAccessBlock { get; set; }
 
         private ObservableList<bpaPass> PassList { get; set; } = new ObservableList<bpaPass>();
 
@@ -103,7 +122,7 @@ namespace BatPassAnalysisFW
         public bpaSegment(int recNumber, int index, int offset, DataAccessBlock dab, int sampleRate,string comment)
         {
             OffsetInRecordingInSamples = offset;
-            SegmentLengthInSamples = (int)dab.length;
+            SegmentLengthInSamples = (int)dab.Length;
             SampleRate = sampleRate;
             segmentAccessBlock = dab;
 
@@ -120,6 +139,11 @@ namespace BatPassAnalysisFW
             return (PassList);
         }
 
+        public void AddPass(bpaPass pass)
+        {
+            PassList.Add(pass);
+        }
+
         public bool CreatePasses(decimal thresholdFactor,decimal spectrumFactor)
         {
             bool result = false;
@@ -130,27 +154,27 @@ namespace BatPassAnalysisFW
                 //data = new float[SegmentLengthInSamples];
                 // pass the entire segment
 
-                bpaPass pass = new bpaPass(recNumber, segNumber, index++, 0, segmentAccessBlock, SampleRate,Comment);
+                bpaPass pass = new bpaPass(recNumber, segNumber, index++, 0, segmentAccessBlock, SampleRate,Comment,(float)SegmentLengthInSamples/(float)SampleRate);
                 PassList.Add(pass);
             }
             else
             {
-                int startPos = 0;
+                int startOfPassInSegment = 0;
                 int blockSize = 5 * SampleRate; // 5 seconds worth of samples
                 int extendedBlockSize = (int)(7.5f * SampleRate);
                 int remainingLength = SegmentLengthInSamples;
                 while (remainingLength > extendedBlockSize)
                 {
-                    DataAccessBlock dab = new DataAccessBlock(segmentAccessBlock.fileName, segmentAccessBlock.startLocation + startPos, blockSize,SegmentLengthInSamples);
-                    bpaPass pass = new bpaPass(recNumber, segNumber, index++, startPos, dab, SampleRate,Comment);
+                    DataAccessBlock dab = new DataAccessBlock(segmentAccessBlock.FQfileName, segmentAccessBlock.BlockStartInFileInSamples + startOfPassInSegment, blockSize);
+                    bpaPass pass = new bpaPass(recNumber, segNumber, index++, startOfPassInSegment, dab, SampleRate,Comment, (float)SegmentLengthInSamples / (float)SampleRate);
                     PassList.Add(pass);
-                    startPos += blockSize;
+                    startOfPassInSegment += blockSize;
                     remainingLength -= blockSize;
                 }
                 if (remainingLength > 0)
                 {
-                    DataAccessBlock dab = new DataAccessBlock(segmentAccessBlock.fileName, segmentAccessBlock.startLocation + startPos, remainingLength,SegmentLengthInSamples);
-                    bpaPass pass = new bpaPass(recNumber, segNumber, index++, startPos, dab, SampleRate,Comment);
+                    DataAccessBlock dab = new DataAccessBlock(segmentAccessBlock.FQfileName, segmentAccessBlock.BlockStartInFileInSamples + startOfPassInSegment, remainingLength);
+                    bpaPass pass = new bpaPass(recNumber, segNumber, index++, startOfPassInSegment, dab, SampleRate,Comment, (float)SegmentLengthInSamples / (float)SampleRate);
                     PassList.Add(pass);
                 }
             }
@@ -165,5 +189,25 @@ namespace BatPassAnalysisFW
             return (result);
         }
 
+        /// <summary>
+        /// returns the length of the segment as a timespan
+        /// </summary>
+        /// <returns></returns>
+        internal TimeSpan GetDuration()
+        {
+
+            return (duration);
+        }
+
+        /// <summary>
+        /// returns the offset of the segment into the recording <see langword="async"/>a Timespan
+        /// </summary>
+        /// <returns></returns>
+        internal TimeSpan GetOffsetInRecording()
+        {
+            double secs = (double)OffsetInRecordingInSamples / SampleRate;
+            TimeSpan time = TimeSpan.FromSeconds(secs);
+            return (time);
+        }
     }
 }

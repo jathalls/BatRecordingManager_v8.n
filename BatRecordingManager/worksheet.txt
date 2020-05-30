@@ -468,3 +468,6 @@ DONEish
 	Above section mostly complete but not fully tested.
 	New feature to be added:- In the ListByBats view, select one or more recordings and right click to show a context menu which offers the choice of opening the Import picture dialog (which is the current right click effect) and exporting those .wav files to another folder.  The user will select a folder and the files will be copied with their dates preserved.  In general start to substitute right-click context menus throughou instead of multiple SHIFT-Click, CTRL-Click, Right click variations.
 
+28 May 2020
+BUG - On starting an AnalyseAndImport session, the .txt notes file is not opened or used in settig up the recording.
+BUG - with Audacity 2.4.1, On opening a wav file to analyse, the load is slow and the file does not scan to start or zoom, or open a label track.
