@@ -597,13 +597,10 @@ namespace BatRecordingManager
             get
             {
                 var recording = (Recording) GetValue(recordingProperty);
-                recording.RecordingEndTime = new TimeSpan((EndTimeTimePicker.SelectedDate ).Ticks);
-                recording.RecordingStartTime = new TimeSpan((StartTimeTimePicker.SelectedDate).Ticks);
-                var date = DateTime.Now;
-                if (recording.RecordingSession != null)
-                    recording.RecordingDate = recording.RecordingSession.SessionDate;
-                if (RecordingDatePicker.SelectedDate != null)
-                    recording.RecordingDate = RecordingDatePicker.SelectedDate.Value;
+                recording.RecordingEndTime = EndDateTimePicker.SelectedDate.TimeOfDay;
+                recording.RecordingStartTime = StartDateTimePicker.SelectedDate.TimeOfDay;
+                recording.RecordingDate = StartDateTimePicker.SelectedDate;
+                
                 recording.RecordingName = RecordingNameTextBox.Text;
                 recording.RecordingNotes = RecordingNotesTextBox.Text;
                 recording.RecordingGPSLatitude = GpsLatitudeTextBox.Text;
@@ -641,9 +638,13 @@ namespace BatRecordingManager
                     var date = DateTime.Now;
                     if (value.RecordingSession?.SessionDate != null)
                         date = value.RecordingSession.SessionDate;
-                    RecordingDatePicker.SelectedDate = value.RecordingDate ?? date;
-                    EndTimeTimePicker.SelectedDate = new DateTime((value.RecordingEndTime ?? new TimeSpan(22, 0, 0)).Ticks);
-                    StartTimeTimePicker.SelectedDate =
+                    // RecordingDatePicker.SelectedDate = value.RecordingDate ?? date;
+                    var recDate = value.RecordingDate ?? date;
+                    var start = recDate.Date + (value.RecordingStartTime ?? new TimeSpan(18, 0, 0));
+                    var end = recDate.Date + (value.RecordingEndTime ?? new TimeSpan(23, 59, 59));
+                    
+                    EndDateTimePicker.SelectedDate = end;
+                    StartDateTimePicker.SelectedDate = start;
                         new DateTime((value.RecordingStartTime ?? new TimeSpan(18, 0, 0)).Ticks);
                     RecordingNameTextBox.Text = value.RecordingName ?? "";
                     RecordingNotesTextBox.Text = value.RecordingNotes ?? "";

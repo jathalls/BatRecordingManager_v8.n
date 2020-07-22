@@ -256,9 +256,9 @@ namespace UniversalToolkit
 			set 
 			{ 
 				SetValue(IsReadOnlyProperty, value);
-				PopUpCalendarButton.IsEnabled = !value;
+				
 				DateDisplay.IsReadOnly = value;
-				CalendarPopup.IsEnabled = !value;
+				
 			}
 		}
 
@@ -586,6 +586,7 @@ namespace UniversalToolkit
 		private void PopUpCalendarButton_Checked(object sender, RoutedEventArgs e)
 		{
 			Debug.WriteLine("Toggle checked");
+			e.Handled = true;
 		}
 	}
 

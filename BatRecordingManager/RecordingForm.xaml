@@ -109,25 +109,21 @@
                     Content="Recording Times:- " />
                 <Label
                     Width="50" Style="{StaticResource SimpleLabel}"
-                    Content="Date" HorizontalAlignment="Right" />
-                <DatePicker
-                    x:Name="RecordingDatePicker"
-
-                    Width="150"
-                    Background="{StaticResource WindowBackgroundBrushLight}" />
-                <Label
-                    Width="50" Style="{StaticResource SimpleLabel}"
                     Content="Start " Margin="10,0,0,0" HorizontalAlignment="Right" />
                 <tk:DateTimePicker
-                    x:Name="StartTimeTimePicker"
+                    x:Name="StartDateTimePicker"
                     Background="{StaticResource WindowBackgroundBrushLight}"
+                    IsReadOnly="False"
+                    MinimumDate="01/01/1950 01:01:00"
                     Width="150" />
                 <Label
                     Margin="10,0,0,0"
                     Width="50" Style="{StaticResource SimpleLabel}"
                     Content="End " HorizontalAlignment="Right" />
                 <tk:DateTimePicker
-                    x:Name="EndTimeTimePicker"
+                    x:Name="EndDateTimePicker"
+                    IsReadOnly="False"
+                    MinimumDate="01/01/1950 01:01:00"
                     Background="{StaticResource WindowBackgroundBrushLight}"
                     Width="150" />
             </StackPanel>

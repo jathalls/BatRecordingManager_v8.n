@@ -58,9 +58,9 @@
                 <tk:DateTimePicker
                     x:Name="SessionStartDateTime"
                     Background="{StaticResource WindowBackgroundBrushLight}"
-                    SelectedDate="{Binding Path=recordingSession.SessionDate, Mode=TwoWay}"
-                    MinWidth="200"
                     
+                    MinWidth="200"
+                    IsReadOnly="False"
                     MinimumDate="01/01/1950 01:01:00" />
                 <Label
                     Content="End:-  "
@@ -71,6 +71,7 @@
                     MinWidth="200"
                     Background="{StaticResource WindowBackgroundBrushLight}"
                     
+                    IsReadOnly="False"
                     MinimumDate="01/01/1950 01:01:00" />
 
             </StackPanel>
@@ -202,6 +203,8 @@
                 <tk:DateTimePicker
                     Background="{StaticResource WindowBackgroundBrushLight}"
                     x:Name="SunsetTimePicker"
+                    IsReadOnly="False"
+                    MinimumDate="01/01/1950 01:01:00"
                     Margin="5,0"
                     MinWidth="100" />
                 <Button

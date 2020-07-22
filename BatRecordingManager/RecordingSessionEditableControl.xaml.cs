@@ -199,7 +199,7 @@ namespace BatRecordingManager
                     try
                     {
                         session.SessionTag = SessionTagTextBlock.Text;
-                        session.SessionDate = SessionStartDateTime.SelectedDate ;
+                        session.SessionDate = SessionStartDateTime.SelectedDate;
                         session.SessionStartTime = session.SessionDate.TimeOfDay;
                         
                             session.SessionEndTime = SessionEndDateTime.SelectedDate.TimeOfDay;
@@ -244,6 +244,8 @@ namespace BatRecordingManager
 
                         //SessionStartDateTime.Value =
                         value.SessionDate=value.SessionDate.Date + (value.SessionStartTime ?? new TimeSpan());
+                        //RecordingSessionStartDateTime = value.SessionDate;
+                        SessionStartDateTime.SelectedDate = value.SessionDate;
 
                         if (value.SessionEndTime == null)
                             value.SessionEndTime = value.SessionStartTime ?? new TimeSpan();
@@ -255,7 +257,7 @@ namespace BatRecordingManager
                         //StartTimePicker.Value = new DateTime() + (value.SessionStartTime ?? new TimeSpan());
 
                         //EndTimePicker.Value = new DateTime() + (value.SessionEndTime ?? new TimeSpan());
-                        SunsetTimePicker.SelectedDate = new DateTime() + (value.Sunset ?? new TimeSpan());
+                        SunsetTimePicker.SelectedDate = value.SessionDate.Date + (value.Sunset ?? new TimeSpan());
                         WeatherTextBox.Text = value.Weather;
                         EquipmentComboBox.ItemsSource = DBAccess.GetEquipmentList();
                         EquipmentComboBox.Text = value.Equipment;
@@ -307,6 +309,7 @@ namespace BatRecordingManager
                     {
                         SessionTagTextBlock.Text = "";
                         SessionStartDateTime.SelectedDate = DateTime.Now;
+                        //RecordingSessionStartDateTime = DateTime.Now;
                         SessionEndDateTime.SelectedDate = DateTime.Now;
                         //StartTimePicker.Value = DateTime.Now;
                         //EndTimePicker.Value = DateTime.Now;
@@ -332,6 +335,8 @@ namespace BatRecordingManager
                 SetValue(recordingSessionProperty, value);
             }
         }
+
+        public DateTime RecordingSessionStartDateTime { get; set; }
 
         private void Weather_weatherReceived(object sender, weatherEventArgs e)
         {

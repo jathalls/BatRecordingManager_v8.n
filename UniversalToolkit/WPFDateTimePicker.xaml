@@ -14,6 +14,7 @@
                 <ContentPresenter />
             </Border>
         </ControlTemplate>
+        <local:BoolInverter x:Key="boolInverter" />
     </UserControl.Resources>
     <Grid >
         <Grid.ColumnDefinitions>
@@ -45,7 +46,7 @@
                       
                       Name="PopUpCalendarButton" 
                       IsChecked="False" BorderThickness="2" 
-                      IsEnabled="{Binding IsReadOnly}"
+                      IsEnabled="{Binding IsReadOnly,Converter={StaticResource boolInverter}}"
                       Grid.Column="2" Checked="PopUpCalendarButton_Checked"
                        >
             <!--   <Image Source="../Icons/Calendar.Icon.bmp" Stretch="None" HorizontalAlignment="Left"  />-->
@@ -60,7 +61,7 @@
         <Popup IsOpen="{Binding Path=IsChecked, ElementName=PopUpCalendarButton}" 
                x:Name="CalendarPopup" Margin="0,-7,0,0"
                PopupAnimation="Fade"
-               IsEnabled="{Binding IsReadOnly}"
+               IsEnabled="{Binding IsReadOnly,Converter={StaticResource boolInverter}}"
                StaysOpen="False">
             <wpftc1:Calendar Margin="0,-1,0,0" x:Name="CalDisplay" ></wpftc1:Calendar>
         </Popup>

@@ -17,3 +17,4 @@ C:\Users\justi\source\repos\BRMv8.n\UniversalToolkit\obj\Debug\UniversalToolkit.
 C:\Users\justi\source\repos\BRMv8.n\UniversalToolkit\obj\Debug\UniversalToolkit.csprojAssemblyReference.cache
 C:\Users\justi\source\repos\BRMv8.n\UniversalToolkit\obj\Debug\WPFTimePicker.baml
 C:\Users\justi\source\repos\BRMv8.n\UniversalToolkit\obj\Debug\WPFTimePicker.g.cs
+C:\Users\justi\source\repos\BRMv8.n\UniversalToolkit\obj\Debug\GeneratedInternalTypeHelper.g.cs

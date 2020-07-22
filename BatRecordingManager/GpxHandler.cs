@@ -154,7 +154,7 @@ namespace BatRecordingManager
                         if (previous == null)
                         {
                             result = GetGpsCoordinates(trkpt);
-                            return result;
+                            break;
                         }
 
                         var offsetToPrevious = GetOffset(previous, utcTime);

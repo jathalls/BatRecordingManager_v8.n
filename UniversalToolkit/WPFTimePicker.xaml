@@ -26,7 +26,7 @@
 
         <Grid x:Name="hour" Focusable="True" KeyDown="Down">
 
-            <TextBlock x:Name="mmTxt" TextWrapping="Wrap" Text="{Binding Path=Hours, ElementName=UserControl, Mode=Default}"
+            <TextBlock x:Name="mmTxt" TextWrapping="Wrap" Text="{Binding Path=Hours, ElementName=UserControl, Mode=Default,StringFormat=00}"
                 IsEnabled="{Binding IsReadOnly}"
                  TextAlignment="Center" VerticalAlignment="Center"  FontSize="14"/>
 
@@ -42,7 +42,7 @@
 
         <Grid  Grid.Column="2" x:Name="min" Focusable="True" KeyDown="Down">
 
-            <TextBlock  x:Name="ddTxt"  TextWrapping="Wrap" Text="{Binding Path=Minutes, ElementName=UserControl, Mode=Default}"
+            <TextBlock  x:Name="ddTxt"  TextWrapping="Wrap" Text="{Binding Path=Minutes, ElementName=UserControl, Mode=Default,StringFormat=00}"
                         IsEnabled="{Binding IsReadOnly}"
 
                   TextAlignment="Center" VerticalAlignment="Center"  FontSize="14"/>
@@ -59,7 +59,7 @@
 
         <Grid  Grid.Column="4" Name="sec" Focusable="True" KeyDown="Down">
 
-            <TextBlock x:Name="yyTxt"  TextWrapping="Wrap" Text="{Binding Path=Seconds, ElementName=UserControl, Mode=Default}"
+            <TextBlock x:Name="yyTxt"  TextWrapping="Wrap" Text="{Binding Path=Seconds, ElementName=UserControl, Mode=Default,StringFormat=00}"
                     IsEnabled="{Binding IsReadOnly}"
                  TextAlignment="Center" VerticalAlignment="Center"  FontSize="14"/>
 

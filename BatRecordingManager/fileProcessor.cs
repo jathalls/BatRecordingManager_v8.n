@@ -404,21 +404,33 @@ namespace BatRecordingManager
         {
 
             DateTime creationTime;
-            fileStart = new DateTime();
+            fileStart = DateTime.Now;
             fileEnd = new DateTime();
 
             var duration = new TimeSpan(0L);
             wavfile = "";
             try
             {
-                var wavfilename = fileName.Substring(0, fileName.Length - 4);
-                wavfilename = wavfilename + ".wav";
+                var wavfilename = Path.ChangeExtension(fileName, ".wav");
+                
                 if (File.Exists(wavfilename) && (new FileInfo(wavfilename).Length>0L))
                 {
                     var info = new FileInfo(wavfilename);
                     wavfile = wavfilename;
                     var fa = File.GetAttributes(wavfile);
-                    fileStart = File.GetCreationTime(wavfile);
+                    DateTime created = File.GetCreationTime(wavfile);
+                    DateTime modified = File.GetLastWriteTime(wavfile);
+                    DateTime named = getTimeFromFilename(wavfile);
+
+                    // set fileStart to the earliest of the three date times since we don't which if any have been
+                    // corrupted by copying since the file was recorded, but the earliest must be our best guess for
+                    // the time being.
+                    if (fileStart > created) fileStart = created;
+                    if (fileStart > modified) fileStart = modified;
+                    if (fileStart > named) fileStart = named;
+
+
+
                     using (WaveFileReader wfr = new WaveFileReader(wavfile))
                     {
                         duration = wfr.TotalTime;
@@ -469,6 +481,35 @@ namespace BatRecordingManager
             }
 
             return duration;
+        }
+
+        private static DateTime getTimeFromFilename(string wavfile)
+        {
+            DateTime result = DateTime.Now;
+            string pattern = @".*[-_]{1}((\d{2})|(\d{4}))[-_]?(\d{2})[-_]?(\d{2})[-_]{1}(\d{2})[-:]?(\d{2})[-_]?(\d{2})";
+            var match = Regex.Match(wavfile, pattern);
+            if(match.Success && match.Groups.Count >= 9)
+            {
+                int.TryParse(match.Groups[3].Value, out int year);
+                int.TryParse(match.Groups[4].Value, out int month);
+                int.TryParse(match.Groups[5].Value, out int day);
+                int.TryParse(match.Groups[6].Value, out int hour);
+                int.TryParse(match.Groups[7].Value, out int minute);
+                int.TryParse(match.Groups[8].Value, out int secs);
+                if (year < 100)// i.e. only lower oder two digits
+                {
+                    if (year > 70) year += 1900;
+                    else year += 2000;
+                }
+
+                result = new DateTime(year, month, day, hour, minute, secs);
+
+            }
+            else
+            {
+                Debug.WriteLine($"Date time not found in {wavfile}");
+            }
+            return (result);
         }
 
         /*
