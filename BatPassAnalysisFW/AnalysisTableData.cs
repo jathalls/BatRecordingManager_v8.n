@@ -1,16 +1,14 @@
-﻿using Acr.Settings;
-using DspSharp.Utilities.Collections;
+﻿using DspSharp.Utilities.Collections;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Media.Imaging;
+
 
 namespace BatPassAnalysisFW
 {
@@ -34,9 +32,9 @@ namespace BatPassAnalysisFW
         public ObservableList<bpaSegment> combinedSegmentList { get; set; } = new ObservableList<bpaSegment>();
 
 
-        private decimal _thresholdFactor;
-        public decimal thresholdFactor 
-        { 
+        private decimal _thresholdFactor = 1.0m;
+        public decimal thresholdFactor
+        {
             get
             {
                 return (_thresholdFactor);
@@ -48,7 +46,7 @@ namespace BatPassAnalysisFW
             }
         }
 
-        private decimal _spectrumFactor;
+        private decimal _spectrumFactor = 1.0m;
         public decimal spectrumFactor
         {
             get
@@ -149,6 +147,15 @@ namespace BatPassAnalysisFW
             }
         }
 
+        internal void ReProcessFile(string file,decimal thresholdFactor,decimal spectrumFactor)
+        {
+            bpaRecording recording = combinedRecordingList.Where(rec => rec.FQfilename == file)?.FirstOrDefault();
+            if(recording!=null && recording.recNumber > 0)
+            {
+                recording.CreateSegments(thresholdFactor, spectrumFactor);
+            }recordingsDataGrid_SelectionChanged(null);
+        }
+
         private bool _spectrumEnabled = false;
         public bool SpectrumEnabled
         {
@@ -228,6 +235,35 @@ namespace BatPassAnalysisFW
                 NotifyPropertyChanged(nameof(FrequencyHeader));
                 System.Diagnostics.Debug.WriteLine("FrequencyHeaderChanged");
             }
+        }
+
+        private bool _PulseEnvelopEnabled = false;
+        public bool PulseEnvelopeEnabled 
+        {
+            get { return (_PulseEnvelopEnabled); }
+            internal set
+            {
+                _PulseEnvelopEnabled = value;
+                NotifyPropertyChanged(nameof(PulseEnvelopeEnabled));
+            } 
+        }
+
+        private BitmapImage _pulseImageBmp;
+        public BitmapImage pulseImageBmp 
+        {
+            get
+            {
+                return (_pulseImageBmp);
+            } 
+            private set
+            {
+                _pulseImageBmp = value;
+                NotifyPropertyChanged(nameof(pulseImageBmp));
+                if (value != null)
+                {
+                    PulseEnvelopeEnabled = true;
+                }
+            } 
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -337,7 +373,7 @@ namespace BatPassAnalysisFW
             
             recordingsDataGrid_SelectionChanged(combinedRecordingList);
 
-            headerText = recording.File_Name;
+            //headerText = recording.File_Name;
 
 
         }
@@ -345,6 +381,7 @@ namespace BatPassAnalysisFW
         internal void segmentDataGrid_SelectionChanged(IList selectedItems)
         {
             combinedPassList.Clear();
+
             if (selectedItems != null && selectedItems.Count > 0)
             {
                 
@@ -363,6 +400,17 @@ namespace BatPassAnalysisFW
                 }
 
 
+            }
+            else
+            {
+                foreach(var seg in combinedSegmentList)
+                {
+                    foreach(var pass in seg.getPassList())
+                    {
+                        combinedPassList.Add(pass);
+                        
+                    }
+                }
             }
             passDataGrid_SelectionChanged(combinedPassList);
             
@@ -400,6 +448,32 @@ namespace BatPassAnalysisFW
         }
 
         /// <summary>
+        /// recalculates the peaks in the specified pass
+        /// </summary>
+        /// <param name="pass"></param>
+        internal void UpdatePass(bpaPass pass)
+        {
+            List<bpaPass> selection = new List<bpaPass>();
+            selection.Add(pass);
+            bpaRecording rec = combinedRecordingList.Where(r => r.recNumber == pass.recordingNumber).SingleOrDefault();
+            bpaSegment seg = rec.getSegmentList().Where(s => s.No == pass.segmentNumber).SingleOrDefault();
+            bpaPass actualPass = seg.getPassList().Where(p => p.Pass_Number == pass.Pass_Number).SingleOrDefault();
+            actualPass.CreatePass(thresholdFactor, spectrumFactor);
+
+            BitmapImage bmpi = pass.GetSegmentBitmap();
+            //OnBmpiCreated(new BmpiEventArgs(bmpi,BmpiEventArgs.ImageType.ENVELOPE));
+            
+
+            seg.ReplacePass(actualPass);
+            recordingsDataGrid_SelectionChanged(combinedRecordingList);
+            //passDataGrid_SelectionChanged(selection);
+
+            EnvelopeImage = bmpi;
+            EnvelopeEnabled = true;
+
+        }
+
+        /// <summary>
         /// If there is just one spectral peak item selected, then find the corresponding pulse,
         /// re-create the spectrum of that pulse, and creata graph of the spectrum as a bitmap.  Then
         /// raise an event to pass the bitmap back to a display handling parent.
@@ -430,13 +504,13 @@ namespace BatPassAnalysisFW
                         //ObservableList<Peak> peakList = new ObservableList<Peak>();
 
                         
-                        var bmp = PassAnalysis.GetBitmap(ref fftData, ref peakList, spectrumFactor);
+                        var bmp = PassAnalysis.GetBitmap(ref fftData, ref peakList, (double)spectrumFactor);
                         var bmpi = bpaPass.loadBitmap(bmp);
                         SpectrumImage = bmpi;
                         SpectrumEnabled = true;
                         ObservableList<Peak> emptyList = new ObservableList<Peak>();
                         //var corrData = autoCorr.ToList<float>();
-                        var acBmp = PassAnalysis.GetBitmap(ref corrData, ref emptyList, 0.0m);
+                        var acBmp = PassAnalysis.GetBitmap(ref corrData, ref emptyList, 0.0d);
                         CorrelationImage = bpaPass.loadBitmap(acBmp);
                         AutoCorEnabled = true;
                         //OnBmpiCreated(new BmpiEventArgs(bmpi,BmpiEventArgs.ImageType.SPECTRUM));
@@ -459,7 +533,7 @@ namespace BatPassAnalysisFW
         /// <param name="selectedItems"></param>
         public void recordingsDataGrid_SelectionChanged(IList selectedItems)
         {
-            
+            List<bpaRecording> recList = new List<bpaRecording>();
             combinedSegmentList.Clear();
             if (selectedItems != null && selectedItems.Count>0)
             {
@@ -469,14 +543,22 @@ namespace BatPassAnalysisFW
                     if (item is bpaRecording)
                     {
                         bpaRecording recording = item as bpaRecording;
-                        foreach(var seg in recording.getSegmentList())
-                        {
-                            combinedSegmentList.Add(seg);
-                        }
-                        
+
+                        recList.Add(recording);
 
                         
                     }
+                }
+            }
+            else
+            {
+                foreach (var rec in combinedRecordingList) recList.Add(rec);
+            }
+
+            foreach (var recording in recList) {
+                foreach (var seg in recording.getSegmentList())
+                {
+                    combinedSegmentList.Add(seg);
                 }
             }
             segmentDataGrid_SelectionChanged(combinedSegmentList);
@@ -520,34 +602,40 @@ namespace BatPassAnalysisFW
         /// <param name="selectedItems"></param>
         public void passDataGrid_SelectionChanged(IList selectedItems)
         {
+            List<bpaPass> selectedPasses = new List<bpaPass>();
+            selectedPasses.AddRange(combinedPassList);
             combinedPulseList.Clear();
-            if (selectedItems != null && selectedItems.Count>0)
+
+            
+            if (selectedItems != null && selectedItems.Count > 0)
+            {
+                selectedPasses = new List<bpaPass>();
+                foreach (var item in selectedItems) selectedPasses.Add(item as bpaPass);
+            }
+
+            foreach (var pass in selectedPasses)
             {
 
-                foreach (var item in selectedItems)
+                
+                if (selectedPasses.Count == 1)
                 {
-                    if (item is bpaPass)
-                    {
-                        bpaPass pass = item as bpaPass;
-                        if (selectedItems.Count == 1)
-                        {
-                            //DisplayEnvelope(pass);
-                        }
-                        foreach(var pulse in pass.getPulseList())
-                        {
-                            combinedPulseList.Add(pulse);
-                        }
-                        
-
-                        //combinedPulseList.AddRange(pass.getPulseList());
-                    }
+                    //DisplayEnvelope(pass);
                 }
+                foreach (var pulse in pass.getPulseList())
+                {
+                    combinedPulseList.Add(pulse);
+                }
+
+
+                //combinedPulseList.AddRange(pass.getPulseList());
+
             }
+
             EnvelopeEnabled = false;
 
             pulseDataGrid_SelectionChange(combinedPulseList);
-            
-            
+
+
         }
 
 
@@ -565,6 +653,142 @@ namespace BatPassAnalysisFW
             EnvelopeEnabled = true;
         }
 
-        
+        /// <summary>
+        /// RemoveOutliers for any pass where the peakSD>10kHz
+        /// </summary>
+        internal void AutoRemoveOutliers()
+        {
+            Debug.WriteLine("\n\n                   Auto Remove Outliers");
+            foreach (var rec in combinedRecordingList)
+            {
+                foreach (var seg in rec.getSegmentList())
+                {
+                    
+
+
+                    Debug.WriteLine($"\n{seg.getPassList().Count()} passes in segment {seg.No}");
+                    var passList = seg.getPassList();
+                    //var passesToBeProcessed = (from pass in passList
+                    //                        where pass.peakFrequencykHzSD >= 10.0f
+                    //                      select pass)?.ToList<bpaPass>();
+                    var passesToBeProcessed = passList.Where(p => (double)p.GetPeakFrequencykHzSD() > 10.0d);
+                    
+                    int i = 1;
+                    
+                    while (passesToBeProcessed != null && passesToBeProcessed.Count() > 0)
+                    {
+                        List<Pulse> pulsesToBeRemoved = new List<Pulse>();
+                        Debug.WriteLine($"{passesToBeProcessed.Count()} passes to be processed in round {i++}");
+                        if (i > 10) break;
+                        foreach (var pass in passesToBeProcessed)
+                        {
+                            pulsesToBeRemoved.AddRange(pass.RemoveOutliers());
+
+                            Debug.WriteLine($"Processed Pass {pass.Pass_Number}");
+                        }
+                        if (pulsesToBeRemoved != null && pulsesToBeRemoved.Count >0)
+                        {
+                            passList = seg.DeletePulses(pulsesToBeRemoved);
+                        }
+                        
+                        
+                        passesToBeProcessed = passList.Where(p => (double)p.GetPeakFrequencykHzSD() > 10.0d);
+                        if (passesToBeProcessed == null || passesToBeProcessed.Count() <= 0) break;
+                        Debug.WriteLine($"{passesToBeProcessed?.Count()} passes need to be reprocessed\n");
+                    }
+
+                    //if (combinedPassList.Contains(pass)) combinedPassList.Remove(pass);
+                    //foreach (var pulse in pulsesToBeRemoved)
+                    //{
+                    //    if (combinedPulseList.Contains(pulse))
+                    //    {
+                    //        combinedPulseList.Remove(pulse);
+                    //    }
+
+                    //}
+
+                    Debug.WriteLine($"RemovedOutliers from {passesToBeProcessed.Count()} passes in seg{seg.No} of rec {rec.recNumber}");
+
+                }
+            }
+
+
+
+        }
+
+        /// <summary>
+        /// displays a graph of a specific pulse and its peak
+        /// </summary>
+        /// <param name="selectedSpectrum"></param>
+        internal void DisplayPulseEnvelope(SpectralPeak selectedSpectrum)
+        {
+            if (selectedSpectrum != null)
+            {
+                Peak selectedPeak=selectedSpectrum.getPulsePeak();
+                Pulse pulse = (from p in combinedPulseList
+                               where p.getPeak() == selectedPeak
+                               select p).SingleOrDefault();
+                if (pulse != null)
+                {
+                    BitmapImage bmpi = pulse.getEnvelopeBitmap();
+                    pulseImageBmp = bmpi;
+                }
+            }
+        }
+
+
+
+
+        /// <summary>
+        /// Delete any pulses where the peak, start or end frequency is more than 2SD away from the pass mean
+        /// </summary>
+        internal void AutoDeleteExtremePulses()
+        {
+            foreach(var rec in combinedRecordingList)
+            {
+                foreach(var seg in rec.getSegmentList())
+                {
+                    foreach(var pass in seg.getPassList())
+                    {
+                        pass.DeleteExtremePulses();
+                    }
+                }
+            }
+
+            
+        }
+
+        internal void AutoDeleteBlankPasses()
+        {
+
+            Debug.WriteLine($"\n\nAutoDeleting ");
+            for (int i = 0; i < combinedRecordingList.Count(); i++)
+            {
+                var passesToBeRemoved = (from seg in combinedRecordingList[i].getSegmentList()
+                                         from pass in seg.getPassList()
+                                         where pass.getPulseList().Count < 3
+                                         select pass)?.ToList();
+                if (passesToBeRemoved != null)
+                {
+                    foreach (var pass in passesToBeRemoved)
+                    {
+                        combinedRecordingList[i].DeletePass(pass);
+                        if (combinedPassList.Contains(pass))
+                        {
+                            combinedPassList.Remove(pass);
+                        }
+                    }
+                }
+                Debug.WriteLine($"Deleted {passesToBeRemoved.Count()} passes from rec number {combinedRecordingList[i].recNumber}");
+            }
+
+
+
+
+
+
+
+            recordingsDataGrid_SelectionChanged(null);
+        }
     }
 }

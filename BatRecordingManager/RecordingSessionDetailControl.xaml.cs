@@ -111,15 +111,15 @@ namespace BatRecordingManager
                     //StartTimePicker.Text = (value.SessionStartTime ?? new TimeSpan()).ToString();
                     //EndTimePicker.Text = (value.SessionEndTime ?? new TimeSpan()).ToString();
 
-                    SessionStartDateTime.Value = value.SessionDate.Date + (value.SessionStartTime ?? new TimeSpan());
+                    SessionStartDateTime.SelectedDate = value.SessionDate.Date + (value.SessionStartTime ?? new TimeSpan());
 
                     if (value.SessionEndTime == null) value.SessionEndTime = value.SessionStartTime ?? new TimeSpan();
                     if (value.EndDate == null)
                         value.EndDate = value.SessionDate.Date +
                                         (value.SessionEndTime ?? (value.SessionStartTime ?? new TimeSpan()));
-                    SessionEndDateTime.Value = value.EndDate;
-
-                    SunsetTimePicker.Text = (value.Sunset ?? new TimeSpan()).ToString();
+                    SessionEndDateTime.SelectedDate = value.EndDate??new DateTime();
+                    SunsetTimePicker.Value = (value.Sunset ?? new TimeSpan());
+                    //SunsetTimePicker.Text = (value.Sunset ?? new TimeSpan()).ToString();
                     TemperatureIntegerUpDown.Text = value.Temp <= 0 ? "" : value.Temp + @"°C";
                     WeatherTextBox.Text = value.Weather ?? "";
                     EquipmentComboBox.Text = value.Equipment ?? "";
@@ -150,8 +150,8 @@ namespace BatRecordingManager
                 else
                 {
                     SessionTagTextBlock.Text = "";
-                    SessionStartDateTime.Value = null;
-                    SessionEndDateTime.Value = null;
+                    SessionStartDateTime.SelectedDate = new DateTime();
+                    SessionEndDateTime.SelectedDate = new DateTime();
                     //SessionDatePicker.Text = "";
                     //StartTimePicker.Text = "";
                     //EndTimePicker.Text = "";

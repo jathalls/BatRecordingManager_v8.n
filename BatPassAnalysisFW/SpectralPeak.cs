@@ -1,11 +1,5 @@
-﻿using DspSharp.Algorithms;
-using DspSharp.Utilities.Collections;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BatPassAnalysisFW
 {
@@ -22,9 +16,9 @@ namespace BatPassAnalysisFW
 
         public int Pulse_ { get; set; } = 1;
 
-        public int Pulse_Length_ms { get; set; } = 0;
+        public float Pulse_Length_ms { get; set; } = 0.0f;
 
-        public int Pulse_Interval_ms { get; set; } = 0;
+        public float Pulse_Interval_ms { get; set; } = 0.0f;
 
         public float AbsoluteThreshold { get; set; } = 0.0f;
 
@@ -166,6 +160,8 @@ namespace BatPassAnalysisFW
 
         public int recordingNumber { get; set; }
 
+        public bool IsValidPulse { get; set; } = false;
+
         //private float[] autoCorrelation { get; set; }
 
         private Peak parentPulse { get; set; }
@@ -182,7 +178,7 @@ namespace BatPassAnalysisFW
         /// <param name="interval"></param>
         /// <param name="data"></param>
         public SpectralPeak(int peakNumber, int rate, int segmentStart, int peakStart, int peakWidth, double peakArea, float peakMaxHeight, int interval, ref float[] data,
-            int HzPerSample, float autoCorrelationWidth, Peak parentPulse = null, int PassNumber = 1, int RecordingNumber = 1, float AbsoluteThreshold = 0.0f) :
+            int HzPerSample, float autoCorrelationWidth, Peak parentPeak = null,bool isValidPulse=true, int PassNumber = 1, int RecordingNumber = 1, float AbsoluteThreshold = 0.0f) :
             base(peakNumber, rate, segmentStart, peakStart, peakWidth, peakArea, peakMaxHeight, interval, AbsoluteThreshold: AbsoluteThreshold)
         {
 
@@ -191,15 +187,17 @@ namespace BatPassAnalysisFW
             this.HzPerSample = HzPerSample;
             sampleRate = rate;
             halfHeightValue(ref data);
-            if (parentPulse != null)
+            if (parentPeak != null)
             {
-                this.parentPulse = parentPulse;
+                this.parentPulse = parentPeak;
                 Pass_ = PassNumber;
-                Pulse_ = parentPulse.pulse_Number;
-                Pulse_Length_ms = parentPulse.peakWidthMs;
-                Pulse_Interval_ms = parentPulse.prevIntervalMs;
+                Pulse_ = parentPeak.peak_Number;
+                Pulse_Length_ms = parentPeak.peakWidthMs;
+                Pulse_Interval_ms = parentPeak.prevIntervalMs;
+                
 
             }
+            IsValidPulse = isValidPulse;
             this.recordingNumber = RecordingNumber;
             this.AutoCorrelationWidth = autoCorrelationWidth;
             this.AbsoluteThreshold = AbsoluteThreshold;
@@ -251,12 +249,12 @@ namespace BatPassAnalysisFW
         /// <param name="peakStart"></param>
         /// <param name="peakCount"></param>
         public static SpectralPeak Create(int peakNumber, int peakStart, int peakCount, double peakArea, float maxHeight, int interval, int sampleRate, float autoCorrelationWidth,
-            Peak parentPulse = null, double startOffset = 0.0d, float[] data = null, int HzPerSample = 1, int PassNumber = 1, int RecordingNumber = 1, float AbsoluteThreshold = 0.0f)
+            Peak parentPeak = null,bool isValidPulse=true, double startOffset = 0.0d, float[] data = null, int HzPerSample = 1, int PassNumber = 1, int RecordingNumber = 1, float AbsoluteThreshold = 0.0f)
         {
 
             //Debug.WriteLine($"Peak at {peakStart} for {peakCount} - {(float)peakStart / sampleRate}/{(float)peakCount / sampleRate}");
             SpectralPeak peak = new SpectralPeak(peakNumber, sampleRate, (int)(startOffset * sampleRate), peakStart, peakCount, peakArea, maxHeight, interval, ref data, HzPerSample,
-                autoCorrelationWidth, parentPulse, PassNumber, RecordingNumber, AbsoluteThreshold);
+                autoCorrelationWidth, parentPeak,isValidPulse, PassNumber, RecordingNumber, AbsoluteThreshold);
 
             return (peak);
 

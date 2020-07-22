@@ -597,8 +597,8 @@ namespace BatRecordingManager
             get
             {
                 var recording = (Recording) GetValue(recordingProperty);
-                recording.RecordingEndTime = new TimeSpan((EndTimeTimePicker.Value ?? DateTime.Now).Ticks);
-                recording.RecordingStartTime = new TimeSpan((StartTimeTimePicker.Value ?? DateTime.Now).Ticks);
+                recording.RecordingEndTime = new TimeSpan((EndTimeTimePicker.SelectedDate ).Ticks);
+                recording.RecordingStartTime = new TimeSpan((StartTimeTimePicker.SelectedDate).Ticks);
                 var date = DateTime.Now;
                 if (recording.RecordingSession != null)
                     recording.RecordingDate = recording.RecordingSession.SessionDate;
@@ -642,8 +642,8 @@ namespace BatRecordingManager
                     if (value.RecordingSession?.SessionDate != null)
                         date = value.RecordingSession.SessionDate;
                     RecordingDatePicker.SelectedDate = value.RecordingDate ?? date;
-                    EndTimeTimePicker.Value = new DateTime((value.RecordingEndTime ?? new TimeSpan(22, 0, 0)).Ticks);
-                    StartTimeTimePicker.Value =
+                    EndTimeTimePicker.SelectedDate = new DateTime((value.RecordingEndTime ?? new TimeSpan(22, 0, 0)).Ticks);
+                    StartTimeTimePicker.SelectedDate =
                         new DateTime((value.RecordingStartTime ?? new TimeSpan(18, 0, 0)).Ticks);
                     RecordingNameTextBox.Text = value.RecordingName ?? "";
                     RecordingNotesTextBox.Text = value.RecordingNotes ?? "";

@@ -18,6 +18,7 @@
       <Function>el</Function>
       <Type>fm-qCF/qCF</Type>
     </Call>
+    <Label>PIPPIP</Label>
   </Bat>
   <Bat Name="SopranoPip">
     <BatGenus>Pipistrellus</BatGenus>
@@ -37,6 +38,7 @@
       <Function>el</Function>
       <Type>fm-qCF/qCF</Type>
     </Call>
+    <Label>PIPPYG</Label>
   </Bat>
   <Bat Name="Noctule">
     <BatGenus>Nyctalus</BatGenus>
@@ -62,6 +64,7 @@
       <Function>el</Function>
       <Type>qCF</Type>
     </Call>
+    <Label>NYCNOC</Label>
   </Bat>
   <Bat Name="Leislers">
     <BatGenus>Nyctalus</BatGenus>
@@ -89,6 +92,7 @@
       <Function>el</Function>
       <Type>qCF</Type>
     </Call>
+    <Label>NYCLEI</Label>
   </Bat>
   <Bat Name="Daubentons">
     <BatGenus>Myotis</BatGenus>
@@ -107,6 +111,7 @@
       <Function>el</Function>
       <Type>fm r-sig</Type>
     </Call>
+    <Label>MYODAU</Label>
   </Bat>
   <Bat Name="Natterers">
     <BatGenus>Myotis</BatGenus>
@@ -125,6 +130,7 @@
       <Function>el</Function>
       <Type>fm2</Type>
     </Call>
+    <Label>MYONTA</Label>
   </Bat>
   <Bat Name="Serotine">
     <BatGenus>Eptesicus</BatGenus>
@@ -141,6 +147,7 @@
       <Function>el</Function>
       <Type>fm-qCF/qCF</Type>
     </Call>
+    <Label>EPTSER</Label>
   </Bat>
   <Bat Name="BLE">
     <BatGenus>Plecotus</BatGenus>
@@ -157,6 +164,7 @@
       <Function>el</Function>
       <Type>fm2</Type>
     </Call>
+    <Label>PLEAUR</Label>
   </Bat>
   <Bat Name="GLE">
     <BatGenus>Plecotus</BatGenus>
@@ -173,6 +181,7 @@
       <Function>el</Function>
       <Type>fm2-fm2.5</Type>
     </Call>
+    <Label>PLEAUS</Label>
   </Bat>
   <Bat Name="Uncertain Longeared">
     <BatGenus>Plecotus</BatGenus>
@@ -191,6 +200,7 @@
       <Function>el</Function>
       <Type>fm2</Type>
     </Call>
+    <Label>PLESP</Label>
   </Bat>
   <Bat Name="Barbastelle">
     <BatGenus>Barbastelle</BatGenus>
@@ -217,6 +227,7 @@
       <Function>el</Function>
       <Type>fm1/fm2</Type>
     </Call>
+    <Label>BARBAR</Label>
   </Bat>
   <Bat Name="MyotisSp">
     <BatGenus>Myotis</BatGenus>
@@ -226,6 +237,7 @@
     <BatTag>Myotis sp.</BatTag>
     <BatTag>Myotis sp</BatTag>
     <BatTag>Myotis ?</BatTag>
+  <Label>MYOSP</Label>
   </Bat>
   <Bat Name="P50">
     <BatGenus>Pipistrellus</BatGenus>
@@ -234,6 +246,7 @@
     <BatTag>P50</BatTag>
     <BatTag>Pip?</BatTag>
     <BatTag>Pip ?</BatTag>
+    <Label>PIP50</Label>
   </Bat>
   <Bat Name="Nathusius">
     <BatGenus>Pipistrellus</BatGenus>
@@ -253,12 +266,14 @@
       <Function>el</Function>
       <Type>fm-qCF/qCF</Type>
     </Call>
+    <label>PIPNAT</label>
   </Bat>
   <Bat Name="Savis">
     <BatGenus>Hypsugo</BatGenus>
     <BatSpecies>savii</BatSpecies>
     <BatCommonName>Savi's</BatCommonName>
     <BatTag>Savis</BatTag>
+    <Label>HYPSAV</Label>
   </Bat>
   <Bat Name="GHS">
     <BatGenus>Rhinolophu</BatGenus>
@@ -279,6 +294,7 @@
       <Function>el</Function>
       <Type>cf/cf-fm/fm-cf-fm</Type>
     </Call>
+    <Label>RHIFER</Label>
   </Bat>
   <Bat Name="LHS">
     <BatGenus>Rhinolophus</BatGenus>
@@ -298,6 +314,7 @@
       <Function>el</Function>
       <Type>CF/CF-fm/fm-CF-fm</Type>
     </Call>
+    <Label>RHIHIP</Label>
   </Bat>
   <Bat Name="Brandts">
     <BatGenus>Myotis</BatGenus>
@@ -315,6 +332,7 @@
       <Function>el</Function>
       <Type>fm1/fm1.2</Type>
     </Call>
+    <Label>MYOBRA</Label>
   </Bat>
   <Bat Name="Whiskered">
     <BatGenus>Myotis</BatGenus>
@@ -333,6 +351,7 @@
       <Function>el</Function>
       <Type>fm1/fm1.1</Type>
     </Call>
+    <label>MYOMYS</label>
   </Bat>
   <Bat Name="Alcathoe">
     <BatGenus>Myotis</BatGenus>
@@ -349,6 +368,7 @@
       <Function>el</Function>
       <Type>fm2</Type>
     </Call>
+    <Label>MYOALC</Label>
   </Bat>
   <Bat Name="Bechsteins">
     <BatGenus>Myotis</BatGenus>
@@ -366,6 +386,7 @@
       <Function>el</Function>
       <Type>fm1</Type>
     </Call>
+    <Label>MYOBEC</Label>
   </Bat>
   <Bat Name="GME">
     <BatGenus>Myotis</BatGenus>
@@ -382,5 +403,6 @@
       <Function>el</Function>
       <Type>fm2</Type>
     </Call>
+    <Label>MYOMYO</Label>
   </Bat>
 </BatLibrary>

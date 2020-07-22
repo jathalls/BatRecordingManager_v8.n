@@ -1,28 +1,9 @@
-﻿using BatPassAnalysisFW;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using PixelFormat = System.Drawing.Imaging.PixelFormat;
-using Point = System.Windows.Point;
 using System.Drawing;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
-using System.Windows.Forms;
+using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace AnalysisMain
 {
@@ -56,7 +37,7 @@ namespace AnalysisMain
 
         
 
-        public static BitmapImage loadBitmap(System.Drawing.Bitmap source)
+        public static BitmapImage loadBitmap(Bitmap source)
         {
             
             BitmapImage bmpi = null;

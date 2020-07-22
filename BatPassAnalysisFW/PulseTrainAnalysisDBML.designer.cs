@@ -123,6 +123,10 @@ namespace BatPassAnalysisFW
 		
 		private int _Segment;
 		
+		private System.Nullable<double> _EnvelopeThresholdFactor;
+		
+		private System.Nullable<double> _SpectrumThresholdFactor;
+		
 		private EntitySet<PTAPulse> _PTAPulses;
 		
 		private EntityRef<PTASegment> _PTASegment;
@@ -141,6 +145,10 @@ namespace BatPassAnalysisFW
     partial void OnPassNumberChanged();
     partial void OnSegmentChanging(int value);
     partial void OnSegmentChanged();
+    partial void OnEnvelopeThresholdFactorChanging(System.Nullable<double> value);
+    partial void OnEnvelopeThresholdFactorChanged();
+    partial void OnSpectrumThresholdFactorChanging(System.Nullable<double> value);
+    partial void OnSpectrumThresholdFactorChanged();
     #endregion
 		
 		public PTAPass()
@@ -250,6 +258,46 @@ namespace BatPassAnalysisFW
 					this._Segment = value;
 					this.SendPropertyChanged("Segment");
 					this.OnSegmentChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_EnvelopeThresholdFactor", DbType="Float")]
+		public System.Nullable<double> EnvelopeThresholdFactor
+		{
+			get
+			{
+				return this._EnvelopeThresholdFactor;
+			}
+			set
+			{
+				if ((this._EnvelopeThresholdFactor != value))
+				{
+					this.OnEnvelopeThresholdFactorChanging(value);
+					this.SendPropertyChanging();
+					this._EnvelopeThresholdFactor = value;
+					this.SendPropertyChanged("EnvelopeThresholdFactor");
+					this.OnEnvelopeThresholdFactorChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SpectrumThresholdFactor", DbType="Float")]
+		public System.Nullable<double> SpectrumThresholdFactor
+		{
+			get
+			{
+				return this._SpectrumThresholdFactor;
+			}
+			set
+			{
+				if ((this._SpectrumThresholdFactor != value))
+				{
+					this.OnSpectrumThresholdFactorChanging(value);
+					this.SendPropertyChanging();
+					this._SpectrumThresholdFactor = value;
+					this.SendPropertyChanged("SpectrumThresholdFactor");
+					this.OnSpectrumThresholdFactorChanged();
 				}
 			}
 		}
@@ -627,8 +675,6 @@ namespace BatPassAnalysisFW
 		
 		private System.Nullable<int> _QuietStart;
 		
-		private System.Nullable<double> _SpectrumThresholdFactor;
-		
 		private EntityRef<PTAPass> _PTAPass;
 		
     #region Extensibility Method Definitions
@@ -671,8 +717,6 @@ namespace BatPassAnalysisFW
     partial void OnPassChanged();
     partial void OnQuietStartChanging(System.Nullable<int> value);
     partial void OnQuietStartChanged();
-    partial void OnSpectrumThresholdFactorChanging(System.Nullable<double> value);
-    partial void OnSpectrumThresholdFactorChanged();
     #endregion
 		
 		public PTAPulse()
@@ -1041,26 +1085,6 @@ namespace BatPassAnalysisFW
 					this._QuietStart = value;
 					this.SendPropertyChanged("QuietStart");
 					this.OnQuietStartChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SpectrumThresholdFactor", DbType="Float")]
-		public System.Nullable<double> SpectrumThresholdFactor
-		{
-			get
-			{
-				return this._SpectrumThresholdFactor;
-			}
-			set
-			{
-				if ((this._SpectrumThresholdFactor != value))
-				{
-					this.OnSpectrumThresholdFactorChanging(value);
-					this.SendPropertyChanging();
-					this._SpectrumThresholdFactor = value;
-					this.SendPropertyChanged("SpectrumThresholdFactor");
-					this.OnSpectrumThresholdFactorChanged();
 				}
 			}
 		}

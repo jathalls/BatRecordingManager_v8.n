@@ -7,6 +7,8 @@
       <Column Name="PassLengthInSamples" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
       <Column Name="PassNumber" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
       <Column Name="Segment" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="EnvelopeThresholdFactor" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="SpectrumThresholdFactor" Type="System.Double" DbType="Float" CanBeNull="true" />
       <Association Name="PTAPass_PTAPulse" Member="PTAPulses" ThisKey="PTAPassID" OtherKey="Pass" Type="PTAPulse" />
       <Association Name="PTASegment_PTAPass" Member="PTASegment" ThisKey="Segment" OtherKey="PTASegmentID" Type="PTASegment" IsForeignKey="true" />
     </Type>
@@ -43,7 +45,6 @@
       <Column Name="FFTSize" Type="System.Int32" DbType="Int" CanBeNull="true" />
       <Column Name="Pass" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
       <Column Name="QuietStart" Type="System.Int32" DbType="Int" CanBeNull="true" />
-      <Column Name="SpectrumThresholdFactor" Type="System.Double" DbType="Float" CanBeNull="true" />
       <Association Name="PTAPass_PTAPulse" Member="PTAPass" ThisKey="Pass" OtherKey="PTAPassID" Type="PTAPass" IsForeignKey="true" />
     </Type>
   </Table>

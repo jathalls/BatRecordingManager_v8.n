@@ -3,11 +3,11 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
+    xmlns:tk="clr-namespace:UniversalToolkit;assembly=UniversalToolkit"
     xmlns:local="clr-namespace:BatPassAnalysisFW"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DesignHeight="450"
-    d:DesignWidth="800"
+    d:DesignWidth="1020"
     mc:Ignorable="d"
     >
     <UserControl.Resources>
@@ -51,27 +51,25 @@
             <TextBlock
                 x:Name="headerTextBlock"
                 Grid.Row="0"
+                
                 Grid.Column="0"
                 Text="{Binding Path=headerText, NotifyOnTargetUpdated=True, NotifyOnSourceUpdated=True}"
                 />
             <Label Content="Threshold Factor:-" VerticalAlignment="Center"/>
             <Slider 
                 x:Name="EnvelopeThresholdSlider" 
-                
+                Style="{StaticResource SimpleSlider}"
                 Value="{Binding thresholdFactor, Mode=TwoWay}"
                 Width="100" 
                 VerticalAlignment="Center"
                 Minimum="1" 
-                Maximum="2" TickFrequency="0.1" TickPlacement="TopLeft" LargeChange="0.1" />
+                Maximum="4" TickFrequency="0.1" TickPlacement="TopLeft" LargeChange="0.1" />
 
-            <tk:DecimalUpDown
+            <tk:NumericSpinner
                 x:Name="EnvelopeThresholdUpDown"
-                Width="50"
-                Value="{Binding thresholdFactor,Mode=TwoWay,FallbackValue=1.5}" 
-                ClipValueToMinMax="True" 
-                Increment="0.1"
-                Maximum="2.0" 
-                Minimum="1.0" ValueChanged="EnvelopeThresholdUpDown_ValueChanged" FormatString="#.##"
+                Width="60" MaxValue="4.0" MinValue="1.0"
+                Value="{Binding thresholdFactor,Mode=TwoWay,FallbackValue=2.5}" 
+                 ValueChanged="EnvelopeThresholdUpDown_ValueChanged" 
                 />
             </StackPanel>
 
@@ -79,50 +77,92 @@
             <Label Content="Spectrum Factor:-" VerticalAlignment="Center"/>
             <Slider 
                 x:Name="SpectrumThresholdSlider" 
-                
+                Style="{StaticResource SimpleSlider}"
                 Value="{Binding spectrumFactor, Mode=TwoWay}"
                 Width="100" 
                 VerticalAlignment="Center"
                 Minimum="1" 
                 Maximum="2" TickFrequency="0.1" TickPlacement="TopLeft" LargeChange="0.1" />
 
-            <tk:DecimalUpDown
+            <tk:NumericSpinner
                 x:Name="SpectrumThresholdUpDown"
-                Width="50"
+                Width="60"
+                
                 Value="{Binding spectrumFactor,Mode=TwoWay,FallbackValue=1.5}" 
-                ClipValueToMinMax="True" 
-                Increment="0.1"
-                Maximum="2.0" 
-                Minimum="1.0" FormatString="#.##"
+                 
                 />
             </StackPanel>
             <Button
                 x:Name="RecalcButton"
                 Content="Re-Calc"
-                Margin="10,0,0,0"
+                Style="{StaticResource SimpleButton}"
+                Margin="5,0,0,0"
                 IsEnabled="False" Click="RecalcButton_Click"
                 ToolTip="Re-calculate the peaks and spectra using the specified thresholds"
                 />
             <Button
                 x:Name="SaveButton"
-                Content="Save"
-                Margin="10,0,0,0"
+                Content="Save Fctrs"
+                Style="{StaticResource SimpleButton}"
+                Width="60"
+                Margin="5,0,0,0"
                 IsEnabled="True" Click="SaveButton_Click"
                 ToolTip="Save the selected threshold values"
                 />
             <Button
                 x:Name="ExportButton"
                 Content="Export Data"
-                Margin="10,0,0,0"
+                
+                Style="{StaticResource SimpleButton}"
+                Width="70"
+                Margin="5,0,0,0"
                 IsEnabled="True" Click="ExportButton_Click"
                 ToolTip="Save the data in the both tables to .csv files"
                 />
             <Button
                 x:Name="RemoveOutliersButton"
                 Content="Remove Outliers"
-                Margin="10,0,0,0"
+                Style="{StaticResource SimpleButton}"
+                Width="95"
+                Margin="5,0,0,0"
                 IsEnabled="{Binding EnableFilter}"
                 ToolTip="Removes pulses from the selected pass in order to reduce the variation in the pass" Click="RemoveOutliersButton_Click"
+                />
+            <Button
+                x:Name="ReWriteLabelsButton"
+                Content="Re-Write Label Files"
+                Style="{StaticResource SimpleButton}"
+                Margin="5,0,0,0"
+                IsEnabled="{Binding EnableFilter}"
+                ToolTip="Rewrites label files for all the selected Passes - old label files will be renamed .bak" Click="ReWriteLabelsButton_Click"
+                
+                />
+            <Button
+                x:Name="TidyButton"
+                Content="Auto-Tidy"
+                Style="{StaticResource SimpleButton}"
+                Width="60"
+                Margin="5,0,0,0" Click="TidyButton_Click"
+                >
+                <Button.ToolTip>
+                    <ToolTip>
+                        <TextBlock>
+                            Automatically tries to tidy up the data by performing the following tasks in sequence:-<LineBreak/>
+                            1) Performs a 'Remove Outliers' on any pass with a PeakFreq SD >10kHz<LineBreak/>
+                            2) Deletes any pulse with a peak, start or end frequency more than 2SD from the mean for the pass<LineBreak/>
+                            3) Hides any pass with zero pulses
+                        </TextBlock>
+                    </ToolTip>
+                </Button.ToolTip>
+            </Button>
+            <Button
+                x:Name="AutoClassifyButton"
+                Content="Auto-Classify"
+                Width="80"
+                IsEnabled="false"
+                Style="{StaticResource SimpleButton}"
+                ToolTip="Attempts to identify bats in the selected passes and adds IDs as comments" 
+                Click="AutoClassifyButton_Click"
                 />
 
         </StackPanel>
@@ -235,13 +275,14 @@
                 <Style TargetType="DataGridRow">
                     <Setter Property="Background">
                         <Setter.Value>
-                            <Binding Converter="{StaticResource ConvertBackground}" Path="segmentNumber">
+                            <Binding Converter="{StaticResource ConvertBackground}" Path="alternationNumber">
                                 <Binding.ConverterParameter>
                                     <x:Array Type="SolidColorBrush">
                                         <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlColorKey}}" />
-                                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlDarkColorKey}}" />
+                                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlLightLightColorKey}}" />
                                     </x:Array>
                                 </Binding.ConverterParameter>
+                                
                             </Binding>
                         </Setter.Value>
                     </Setter>
@@ -259,26 +300,53 @@
                 <DataGridTextColumn Binding="{Binding shtFileName}" Header="Recording" />
                 <DataGridTextColumn
                     x:Name="PassRecColumn"
+                    Binding="{Binding recordingNumber}"
+                    ClipboardContentBinding="{x:Null}"
+                    Header="Rec No"
+                    />
+                <DataGridTextColumn
+                    x:Name="PassSegColumn"
                     Binding="{Binding segmentNumber}"
                     ClipboardContentBinding="{x:Null}"
-                    Header="Rec/Seg No"
+                    Header="Seg No"
                     />
-                <DataGridTextColumn Binding="{Binding segStart, StringFormat={}{0:mm}\'{0:ss}.{0:fff}s}" Header="Seg Start" />
-                <DataGridTextColumn Binding="{Binding SegLengthSecs, StringFormat=##.##}" Header="Seg Length s" />
                 <DataGridTextColumn
                     Binding="{Binding Pass_Number}"
                     ClipboardContentBinding="{x:Null}"
                     Header="Pass No"
                     />
+
+                <DataGridTextColumn Header=" "/>
+
+                <DataGridTextColumn Binding="{Binding segStart, StringFormat={}{0:mm}\'{0:ss}.{0:fff}s}" Header="seg Start"/>
+                <DataGridTextColumn Binding="{Binding SegLengthSecs, StringFormat=#0.0#}" Header="Seg Length s" />
+                <DataGridTextColumn Binding="{Binding passStart, StringFormat={}{0:mm}\'{0:ss}.{0:fff}s}" Header="Pass Start in Seg" />
                 <DataGridTextColumn
-                    Binding="{Binding Pass_Length_s,StringFormat=##.##}"
+                    Binding="{Binding Pass_Length_s,StringFormat=#0.00}"
                     ClipboardContentBinding="{x:Null}"
                     Header="Pass Length s"
                     />
+                <DataGridTextColumn Header=" "/>
+                
+                
                 <DataGridTextColumn
                     Binding="{Binding Number_Of_Pulses}"
                     ClipboardContentBinding="{x:Null}"
                     Header="No of Pulses"
+                    />
+                <DataGridTextColumn
+                        Binding="{Binding intervalString}"
+                        ClipboardContentBinding="{x:Null}"
+                        Header="Interval"/>
+                <DataGridTextColumn
+                        Binding="{Binding durationString}"
+                        Header="Duration"/>
+
+                <DataGridTextColumn Header=" "/>
+                <DataGridTextColumn
+                    Binding="{Binding End_kHz}"
+                    ClipboardContentBinding="{x:Null}"
+                    Header="End kHz"
                     />
                 <DataGridTextColumn
                     Binding="{Binding Peak_kHz}"
@@ -290,11 +358,8 @@
                     ClipboardContentBinding="{x:Null}"
                     Header="Start kHz"
                     />
-                <DataGridTextColumn
-                    Binding="{Binding End_kHz}"
-                    ClipboardContentBinding="{x:Null}"
-                    Header="End kHz"
-                    />
+
+                <DataGridTextColumn Header=" "/>
                 <DataGridTextColumn Binding="{Binding Comment}" Header="Comment" />
                 <DataGridTemplateColumn ClipboardContentBinding="{x:Null}">
                     <DataGridTemplateColumn.Header >
@@ -312,7 +377,7 @@
                             <Image
                                 Height="20"
                                 HorizontalAlignment="Stretch"
-                                Source="{Binding Frequency}"
+                                Source="{Binding Frequency,UpdateSourceTrigger=PropertyChanged}"
                                 Stretch="Fill"
                                 />
                         </DataTemplate>
@@ -341,12 +406,7 @@
             Style="{StaticResource SimpleDataGridStyle}"
             Visibility="Hidden"
             >
-            <DataGrid.Background>
-                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlColorKey}}" />
-            </DataGrid.Background>
-            <DataGrid.AlternatingRowBackground>
-                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlDarkColorKey}}" />
-            </DataGrid.AlternatingRowBackground>
+            
         </DataGrid>
 
 
@@ -363,20 +423,20 @@
             SelectionChanged="spectralPeakDataGrid_SelectionChanged"
             Style="{StaticResource SimpleDataGridStyle}"
             >
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem x:Name="cmiPulseEnvelope" Header="Generate Envelope Graph" Click="cmiPulseEnvelope_Click" />
+                </ContextMenu>
+            </DataGrid.ContextMenu>
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
-                    <Setter Property="Background">
-                        <Setter.Value>
-                            <Binding Converter="{StaticResource ConvertBackground}" Path="Pulse_">
-                                <Binding.ConverterParameter>
-                                    <x:Array Type="SolidColorBrush">
-                                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlColorKey}}" />
-                                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlDarkColorKey}}" />
-                                    </x:Array>
-                                </Binding.ConverterParameter>
-                            </Binding>
-                        </Setter.Value>
-                    </Setter>
+                    <Setter Property="Foreground" Value="Black"/>
+
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Path=IsValidPulse}"  Value="False">
+                            <Setter Property="Foreground" Value="Red"/>
+                        </DataTrigger>
+                    </Style.Triggers>
 
 
                 </Style>
@@ -389,16 +449,23 @@
                     />
                 <DataGridTextColumn Binding="{Binding Pass_}" Header="Pass" />
                 <DataGridTextColumn Binding="{Binding Pulse_}" Header="Pulse" />
-                <DataGridTextColumn Binding="{Binding Pulse_Length_ms}" Header="Length ms" />
+                <DataGridTextColumn Header=" "/>
+                <DataGridTextColumn Binding="{Binding Pulse_Length_ms,StringFormat=0.00}" Header="Length ms" />
                 <DataGridTextColumn Binding="{Binding Pulse_Interval_ms}" Header="Interval ms" />
-                <DataGridTextColumn Binding="{Binding peakFrequency,StringFormat=###\,###}" Header="Peak Freq Hz" />
-                <DataGridTextColumn Binding="{Binding highFrequency,StringFormat=###\,###}" Header="High Freq Hz" />
-                <DataGridTextColumn Binding="{Binding lowFrequency,StringFormat=###\,###}" Header="Low Freq Hz" />
-                <DataGridTextColumn Binding="{Binding halfHeightWidthHz,StringFormat=###\,###}" Header="Half-Height Width Hz" />
-                <DataGridTextColumn Binding="{Binding halfHeightHighFrequency,StringFormat=###\,###}" Header="Half-Height High Freq Hz" />
-                <DataGridTextColumn Binding="{Binding halfHeightLowFrequency,StringFormat=###\,###}" Header="Half-Height Low Freq Hz" />
-                <DataGridTextColumn Binding="{Binding AutoCorrelationWidth,StringFormat=#.##}" Header="Auto-Correlation Width ms"/>
-                <DataGridTextColumn Binding="{Binding AutoCorrelationWidthCms,StringFormat=##.##}" Header="Range Resolution cms" />
+
+                <DataGridTextColumn Header=" "/>
+                <DataGridTextColumn Binding="{Binding lowFrequency,StringFormat=###\,##0}" Header="Low Freq Hz" />
+                <DataGridTextColumn Binding="{Binding peakFrequency,StringFormat=###\,##0}" Header="Peak Freq Hz" />
+                <DataGridTextColumn Binding="{Binding highFrequency,StringFormat=###\,##0}" Header="High Freq Hz" />
+
+                <DataGridTextColumn Header=" "/>
+                <DataGridTextColumn Binding="{Binding halfHeightLowFrequency,StringFormat=###\,##0}" Header="Half-Height Low Freq Hz" />
+                <DataGridTextColumn Binding="{Binding halfHeightWidthHz,StringFormat=###\,##0}" Header="Half-Height Width Hz" />
+                <DataGridTextColumn Binding="{Binding halfHeightHighFrequency,StringFormat=###\,##0}" Header="Half-Height High Freq Hz" />
+
+                <DataGridTextColumn Header=" "/>
+                <DataGridTextColumn Binding="{Binding AutoCorrelationWidth,StringFormat=0.00}" Header="Auto-Correlation Width ms"/>
+                <DataGridTextColumn Binding="{Binding AutoCorrelationWidthCms,StringFormat=#0.00}" Header="Range Resolution cms" />
             </DataGrid.Columns>
         </DataGrid>
 

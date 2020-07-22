@@ -30,6 +30,7 @@
     <Color x:Key="ControlLightColor">#FFE3E3E3</Color>
     <Color x:Key="ControlMediumColor">#FFF0F0F0</Color>
     <Color x:Key="ControlDarkColor">#FFA0A0A0</Color>
+    <Color x:Key="AlternateControlColor">#FF0F0F08</Color>
 
     <Color x:Key="ControlMouseOverColor">#FFE3E3FF</Color>
     <Color x:Key="ControlPressedColor">#FFE3FFE3</Color>

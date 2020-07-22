@@ -4,7 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:local="clr-namespace:BatRecordingManager"
-             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:tk="clr-namespace:UniversalToolkit;assembly=UniversalToolkit"
              mc:Ignorable="d"
              Width="800" Height="500">
 
@@ -52,26 +52,24 @@
                 Grid.Column="0"
                 Content="Session Start:-" />
             <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1">
-                <xctk:DateTimePicker
+                <tk:DateTimePicker
                     x:Name="SessionStartDateTime"
                     Background="{StaticResource WindowBackgroundBrushLight}"
                     MinWidth="200"
-                    AutoCloseCalendar="True"
-                    IsReadOnly="true"
-                    CultureInfo="en-GB"
-                    Minimum="01/01/1950 01:01:00" />
+                    IsReadOnly="True"
+                    IsEnabled="true"
+                    
+                     />
                 <Label
                     Content="End:-  "
                     Margin="10,0,0,0"
                     Style="{StaticResource SimpleLabel}" />
-                <xctk:DateTimePicker
+                <tk:DateTimePicker
                     x:Name="SessionEndDateTime"
                     MinWidth="200"
                     Background="{StaticResource WindowBackgroundBrushLight}"
-                    AutoCloseCalendar="True"
-                    IsReadOnly="true"
-                    CultureInfo="en-GB"
-                    Minimum="01/01/1950 01:01:00" />
+                    IsReadOnly="True"
+                    MinimumDate="01/01/1950 01:01:00" />
 
             </StackPanel>
 
@@ -228,9 +226,10 @@
                     Content="Sunset:-"
                     Margin="10,0,0,0"
                     Style="{StaticResource SimpleLabel}" />
-                <TextBox
+                <tk:WPFTimePicker
                     Background="{StaticResource WindowBackgroundBrush}"
                     x:Name="SunsetTimePicker"
+                    IsReadOnly="True"
                     Margin="5,0"
                     MinWidth="100" />
             </StackPanel>

@@ -5,7 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:BatPassAnalysisFW"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
+    xmlns:tk="clr-namespace:UniversalToolkit;assembly=UniversalToolkit"
     Title="Settings"
     Width="800"
     Height="450"
@@ -101,14 +101,15 @@
                 TickFrequency=".01"
                 TickPlacement="Both"
                 Value="{Binding Path=EnvelopeThreshold, Mode=TwoWay}" />
-            <tk:DecimalUpDown
+            <tk:NumericSpinner
                 x:Name="EnvelopeThresholdUpDown"
                 Width="70"
-                FormatString="#.##"
-                Increment="0.01"
-                Maximum="2.0"
-                Minimum="1.0"
-                Value="{Binding Path=EnvelopeThreshold, Mode=TwoWay}" />
+                MinValue="1.0"
+                MaxValue="2.0"
+                Decimals="2"
+                Step="0.1"
+                
+                Value="{Binding Path=EnvelopeThreshold, Mode=TwoWay,FallbackValue=1.5}" />
 
         </StackPanel>
 
@@ -128,13 +129,13 @@
                 TickFrequency=".01"
                 TickPlacement="Both"
                 Value="{Binding EnvelopeLeadin, Mode=TwoWay}" />
-            <tk:DecimalUpDown
+            <tk:NumericSpinner
                 x:Name="EnvelopeLeadInUpDown"
                 Width="70"
-                FormatString="#.##"
-                Increment="0.01"
-                Maximum="1.0"
-                Minimum="0.01"
+                MinValue="0.01"
+                MaxValue="1.0"
+                Decimals="2"
+                Step="0.1"
                 Value="{Binding EnvelopeLeadin, Mode=TwoWay}" />
 
         </StackPanel>
@@ -155,13 +156,13 @@
                 TickFrequency=".01"
                 TickPlacement="Both"
                 Value="{Binding EnvelopeLeadout, Mode=TwoWay}" />
-            <tk:DecimalUpDown
+            <tk:NumericSpinner
                 x:Name="EnvelopeLeadOutUpDown"
                 Width="70"
-                FormatString="#.##"
-                Increment="0.01"
-                Maximum="1.0"
-                Minimum="0.01"
+                MinValue="0.01"
+                MaxValue="3.0"
+                Decimals="2"
+                Step="0.1"
                 Value="{Binding EnvelopeLeadout, Mode=TwoWay}" />
 
         </StackPanel>
@@ -182,13 +183,13 @@
                 TickFrequency=".01"
                 TickPlacement="Both"
                 Value="{Binding SpectrumThreshold, Mode=TwoWay}" />
-            <tk:DecimalUpDown
+            <tk:NumericSpinner
                 x:Name="SpectrumThresholdUpDown"
                 Width="70"
-                FormatString="#.##"
-                Increment="0.01"
-                Maximum="2.0"
-                Minimum="1.0"
+                MinValue="1.0"
+                MaxValue="2.0"
+                Decimals="2"
+                Step="0.1"
                 Value="{Binding SpectrumThreshold, Mode=TwoWay}" />
 
         </StackPanel>
@@ -209,13 +210,10 @@
                 TickFrequency="1"
                 TickPlacement="Both"
                 Value="{Binding SpectrumLeadin, Mode=TwoWay}" />
-            <tk:DecimalUpDown
+            <tk:NumericSpinner
                 x:Name="SpectrumLeadInUpDown"
                 Width="70"
-                FormatString="##"
-                Increment="1"
-                Maximum="10"
-                Minimum="1"
+                
                 Value="{Binding SpectrumLeadin, Mode=TwoWay}" />
 
         </StackPanel>
@@ -236,13 +234,10 @@
                 TickFrequency="1"
                 TickPlacement="Both"
                 Value="{Binding SpectrumLeadout, Mode=TwoWay}" />
-            <tk:DecimalUpDown
+            <tk:NumericSpinner
                 x:Name="SpectrumLeadoutUpDown"
                 Width="70"
-                FormatString="#.##"
-                Increment="1"
-                Maximum="10"
-                Minimum="1"
+                
                 Value="{Binding SpectrumLeadout, Mode=TwoWay}" />
 
         </StackPanel>

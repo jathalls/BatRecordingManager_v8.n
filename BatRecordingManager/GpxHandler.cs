@@ -75,7 +75,7 @@ namespace BatRecordingManager
             {
                 if (Directory.Exists(location))
                 {
-                    var gpxFileList = Directory.EnumerateFiles(location, "*.gpx");
+                    var gpxFileList = Directory.EnumerateFiles(Path.GetDirectoryName(location), "*.gpx");
                     //var GPXFileList= Directory.EnumerateFiles(Location, "*.GPX");
                     //gpxFileList = gpxFileList.Concat<string>(GPXFileList);
                     if (!gpxFileList.IsNullOrEmpty())

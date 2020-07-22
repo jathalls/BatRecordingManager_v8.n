@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:BatRecordingManager"
-             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:tk="clr-namespace:UniversalToolkit;assembly=UniversalToolkit"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance local:BatCall}"
              d:DesignHeight="400" d:DesignWidth="300">
@@ -114,72 +114,73 @@
             MouseDoubleClick="StartFrequencySeparatorLabel_MouseDoubleClick"
             Grid.Row="4" />
 
-        <xctk:DoubleUpDown
+        <tk:NumericSpinner
             x:Name="StartFreqUpDown"
             Grid.Row="0"
             Grid.Column="1"
-            CultureInfo="en-GB" FormatString="##0.0" />
+            Decimals="1" />
 
-        <xctk:DoubleUpDown
+        <tk:NumericSpinner
             x:Name="StartFreqVariationTextBox"
             Grid.Row="0"
             Grid.Column="3"
 
-            FormatString="##0.0" />
+            Decimals="1" />
 
-        <xctk:DoubleUpDown
+        <tk:NumericSpinner
 
             x:Name="EndFreqTextBox"
             Grid.Row="1"
             Grid.Column="1"
 
-            FormatString="##0.0" />
-        <xctk:DoubleUpDown
+            Decimals="1" />
+        <tk:NumericSpinner
 
             x:Name="EndFreqVariationTextBox"
             Grid.Row="1"
             Grid.Column="3"
 
-            FormatString="##0.0" />
+            Decimals="1" />
 
-        <xctk:DoubleUpDown
+        <tk:NumericSpinner
             x:Name="PeakFreqTextBox"
             Grid.Row="2"
             Grid.Column="1"
 
-            FormatString="##0.0" />
-        <xctk:DoubleUpDown
+            Decimals="1" />
+        <tk:NumericSpinner
             x:Name="PeakFreqVariationTextBox"
             Grid.Row="2"
             Grid.Column="3"
 
-            FormatString="##0.0" />
+            Decimals="1" />
 
-        <xctk:DoubleUpDown
+        <tk:NumericSpinner
             x:Name="PulseDurationTextBox"
             Grid.Row="3"
             Grid.Column="1"
 
-            FormatString="##0.0" />
-        <xctk:DoubleUpDown
+            Decimals="1" />
+        <tk:NumericSpinner
             x:Name="PulseDurationVariationTextBox"
             Grid.Row="3"
             Grid.Column="3"
 
-            FormatString="##0.0" />
+            Decimals="1" />
 
-        <xctk:DoubleUpDown
+        <tk:NumericSpinner
             x:Name="PulseIntervalTextBox"
             Grid.Row="4"
             Grid.Column="1"
+            Decimals="1"
 
-            FormatString="##0.0" />
-        <xctk:DoubleUpDown
+             />
+        <tk:NumericSpinner
             x:Name="PulseIntervalVariationTextBox"
             Grid.Row="4"
             Grid.Column="3"
 
-            FormatString="##0.0" />
+            Decimals="1" />
 
         <TextBox
             x:Name="CallTypeTextBox"

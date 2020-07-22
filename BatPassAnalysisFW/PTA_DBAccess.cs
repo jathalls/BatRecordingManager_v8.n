@@ -1,11 +1,8 @@
-﻿using Microsoft.VisualStudio.Text.Editor.Commanding.Commands;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BatPassAnalysisFW
 {
@@ -15,8 +12,8 @@ namespace BatPassAnalysisFW
     public static class PTA_DBAccess
     {
 #if DEBUG
-        //public static string databaseName = @"C:\Echolocation\PTADebugDatabase.mdf";
-        public static string databaseName = @"C:\Echolocation\PTADatabase.mdf";
+        public static string databaseName = @"C:\Echolocation\PTADebugDatabase.mdf";
+        //public static string databaseName = @"C:\Echolocation\PTADatabase.mdf";
 #else
         public static string databaseName = @"C:\Echolocation\PTADatabase.mdf";
 #endif
@@ -298,6 +295,8 @@ namespace BatPassAnalysisFW
             destPass.OffsetInSegmentInSamples = srcPass.getOffsetInSegmentInSamples();
             destPass.PassLengthInSamples = srcPass.getPassLengthInSamples();
             destPass.PassNumber = (short)srcPass.Pass_Number;
+            destPass.EnvelopeThresholdFactor = (float)srcPass.thresholdFactor;
+            destPass.SpectrumThresholdFactor = (float)srcPass.spectrumfactor;
             
             
         }
@@ -430,7 +429,7 @@ namespace BatPassAnalysisFW
         /// <returns></returns>
         private static bpaSegment CopySegmentPTA2BPA(PTASegment srcSegment)
         {
-            bpaSegment destSegment = new bpaSegment(srcSegment.PTARecording.RecordingNumber,
+            bpaSegment destSegment = new bpaSegment( srcSegment.PTARecording.RecordingNumber,
                 srcSegment.SegmentNumber,
                 (int)(srcSegment.StartTimeInRec.TotalSeconds * srcSegment.PTARecording.SampleRate),
                 new DataAccessBlock(Path.Combine(srcSegment.PTARecording.FilePath, srcSegment.PTARecording.FileName),
@@ -473,8 +472,13 @@ namespace BatPassAnalysisFW
                                         passDab,
                                         srcPass.PTASegment.PTARecording.SampleRate??384000,
                                         srcPass.PTASegment.Comment,
-                                        (float)(srcPass.PTASegment.Duration.TotalSeconds)
+                                        (float)(srcPass.PTASegment.Duration.TotalSeconds),
+                                        srcPass.PTASegment.StartTimeInRec
                                         );
+            destPass.thresholdFactor = (decimal)(srcPass.EnvelopeThresholdFactor??1.5f);
+            destPass.spectrumfactor = (decimal)(srcPass.SpectrumThresholdFactor??1.5f);
+            
+            
             //Debug.WriteLine($"Pass {destPass.Pass_Number} at {destPass.getOffsetInSegmentInSamples()} in segment {destPass.segmentNumber}");
             foreach(var srcPulse in srcPass.PTAPulses)
             {
@@ -489,11 +493,13 @@ namespace BatPassAnalysisFW
                                     RecordingNumber: srcPulse.PTAPass.PTASegment.PTARecording.RecordingNumber,
                                     AbsoluteThreshold: (float)srcPulse.AbsoluteThreshold);
                 SpectrumDetails destSpectrumDetails = CopySpectrumDetailsPTA2BPA(srcPulse, peak);
-                Pulse destPulse = CopyPulsePTA2BPA(srcPulse,passDab,destSpectrumDetails,peak);
+                Pulse destPulse = CopyPulsePTA2BPA(srcPulse,passDab,destSpectrumDetails,peak,destPass.spectrumfactor);
+                
                 
                 destPulse.spectralDetails = destSpectrumDetails;
                 destPass.AddPulse(destPulse);
             }
+            destPass.CalculateMeanInterval();
             return (destPass);
         }
 
@@ -524,7 +530,8 @@ namespace BatPassAnalysisFW
                 interval: srcPulse.PrevIntervalSamples ?? 0,// int
                 sampleRate: sampleRate ?? 384000,// int
                 autoCorrelationWidth: (float)(srcPulse.AutoCorrelationWidth ?? 0.0d),// float
-                parentPulse: peak,// Peak
+                parentPeak: peak,// Peak
+                isValidPulse: true, // default value for all retrieved data, only reset by a reCalc
                 startOffset: srcPulse.PTAPass.PTASegment.StartTimeInRec.TotalSeconds,// double - start of segment in secs
                                                                                      //ref data: null,// float[]=null
                 HzPerSample: HzPerSample,// int=1
@@ -547,7 +554,7 @@ namespace BatPassAnalysisFW
         /// </summary>
         /// <param name="srcPulse"></param>
         /// <returns></returns>
-        private static Pulse CopyPulsePTA2BPA(PTAPulse srcPulse,DataAccessBlock PassDab,SpectrumDetails spectralDetails,Peak peak)
+        private static Pulse CopyPulsePTA2BPA(PTAPulse srcPulse,DataAccessBlock PassDab,SpectrumDetails spectralDetails,Peak peak,decimal SpectrumThresholdFactor)
         {
             Pulse destPulse;
             //DataAccessBlock PassDab = new DataAccessBlock(FQFileName,
@@ -564,7 +571,7 @@ namespace BatPassAnalysisFW
                             peak,
                             srcPulse.PTAPass.PassNumber,
                             srcPulse.QuietStart ?? 0,
-                            (decimal)(srcPulse.SpectrumThresholdFactor ?? 1.5d),
+                            SpectrumThresholdFactor,
                             spectralDetails
                             );
             }catch(Exception ex)

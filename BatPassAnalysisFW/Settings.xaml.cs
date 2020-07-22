@@ -1,48 +1,52 @@
 ﻿using Acr.Settings;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace BatPassAnalysisFW
 {
     /// <summary>
     /// Interaction logic for Settings.xaml
     /// </summary>
-    public partial class Settings : Window
+    public partial class Settings : Window, INotifyPropertyChanged
     {
+        /// <summary>
+        /// property changed notifier
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
 
+        internal void NotifyPropertyChanged(String propertyName) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         #region EnvelopeThreshold
 
-        /// <summary>
-        /// EnvelopeThreshold Dependency Property
-        /// </summary>
-        public static readonly DependencyProperty EnvelopeThresholdProperty =
-            DependencyProperty.Register("EnvelopeThreshold", typeof(decimal), typeof(Settings),
-                new FrameworkPropertyMetadata((decimal)1.5m));
 
+
+        private decimal _envelopeThreshold;
         /// <summary>
         /// Gets or sets the EnvelopeThreshold property.  This dependency property 
         /// indicates ....
         /// </summary>
         public decimal EnvelopeThreshold
         {
-            get { return (decimal)GetValue(EnvelopeThresholdProperty); }
-            set { SetValue(EnvelopeThresholdProperty, value); }
+           
+                get { 
+                return (decimal)_envelopeThreshold; 
+            }
+                set 
+            {
+                try
+                {
+                    _envelopeThreshold = value;
+                    NotifyPropertyChanged(nameof(EnvelopeThreshold));
+                }
+                catch (Exception) { }
+            }
+           
         }
 
         #endregion

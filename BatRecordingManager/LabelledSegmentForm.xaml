@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BatRecordingManager"
-        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:tk="clr-namespace:UniversalToolkit;assembly=UniversalToolkit"
         mc:Ignorable="d"
         Title="LabelledSegmentForm" Height="150" Width="500">
     <Grid
@@ -28,34 +28,32 @@
             Grid.Column="0"
             Content="Start Offset (s):-"
             Style="{StaticResource SimpleLabel}" />
-        <xctk:DoubleUpDown
+        <tk:NumericSpinner
             x:Name="StartOffsetDoubleUpDown"
             Grid.Row="1"
             Grid.Column="1"
-            ClipValueToMinMax="True"
-            DefaultValue="0"
-            DisplayDefaultValueOnEmptyText="True"
-            Minimum="0"
-            ParsingNumberStyle="Float"
+            
+            Value="0"
+            
+            MinValue="0"
+            
             ToolTip="Segment start in seconds"
-            Text="0.0" />
+             />
         <Label
             Content="End Offset (s):- "
             Grid.Row="1"
             Grid.Column="2"
             Style="{StaticResource SimpleLabel}" />
-        <xctk:DoubleUpDown
+        <tk:NumericSpinner
             x:Name="EndOffsetDoubleUpDown"
             Grid.Row="1"
             Grid.Column="3"
             Value="240.0"
-            ClipValueToMinMax="True"
-            DefaultValue="240"
-            DisplayDefaultValueOnEmptyText="True"
-            Minimum="0"
-            ParsingNumberStyle="Float"
+            
+            MinValue="0"
+            
             ToolTip="Segment end in seconds"
-            Text="240.0" />
+             />
         <ScrollViewer
             Grid.Row="2"
             Grid.Column="0"

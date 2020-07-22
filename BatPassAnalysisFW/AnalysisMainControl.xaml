@@ -66,11 +66,15 @@
                     x:Name="EnvelopeTab"
                     IsEnabled="{Binding EnvelopeEnabled}"
                     Header="Envelope">
-                    <Image 
-                        x:Name="EnvelopeImage"
-                        Source="{Binding EnvelopeImage}"
-                        HorizontalAlignment="Stretch" 
-                        VerticalAlignment="Stretch" />
+                    
+                        <Image 
+                            x:Name="EnvelopeImage"
+                            Stretch="Uniform"
+                            StretchDirection="Both"
+                            Source="{Binding EnvelopeImage}"
+                            HorizontalAlignment="Stretch" 
+                            VerticalAlignment="Stretch" />
+                    
                 </TabItem>
                 <TabItem
                     x:Name="SpectrumTab"
@@ -91,6 +95,15 @@
                         Source="{Binding CorrelationImage}"
                         HorizontalAlignment="Stretch" 
                         VerticalAlignment="Stretch" />
+                </TabItem>
+                <TabItem
+                    x:Name="PulseEnvelopeTab"
+                    IsEnabled="{Binding PulseEnvelopeEnabled}"
+                    Header="PulseEnvelope">
+                    <Image x:Name="PulseImage"
+                           Source="{Binding pulseImageBmp}"
+                           HorizontalAlignment="Stretch"
+                           VerticalAlignment="Stretch"/>
                 </TabItem>
 
 

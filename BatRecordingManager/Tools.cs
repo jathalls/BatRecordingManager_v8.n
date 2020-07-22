@@ -694,12 +694,7 @@ namespace BatRecordingManager
         internal static void OpenWavFile(string folder)
         {
             if (string.IsNullOrWhiteSpace(folder) || !File.Exists(folder) || (new FileInfo(folder).Length <= 0L)) return;
-            //Process externalProcess = new Process();
-
-            //externalProcess.StartInfo.FileName = folder;
-            //externalProcess.StartInfo.Arguments = folder;
-            //externalProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
-            //externalProcess.Start();
+            
             OpenWavAndTextFile(folder);
         }
 
@@ -749,11 +744,10 @@ namespace BatRecordingManager
             else
             {
                 externalProcess.StartInfo.FileName = audacityFileLocation;
-                //externalProcess.StartInfo.Arguments =
-                //    "\"" + FQWavFileName + "\""; // enclosed in quotes in case the path has spaces
+                
             }
 
-            //externalProcess.StartInfo.Arguments = folder;
+            
             externalProcess.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
 
             var started = externalProcess.Start();
@@ -763,13 +757,9 @@ namespace BatRecordingManager
                 Debug.Write("!");
             }
 
-            //Thread.Sleep(1000);
+            
             externalProcess.EnableRaisingEvents = true;
-            //ExternalProcess.Exited += ExternalProcess_Exited;
-
-            //int startSeconds = (int)startOffset.TotalSeconds;
-            //int endSeconds = (int)endOffset.TotalSeconds;
-            //if (endSeconds == startSeconds) endSeconds = startSeconds + 1;
+            
             try
             {
                 Application.Current.MainWindow.Focus();
@@ -793,56 +783,31 @@ namespace BatRecordingManager
             {
                 var ipSim = new InputSimulator();
 
-                //s.Keyboard.ModifiedKeyStroke(VirtualKeyCode.LMENU, VirtualKeyCode.VK_S);
-                //SetForegroundWindow(epHandle);
 
-
-                //ipSim.Keyboard.ModifiedKeyStroke(VirtualKeyCode.LSHIFT, VirtualKeyCode.UP);
                 Debug.WriteLine(externalProcess.MainWindowTitle);
                 externalProcess.WaitForInputIdle();
-                //Thread.Sleep(sleep);
-                #region testmacros
-                //Thread.Sleep(1000);
-
-
-
-                //startAudacityWithMacros(FQWavFileName,ipSim);
-                #endregion
-
-                #region testPipes
 
                 NamedPipeClientStream inStream;
                 NamedPipeClientStream outStream;
                 setPipeStrem(out inStream, out outStream);
                 StreamReader streamReader = new StreamReader(inStream);
                 StreamWriter streamWriter = new StreamWriter(outStream);
-                startAudacityWithPipes(streamReader,streamWriter, FQWavFileName,ipSim);
-
-                    #endregion
+                startAudacityWithPipes(streamReader, streamWriter, FQWavFileName, ipSim);
 
 
+                if (!WaitForIdle(externalProcess)) return null;
 
-
-                    //SetForegroundWindow(epHandle);
-                    // CTRL-SHIFT-N - select nothing, i.e. clear current selection
-                    //ipSim.Keyboard.ModifiedKeyStroke(new[] { VirtualKeyCode.CONTROL, VirtualKeyCode.LSHIFT },
-                    //    VirtualKeyCode.VK_N);
-
-                    if (!WaitForIdle(externalProcess)) return null;
-                //Thread.Sleep(sleep);
-
-                //ALT-F,I,L filename<ENTER> - open the matching label track
                 var textFileName = GetMatchingTextFile(FQWavFileName);
-                //startAudacityWithPipes(streamReader, streamWriter, textFileName, ipSim);
+
                 Debug.WriteLine("Matches {" + FQWavFileName + "} to {" + textFileName + "}");
 
                 if (!string.IsNullOrWhiteSpace(textFileName) && File.Exists(textFileName))
                 {
-                    if (!OpenAudacityLabelFile(externalProcess, ipSim, textFileName,streamReader,streamWriter)) return null;
+                    if (!OpenAudacityLabelFile(externalProcess, ipSim, textFileName, streamReader, streamWriter)) return null;
                 }
                 else
                 {
-                    if (!CreateAudacityLabelFile(externalProcess, ipSim, textFileName,streamReader,streamWriter)) return null;
+                    if (!CreateAudacityLabelFile(externalProcess, ipSim, textFileName, streamReader, streamWriter)) return null;
                 }
             }
             catch (Exception ex)
@@ -858,16 +823,7 @@ namespace BatRecordingManager
         {
             
             string command = $"Import2: Filename=\"{fQWavFileName}\"\n";
-            Debug.WriteLine($"Sent: {command}");
-            sw.Write(command);
-            sr.DiscardBufferedData();
-            sw.Flush();
-            //Thread.Sleep(1000);
-            //ipSime.Keyboard.TextEntry($"\"{fQWavFileName}\"");
-            //Thread.Sleep(100);
-            //ipSime.Keyboard.KeyPress(VirtualKeyCode.RETURN);
-            string line;
-            do { line = sr.ReadLine(); Debug.WriteLine($"Recvd:- <{line}>"); } while (!string.IsNullOrWhiteSpace(line));
+            DoPipeCommand(sr,sw,command);
             
         }
 
@@ -880,52 +836,10 @@ namespace BatRecordingManager
             inStream.Connect();
             outStream = new NamedPipeClientStream(".", toName, PipeDirection.Out);
             outStream.Connect();
-            //var sw = new StreamWriter(outStream);
-            //var sr = new StreamReader(inStream);
-            //sw.Write("NewLabelTrack:\n");
-            //sw.Flush();
-            //var line=sr.ReadLine();
+            
         }
 
-        private static void startAudacityWithMacros(string fQWavFileName, InputSimulator ipSim)
-        {
-            if (File.Exists(fQWavFileName))
-            {
-                string textFileName = Path.ChangeExtension(fQWavFileName, ".txt");
-
-                //string macroFile = @"C:\audacity-win-portable\Portable Settings\Macros\LoadAndZoom.txt";
-                if (File.Exists(macroFileName))
-                {
-                    File.Delete(macroFileName);
-                }
-                float end = 5.0f;
-                float start = 0.0f;
-                string[] macro =
-                {
-                        $"Import2:Filename=\"{fQWavFileName}\"",
-                        
-                        "SelectNone:",
-                        $"Select:End=\"5\" Mode=\"Set\" Start=\"0\" Track=\"0\" TrackCount=\"1\"",
-                        
-                        "ZoomSel:",
-                        "SelectNone:"//,
-                        //$"Import2:Filename=\"{textFileName}\"",
-                        //"SelectTracks:Mode=\"Set\" Track=\"0\" TrackCount=\"1\""
-
-
-                    };
-                File.WriteAllLines(macroFileName, macro);
-                ipSim.Keyboard.ModifiedKeyStroke(new[] { VirtualKeyCode.LMENU, VirtualKeyCode.LSHIFT }, VirtualKeyCode.VK_B);
-                Thread.Sleep(500);
-
-            }
-        }
-
-        
-
-        
-
-         
+       
 
         /// <summary>
         ///     Given a Process in which Audacity is running, and an Input Simulator, sends keyboard commands to
@@ -965,35 +879,10 @@ namespace BatRecordingManager
             {
                 SetForegroundWindow(epHandle);
 
-                #region usingmacros
-                if (sr == null || sw == null)
-                {
-                    if (File.Exists(macroFileName))
-                    {
-                        File.Delete(macroFileName);
-                    }
-                    string[] macro =
-                    {
-                        //,
-                        //$"Import2:Filename=\"{textFileName}\"",
-                        //"SelectTracks:Mode=\"Set\" Track=\"0\" TrackCount=\"1\""
-                        "SelectNone:",
-                        "NewLabelTrack:",
-                        $"SetTrack:Name=\"{bareFileName}\"",
-                        "SelectTracks:Mode=\"Set\" Track=\"0\" TrackCount=\"1\"",
-                        "SelectNone"
-
-
-                    };
-                    File.WriteAllLines(macroFileName, macro);
-                    ipSim.Keyboard.ModifiedKeyStroke(new[] { VirtualKeyCode.LMENU, VirtualKeyCode.LSHIFT }, VirtualKeyCode.VK_B);
-                    return (true);
-                }
-                #endregion
+                
 
                 #region using Pipes
-                if(sr!=null && sw != null)
-                {
+                
                     string command = $"SelectNone:\n";
                     DoPipeCommand(sr, sw, command);
                     command = $"NewLabelTrack:\n";
@@ -1006,52 +895,10 @@ namespace BatRecordingManager
                     DoPipeCommand(sr, sw, command);
                     return (true);
                     
-                }
+                
                 #endregion
 
 
-                //s.Keyboard.ModifiedKeyStroke(VirtualKeyCode.LMENU, VirtualKeyCode.VK_S);
-                if (!WaitForIdle(externalProcess)) return false;
-                // CTRL-SHIFT-N - select nothing, i.e. clear current selection
-                ipSim.Keyboard.ModifiedKeyStroke(new[] { VirtualKeyCode.CONTROL, VirtualKeyCode.LSHIFT },
-                    VirtualKeyCode.VK_N);
-                //Thread.Sleep(2000);
-                //SetForegroundWindow(h);
-                //s.Keyboard.KeyPress(VirtualKeyCode.VK_N);
-                //Thread.Sleep(2000);
-                // CTRL-SHIFT-B - create new laabel track
-                SetForegroundWindow(epHandle);
-                if (!WaitForIdle(externalProcess)) return false;
-                ipSim.Keyboard.ModifiedKeyStroke(new[] { VirtualKeyCode.CONTROL, VirtualKeyCode.LSHIFT },
-                    VirtualKeyCode.VK_B);
-                if (!WaitForIdle(externalProcess)) return false;
-                //Thread.Sleep(2000);
-                //Thread.Sleep(5000);
-                // CTRL-SHIFT-M - Open track menu
-                SetForegroundWindow(epHandle);
-                ipSim.Keyboard.ModifiedKeyStroke(new[] { VirtualKeyCode.CONTROL, VirtualKeyCode.LSHIFT },
-                    VirtualKeyCode.VK_M);
-                if (!WaitForIdle(externalProcess)) return false;
-                //Thread.Sleep(2000);
-                //Thread.Sleep(5000);
-                // N - select 'Name' from menu
-                SetForegroundWindow(epHandle);
-                ipSim.Keyboard.KeyPress(VirtualKeyCode.VK_N);
-                if (!WaitForIdle(externalProcess)) return false;
-                //Thread.Sleep(2000);
-                // write filename into the Name field text box
-                //SetForegroundWindow(epHandle);
-                ipSim.Keyboard.TextEntry(bareFileName);
-                if (!WaitForIdle(externalProcess)) return false;
-                //Thread.Sleep(2000);
-                // ENTER - to close the Name dialog
-                //SetForegroundWindow(epHandle);
-                ipSim.Keyboard.KeyPress(VirtualKeyCode.RETURN);
-                if (!WaitForIdle(externalProcess)) return false;
-
-                if (!WaitForIdle(externalProcess, "=", "ENTER after text file name")) return false;
-                ipSim.Keyboard.KeyPress(VirtualKeyCode.UP);
-                if (!WaitForIdle(externalProcess)) return false;
             }
             catch (Exception ex)
             {
@@ -1070,10 +917,7 @@ namespace BatRecordingManager
             sw.Write(command);
             sr.DiscardBufferedData();
             sw.Flush();
-            //Thread.Sleep(1000);
-            //ipSime.Keyboard.TextEntry($"\"{fQWavFileName}\"");
-            //Thread.Sleep(100);
-            //ipSime.Keyboard.KeyPress(VirtualKeyCode.RETURN);
+            
             string line;
             string result = "";
             do { 
@@ -1100,8 +944,7 @@ namespace BatRecordingManager
         /// <returns></returns>
         private static bool OpenAudacityLabelFile(Process externalProcess, InputSimulator ipSim, string textFileName,StreamReader sr,StreamWriter sw)
         {
-            //using Pipes
-            
+                        
             sw.Write("ImportLabels:\n");
             sr.DiscardBufferedData();
             sw.Flush();
@@ -1113,46 +956,7 @@ namespace BatRecordingManager
             string line;
             do { line = sr.ReadLine(); Debug.WriteLine($"Recvd:- <{line}>"); } while (!string.IsNullOrWhiteSpace(line));
             return (true);
-            var result = true;
-            try
-            {
-                Thread.Sleep(5000);
-                ipSim.Keyboard.ModifiedKeyStroke(new[] { VirtualKeyCode.LMENU }, VirtualKeyCode.VK_F);
-                if (!WaitForIdle(externalProcess)) return false;
-                ipSim.Keyboard.KeyPress(VirtualKeyCode.VK_I);
-                if (!WaitForIdle(externalProcess)) return false;
-                ipSim.Keyboard.KeyPress(VirtualKeyCode.VK_L);
-                Thread.Sleep(1000);
-                if (!WaitForIdle(externalProcess, "+", "Open Label Track")) return false;
-
-                //SetForegroundWindow(epHandle);
-                //ExternalProcess.WaitForInputIdle();
-                //Thread.Sleep(3000);
-
-                //textFileName = Tools.StripPath(textFileName);
-                ipSim.Keyboard.TextEntry("\"" + textFileName + "\"");
-                if (!WaitForIdle(externalProcess, "-", "Entered Text File Name")) return false;
-                //Thread.Sleep(2000);
-                // ENTER - to close the Name dialog
-                //SetForegroundWindow(epHandle);
-                ipSim.Keyboard.KeyPress(VirtualKeyCode.RETURN);
-                Debug.WriteLine(textFileName);
-                Thread.Sleep(500);
-
-                //SetForegroundWindow(epHandle);
-                if (!WaitForIdle(externalProcess, "=", "ENTER after text file name")) return false;
-                ipSim.Keyboard.KeyPress(VirtualKeyCode.UP);
-                if (!WaitForIdle(externalProcess)) return false;
-                //Thread.Sleep(sleep);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Error trying to open audacity label file:- " + ex.Message);
-                ErrorLog("Error trying to open label file in Audacity:-" + ex.Message);
-                result = false;
-            }
-
-            return result;
+            
         }
 
         /// <summary>
@@ -1416,53 +1220,7 @@ namespace BatRecordingManager
                 ZoomAudacity(startOffset.TotalSeconds, endOffset.TotalSeconds,ipSim);
 
 
-                 /*
-                
-                // J - move to start of track
-                SetForegroundWindow(epHandle);
-
-                ipSim.Keyboard.KeyPress(VirtualKeyCode.VK_J);
-                if (!WaitForIdle(externalProcess)) return;
-                //         Thread.Sleep(400);
-                //Thread.Sleep(sleep);
-
-                // . . . . . - Cursor short jump right (by one second)
-                SetForegroundWindow(epHandle);
-                for (var i = 0; i < endSeconds - startSeconds; i++)
-                {
-                    ipSim.Keyboard.KeyPress(VirtualKeyCode.OEM_PERIOD);
-                    Thread.Sleep(50);
-                    //if (!WaitForIdle(ExternalProcess)) return ;
-                }
-
-                //Thread.Sleep(sleep);
-                if (!WaitForIdle(externalProcess)) return;
-                // Zoom to size of segment
-                SetForegroundWindow(epHandle);
-                ipSim.Keyboard.ModifiedKeyStroke(VirtualKeyCode.LSHIFT, VirtualKeyCode.VK_J);
-                if (!WaitForIdle(externalProcess)) return;
-                //Thread.Sleep(sleep);
-
-                // Zoom start to cursor
-                SetForegroundWindow(epHandle);
-                ipSim.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_E);
-                if (!WaitForIdle(externalProcess)) return;
-
-                // Back to the start, clearing the selection
-                SetForegroundWindow(epHandle);
-                ipSim.Keyboard.KeyPress(VirtualKeyCode.VK_J);
-                if (!WaitForIdle(externalProcess)) return;
-                //Thread.Sleep(sleep);
-
-                //Move cursor to the end of the segment - scrolling the screen as it goes
-                for (var i = 0; i < endSeconds; i++)
-                {
-                    SetForegroundWindow(epHandle);
-                    ipSim.Keyboard.KeyPress(VirtualKeyCode.OEM_PERIOD);
-
-                    Thread.Sleep(50);
-                    //if (!WaitForIdle(ExternalProcess)) return ;
-                }*/
+                 
 
 
                 Debug.WriteLine("Audacity zoomed");
@@ -1552,13 +1310,7 @@ namespace BatRecordingManager
             File.SetAttributes(path, File.GetAttributes(path) | FileAttributes.System);
         }
 
-        /*
-        internal static SegmentAndBatList Parse(String segmentLine)
-        {
-            BulkObservableCollection<Bat> bats = DBAccess.GetSortedBatList();
-            var result = FileProcessor.ProcessLabelledSegment(segmentLine, bats);
-            return (result);
-        }*/
+        
 
         /// <summary>
         ///     Parses a line in the format 00'00.00 into a TimeSpan the original strting has been
@@ -1605,94 +1357,7 @@ namespace BatRecordingManager
             return ts;
         }
 
-        /*
-            //bool seconds = false;
-            bool minutes = false;
-            TimeSpan ts = new TimeSpan();
-            String[] separators = { "\'", ".", "\"" };
-            value = value.Trim();
-            if (value.EndsWith("\""))
-            {
-                //seconds = true;
-                value = value.Substring(0, value.Length - 1);
-            }
-            if (value.EndsWith("\'"))
-            {
-                minutes = true;
-                value = value.Substring(0, value.Length - 1);
-            }
-            if (value.EndsWith("."))
-            {
-                value = value.Substring(0, value.Length - 1);
-            }
-            String[] numbers = value.Split(separators, StringSplitOptions.None);
-            if (numbers.Count() == 3) //dd'dd.dd"
-            {
-                int mins = 0;
-                int.TryParse(numbers[0], out mins);
-                int secs = 0;
-                int.TryParse(numbers[1], out secs);
-                int millis = 0;
-                while (numbers[2].Length > 3)
-                {
-                    numbers[2] = numbers[2].Substring(0, 3);
-                }
-                while (numbers[2].Length < 3)
-                {
-                    numbers[2] = numbers[2] + "0";
-                }
-                int.TryParse(numbers[2], out millis);
-                ts = new TimeSpan(0, 0, mins, secs, millis);
-            }
-            else if (numbers.Count() == 2) //dd.dd in seconds or dd'dd or dd.dd'
-            {
-                if (value.Contains('.') && !minutes) // dd.dd in seconds
-                {
-                    int secs = 0;
-                    int.TryParse(numbers[0], out secs);
-                    while (numbers[1].Length > 3)
-                    {
-                        numbers[1] = numbers[1].Substring(0, 3);
-                    }
-                    while (numbers[1].Length < 3)
-                    {
-                        numbers[1] = numbers[1] + "0";
-                    }
-                    int millis = 0;
-                    int.TryParse(numbers[1], out millis);
-                    ts = new TimeSpan(0, 0, 0, secs, millis);
-                }else if (value.Contains('.')) // dd.dd' (' was truncated but caused the minutes flag to be set)
-                {
-                    int mins = 0;
-                    int.TryParse(numbers[0], out mins);
-                    double fractionalMins = 0.0d;
-                    double.TryParse("0."+numbers[1], out fractionalMins);
-                    int secs = (int)(60 * fractionalMins);
-                    ts = new TimeSpan(0, mins, secs);
-                }else // assume must be dd'dd" with a truncated or missing "
-                {
-                    int mins = 0;
-                    int secs = 0;
-                    int.TryParse(numbers[0], out mins);
-                    int.TryParse(numbers[1], out secs);
-                    ts = new TimeSpan(0, mins, secs);
-                }
-            }
-            else if (numbers.Count() == 1) // dd in seconds or dd'
-            {
-                    int secs = 0;
-                    int.TryParse(numbers[0], out secs);
-                if (!minutes)
-                {
-                    ts = new TimeSpan(0, 0, 0, secs, 0);
-                }else
-                {
-                    ts = new TimeSpan(0, secs, 0);
-                }
-            }
-
-            return (ts);
-        }*/
+       
 
         /// <summary>
         ///     Assumes that a filename may include the date in the format yyyymmdd
@@ -1761,19 +1426,7 @@ namespace BatRecordingManager
             //Int32Rect.Empty,
             //BitmapSizeOptions.FromEmptyOptions());
             return result;
-            /*
-            BitmapImage bitmapImage = new BitmapImage();
-            using (MemoryStream memory = new MemoryStream())
-            {
-                source.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
-                memory.Position = 0;
-
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = memory;
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
-            }
-            return (bitmapImage);*/
+            
         }
 
         /// <summary>

@@ -14,14 +14,15 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
-using System;
-using System.Diagnostics;
-using System.IO;
+
 using CSCore;
 using CSCore.Codecs;
 using CSCore.CoreAudioAPI;
 using CSCore.SoundIn;
 using CSCore.SoundOut;
+using System;
+using System.Diagnostics;
+using System.IO;
 
 namespace BatRecordingManager
 {

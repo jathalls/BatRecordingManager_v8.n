@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PulseTrainAnalysis", "Analy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BatPassAnalysisFW", "BatPassAnalysisFW\BatPassAnalysisFW.csproj", "{6C8AE201-874B-4CB0-8A85-55708B6B1145}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalToolkit", "UniversalToolkit\UniversalToolkit.csproj", "{7D072491-04CB-4BD7-B5D2-7A13AA3DE2AB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -116,6 +118,24 @@ Global
 		{6C8AE201-874B-4CB0-8A85-55708B6B1145}.Release64|x64.Build.0 = Release|Any CPU
 		{6C8AE201-874B-4CB0-8A85-55708B6B1145}.Release64|x86.ActiveCfg = Release|Any CPU
 		{6C8AE201-874B-4CB0-8A85-55708B6B1145}.Release64|x86.Build.0 = Release|Any CPU
+		{7D072491-04CB-4BD7-B5D2-7A13AA3DE2AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D072491-04CB-4BD7-B5D2-7A13AA3DE2AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D072491-04CB-4BD7-B5D2-7A13AA3DE2AB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7D072491-04CB-4BD7-B5D2-7A13AA3DE2AB}.Debug|x64.Build.0 = Debug|Any CPU
+		{7D072491-04CB-4BD7-B5D2-7A13AA3DE2AB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7D072491-04CB-4BD7-B5D2-7A13AA3DE2AB}.Debug|x86.Build.0 = Debug|Any CPU
+		{7D072491-04CB-4BD7-B5D2-7A13AA3DE2AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D072491-04CB-4BD7-B5D2-7A13AA3DE2AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D072491-04CB-4BD7-B5D2-7A13AA3DE2AB}.Release|x64.ActiveCfg = Release|Any CPU
+		{7D072491-04CB-4BD7-B5D2-7A13AA3DE2AB}.Release|x64.Build.0 = Release|Any CPU
+		{7D072491-04CB-4BD7-B5D2-7A13AA3DE2AB}.Release|x86.ActiveCfg = Release|Any CPU
+		{7D072491-04CB-4BD7-B5D2-7A13AA3DE2AB}.Release|x86.Build.0 = Release|Any CPU
+		{7D072491-04CB-4BD7-B5D2-7A13AA3DE2AB}.Release64|Any CPU.ActiveCfg = Release|Any CPU
+		{7D072491-04CB-4BD7-B5D2-7A13AA3DE2AB}.Release64|Any CPU.Build.0 = Release|Any CPU
+		{7D072491-04CB-4BD7-B5D2-7A13AA3DE2AB}.Release64|x64.ActiveCfg = Release|Any CPU
+		{7D072491-04CB-4BD7-B5D2-7A13AA3DE2AB}.Release64|x64.Build.0 = Release|Any CPU
+		{7D072491-04CB-4BD7-B5D2-7A13AA3DE2AB}.Release64|x86.ActiveCfg = Release|Any CPU
+		{7D072491-04CB-4BD7-B5D2-7A13AA3DE2AB}.Release64|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

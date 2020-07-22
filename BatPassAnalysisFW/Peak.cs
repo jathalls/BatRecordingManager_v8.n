@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +15,7 @@ namespace BatPassAnalysisFW
         /// <summary>
         /// The ordinal number of the peak in the sequence
         /// </summary>
-        public int pulse_Number { get; set; } = -1;
+        public int peak_Number { get; set; } = -1;
 
         
 
@@ -29,11 +29,11 @@ namespace BatPassAnalysisFW
         /// <summary>
         /// The width of the peak in secs = endSecs-startSecs
         /// </summary>
-        public int peakWidthMs
+        public float peakWidthMs
         {
             get
             {
-                return ((int)(ConvertSamplesToSecs(endAsSampleInPass - startAsSampleInPass)*1000));
+                return ((float)(ConvertSamplesToSecs(endAsSampleInPass - startAsSampleInPass)*1000.0f));
             }
         }
 
@@ -45,7 +45,9 @@ namespace BatPassAnalysisFW
             }
         }
 
-       
+        internal int startPosInPulse;
+
+
 
         /// <summary>
         /// Number of samples from the start of the segmen tot he start of the peak
@@ -71,11 +73,11 @@ namespace BatPassAnalysisFW
         /// time in secs from the end of the previous peak to he start of this peak
         /// or zero if there was no previous peak
         /// </summary>
-        public int prevIntervalMs 
+        public float prevIntervalMs 
         {
             get
             {
-                return ((int)(ConvertSamplesToSecs(prevIntervalSamples)*1000));
+                return ((float)(ConvertSamplesToSecs(prevIntervalSamples)*1000.0f));
             } 
         }
 
@@ -129,7 +131,7 @@ namespace BatPassAnalysisFW
         /// previous peak </param>
         public Peak(int peakNumber, int rate, int startOfPassInSegment, int startOfPeakInPass, int peakWidth,double peakArea,float peakMaxHeight,int interval,int RecordingNumber=1,float AbsoluteThreshold=0.0f)
         {
-            this.pulse_Number = peakNumber;
+            this.peak_Number = peakNumber;
             sampleRatePerSecond = rate;
             startAsSampleInPass = startOfPeakInPass;
             endAsSampleInPass = startOfPeakInPass + peakWidth;
@@ -177,14 +179,14 @@ namespace BatPassAnalysisFW
         /// Creates a record of the detected peak based on the sample start number and the width of
         /// the detected peak in samples
         /// </summary>
-        /// <param name="peakStart"></param>
+        /// <param name="peakStartInPass"></param>
         /// <param name="peakCount"></param>
-        public static Peak Create(int peakNumber, int peakStart, int peakCount, double peakArea, float maxHeight, int interval, int sampleRate, 
+        public static Peak Create(int peakNumber, int peakStartInPass, int peakCount, double peakArea, float maxHeight, int interval, int sampleRate, 
             int startOfPassInSegment = 0,int RecordingNumber=1,float AbsoluteThreshold=0.0f)
         {
 
-            //Debug.WriteLine($"Peak at {peakStart} for {peakCount} - {(float)peakStart / sampleRate}/{(float)peakCount / sampleRate}");
-            Peak peak = new Peak(peakNumber, sampleRate, startOfPassInSegment, peakStart, peakCount, peakArea, maxHeight, interval,RecordingNumber,AbsoluteThreshold);
+            //Debug.WriteLine($"Peak at {peakStartInPass} for {peakCount} - {(float)peakStartInPass / sampleRate}/{(float)peakCount / sampleRate}");
+            Peak peak = new Peak(peakNumber, sampleRate, startOfPassInSegment, peakStartInPass, peakCount, peakArea, maxHeight, interval,RecordingNumber,AbsoluteThreshold);
             return (peak);
 
         }
@@ -192,6 +194,11 @@ namespace BatPassAnalysisFW
         internal int? GetPrevIntervalSamples()
         {
             return (prevIntervalSamples);
+        }
+
+        internal void SetPrevIntervalSamples(int interval)
+        {
+            prevIntervalSamples = interval;
         }
 
         //internal float GetStart_As_Secs_In_Rec()

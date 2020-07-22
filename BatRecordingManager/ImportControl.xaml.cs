@@ -96,68 +96,70 @@ namespace BatRecordingManager
         {
             var result = false;
             TbkOutputText.Text = "[LOG]\n";
-
-            if (!_processWavFiles)
+            using (new WaitCursor())
             {
-                var totalBatsFound = new Dictionary<string, BatStats>();
-
-                // process the files one by one
-                try
+                if (!_processWavFiles)
                 {
-                    if (_fileBrowser.TextFileNames.Count > 0)
+                    var totalBatsFound = new Dictionary<string, BatStats>();
+
+                    // process the files one by one
+                    try
                     {
-                        if (_sessionForFolder != null && _sessionForFolder.Id > 0)
+                        if (_fileBrowser.TextFileNames.Count > 0)
                         {
-                            TbkOutputText.Text = _sessionForFolder.ToFormattedString();
-                            foreach (var rec in _sessionForFolder.Recordings)
-                                DBAccess.DeleteRecording(
-                                    rec); //so that we can recreate them from scrathch using the file data
+                            if (_sessionForFolder != null && _sessionForFolder.Id > 0)
+                            {
+                                TbkOutputText.Text = _sessionForFolder.ToFormattedString();
+                                foreach (var rec in _sessionForFolder.Recordings)
+                                    DBAccess.DeleteRecording(
+                                        rec); //so that we can recreate them from scrathch using the file data
+                            }
+
+                            foreach (var filename in _fileBrowser.TextFileNames)
+                                if (!string.IsNullOrWhiteSpace(_fileBrowser.HeaderFileName) &&
+                                    filename == _fileBrowser.HeaderFileName)
+                                {
+                                    // skip this file if it has been identified as the header data file, since
+                                    // the information should have been included as the session record header
+                                    // and this would be a duplicate.
+                                }
+                                else
+                                {
+                                    TbkOutputText.Text = TbkOutputText.Text + "***\n\n" +
+                                                         FileProcessor.ProcessFile(filename, _gpxHandler, CurrentSessionId,
+                                                             ref _fileProcessor.BatsFound) + "\n";
+                                    totalBatsFound = BatsConcatenate(totalBatsFound, _fileProcessor.BatsFound);
+                                }
+
+                            TbkOutputText.Text = TbkOutputText.Text + "\n#########\n\n";
+                            if (totalBatsFound != null && totalBatsFound.Count > 0)
+                                foreach (var bat in totalBatsFound)
+                                {
+                                    bat.Value.batCommonName = bat.Key;
+                                    TbkOutputText.Text += Tools.GetFormattedBatStats(bat.Value, false) + "\n";
+
+                                    //tbkOutputText.Text = tbkOutputText.Text +
+                                    // FileProcessor.FormattedBatStats(bat) + "\n";
+                                }
                         }
 
-                        foreach (var filename in _fileBrowser.TextFileNames)
-                            if (!string.IsNullOrWhiteSpace(_fileBrowser.HeaderFileName) &&
-                                filename == _fileBrowser.HeaderFileName)
-                            {
-                                // skip this file if it has been identified as the header data file, since
-                                // the information should have been included as the session record header
-                                // and this would be a duplicate.
-                            }
-                            else
-                            {
-                                TbkOutputText.Text = TbkOutputText.Text + "***\n\n" +
-                                                     FileProcessor.ProcessFile(filename, _gpxHandler, CurrentSessionId,
-                                                         ref _fileProcessor.BatsFound) + "\n";
-                                totalBatsFound = BatsConcatenate(totalBatsFound, _fileProcessor.BatsFound);
-                            }
-
-                        TbkOutputText.Text = TbkOutputText.Text + "\n#########\n\n";
-                        if (totalBatsFound != null && totalBatsFound.Count > 0)
-                            foreach (var bat in totalBatsFound)
-                            {
-                                bat.Value.batCommonName = bat.Key;
-                                TbkOutputText.Text += Tools.GetFormattedBatStats(bat.Value, false) + "\n";
-
-                                //tbkOutputText.Text = tbkOutputText.Text +
-                                // FileProcessor.FormattedBatStats(bat) + "\n";
-                            }
+                        if (!string.IsNullOrWhiteSpace(TbkOutputText.Text))
+                        {
+                            SaveOutputFile();
+                            result = true;
+                        }
                     }
-
-                    if (!string.IsNullOrWhiteSpace(TbkOutputText.Text))
+                    catch (Exception ex)
                     {
-                        SaveOutputFile();
-                        result = true;
+                        Tools.ErrorLog(ex.Message);
+                        Debug.WriteLine("Processing of Recording Files failed:- " + ex.Message);
+                        result = false;
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    Tools.ErrorLog(ex.Message);
-                    Debug.WriteLine("Processing of Recording Files failed:- " + ex.Message);
-                    result = false;
+                    result = ProcessWavMetadata();
                 }
-            }
-            else
-            {
-                result = ProcessWavMetadata();
             }
 
             return result;
@@ -315,26 +317,7 @@ namespace BatRecordingManager
                     _sessionForFolder = SessionManager.CreateSession(_fileBrowser.WorkingFolder,
                         SessionManager.GetSessionTag(_fileBrowser), _gpxHandler);
                     //sessionForFolder.OriginalFilePath = fileBrowser.WorkingFolder;
-                    /*
-                    RecordingSessionForm sessionForm = new RecordingSessionForm();
-
-                    sessionForm.SetRecordingSession(sessionForFolder);
-                    if (sessionForm.ShowDialog() ?? false)
-                    {
-                        sessionForFolder = sessionForm.GetRecordingSession();
-                        //DBAccess.UpdateRecordingSession(sessionForFolder);
-                        CurrentSessionTag = sessionForFolder.SessionTag;
-                        var existingSession = DBAccess.GetRecordingSession(CurrentSessionTag);
-                        if (existingSession != null)
-                        {
-                            //DBAccess.DeleteSession(existingSession);
-                            CurrentSessionId = existingSession.Id;
-                        }
-                        else
-                        {
-                            CurrentSessionId = 0;
-                        }
-                    }*/
+                    
                 }
 
                 if (_sessionForFolder != null)
@@ -390,6 +373,9 @@ namespace BatRecordingManager
                         totalBatsFound[bat.Key].Add(bat.Value);
                     else
                         totalBatsFound.Add(bat.Key, bat.Value);
+            var distinct = totalBatsFound.Distinct();
+            totalBatsFound = new Dictionary<string, BatStats>();
+            foreach (var bat in distinct) totalBatsFound.Add(bat.Key,bat.Value);
             return totalBatsFound;
         }
 
@@ -420,9 +406,11 @@ namespace BatRecordingManager
             _processWavFiles = false;
             _fileBrowser = new FileBrowser();
             _fileBrowser.SelectRootFolder();
-            NextFolderButton.IsEnabled = true;
 
+            NextFolderButton.IsEnabled = true;
+            TbkOutputText.Text = "";
             NextFolderButton_Click(sender, e);
+
         }
 
         /// <summary>
@@ -461,32 +449,46 @@ namespace BatRecordingManager
         /// <param name="e"></param>
         private void ImportWavFilesButton_Click(object sender, RoutedEventArgs e)
         {
+
             ImportPictureControl.Visibility = Visibility.Hidden;
             OutputWindowScrollViewer.Visibility = Visibility.Visible;
             StackPanelScroller.Visibility = Visibility.Visible;
             _fileBrowser = new FileBrowser();
             _fileBrowser.SelectRootFolder();
-            NextFolderButton.IsEnabled = true;
-            UpdateRecordingButton.ToolTip = "Update a specific Recording by selecting a single .wav file";
 
-            NextFolderButton_Click(sender, e);
-            var fileList = Directory.EnumerateFiles(_fileBrowser.RootFolder, "*.wav");
-            //var FILEList= Directory.EnumerateFiles(fileBrowser.rootFolder, "*.WAV");
-            //fileList = fileList.Concat<string>(FILEList);
+            
+                NextFolderButton.IsEnabled = true;
+                UpdateRecordingButton.ToolTip = "Update a specific Recording by selecting a single .wav file";
 
-            var wavfiles = new List<string>(fileList);
-            if (wavfiles == null || wavfiles.Count == 0)
-            {
-                ProcessFilesButton.IsEnabled = false;
-                _processWavFiles = false;
-                Debug.WriteLine("Non wav files");
-            }
-            else
-            {
-                ProcessFilesButton.IsEnabled = true;
-                _processWavFiles = true;
-                Debug.WriteLine("Process wav files");
-            }
+                NextFolderButton_Click(sender, e);
+                var fileList = Directory.EnumerateFiles(_fileBrowser.RootFolder, "*.wav");
+                DpMMultiWindowPanel.Children.Clear();
+                TextBox textBox = new TextBox();
+                textBox.Text = "Files:-\n";
+                foreach (var file in fileList)
+                {
+                    textBox.Text += $"    {file}\n";
+                }
+                DpMMultiWindowPanel.Children.Add(textBox);
+                //var FILEList= Directory.EnumerateFiles(fileBrowser.rootFolder, "*.WAV");
+                //fileList = fileList.Concat<string>(FILEList);
+
+                var wavfiles = new List<string>(fileList);
+                if (wavfiles == null || wavfiles.Count == 0)
+                {
+                    ProcessFilesButton.IsEnabled = false;
+                    _processWavFiles = false;
+                    Debug.WriteLine("No wav files");
+                    TbkOutputText.Text = "No Wav Files Found";
+                }
+                else
+                {
+                    ProcessFilesButton.IsEnabled = true;
+                    _processWavFiles = true;
+                    TbkOutputText.Text = "Ready To Process";
+                    Debug.WriteLine("Process wav files");
+                }
+            
         }
 
         /// <summary>

@@ -1,16 +1,13 @@
 ﻿using Acr.Settings;
-using DspSharp.Utilities.Collections;
+using Mm.ExportableDataGrid;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media.Imaging;
-using Mm.ExportableDataGrid;
-using Microsoft.VisualStudio.Text.Editor.Commanding.Commands;
-using System.Threading.Tasks;
 
 namespace BatPassAnalysisFW
 {
@@ -22,24 +19,24 @@ namespace BatPassAnalysisFW
         //public bpaRecording recording { get; set; } = new bpaRecording(null);
 
 
-            /// <summary>
-            /// Repository of all the displayable data for the analysis
-            /// </summary>
+        /// <summary>
+        /// Repository of all the displayable data for the analysis
+        /// </summary>
         public AnalysisTableData tableData { get; set; } = new AnalysisTableData();
 
-        
+        bool skipDatabaseCheck = false;
         //public AnalysisTableData tableData = new AnalysisTableData();
 
         public AnalysisTableA()
         {
-            
+
             try
             {
                 InitializeComponent();
                 DataContext = tableData;
                 headerImage.Source = tableData.FrequencyHeader;
                 //Debug.WriteLine($"Set header source {tableData.FrequencyHeader.Width}x{tableData.FrequencyHeader.Height}");
-            }catch(Exception ex)
+            } catch (Exception ex)
             {
                 AnalysisMainControl.ErrorLog($"failed initializing AnalysisTableA {ex.Message}");
             }
@@ -52,35 +49,14 @@ namespace BatPassAnalysisFW
             {
                 tableData = data;
                 this.DataContext = tableData;
-            }catch(Exception ex)
+            } catch (Exception ex)
             {
                 AnalysisMainControl.ErrorLog($"Error copying data to tableData:{ex.Message}");
             }
-            
+
         }
 
-        public void viewRecordings(bool selectRecordings)
-        {
-            if (selectRecordings)
-            {
-                //segmentDataGrid.Visibility = Visibility.Hidden;
-                //recordingsDataGrid.Visibility = Visibility.Visible;
-                recNumberColumn.Header = "Rec";
-                PassRecColumn.Header = "Rec";
-            }
-            else
-            {
-                //recordingsDataGrid.Visibility = Visibility.Hidden;
-                //segmentDataGrid.Visibility = Visibility.Visible;
-                recNumberColumn.Header = "Seg";
-                PassRecColumn.Header = "Seg";
-            }
-        }
-
-        
-
-        
-
+       
         /// <summary>
         /// if the selection of the segment changes then update the itemssources for the details grid
         /// </summary>
@@ -88,17 +64,9 @@ namespace BatPassAnalysisFW
         /// <param name="e"></param>
         internal void segmentDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            /*
-            if (segmentDataGrid?.SelectedItems == null || segmentDataGrid?.SelectedItems.Count == 0)
-            {
-                tableData.segmentDataGrid_SelectionChanged(segmentDataGrid?.Items);
-            }
-            else
-            {
-                tableData.segmentDataGrid_SelectionChanged(segmentDataGrid?.SelectedItems);
-            }*/
-            tableData.segmentDataGrid_SelectionChanged(null);
             
+            tableData.segmentDataGrid_SelectionChanged(null);
+
         }
 
         /// <summary>
@@ -108,7 +76,7 @@ namespace BatPassAnalysisFW
         /// <param name="e"></param>
         private void pulseDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(pulseDataGrid.SelectedItems==null || pulseDataGrid.SelectedItems.Count == 0)
+            if (pulseDataGrid.SelectedItems == null || pulseDataGrid.SelectedItems.Count == 0)
             {
                 tableData.pulseDataGrid_SelectionChange(pulseDataGrid.Items);
             }
@@ -117,24 +85,41 @@ namespace BatPassAnalysisFW
                 tableData.pulseDataGrid_SelectionChange(pulseDataGrid.SelectedItems);
             }
 
+
+
+        }
+
+        internal void ReProcessFile(string file)
+        {
+            RecalcButton.IsEnabled = false;
+            tableData.ReProcessFile(file, EnvelopeThresholdUpDown.Value, SpectrumThresholdUpDown.Value);
+            RecalcButton.IsEnabled = true;
             
-            
+
         }
 
         internal void ReProcessFile()
         {
+           
             RecalcButton.IsEnabled = false;
             if (tableData != null)
             {
-                if(tableData.combinedRecordingList!=null && tableData.combinedRecordingList.Count > 0)
+                if (tableData.combinedRecordingList != null && tableData.combinedRecordingList.Count > 0)
                 {
-                    ProcessFile(tableData.combinedRecordingList[0].FQfilename);
-                    
-                    
+                    foreach(var recording in tableData.combinedRecordingList)
+                    {
+                        tableData.ReProcessFile(recording.FQfilename,EnvelopeThresholdUpDown.Value,SpectrumThresholdUpDown.Value);
+                    }
                 }
+                
+
             }
             
+            RecalcButton.IsEnabled = true;
+            
         }
+
+         
 
         internal async void ProcessFile(string selectedFQ_FileName)
         {
@@ -153,7 +138,7 @@ namespace BatPassAnalysisFW
                 {
 
 
-                    result=await ProcessSingleFileAsync(selectedFQ_FileName);
+                    result = await ProcessSingleFileAsync(selectedFQ_FileName);
                 }
                 else
                 {
@@ -165,7 +150,7 @@ namespace BatPassAnalysisFW
 
                     //AnalysisTable.setTableData(AnalysisTable.tableData);
 
-                    result=await ProcessFileGroupAsync(selectedFQ_FileName);
+                    result = await ProcessFileGroupAsync(selectedFQ_FileName);
 
                 }
                 var previous = passDataGrid.Columns[11].ActualWidth;
@@ -175,10 +160,10 @@ namespace BatPassAnalysisFW
                 passDataGrid.UpdateLayout();
                 passDataGrid.Columns[11].Width = previous;
                 passDataGrid.UpdateLayout();
-                
-                
+
+
             }
-            
+
         }
 
         private async Task<bool> ProcessFileGroupAsync(string selectedFQ_FileName)
@@ -189,7 +174,7 @@ namespace BatPassAnalysisFW
                 try
                 {
                     ProcessWavFileFolder(folderPath);
-                }catch(Exception ex)
+                } catch (Exception ex)
                 {
                     AnalysisMainControl.ErrorLog($"Process multiple files error:- {ex.Message}");
                     return (false);
@@ -220,58 +205,77 @@ namespace BatPassAnalysisFW
             return (true);
         }
 
-    private void ProcessWavFileFolder(string folderPath)
-    {
-        
-        
+        private void ProcessWavFileFolder(string folderPath)
+        {
 
-        var allFQWavFiles = Directory.EnumerateFiles(folderPath, "*.wav");
+
+
+            var allFQWavFiles = Directory.EnumerateFiles(folderPath, "*.wav");
             if (allFQWavFiles != null && allFQWavFiles.Count() > 0)
             {
                 List<bpaRecording> allRecordings = new List<bpaRecording>();
                 int recNumber = 1;
                 long totSize = 0l;
-                bpaRecording recording;
+                bpaRecording recording = null;
                 foreach (var FQwavFile in allFQWavFiles)
                 {
-                    if (PTA_DBAccess.RecordingExists(FQwavFile))
+                    var textFileName = System.IO.Path.ChangeExtension(FQwavFile, ".txt");
+                    if (File.Exists(textFileName))
                     {
-                        recording = PTA_DBAccess.getBPARecordingAndDescendants(FQwavFile);
+                        recording = ProcessSingleWavFile(FQwavFile);
                     }
                     else
                     {
-                        var size = new FileInfo(FQwavFile).Length;
-                        totSize += size;
-                        if (totSize > 1000000000L)
+                        if (!skipDatabaseCheck && PTA_DBAccess.RecordingExists(FQwavFile))
                         {
-                            MessageBox.Show("Total size of files too large, process truncated!");
-                            break;
+                            recording = PTA_DBAccess.getBPARecordingAndDescendants(FQwavFile);
+                             
+                            tableData.thresholdFactor = recording.getThresholdFactor();
+                            
+                            tableData.spectrumFactor = recording.getSpectrumThresholdFactor();
                         }
-                        recording = new bpaRecording(recNumber++, FQwavFile);
-                        recording.CreateSegments(tableData.thresholdFactor, tableData.spectrumFactor);
-                        PTA_DBAccess.SaveRecording(recording);
+                        else
+                        {
+                            var size = new FileInfo(FQwavFile).Length;
+                            totSize += size;
+                            if (totSize > 4000000000L)
+                            {
+                                MessageBox.Show("Total size of files too large, process truncated!");
+                                break;
+                            }
+                            recording = new bpaRecording(recNumber++, FQwavFile);
+                            recording.CreateSegments(tableData.thresholdFactor, tableData.spectrumFactor);
+                            recording.GenerateLabelFile();
+                            PTA_DBAccess.SaveRecording(recording);
+                        }
                     }
-                    allRecordings.Add(recording);
+                    if (recording != null)
+                    {
+                        allRecordings.Add(recording);
+                    }
+
                 }
                 tableData.SetRecordings(allRecordings);
                 RecalcButton.IsEnabled = true;
-                viewRecordings(true);
+                
             }
         }
 
-        private void ProcessSingleWavFile(string file)
+        private bpaRecording ProcessSingleWavFile(string file)
         {
             bpaRecording recording = null;
             long size = new FileInfo(file).Length;
             if (size > 1000000000L)
             {
                 MessageBox.Show("File too large to process");
-                return;
+                return null;
             }
 
-            if (PTA_DBAccess.RecordingExists(file))
+            if (!skipDatabaseCheck && PTA_DBAccess .RecordingExists(file))
             {
                 recording = PTA_DBAccess.getBPARecordingAndDescendants(file);
+                tableData.thresholdFactor = recording.getThresholdFactor();
+                tableData.spectrumFactor = recording.getSpectrumThresholdFactor();
             }
             else {
                 recording = new bpaRecording(recNumber: 1, file);
@@ -283,12 +287,16 @@ namespace BatPassAnalysisFW
                 {
                     AnalysisMainControl.ErrorLog($"Error creating segments:{ex.Message}");
                 }
-                PTA_DBAccess.SaveRecording(recording);
+                if (!skipDatabaseCheck)
+                {
+                    PTA_DBAccess.SaveRecording(recording);
+                }
             }
             tableData.SetRecording(recording);
+
             
-            viewRecordings(false);
             RecalcButton.IsEnabled = true;
+            return (recording);
 
         }
 
@@ -304,36 +312,30 @@ namespace BatPassAnalysisFW
                 if (passDataGrid.SelectedItems == null || passDataGrid.SelectedItems.Count <= 0)
                 {
                     tableData.passDataGrid_SelectionChanged(passDataGrid.Items);
+                    AutoClassifyButton.IsEnabled = false;
                 }
                 else
                 {
                     tableData.passDataGrid_SelectionChanged(passDataGrid.SelectedItems);
+                    AutoClassifyButton.IsEnabled = true;
                 }
             }
-            
-            
+
+
         }
 
-       
 
-        
+
+
 
         private void recordingsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            /*
-            if(recordingsDataGrid.SelectedItems==null || recordingsDataGrid.SelectedItems.Count == 0)
-            {
-                tableData.recordingsDataGrid_SelectionChanged(recordingsDataGrid.Items);
-            }
-            else
-            {
-                tableData.recordingsDataGrid_SelectionChanged(recordingsDataGrid.SelectedItems);
-            }*/
+            
             tableData.recordingsDataGrid_SelectionChanged(null);
-                
-            
-            
-            
+
+
+
+
         }
 
         private void spectralPeakDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -351,7 +353,7 @@ namespace BatPassAnalysisFW
             }
         }
 
-        private void EnvelopeThresholdUpDown_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        private void EnvelopeThresholdUpDown_ValueChanged(object sender, EventArgs e)
         {
             if (tableData != null)
             {
@@ -365,34 +367,81 @@ namespace BatPassAnalysisFW
 
         private void RecalcButton_Click(object sender, RoutedEventArgs e)
         {
-            ReProcessFile();
+            skipDatabaseCheck = true;
+            using (new WaitCursor())
+            {
+                if (passDataGrid.SelectedItems != null && passDataGrid.SelectedItems.Count > 0)
+                {
+                    List<bpaPass> selectedPasses = new List<bpaPass>();
+                    foreach (var item in passDataGrid.SelectedItems)
+                    {
+                        selectedPasses.Add(item as bpaPass);
+                    }
+
+                    foreach(var pass in selectedPasses)
+                    {
+                        var selection = passDataGrid.SelectedItems;
+                        tableData.UpdatePass(pass);
+                        tableData.passDataGrid_SelectionChanged(selection);
+
+                        //pass.CreatePass(tableData.thresholdFactor, tableData.spectrumFactor);
+                    }
+
+                   /* var selecteddRecordings = (from pass in selectedPasses
+                                               from rec in tableData.combinedRecordingList
+                                               where pass.recordingNumber == rec.recNumber
+                                               select rec.FQfilename).Distinct<string>().ToList<string>();
+
+                    foreach (var file in selecteddRecordings)
+                    {
+
+                        ReProcessFile(file);
+                    }*/
+                }
+                else
+                {
+
+
+                    ReProcessFile();
+                }
+            }
+            skipDatabaseCheck = false;
+            tableData.passDataGrid_SelectionChanged(passDataGrid.SelectedItems);
+            if (tableData.EnvelopeImage != null) tableData.EnvelopeEnabled = true;
+           
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            CrossSettings.Current.Set("EnvelopeThresholdFactor", tableData.thresholdFactor);
-            CrossSettings.Current.Set("SpectrumThresholdFactor", tableData.spectrumFactor);
+            using (new WaitCursor())
+            {
+                CrossSettings.Current.Set("EnvelopeThresholdFactor", tableData.thresholdFactor);
+                CrossSettings.Current.Set("SpectrumThresholdFactor", tableData.spectrumFactor);
+            }
         }
 
         private void ExportButton_Click(object sender, RoutedEventArgs e)
         {
-            string filename = @"C:\ExportedBatData\Spectra.csv";
-            if (File.Exists(filename))
+            using (new WaitCursor())
             {
-                string bakfile=Path.ChangeExtension(filename, ".bak");
-                if (File.Exists(bakfile)) File.Delete(bakfile);
-                File.Copy(filename, bakfile);
-                File.Delete(filename);
+                string filename = @"C:\ExportedBatData\Spectra.csv";
+                if (File.Exists(filename))
+                {
+                    string bakfile = Path.ChangeExtension(filename, ".bak");
+                    if (File.Exists(bakfile)) File.Delete(bakfile);
+                    File.Copy(filename, bakfile);
+                    File.Delete(filename);
+                }
+                //spectralPeakDataGrid.Visibility = Visibility.Hidden;
+                var exporter = new CsvExporter(',');
+                exporter.ExportCompleted += Exporter_ExportCompleted;
+
+                //passDataGrid.ExportUsingRefection(exporter,@"C:\ExportedBatData\Passes.csv");
+                spectralPeakDataGrid.Visibility = Visibility.Visible;
+                passDataGrid.Visibility = Visibility.Hidden;
+                spectralPeakDataGrid.ExportUsingRefection(exporter, filename);
+                passDataGrid.Visibility = Visibility.Visible;
             }
-            //spectralPeakDataGrid.Visibility = Visibility.Hidden;
-            var exporter = new CsvExporter(',');
-            exporter.ExportCompleted += Exporter_ExportCompleted;
-            
-            //passDataGrid.ExportUsingRefection(exporter,@"C:\ExportedBatData\Passes.csv");
-            spectralPeakDataGrid.Visibility = Visibility.Visible;
-            passDataGrid.Visibility = Visibility.Hidden;
-            spectralPeakDataGrid.ExportUsingRefection(exporter,filename );
-            passDataGrid.Visibility = Visibility.Visible;
         }
 
         private void Exporter_ExportCompleted(object sender, EventArgs e)
@@ -410,40 +459,50 @@ namespace BatPassAnalysisFW
 
 
             //passDataGrid.ExportUsingRefection(exporter,@"C:\ExportedBatData\Passes.csv");
-            this.Dispatcher.Invoke( ( ) => { 
-            spectralPeakDataGrid.Visibility = Visibility.Hidden;
-            
+            this.Dispatcher.Invoke(() => {
+                spectralPeakDataGrid.Visibility = Visibility.Hidden;
 
-            
+
+
                 passDataGrid.Visibility = Visibility.Visible;
-           
-            passDataGrid.ExportUsingRefection(exporter, filename);
-            spectralPeakDataGrid.Visibility = Visibility.Visible;
+
+                passDataGrid.ExportUsingRefection(exporter, filename);
+                spectralPeakDataGrid.Visibility = Visibility.Visible;
             });
         }
 
         private void RemoveOutliersButton_Click(object sender, RoutedEventArgs e)
         {
-            bpaPass passToFilter = null;
-            if(passDataGrid.SelectedItems!=null && passDataGrid.SelectedItems.Count > 0)
+            int oldSelection = passDataGrid.SelectedIndex;
+            using (new WaitCursor())
             {
-                passToFilter = passDataGrid.SelectedItems[0] as bpaPass;
-            }
-            else
-            {
-                if (passDataGrid.SelectedItem != null)
+                bpaPass passToFilter = null;
+                if (passDataGrid.SelectedItems != null && passDataGrid.SelectedItems.Count > 0)
                 {
-                    passToFilter = passDataGrid.SelectedItem as bpaPass;
+                    foreach (var item in passDataGrid.SelectedItems)
+                    {
+                        var pass = item as bpaPass;
+                        pass.RemoveOutliers();
+                    }
                 }
-            }
-            if (passToFilter != null)
-            {
-                using (new WaitCursor())
+                else
                 {
+                    if (passDataGrid.SelectedItem != null)
+                    {
+                        passToFilter = passDataGrid.SelectedItem as bpaPass;
+                    }
+                }
+                if (passToFilter != null)
+                {
+
                     passToFilter.RemoveOutliers();
-                    tableData.segmentDataGrid_SelectionChanged(tableData.combinedSegmentList);
+
+
                 }
+                tableData.recordingsDataGrid_SelectionChanged(tableData.combinedRecordingList);
+                tableData.segmentDataGrid_SelectionChanged(tableData.combinedSegmentList);
             }
+            passDataGrid.SelectedIndex = oldSelection;
         }
 
         private void cmiEnvelope_Click(object sender, RoutedEventArgs e)
@@ -458,6 +517,129 @@ namespace BatPassAnalysisFW
                 }
             }
         }
+
+        private void ReWriteLabelsButton_Click(object sender, RoutedEventArgs e)
+        {
+            using (new WaitCursor())
+            {
+                if (passDataGrid.SelectedItems != null && passDataGrid.SelectedItems.Count > 0)
+                {
+                    List<bpaPass> selectedPasses = new List<bpaPass>();
+                    foreach (var item in passDataGrid.SelectedItems)
+                    {
+                        selectedPasses.Add(item as bpaPass);
+                    }
+                    GenerateLabelFiles(selectedPasses);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Akin to Recording.GenerateLabelFile but applies to multiple recordings and only the
+        /// passes of those recordings which are in the provided list of passes
+        /// </summary>
+        /// <param name="selectedPasses"></param>
+        private void GenerateLabelFiles(List<bpaPass> selectedPasses)
+        {
+            var recordingsForThesePasses = (from pass in selectedPasses
+                                            from rec in tableData.combinedRecordingList
+                                            where rec.recNumber == pass.recordingNumber
+                                            select rec).Distinct();
+
+            foreach (var rec in recordingsForThesePasses)
+            {
+                var passesForThisrecording = (from pass in tableData.combinedPassList
+                                              where pass.recordingNumber == rec.recNumber
+                                              select pass);
+                rec.setPassList(passesForThisrecording.ToList());
+                rec.GenerateLabelFile();
+            }
+        }
+
+        /// <summary>
+        /// Tidies up the data displayed.
+        /// 1) performs Remove Outliers where the peakFreq SD>10
+        /// 2) deletes any pulse with peak, start or end freq outside pass mean+/-2SD
+        /// 3) hides all passes with zero pulses
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TidyButton_Click(object sender, RoutedEventArgs e)
+        {
+            using (new WaitCursor())
+            {
+                List<bpaPass> SelectedPasses = new List<bpaPass>();
+                if (passDataGrid.SelectedItems != null && passDataGrid.SelectedItems.Count > 0)
+                {
+                    foreach (var item in passDataGrid.SelectedItems) SelectedPasses.Add(item as bpaPass);
+                }
+
+                tableData.AutoDeleteExtremePulses();
+                tableData.passDataGrid_SelectionChanged(null);
+
+                tableData.AutoRemoveOutliers();
+                tableData.passDataGrid_SelectionChanged(null);
+                
+                
+                tableData.AutoDeleteBlankPasses();
+                tableData.passDataGrid_SelectionChanged(null);
+
+                tableData.recordingsDataGrid_SelectionChanged(tableData.combinedRecordingList);
+
+                
+                
+            }
+        }
+
+        private void AutoClassifyButton_Click(object sender, RoutedEventArgs e)
+        {
+            using (new WaitCursor())
+            {
+                Classifier classify = new Classifier();
+                if(passDataGrid.SelectedItems!=null && passDataGrid.SelectedItems.Count > 0)
+                {
+                    foreach(var item in passDataGrid.SelectedItems)
+                    {
+                        bpaPass pass = item as bpaPass;
+                        string comment = classify.Classify(pass);
+
+                        var root = (from rec in tableData.combinedRecordingList
+                                    where rec.recNumber == pass.recordingNumber
+
+
+                                    select rec).FirstOrDefault();
+                        if (root != null && root.recNumber>0)
+                        {
+                            root.appendCommentForPass(pass,"AC="+comment);
+                        }
+                        pass.Comment += "AC=" + comment;
+
+                        
+                        
+                    }
+                    var selected = passDataGrid.SelectedItems;
+                    tableData.segmentDataGrid_SelectionChanged(null);
+                    
+                    tableData.passDataGrid_SelectionChanged(passDataGrid.SelectedItems);
+                }
+            }
+
+        }
+
+        private void cmiPulseEnvelope_Click(object sender, RoutedEventArgs e)
+        {
+            if (spectralPeakDataGrid.SelectedItem != null)
+            {
+                using (new WaitCursor())
+                {
+                    SpectralPeak selectedSpectrum = spectralPeakDataGrid.SelectedItem as SpectralPeak;
+                    tableData.DisplayPulseEnvelope(selectedSpectrum);
+                    tableData.PulseEnvelopeEnabled = true;
+                }
+            }
+        }
+
+       
     }
 
     

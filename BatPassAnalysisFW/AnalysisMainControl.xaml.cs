@@ -1,22 +1,11 @@
 ﻿using Acr.Settings;
-
+using System.Windows.Forms;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Forms;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace BatPassAnalysisFW
 {
@@ -129,28 +118,45 @@ namespace BatPassAnalysisFW
                 initialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             }
 
-            using (var dialog = new OpenFileDialog())
+            using (OpenFileDialog dialog = new OpenFileDialog())
             {
-                dialog.DefaultExt = "*.*";
-                dialog.Filter = "Audio Files (*.wav)|*.wav|All Files (*.*)|*.*";
-                dialog.FilterIndex = 1;
-                dialog.InitialDirectory = initialDirectory;
-                dialog.Title = "Select Recording .WAV file";
-                dialog.ValidateNames = true;
-                dialog.CheckFileExists = true;
+                dialog.DefaultExt = ".wav";
+                dialog.Filter = "Text files (*.txt)|*.txt|Wav files (*.wav)|*.wav|All Files (*.*)|*.*";
+                dialog.FilterIndex = 3;
+                dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                dialog.Title = "Select Folder or WAV file";
+                dialog.ValidateNames = false;
+                dialog.CheckFileExists = false;
                 dialog.CheckPathExists = true;
-                dialog.FileName = "*.wav";
+                dialog.FileName = "Select Folder";
+
+                selectedFQ_FileName = "A";
 
                 //dialog.Description = "Select the folder containing the .wav and descriptive text files";
                 //dialog.ShowNewFolderButton = true;
                 //dialog.RootFolder = Environment.SpecialFolder.MyComputer;
 
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                if (dialog.ShowDialog() == DialogResult.OK)
                     //HeaderFileName = dialog.FileName;
                     //folderPath = System.IO.Path.GetDirectoryName(dialog.FileName);
                     selectedFQ_FileName = dialog.FileName;
-                else
-                    return;
+                if (selectedFQ_FileName.EndsWith("Select Folder")||selectedFQ_FileName.Trim().EndsWith(@"\"))
+                {
+                    string path = System.IO.Path.GetDirectoryName(selectedFQ_FileName);
+                    if (Directory.Exists(path))
+                    {
+                        //CreateLabelFilesForFolder(path);
+                        
+
+
+                    }
+                    else
+                    {
+                        selectedFQ_FileName = "";
+                        
+                    }
+                }
+                
             }
             using (new WaitCursor())
             {
@@ -166,8 +172,11 @@ namespace BatPassAnalysisFW
 
                 try
                 {
-                    AnalysisTable.ProcessFile(selectedFQ_FileName);
-                    miSaveToDB.IsEnabled = true;
+                    using (new WaitCursor())
+                    {
+                        AnalysisTable.ProcessFile(selectedFQ_FileName);
+                        miSaveToDB.IsEnabled = true;
+                    }
 
                 }
                 catch (Exception ex)
@@ -181,6 +190,8 @@ namespace BatPassAnalysisFW
 
 
         }
+
+        
 
         private void Settings_Click(object sender, RoutedEventArgs e)
         {

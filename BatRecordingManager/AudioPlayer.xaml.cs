@@ -14,6 +14,8 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
+using NAudio.Wave;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -21,8 +23,6 @@ using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.VisualStudio.Language.Intellisense;
-using NAudio.Wave;
 
 
 

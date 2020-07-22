@@ -69,16 +69,17 @@ namespace BatRecordingManager
         /// </param>
         public void SetReadOnly(bool isReadOnly)
         {
-            StartFreqUpDown.IsReadOnly = isReadOnly;
-            StartFreqVariationTextBox.IsReadOnly = isReadOnly;
-            EndFreqTextBox.IsReadOnly = isReadOnly;
-            EndFreqVariationTextBox.IsReadOnly = isReadOnly;
-            PeakFreqTextBox.IsReadOnly = isReadOnly;
-            PeakFreqVariationTextBox.IsReadOnly = isReadOnly;
-            PulseDurationTextBox.IsReadOnly = isReadOnly;
-            PulseDurationVariationTextBox.IsReadOnly = isReadOnly;
-            PulseIntervalTextBox.IsReadOnly = isReadOnly;
-            PulseIntervalVariationTextBox.IsReadOnly = isReadOnly;
+            
+            StartFreqUpDown.IsEnabled = isReadOnly;
+            StartFreqVariationTextBox.IsEnabled = isReadOnly;
+            EndFreqTextBox.IsEnabled = isReadOnly;
+            EndFreqVariationTextBox.IsEnabled = isReadOnly;
+            PeakFreqTextBox.IsEnabled = isReadOnly;
+            PeakFreqVariationTextBox.IsEnabled = isReadOnly;
+            PulseDurationTextBox.IsEnabled = isReadOnly;
+            PulseDurationVariationTextBox.IsEnabled = isReadOnly;
+            PulseIntervalTextBox.IsEnabled = isReadOnly;
+            PulseIntervalVariationTextBox.IsEnabled = isReadOnly;
             CallTypeTextBox.IsReadOnly = isReadOnly;
             CallFunctionTextBox.IsReadOnly = isReadOnly;
             CallTypeNotesBox.IsReadOnly = isReadOnly;
@@ -193,13 +194,13 @@ namespace BatRecordingManager
                     result.CallType = CallTypeTextBox.Text;
                     if (StartFrequencySeparatorLabel.Content as string == "+/-")
                     {
-                        result.StartFrequency = StartFreqUpDown.Value;
-                        result.StartFrequencyVariation = StartFreqVariationTextBox.Value;
+                        result.StartFrequency = (double)StartFreqUpDown.Value;
+                        result.StartFrequencyVariation = (double)StartFreqVariationTextBox.Value;
                     }
                     else
                     {
-                        var hi = StartFreqUpDown.Value ?? 0.0;
-                        var lo = StartFreqVariationTextBox.Value ?? 0.0;
+                        var hi = (double)(StartFreqUpDown.Value);
+                        var lo = (double)StartFreqVariationTextBox.Value;
 
                         result.StartFrequency = (hi + lo) / 2.0d;
                         result.StartFrequencyVariation = Math.Abs((hi - lo) / 2.0d);
@@ -207,52 +208,52 @@ namespace BatRecordingManager
 
                     if (EndFrequencySeparatorLabel.Content as string == "+/-")
                     {
-                        result.EndFrequency = EndFreqTextBox.Value;
-                        result.EndFrequencyVariation = EndFreqVariationTextBox.Value;
+                        result.EndFrequency = (double)EndFreqTextBox.Value;
+                        result.EndFrequencyVariation = (double)EndFreqVariationTextBox.Value;
                     }
                     else
                     {
-                        var hi = EndFreqTextBox.Value ?? 0.0;
-                        var lo = EndFreqVariationTextBox.Value ?? 0.0;
+                        var hi = (double)EndFreqTextBox.Value;
+                        var lo = (double)EndFreqVariationTextBox.Value;
                         result.EndFrequency = (hi + lo) / 2.0d;
                         result.EndFrequencyVariation = Math.Abs((hi - lo) / 2.0d);
                     }
 
                     if (PeakFrequencySeparatorLabel.Content as string == "+/-")
                     {
-                        result.PeakFrequency = PeakFreqTextBox.Value;
-                        result.PeakFrequencyVariation = PeakFreqVariationTextBox.Value;
+                        result.PeakFrequency = (double)PeakFreqTextBox.Value;
+                        result.PeakFrequencyVariation = (double)PeakFreqVariationTextBox.Value;
                     }
                     else
                     {
-                        var hi = PeakFreqTextBox.Value ?? 0.0;
-                        var lo = PeakFreqVariationTextBox.Value ?? 0.0;
+                        var hi = (double)PeakFreqTextBox.Value;
+                        var lo = (double)PeakFreqVariationTextBox.Value;
                         result.PeakFrequency = (hi + lo) / 2.0d;
                         result.PeakFrequencyVariation = Math.Abs((hi - lo) / 2.0d);
                     }
 
                     if (DurationSeparatorLabel.Content as string == "+/-")
                     {
-                        result.PulseDuration = PulseDurationTextBox.Value;
-                        result.PulseDurationVariation = PulseDurationVariationTextBox.Value;
+                        result.PulseDuration = (double)PulseDurationTextBox.Value;
+                        result.PulseDurationVariation = (double)PulseDurationVariationTextBox.Value;
                     }
                     else
                     {
-                        var hi = PulseDurationTextBox.Value ?? 0.0;
-                        var lo = PulseDurationVariationTextBox.Value ?? 0.0;
+                        var hi = (double)PulseDurationTextBox.Value;
+                        var lo = (double)PulseDurationVariationTextBox.Value;
                         result.PulseDuration = (hi + lo) / 2.0d;
                         result.PulseDurationVariation = Math.Abs((hi - lo) / 2.0d);
                     }
 
                     if (IntervalSeparatorLabel.Content as string == "+/-")
                     {
-                        result.PulseInterval = PulseIntervalTextBox.Value;
-                        result.PulseIntervalVariation = PulseIntervalVariationTextBox.Value;
+                        result.PulseInterval = (double)PulseIntervalTextBox.Value;
+                        result.PulseIntervalVariation = (double)PulseIntervalVariationTextBox.Value;
                     }
                     else
                     {
-                        var hi = PulseIntervalTextBox.Value ?? 0.0;
-                        var lo = PulseIntervalVariationTextBox.Value ?? 0.0;
+                        var hi = (double)PulseIntervalTextBox.Value;
+                        var lo = (double)PulseIntervalVariationTextBox.Value;
                         result.PulseInterval = (hi + lo) / 2.0d;
                         result.PulseIntervalVariation = Math.Abs((hi - lo) / 2.0d);
                     }
@@ -282,65 +283,65 @@ namespace BatRecordingManager
 
                     if (StartFrequencySeparatorLabel.Content as string == "+/-")
                     {
-                        StartFreqUpDown.Value = value.StartFrequency;
-                        StartFreqVariationTextBox.Value = value.StartFrequencyVariation;
+                        StartFreqUpDown.Value = (decimal)value.StartFrequency;
+                        StartFreqVariationTextBox.Value = (decimal)value.StartFrequencyVariation;
                     }
                     else
                     {
-                        var mid = value.StartFrequency ?? 0.0;
-                        var var = value.StartFrequencyVariation ?? 0.0;
+                        var mid = (decimal?)value.StartFrequency ?? 0.0m;
+                        var var = (decimal?)value.StartFrequencyVariation ?? 0.0m;
                         StartFreqUpDown.Value = mid + var;
                         StartFreqVariationTextBox.Value = mid - var;
                     }
 
                     if (EndFrequencySeparatorLabel.Content as string == "+/-")
                     {
-                        EndFreqTextBox.Value = value.EndFrequency;
-                        EndFreqVariationTextBox.Value = value.EndFrequencyVariation;
+                        EndFreqTextBox.Value = (decimal)value.EndFrequency;
+                        EndFreqVariationTextBox.Value = (decimal)value.EndFrequencyVariation;
                     }
                     else
                     {
-                        var mid = value.EndFrequency ?? 0.0;
-                        var var = value.EndFrequencyVariation ?? 0.0;
+                        var mid = (decimal?)value.EndFrequency ?? 0.0m;
+                        var var = (decimal?)value.EndFrequencyVariation ?? 0.0m;
                         EndFreqTextBox.Value = mid + var;
                         EndFreqVariationTextBox.Value = mid - var;
                     }
 
                     if (PeakFrequencySeparatorLabel.Content as string == "+/-")
                     {
-                        PeakFreqTextBox.Value = value.PeakFrequency;
-                        PeakFreqVariationTextBox.Value = value.PeakFrequencyVariation;
+                        PeakFreqTextBox.Value = (decimal)value.PeakFrequency;
+                        PeakFreqVariationTextBox.Value = (decimal)value.PeakFrequencyVariation;
                     }
                     else
                     {
-                        var mid = value.PeakFrequency ?? 0.0;
-                        var var = value.PeakFrequencyVariation ?? 0.0;
+                        var mid = (decimal?)value.PeakFrequency ?? 0.0m;
+                        var var = (decimal?)value.PeakFrequencyVariation ?? 0.0m;
                         PeakFreqTextBox.Value = mid + var;
                         PeakFreqVariationTextBox.Value = mid - var;
                     }
 
                     if (DurationSeparatorLabel.Content as string == "+/-")
                     {
-                        PulseDurationTextBox.Value = value.PulseDuration;
-                        PulseDurationVariationTextBox.Value = value.PulseDurationVariation;
+                        PulseDurationTextBox.Value = (decimal)value.PulseDuration;
+                        PulseDurationVariationTextBox.Value = (decimal)value.PulseDurationVariation;
                     }
                     else
                     {
-                        var mid = value.PulseDuration ?? 0.0;
-                        var var = value.PulseDurationVariation ?? 0.0;
+                        var mid = (decimal?)value.PulseDuration ?? 0.0m;
+                        var var = (decimal?)value.PulseDurationVariation ?? 0.0m;
                         PulseDurationTextBox.Value = mid + var;
                         PulseDurationVariationTextBox.Value = mid - var;
                     }
 
                     if (IntervalSeparatorLabel.Content as string == "+/-")
                     {
-                        PulseIntervalTextBox.Value = value.PulseInterval;
-                        PulseIntervalVariationTextBox.Value = value.PulseIntervalVariation;
+                        PulseIntervalTextBox.Value = (decimal)value.PulseInterval;
+                        PulseIntervalVariationTextBox.Value = (decimal)value.PulseIntervalVariation;
                     }
                     else
                     {
-                        var mid = value.PulseInterval ?? 0.0;
-                        var var = value.PulseIntervalVariation ?? 0.0;
+                        var mid = (decimal?)value.PulseInterval ?? 0.0m;
+                        var var = (decimal?)value.PulseIntervalVariation ?? 0.0m;
                         PulseIntervalTextBox.Value = mid + var;
                         PulseIntervalVariationTextBox.Value = mid - var;
                     }

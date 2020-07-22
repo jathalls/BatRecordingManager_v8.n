@@ -460,7 +460,8 @@ Do you wish to update that database to the latest specification?", "Out of Date 
         }
 
         /// <summary>
-        ///     Handles the Click event of the miNewLogFile control.
+        ///     Handles the Click event of the miNewLogFile control. Now the Import item
+        ///     to import analysis data from .txt files or .wav file metadata.
         /// </summary>
         /// <param name="sender">
         ///     The source of the event.

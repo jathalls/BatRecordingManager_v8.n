@@ -54,16 +54,16 @@ namespace BatRecordingManager
             get
             {
                 var result = (LabelledSegment) GetValue(labelledSegmentProperty);
-                result.StartOffset = Tools.ConvertDoubleToTimeSpan(StartOffsetDoubleUpDown.Value);
-                result.EndOffset = Tools.ConvertDoubleToTimeSpan(EndOffsetDoubleUpDown.Value);
+                result.StartOffset = Tools.ConvertDoubleToTimeSpan((double)StartOffsetDoubleUpDown.Value);
+                result.EndOffset = Tools.ConvertDoubleToTimeSpan((double)EndOffsetDoubleUpDown.Value);
                 result.Comment = CommentTextBox.Text;
                 return result;
             }
             set
             {
                 SetValue(labelledSegmentProperty, value);
-                StartOffsetDoubleUpDown.Value = value.StartOffset.TotalSeconds;
-                EndOffsetDoubleUpDown.Value = value.EndOffset.TotalSeconds;
+                StartOffsetDoubleUpDown.Value = (decimal)value.StartOffset.TotalSeconds;
+                EndOffsetDoubleUpDown.Value = (decimal)value.EndOffset.TotalSeconds;
                 CommentTextBox.Text = value.Comment;
             }
         }

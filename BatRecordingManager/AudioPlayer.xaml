@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:tk="clr-namespace:UniversalToolkit;assembly=UniversalToolkit"
         xmlns:local="clr-namespace:BatRecordingManager"
         mc:Ignorable="d"
         Title="AudioPlayer" Height="450" Width="900" Background="{StaticResource BlueGradientBackground}"
@@ -88,15 +88,12 @@
                 Minimum="15"
                 TickFrequency="10"
                 ToolTip="Select tuned frequency in kHz" ValueChanged="FrequencySlider_ValueChanged" />
-            <xctk:DoubleUpDown
+            <tk:NumericSpinner
                 x:Name="FrequencyUpDown"
                 Width="100"
-                Text="kHz"
+                
                 Value="{Binding ElementName=FrequencySlider,Path=Value, Mode=TwoWay}"
-                DefaultValue="50"
-                DisplayDefaultValueOnEmptyText="True"
-                CultureInfo="en-GB"
-                FormatString="{}{0:#,0.0}" />
+                Decimals="1" />
             <Label
                 Content="kHz" />
 

@@ -158,19 +158,19 @@ namespace BatRecordingManager
         private void SunsetCalcButton_Click(object sender, RoutedEventArgs e)
         {
             //DateTime? sessionDate = SessionDatePicker.SelectedDate;
-            var sessionDate = SessionStartDateTime.Value;
+            var sessionDate = SessionStartDateTime.SelectedDate;
             double.TryParse(GpsLatitudeTextBox.Text, out var lat);
             double.TryParse(GpsLongitudeTextBox.Text, out var longit);
 
-            if (sessionDate != null && sessionDate.Value.Year > 1970)
+            if (sessionDate != null && sessionDate.Year > 1970)
                 if (lat < 200 && longit < 200 && !(lat == 0.0 && longit == 0.0))
                 {
-                    var sunset = SessionManager.CalculateSunset(sessionDate.Value, (decimal?) lat, (decimal?) longit);
+                    var sunset = SessionManager.CalculateSunset(sessionDate, (decimal?) lat, (decimal?) longit);
                     if (sunset != null && sunset.Value.Hours > 0)
                     {
                         recordingSession.Sunset = sunset;
                         DBAccess.UpdateSunset(recordingSession);
-                        SunsetTimePicker.Value = new DateTime(recordingSession.SessionDate.Year,
+                        SunsetTimePicker.SelectedDate = new DateTime(recordingSession.SessionDate.Year,
                             recordingSession.SessionDate.Month, recordingSession.SessionDate.Day,
                             sunset.Value.Hours, sunset.Value.Minutes, sunset.Value.Seconds);
                     }
@@ -199,18 +199,18 @@ namespace BatRecordingManager
                     try
                     {
                         session.SessionTag = SessionTagTextBlock.Text;
-                        session.SessionDate = SessionStartDateTime.Value ?? new DateTime();
+                        session.SessionDate = SessionStartDateTime.SelectedDate ;
                         session.SessionStartTime = session.SessionDate.TimeOfDay;
-                        if (SessionEndDateTime?.Value != null)
-                            session.SessionEndTime = SessionEndDateTime.Value.Value.TimeOfDay;
-                        session.EndDate = SessionEndDateTime.Value;
+                        
+                            session.SessionEndTime = SessionEndDateTime.SelectedDate.TimeOfDay;
+                        session.EndDate = SessionEndDateTime.SelectedDate;
 
                         //session.SessionDate = SessionStartDatePicker.SelectedDate ?? new DateTime();
                         //session.SessionStartTime = (StartTimePicker.Value ?? new DateTime()).TimeOfDay;
                         //session.SessionEndTime = (EndTimePicker.Value ?? new DateTime()).TimeOfDay;
                         session.Temp = (short?) TemperatureIntegerUpDown.Value;
                         session.Weather = WeatherTextBox.Text;
-                        session.Sunset = (SunsetTimePicker.Value ?? new DateTime()).TimeOfDay;
+                        session.Sunset = (SunsetTimePicker.SelectedDate).TimeOfDay;
                         session.Equipment = EquipmentComboBox.Text;
                         session.Microphone = MicrophoneComboBox.Text;
                         session.OriginalFilePath = FolderTextBox.Text;
@@ -250,12 +250,12 @@ namespace BatRecordingManager
                         if (value.EndDate == null)
                             value.EndDate = value.SessionDate.Date +
                                             (value.SessionEndTime ?? (value.SessionStartTime ?? new TimeSpan()));
-                        SessionEndDateTime.Value = value.EndDate;
+                        SessionEndDateTime.SelectedDate = value.EndDate??new DateTime();
 
                         //StartTimePicker.Value = new DateTime() + (value.SessionStartTime ?? new TimeSpan());
 
                         //EndTimePicker.Value = new DateTime() + (value.SessionEndTime ?? new TimeSpan());
-                        SunsetTimePicker.Value = new DateTime() + (value.Sunset ?? new TimeSpan());
+                        SunsetTimePicker.SelectedDate = new DateTime() + (value.Sunset ?? new TimeSpan());
                         WeatherTextBox.Text = value.Weather;
                         EquipmentComboBox.ItemsSource = DBAccess.GetEquipmentList();
                         EquipmentComboBox.Text = value.Equipment;
@@ -280,7 +280,7 @@ namespace BatRecordingManager
 
                         //SessionDatePicker.DisplayDate = value.SessionDate;
                         //SessionDatePicker.SelectedDate = value.SessionDate;
-                        TemperatureIntegerUpDown.Value = value.Temp;
+                        TemperatureIntegerUpDown.Value = (decimal)(value.Temp??0);
                         FolderTextBox.Text = value.OriginalFilePath;
                         /*
                         if (string.IsNullOrWhiteSpace(WeatherTextBox.Text))
@@ -306,8 +306,8 @@ namespace BatRecordingManager
                     try
                     {
                         SessionTagTextBlock.Text = "";
-                        SessionStartDateTime.Value = DateTime.Now;
-                        SessionEndDateTime.Value = DateTime.Now;
+                        SessionStartDateTime.SelectedDate = DateTime.Now;
+                        SessionEndDateTime.SelectedDate = DateTime.Now;
                         //StartTimePicker.Value = DateTime.Now;
                         //EndTimePicker.Value = DateTime.Now;
 
@@ -320,7 +320,7 @@ namespace BatRecordingManager
                         SessionNotesRichtextBox.Text = "";
                         //SessionDatePicker.DisplayDate = DateTime.Now;
                         //SessionDatePicker.SelectedDate = DateTime.Now;
-                        TemperatureIntegerUpDown.Value = null;
+                        TemperatureIntegerUpDown.Value = 0;
                         FolderTextBox.Text = "";
                     }
                     catch (Exception ex)
