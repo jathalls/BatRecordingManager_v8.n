@@ -7,6 +7,7 @@ C:\Users\justi\source\repos\BRMv8.n\UniversalToolkit\obj\Release\WPFTimePicker.b
 C:\Users\justi\source\repos\BRMv8.n\UniversalToolkit\obj\Release\WPFDateTimePicker.g.cs
 C:\Users\justi\source\repos\BRMv8.n\UniversalToolkit\obj\Release\WPFNumericSpinner.g.cs
 C:\Users\justi\source\repos\BRMv8.n\UniversalToolkit\obj\Release\WPFTimePicker.g.cs
+C:\Users\justi\source\repos\BRMv8.n\UniversalToolkit\obj\Release\GeneratedInternalTypeHelper.g.cs
 C:\Users\justi\source\repos\BRMv8.n\UniversalToolkit\obj\Release\UniversalToolkit_MarkupCompile.cache
 C:\Users\justi\source\repos\BRMv8.n\UniversalToolkit\obj\Release\UniversalToolkit_MarkupCompile.lref
 C:\Users\justi\source\repos\BRMv8.n\UniversalToolkit\obj\Release\Generic.baml

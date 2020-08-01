@@ -1025,6 +1025,100 @@ namespace BatRecordingManager
 
             
         }
+
+        
+        /// <summary>
+        /// Opens the selected segment in Audacity
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void miOpenSegment_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedSegment = _selectedSegment;
+
+            Debug.WriteLine("right clicked on:-" + selectedSegment.Recording.RecordingName + " at " +
+                            selectedSegment.StartOffset + " - " + selectedSegment.EndOffset);
+            var wavFile = selectedSegment.Recording.RecordingSession.OriginalFilePath +
+                          selectedSegment.Recording.RecordingName;
+            wavFile = wavFile.Replace(@"\\", @"\");
+            if (File.Exists(wavFile) && (new FileInfo(wavFile).Length > 0L))
+                Tools.OpenWavFile(wavFile, selectedSegment.StartOffset, selectedSegment.EndOffset);
+            e.Handled = true;
+        }
+
+        /// <summary>
+        /// Opens the add image dialog with a caption for this recording
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void miAddImage_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedRecording = RecordingsListView.SelectedItem as Recording;
+            var processedSegments = new BulkObservableCollection<SegmentAndBatList>();
+            var listOfCallImageLists = new BulkObservableCollection<BulkObservableCollection<StoredImage>>();
+            StoredImage newImage = null;
+
+            var imageDialog = new ImageDialog(
+                    _selectedSegment != null
+                        ? _selectedSegment.Recording != null ? _selectedSegment.Recording.RecordingName :
+                        "image caption"
+                        : "image caption",
+                    _selectedSegment != null ? _selectedSegment.Comment : "new image");
+            var result = imageDialog.ShowDialog();
+            result = imageDialog.DialogResult;
+            if (result ?? false)
+                newImage = imageDialog.GetStoredImage();
+            else
+                return; // dialog was cancelled
+
+
+            // applies to both types of add...
+            if (_selectedSegment?.Recording != null)
+            {
+                selectedRecording = _selectedSegment.Recording;
+            }
+            else
+            {
+                if (RecordingsListView.SelectedItem is Recording)
+                    selectedRecording = RecordingsListView.SelectedItem as Recording;
+            }
+
+            if (selectedRecording == null) return;
+            foreach (var seg in selectedRecording.LabelledSegments)
+            {
+                var segment = seg;
+
+                var bats = DBAccess.GetDescribedBats(segment.Comment);
+                var segmentLine = Tools.FormattedSegmentLine(segment);
+                var thisProcessedSegment = SegmentAndBatList.ProcessLabelledSegment(segmentLine, bats);
+                thisProcessedSegment.Segment = segment;
+                processedSegments.Add(thisProcessedSegment);
+                var segmentImageList = segment.GetImageList();
+                if (newImage != null)
+                    if (segment.Id == _selectedSegment.Id)
+                        segmentImageList.Add(newImage);
+                listOfCallImageLists.Add(segmentImageList);
+            }
+
+            DBAccess.UpdateRecording(selectedRecording, processedSegments, listOfCallImageLists);
+            //this.Parent.RefreshData();
+            Tools.FindParent<RecordingSessionListDetailControl>(this).RefreshData();
+            Refresh();
+        }
+
+        /// <summary>
+        /// Opens the play dialog primed for the selected segment
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void miPlaySegment_Click(object sender, RoutedEventArgs e)
+        {
+            var selection = GetSelectedSegments();
+            if (selection.IsNullOrEmpty()) selection = GetSegmentsForSelectedRecordings();
+            if (!selection.IsNullOrEmpty())
+                foreach (var sel in selection)
+                    AudioHost.Instance.audioPlayer.AddToList(sel);
+        }
     } // End of Class RecordingDetailListControl
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -213,16 +213,17 @@
                                                             TextWrapping="Wrap"
                                                             Background="{Binding Path=Comment, Converter={StaticResource TextColourConverter}}"
 
-                                                            MouseRightButtonUp="LabelledSegmentTextBlock_MouseRightButtonUp"
+                                                            
                                                             MouseEnter="LabelledSegmentTextBlock_MouseEnter"
                                                             MouseLeave="LabelledSegmentTextBlock_MouseLeave">
-                                                            <TextBlock.ToolTip>
-                                                                <ToolTip Placement="Top">
-                                                                    <TextBlock>
-                                                                        Double-click to open segment in Audacity
-                                                                    </TextBlock>
-                                                                </ToolTip>
-                                                            </TextBlock.ToolTip>
+                                                                <TextBlock.ContextMenu>
+                                                                    <ContextMenu>
+                                                                        <MenuItem x:Name="miOpenSegment" Header="Open in Audacity" Click="miOpenSegment_Click" />
+                                                                        <MenuItem x:Name="miAddImage" Header="Add Image" Click="miAddImage_Click" />
+                                                                        <MenuItem x:Name="miPlaySegment" Header="Play" Click="miPlaySegment_Click" />
+                                                                    </ContextMenu>
+                                                                </TextBlock.ContextMenu>
+                                                            
                                                         
                                                             <TextBlock.Text>
                                                                 <MultiBinding Converter="{StaticResource LabelledSegmentConverter}">

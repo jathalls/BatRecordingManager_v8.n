@@ -419,7 +419,7 @@ namespace BatRecordingManager
         {
             if (recordingStats != null)
             {
-                return (recordingStats.passes.ToString() + "/" + recordingStats.segments.ToString());
+                return ("'"+recordingStats.passes.ToString() + "/" + recordingStats.segments.ToString());
             }
 
             return (" - ");

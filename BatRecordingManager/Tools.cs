@@ -52,6 +52,7 @@ using StringAlignment = System.Drawing.StringAlignment;
 using System.Windows.Forms.VisualStyles;
 using System.IO.Pipes;
 using System.Web.SessionState;
+using NAudio.Wave;
 
 namespace BatRecordingManager
 {
@@ -433,13 +434,13 @@ namespace BatRecordingManager
         /// </returns>
         /// <exception cref="System.NotImplementedException">
         /// </exception>
-        internal static string FormattedSegmentLine(LabelledSegment segment, bool offsets = true)
+        internal static string FormattedSegmentLine(LabelledSegment segment, bool offsetIntoRecording = true)
         {
             if (segment == null) return "";
 
             TimeSpan start = segment.StartOffset;
             TimeSpan end = segment.EndOffset;
-            if (!offsets)
+            if (!offsetIntoRecording)
             {
                 try
                 {/*
@@ -466,7 +467,7 @@ namespace BatRecordingManager
 
 
 
-            var result = (!offsets ? "SS + " : "") +
+            var result = (!offsetIntoRecording ? "SS + " : "") +
                          FormattedTimeSpan(start) + " - " +
                          FormattedTimeSpan(end) + " = " +
                          FormattedTimeSpan(segment.EndOffset - segment.StartOffset) + "; " +
@@ -1357,8 +1358,237 @@ namespace BatRecordingManager
             return ts;
         }
 
-       
+        /// <summary>
+        ///     Gets the duration of the file. (NB would be improved by using various Regex to parse the
+        ///     filename into dates and times
+        /// </summary>
+        /// <param name="fileName">
+        ///     Name of the file.
+        /// </param>
+        /// <param name="wavfile">
+        ///     The wavfile.
+        /// </param>
+        /// <param name="fileStart">
+        ///     The file start.
+        /// </param>
+        /// <param name="fileEnd">
+        ///     The file end.
+        /// </param>
+        /// <returns>
+        /// </returns>
+        public static TimeSpan GetFileDatesAndTimes(string fileName, out string wavfile, out DateTime fileStart,
+            out DateTime fileEnd)
+        {
 
+            DateTime creationTime;
+            fileStart = DateTime.Now;
+            fileEnd = new DateTime();
+
+            var duration = new TimeSpan(0L);
+            wavfile = "";
+            try
+            {
+                var wavfilename = Path.ChangeExtension(fileName, ".wav");
+
+                if (File.Exists(wavfilename) && (new FileInfo(wavfilename).Length > 0L))
+                {
+                    var info = new FileInfo(wavfilename);
+
+                    wavfile = wavfilename;
+                    var fa = File.GetAttributes(wavfile);
+                    DateTime created = File.GetCreationTime(wavfile);
+                    if (created.Year < 1990)
+                    {
+                        // files created earlier than this are likely to be corrupt or to have had an invalid or no creation date
+                        created = DateTime.Now;
+                    }
+                    DateTime modified = File.GetLastWriteTime(wavfile);
+                    if (modified.Year < 1990)
+                    {
+                        modified = DateTime.Now;
+                    }
+                    DateTime named;
+                    if (!DBAccess.GetDateTimeFromFilename(wavfile, out named))
+                    {
+                        named = getDateTimeFromFilename(wavfile);
+                    }
+                    DateTime recorded = GetDateTimeFromMetaData(wavfile);
+                    if (recorded.Year < 1990)
+                    {
+                        // unlikely to have been generating wamd or guano files before 1990
+                        recorded = DateTime.Now;
+                    }
+
+                    // set fileStart to the earliest of the three date times since we don't which if any have been
+                    // corrupted by copying since the file was recorded, but the earliest must be our best guess for
+                    // the time being.
+                    if (fileStart > created) fileStart = created;
+                    if (fileStart > modified) fileStart = modified;
+                    if (fileStart > named) fileStart = named;
+                    if (fileStart > recorded) fileStart = recorded;
+
+
+
+                    using (WaveFileReader wfr = new WaveFileReader(wavfile))
+                    {
+                        duration = wfr.TotalTime;
+                        fileEnd = fileStart + duration;
+                        
+                        
+                        return (duration);
+
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Tools.ErrorLog(ex.Message);
+                Debug.WriteLine(ex);
+            }
+
+            return duration;
+        }
+
+        /// <summary>
+        /// Examines file metadata for a guano or wamd section which includes information about
+        /// the time the file was originally recorded.
+        /// Returns the earliest of the guano or wamd timestamps or returns Now;
+        /// </summary>
+        /// <param name="wavfile"></param>
+        /// <returns></returns>
+        private static DateTime GetDateTimeFromMetaData(string wavfile)
+        {
+            DateTime result = DateTime.Now;
+
+            DateTime guanoTime = result;
+            DateTime wamdTime = result;
+
+            using (var wfr = new WaveFileReader(wavfile))
+            {
+                var metadata = wfr.ExtraChunks;
+                foreach (var md in metadata)
+                {
+                    if (md.IdentifierAsString == "guan")
+                    {
+                        guanoTime = ReadGuanoTimeStamp(wfr, md);
+                        if (guanoTime.Year < 2000) guanoTime = DateTime.Now;
+                    }
+                    else if (md.IdentifierAsString == "wamd")
+                    {
+                        wamdTime = ReadWAMDTimeStamp(wfr, md);
+                        if (wamdTime.Year < 2000) wamdTime = DateTime.Now;
+                    }
+                }
+            }
+            if (result > guanoTime) result = guanoTime;
+            if (result > wamdTime) result = wamdTime;
+
+            return (result);
+
+        }
+
+        /// <summary>
+        /// extracts the timestamp from a wamd metadata chunk
+        /// </summary>
+        /// <param name="wfr"></param>
+        /// <param name="md"></param>
+        /// <returns></returns>
+        private static DateTime ReadWAMDTimeStamp(WaveFileReader wfr, RiffChunk md)
+        {
+            var chunk = wfr.GetChunkData(md);
+
+            var entries = new Dictionary<short, string>();
+
+            var bReader = new BinaryReader(new MemoryStream(chunk));
+
+            while (bReader.BaseStream.Position < bReader.BaseStream.Length)
+            {
+                var type = bReader.ReadInt16(); // 01 00
+                var size = bReader.ReadInt32(); // 03 00 00 00
+                var bData = bReader.ReadBytes(size);
+                if (type > 0)
+                    try
+                    {
+                        var data = System.Text.Encoding.UTF8.GetString(bData);
+                        if (type == 0x0005)
+                        {
+                            var dt = DateTime.Now;
+                            if (DateTime.TryParse(data, out dt))
+                            {
+                                return (dt);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Tools.ErrorLog(ex.Message);
+                        Debug.WriteLine(ex);
+                    }
+
+            }
+            return (DateTime.Now);
+        }
+
+        /// <summary>
+        /// extracts the timestamp from a guano metadata chunk
+        /// </summary>
+        /// <param name="wfr"></param>
+        /// <param name="md"></param>
+        /// <returns></returns>
+        private static DateTime ReadGuanoTimeStamp(WaveFileReader wfr, RiffChunk md)
+        {
+            DateTime result = DateTime.Now;
+            var chunk = wfr.GetChunkData(md);
+            string guanoChunk = System.Text.Encoding.UTF8.GetString(chunk);
+            var lines = guanoChunk.Split('\n');
+            foreach (var line in lines)
+            {
+                if (line.Contains("Timestamp"))
+                {
+                    var parts = line.Split(':');
+                    if (parts.Length > 1)
+                    {
+                        if (DateTime.TryParse(parts[1], out DateTime dt))
+                        {
+                            result = dt;
+                        }
+                    }
+                }
+            }
+            return (result);
+        }
+
+        public static DateTime getDateTimeFromFilename(string wavfile)
+        {
+            DateTime result = DateTime.Now;
+            string pattern = @".*[-_]{1}((\d{2})|(\d{4}))[-_]?(\d{2})[-_]?(\d{2})[-_]{1}(\d{2})[-:]?(\d{2})[-_]?(\d{2})";
+            var match = Regex.Match(wavfile, pattern);
+            if (match.Success && match.Groups.Count >= 9)
+            {
+                int.TryParse(match.Groups[3].Value, out int year);
+                int.TryParse(match.Groups[4].Value, out int month);
+                int.TryParse(match.Groups[5].Value, out int day);
+                int.TryParse(match.Groups[6].Value, out int hour);
+                int.TryParse(match.Groups[7].Value, out int minute);
+                int.TryParse(match.Groups[8].Value, out int secs);
+                if (year < 100)// i.e. only lower oder two digits
+                {
+                    if (year > 70) year += 1900;
+                    else year += 2000;
+                }
+
+                result = new DateTime(year, month, day, hour, minute, secs);
+
+            }
+            else
+            {
+                Debug.WriteLine($"Date time not found in {wavfile}");
+            }
+            return (result);
+        }
+
+        /*
         /// <summary>
         ///     Assumes that a filename may include the date in the format yyyymmdd
         ///     preceded and followed by either - or _
@@ -1406,7 +1636,7 @@ namespace BatRecordingManager
             }
 
             return result;
-        }
+        }*/
 
         //[System.Runtime.InteropServices.DllImport("gdi32.dll")]
         //public static extern bool DeleteObject(IntPtr hObject);

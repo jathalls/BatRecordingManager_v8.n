@@ -381,150 +381,8 @@ namespace BatRecordingManager
             return result;
         }
 
-        /// <summary>
-        ///     Gets the duration of the file. (NB would be improved by using various Regex to parse the
-        ///     filename into dates and times
-        /// </summary>
-        /// <param name="fileName">
-        ///     Name of the file.
-        /// </param>
-        /// <param name="wavfile">
-        ///     The wavfile.
-        /// </param>
-        /// <param name="fileStart">
-        ///     The file start.
-        /// </param>
-        /// <param name="fileEnd">
-        ///     The file end.
-        /// </param>
-        /// <returns>
-        /// </returns>
-        private static TimeSpan GetFileDuration(string fileName, out string wavfile, out DateTime fileStart,
-            out DateTime fileEnd)
-        {
-
-            DateTime creationTime;
-            fileStart = DateTime.Now;
-            fileEnd = new DateTime();
-
-            var duration = new TimeSpan(0L);
-            wavfile = "";
-            try
-            {
-                var wavfilename = Path.ChangeExtension(fileName, ".wav");
-                
-                if (File.Exists(wavfilename) && (new FileInfo(wavfilename).Length>0L))
-                {
-                    var info = new FileInfo(wavfilename);
-                    wavfile = wavfilename;
-                    var fa = File.GetAttributes(wavfile);
-                    DateTime created = File.GetCreationTime(wavfile);
-                    DateTime modified = File.GetLastWriteTime(wavfile);
-                    DateTime named = getTimeFromFilename(wavfile);
-
-                    // set fileStart to the earliest of the three date times since we don't which if any have been
-                    // corrupted by copying since the file was recorded, but the earliest must be our best guess for
-                    // the time being.
-                    if (fileStart > created) fileStart = created;
-                    if (fileStart > modified) fileStart = modified;
-                    if (fileStart > named) fileStart = named;
-
-
-
-                    using (WaveFileReader wfr = new WaveFileReader(wavfile))
-                    {
-                        duration = wfr.TotalTime;
-                        fileEnd = fileStart + duration;
-                        return (duration);
-
-                    }
-                    /*
-
-                    var recordingTime =
-                        wavfilename.Substring(Math.Max(fileName.LastIndexOf('_'), fileName.LastIndexOf('-')) + 1, 6);
-
-                    DateTime recordingDateTime;
-                    creationTime = File.GetLastWriteTime(wavfilename);
-                    if (string.IsNullOrWhiteSpace(recordingTime))
-                        recordingTime = creationTime.Hour + creationTime.Minute.ToString() + creationTime.Second;
-
-                    if (recordingTime.Length == 6)
-                    {
-                        if (!int.TryParse(recordingTime.Substring(0, 2), out var hour)) hour = -1;
-                        if (!int.TryParse(recordingTime.Substring(2, 2), out var minute)) minute = -1;
-                        if (!int.TryParse(recordingTime.Substring(4, 2), out var second)) second = -1;
-                        if (hour >= 0 && minute >= 0 && second >= 0)
-                        {
-                            recordingDateTime = new DateTime(creationTime.Year, creationTime.Month, creationTime.Day,
-                                hour, minute, second);
-                            duration = creationTime - recordingDateTime;
-                            if (duration < new TimeSpan()) duration = duration.Add(new TimeSpan(24, 0, 0));
-                            fileStart = recordingDateTime;
-                            fileEnd = creationTime;
-                        }
-                    }
-                    else
-                    {
-                        if (creationTime != null)
-                        {
-                            fileStart = creationTime;
-                            fileEnd = creationTime;
-                            duration = new TimeSpan();
-                        }
-                    }*/
-                }
-            }
-            catch (Exception ex)
-            {
-                Tools.ErrorLog(ex.Message);
-                Debug.WriteLine(ex);
-            }
-
-            return duration;
-        }
-
-        private static DateTime getTimeFromFilename(string wavfile)
-        {
-            DateTime result = DateTime.Now;
-            string pattern = @".*[-_]{1}((\d{2})|(\d{4}))[-_]?(\d{2})[-_]?(\d{2})[-_]{1}(\d{2})[-:]?(\d{2})[-_]?(\d{2})";
-            var match = Regex.Match(wavfile, pattern);
-            if(match.Success && match.Groups.Count >= 9)
-            {
-                int.TryParse(match.Groups[3].Value, out int year);
-                int.TryParse(match.Groups[4].Value, out int month);
-                int.TryParse(match.Groups[5].Value, out int day);
-                int.TryParse(match.Groups[6].Value, out int hour);
-                int.TryParse(match.Groups[7].Value, out int minute);
-                int.TryParse(match.Groups[8].Value, out int secs);
-                if (year < 100)// i.e. only lower oder two digits
-                {
-                    if (year > 70) year += 1900;
-                    else year += 2000;
-                }
-
-                result = new DateTime(year, month, day, hour, minute, secs);
-
-            }
-            else
-            {
-                Debug.WriteLine($"Date time not found in {wavfile}");
-            }
-            return (result);
-        }
-
-        /*
-        private BulkObservableCollection<BatSegmentLink> IdentifyBatPasses(int passes, BulkObservableCollection<Bat> bats)
-        {
-            BulkObservableCollection<BatSegmentLink> passList = new BulkObservableCollection<BatSegmentLink>();
-            foreach (var bat in bats)
-            {
-                BatSegmentLink pass = new BatSegmentLink();
-                pass.Bat = bat;
-                pass.NumberOfPasses = passes;
-                passList.Add(pass);
-            }
-            return (passList);
-        }*/
+        
+        
 
         /// <summary>
         ///     Determines whether [is manual file line] [the specified line].
@@ -729,7 +587,7 @@ namespace BatRecordingManager
                 if (File.Exists(fileName))
                 {
                     var wavfile = fileName.Substring(0, fileName.Length - 4) + ".wav";
-                    duration = GetFileDuration(fileName, out wavfile, out var fileStart, out var fileEnd);
+                    duration = Tools.GetFileDatesAndTimes(fileName, out wavfile, out var fileStart, out var fileEnd);
                     if (File.Exists(wavfile) && (new FileInfo(wavfile).Length>0L))
                     {
                         wfmd = new WavFileMetaData(wavfile);
@@ -753,7 +611,7 @@ namespace BatRecordingManager
 
                     recording.RecordingStartTime = fileStart.TimeOfDay;
                     recording.RecordingEndTime = fileEnd.TimeOfDay;
-                    recording.RecordingDate = Tools.GetDateFromFilename(fileName);
+                    recording.RecordingDate = fileStart;
                     outputString = fileName;
                     if (!string.IsNullOrWhiteSpace(wavfile))
                     {

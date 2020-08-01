@@ -477,7 +477,7 @@ Do you wish to update that database to the latest specification?", "Out of Date 
 
                 if (!MainWindowPaneGrid.Children.Contains(importControl))
                     MainWindowPaneGrid.Children.Add(importControl);
-
+                importControl.Clear();
                 importControl.Visibility = Visibility.Visible;
                 InvalidateArrange();
                 UpdateLayout();

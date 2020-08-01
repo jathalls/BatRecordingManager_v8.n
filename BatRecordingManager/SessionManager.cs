@@ -15,9 +15,11 @@
 //         limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows.Documents;
 using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
@@ -99,110 +101,154 @@ namespace BatRecordingManager
             string sessionTag, BulkObservableCollection<string> wavFileFolders)
         {
             newSession.SessionTag = sessionTag;
+            bool noHeader = false;
+            string workingFolder = "";
+            string[] headerFileLines = null;
 
-            if (string.IsNullOrWhiteSpace(headerFile) || !File.Exists(headerFile)) return new RecordingSession();
+            if (string.IsNullOrWhiteSpace(headerFile) || !File.Exists(headerFile))
+            {
+                noHeader = true;
+            }
+            else
+            {
+                headerFileLines = File.ReadAllLines(headerFile);
+            }
 
-            var workingFolder = headerFile.Substring(0, headerFile.LastIndexOf(@"\") + 1);
-            newSession.OriginalFilePath = workingFolder;
             if (wavFileFolders.IsNullOrEmpty())
-                wavFileFolders = new BulkObservableCollection<string>
+
+            {
+                if (!string.IsNullOrWhiteSpace(headerFile))
                 {
-                    workingFolder
-                };
+                    workingFolder = Path.GetDirectoryName(headerFile);
+                    wavFileFolders = new BulkObservableCollection<string>();
+                    wavFileFolders.Add(workingFolder);
+                    newSession.OriginalFilePath = workingFolder;
+
+                }
+                else
+                {
+                    return (newSession);
+                }// nothing to do if no folders to process
+            }
+            else
+            {
+                workingFolder = Path.GetDirectoryName(wavFileFolders.First());
+                newSession.OriginalFilePath = workingFolder;
+            }
+
+            
 
             DateTime firstFileDateAndTimeFromName=new DateTime(1,1,1);
             DateTime lastFileDateAndTimeFromName=new DateTime(1,1,1);
-            var wavFileList = Directory.EnumerateFiles(workingFolder, "*.wav");
+            var wavFileList = Directory.EnumerateFiles(workingFolder, "*.wav").OrderBy(wf=>wf);
             if (!wavFileList.IsNullOrEmpty())
             {
+                // uses FileProcessor to determine the start times and dates of the first and last files in the list
+                //GetFileDuration finds the earliest out of the modified, creation, filename and metadata dates and
+                // times to establish the real time when the file was recorded
                 var wavfileName = wavFileList.First();
-                if (DBAccess.GetDateTimeFromFilename(wavfileName, out DateTime startFileDate))
-                {
-                    firstFileDateAndTimeFromName = startFileDate;
-                }
 
-                wavfileName = wavFileList.Last();
-                if (DBAccess.GetDateTimeFromFilename(wavfileName, out DateTime endFileDate))
-                {
-                    lastFileDateAndTimeFromName = endFileDate;
-                }
+                _ = Tools.GetFileDatesAndTimes(wavfileName, out string explicitwavfilename, out DateTime fileStart, out DateTime fileEnd);
+                firstFileDateAndTimeFromName = fileStart;
+
+
+               // wavfileName = wavFileList.Last();
+
+                TimeSpan duration = Tools.GetFileDatesAndTimes(wavfileName, out explicitwavfilename, out fileStart, out fileEnd);
+                lastFileDateAndTimeFromName = fileEnd;
+
 
             }
 
             var existingSession = DBAccess.GetRecordingSession(newSession.SessionTag);
             if (existingSession != null) return existingSession;
 
-            var headerFileLines = File.ReadAllLines(headerFile);
-            if (headerFileLines != null)
+            if (!noHeader && headerFileLines!=null && headerFileLines.Length>0)
             {
-                newSession = ExtractHeaderData(workingFolder, newSession.SessionTag, headerFileLines);
-                if (newSession.SessionDate.Year < 1950)
-                {
-                    var dateRegex = @".*[-0-9]*(20[0-9]{6})[-0-9]*.*";
-                    var folder = workingFolder;
+                
+                
+                    newSession = ExtractHeaderData(workingFolder, newSession.SessionTag, headerFileLines);
+                    if (newSession.SessionDate.Year < 1950)
+                    {
+                        var dateRegex = @".*[-0-9]*(20[0-9]{6})[-0-9]*.*";
+                        var folder = workingFolder;
 
-                    var match = Regex.Match(folder, dateRegex);
-                    if (match.Success)
-                    {
-                        newSession.SessionDate = GetCompressedDate(match.Groups[1].Value);
-                        newSession.EndDate = newSession.SessionDate;
-                    }
-                    else
-                    {
-                        if (!wavFileFolders.IsNullOrEmpty())
-                            foreach (var wavfolder in wavFileFolders)
-                            {
-                                match = Regex.Match(wavfolder, dateRegex);
-                                if (match.Success)
+                        var match = Regex.Match(folder, dateRegex);
+                        if (match.Success)
+                        {
+                            newSession.SessionDate = GetCompressedDate(match.Groups[1].Value);
+                            newSession.EndDate = newSession.SessionDate;
+                        }
+                        else
+                        {
+                            if (!wavFileFolders.IsNullOrEmpty())
+                                foreach (var wavfolder in wavFileFolders)
                                 {
-                                    newSession.SessionDate = GetCompressedDate(match.Groups[1].Value);
-                                    newSession.EndDate = newSession.SessionDate;
-                                    break;
+                                    match = Regex.Match(wavfolder, dateRegex);
+                                    if (match.Success)
+                                    {
+                                        newSession.SessionDate = GetCompressedDate(match.Groups[1].Value);
+                                        newSession.EndDate = newSession.SessionDate;
+                                        break;
+                                    }
                                 }
-                            }
 
-                        if (newSession.SessionDate.Year < 1950)
-                            if (Directory.Exists(workingFolder))
-                            {
-                                newSession.SessionDate = Directory.GetCreationTime(workingFolder);
-                                newSession.EndDate = newSession.SessionDate;
-                            }
+                            if (newSession.SessionDate.Year < 1950)
+                                if (Directory.Exists(workingFolder))
+                                {
+                                    newSession.SessionDate = Directory.GetCreationTime(workingFolder);
+                                    newSession.EndDate = newSession.SessionDate;
+                                }
+                        }
                     }
-                }
 
-                if (firstFileDateAndTimeFromName.Year > 1)
-                {
-                    newSession.SessionDate = firstFileDateAndTimeFromName;
-                    newSession.SessionStartTime = firstFileDateAndTimeFromName.TimeOfDay;
-                }
+                    if (firstFileDateAndTimeFromName.Year > 1)
+                    {
+                        newSession.SessionDate = firstFileDateAndTimeFromName;
+                        newSession.SessionStartTime = firstFileDateAndTimeFromName.TimeOfDay;
+                    }
 
-                if (newSession.EndDate < newSession.SessionDate)
-                {
-                    newSession.EndDate = newSession.SessionDate;
-                    newSession.SessionEndTime = newSession.SessionStartTime + new TimeSpan(2, 0, 0);
-                }
+                    if (newSession.EndDate < newSession.SessionDate)
+                    {
+                        newSession.EndDate = newSession.SessionDate;
+                        newSession.SessionEndTime = newSession.SessionStartTime + new TimeSpan(2, 0, 0);
+                    }
 
-                if (lastFileDateAndTimeFromName.Year > 1)
-                {
-                    newSession.EndDate = lastFileDateAndTimeFromName;
-                    newSession.SessionEndTime = (newSession.EndDate ?? newSession.SessionDate).TimeOfDay +
-                                                new TimeSpan(0, 10, 0);
+                    if (lastFileDateAndTimeFromName.Year > 1)
+                    {
+                        newSession.EndDate = lastFileDateAndTimeFromName;
+                        newSession.SessionEndTime = lastFileDateAndTimeFromName.TimeOfDay;
 
-                }
+                    }
 
+                
+                
             }
             else
             {
                 // we can't get a header file so we need to fill in some fundamental defaults
                 // for the blank session.
-                if (!string.IsNullOrWhiteSpace(workingFolder) && Directory.Exists(workingFolder))
-                {
-                    newSession.SessionDate = Directory.GetCreationTime(workingFolder);
-                    newSession.EndDate = newSession.SessionDate;
-                }
 
-                newSession.SessionStartTime = new TimeSpan(18, 0, 0);
-                newSession.SessionEndTime = new TimeSpan(23, 0, 0);
+                if (firstFileDateAndTimeFromName.Year > 1 && lastFileDateAndTimeFromName.Year > 1)
+                {
+                    newSession.SessionDate = firstFileDateAndTimeFromName;
+                    newSession.SessionStartTime = firstFileDateAndTimeFromName.TimeOfDay;
+                    newSession.EndDate = lastFileDateAndTimeFromName;
+                    newSession.SessionEndTime = lastFileDateAndTimeFromName.TimeOfDay;
+
+                }
+                else
+                {
+
+                    if (!string.IsNullOrWhiteSpace(workingFolder) && Directory.Exists(workingFolder))
+                    {
+                        newSession.SessionDate = Directory.GetCreationTime(workingFolder);
+                        newSession.EndDate = newSession.SessionDate;
+                    }
+
+                    newSession.SessionStartTime = new TimeSpan(18, 0, 0);
+                    newSession.SessionEndTime = new TimeSpan(23, 0, 0);
+                }
             }
 
             return newSession;
@@ -237,10 +283,22 @@ namespace BatRecordingManager
             }
 
             if (string.IsNullOrWhiteSpace(newSession.OriginalFilePath)) newSession.OriginalFilePath = folderPath;
-            if (GetTimesFromFiles(folderPath, sessionTag, out var start, out var end))
+            if (GetDateTimesFromFiles(folderPath, sessionTag, out var start, out var end))
             {
-                newSession.SessionStartTime = start;
-                newSession.SessionEndTime = end;
+                if (start.Date == newSession.SessionDate.Date) // simple, everything agrees
+                {
+                    newSession.SessionDate = start;
+                    newSession.SessionStartTime = start.TimeOfDay;
+                    newSession.EndDate = end;
+                    newSession.SessionEndTime = end.TimeOfDay;
+                }
+                else // we have discrepancy between tag and file dates and times, we use a composite
+                {
+                    newSession.SessionStartTime = start.TimeOfDay;
+                    newSession.EndDate = end;
+                    newSession.SessionEndTime = end.TimeOfDay;
+
+                }
             }
 
             var sessionForm = new RecordingSessionForm();
@@ -410,7 +468,7 @@ namespace BatRecordingManager
             BulkObservableCollection<string> wavFileFolders = null)
         {
             var recordingSession = new RecordingSession {SessionTag = sessionTag};
-            if (!string.IsNullOrWhiteSpace(headerFile) && File.Exists(headerFile))
+            //if (!string.IsNullOrWhiteSpace(headerFile) && File.Exists(headerFile))
                 recordingSession = PopulateSession(recordingSession, headerFile, sessionTag, wavFileFolders);
 
             return recordingSession;
@@ -834,7 +892,8 @@ namespace BatRecordingManager
                                 var date = new DateTime();
                                 var time = new TimeSpan();
                                 if (!DateTime.TryParse(segments[0].Trim(), out date))
-                                    date = GetDateFromFileName(folder);
+                                    date = Tools.getDateTimeFromFilename(folder);
+                                    //date = GetDateFromFileName(folder);
 
                                 if (TimeSpan.TryParse(matchingTimes[0].Value, out time))
                                     startTime = date.Date + time;
@@ -853,7 +912,7 @@ namespace BatRecordingManager
                     }
             }
         }
-
+        /*
         private static DateTime GetDateFromFileName(string folder)
         {
             if (string.IsNullOrWhiteSpace(folder)) return new DateTime();
@@ -880,7 +939,7 @@ namespace BatRecordingManager
             }
 
             return new DateTime();
-        }
+        }*/
 
         /// <summary>
         ///     uses the times of files in the specified folder to guess at session
@@ -892,10 +951,10 @@ namespace BatRecordingManager
         /// <param name="sessionTag"></param>
         /// <param name="startTime"></param>
         /// <param name="endTime"></param>
-        private static bool GetTimesFromFiles(string folder, string sessionTag, out TimeSpan startTime,
-            out TimeSpan endTime)
+        private static bool GetDateTimesFromFiles(string folder, string sessionTag, out DateTime startTime,
+            out DateTime endTime)
         {
-            startTime = new TimeSpan();
+            startTime = DateTime.Now;
             endTime = startTime;
             if (string.IsNullOrWhiteSpace(folder)) return false;
             var sessiondate = GetDateFromTag(sessionTag);
@@ -905,19 +964,32 @@ namespace BatRecordingManager
                 var wavFiles = Directory.EnumerateFiles(folder, @"*.wav");
                 //var WAVFiles = Directory.EnumerateFiles(folder, "*.WAV");
 
-
+                List<string> firstAndLastWavFiles = new List<string>();
                 // wavFiles = wavFiles.Concat(WAVFiles);
+                if (wavFiles.Count() > 20)
+                {
+                    firstAndLastWavFiles = wavFiles.Take(10).ToList();
 
+                    firstAndLastWavFiles.AddRange(wavFiles.Skip(wavFiles.Count() - 10));
+                }
+                else
+                {
+                    firstAndLastWavFiles = wavFiles.ToList();
+                }
 
-                if (sessiondate != null && sessiondate.Year > 1900)
-                    wavFiles = from file in wavFiles
-                        where File.GetLastWriteTime(file).Date == sessiondate.Date
-                        select file;
-                wavFiles = from file in wavFiles
-                    orderby File.GetLastWriteTime(file)
-                    select file;
-                startTime = File.GetLastWriteTime(wavFiles.First()).TimeOfDay - new TimeSpan(0, 4, 0);
-                endTime = File.GetLastWriteTime(wavFiles.Last()).TimeOfDay;
+                DateTime startDateTime = DateTime.Now;
+                DateTime endDateTime = new DateTime();
+                foreach (var file in firstAndLastWavFiles)
+                {
+                    Tools.GetFileDatesAndTimes(file, out string wavfileName, out DateTime fileStart, out DateTime fileEnd);
+                    if (fileStart < startDateTime) startDateTime = fileStart;
+                    if (fileEnd > endDateTime) endDateTime = fileEnd;
+                }
+
+                startTime = startDateTime;
+                endTime = endDateTime;
+
+                
             }
             catch (Exception)
             {

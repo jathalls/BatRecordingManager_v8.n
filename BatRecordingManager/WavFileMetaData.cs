@@ -20,6 +20,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows.Ink;
 
 namespace BatRecordingManager
 {
@@ -45,7 +46,13 @@ namespace BatRecordingManager
                 if (m_Start == null)
                     if (File.Exists(filename) && (new FileInfo(filename).Length > 0L))
                     {
-                        if (DBAccess.GetDateTimeFromFilename(filename, out var dt))
+                        var duration=Tools.GetFileDatesAndTimes(filename, out string wavfile, out DateTime fileStart, out DateTime fileEnd);
+
+                        m_Start = fileStart;
+                        m_Created = fileStart;
+                        m_End = fileEnd;
+
+                        /*if (DBAccess.GetDateTimeFromFilename(filename, out var dt))
                         {
                             m_Start = dt;
                         }
@@ -53,14 +60,14 @@ namespace BatRecordingManager
                         {
                             m_Start = File.GetCreationTime(filename);
                             m_Created = m_Start;
-                            if (m_Start == null || m_Start.Value.Year < 1960) m_Start = File.GetLastAccessTime(filename);
-                        }
+                            if (m_Start == null || m_Start.Value.Year < 1960) m_Start = File.GetLastWriteTime(filename);
+                        }*/ //replaced with the four lines above 23/7/2020
                     }
 
                 Read_MetaData(filename);
                 if (metadata != null) success = true;
 
-                if (m_Start != null && m_Duration != null) m_End = m_Start + m_Duration;
+                if (m_Start != null && m_Duration != null && m_End==null) m_End = m_Start + m_Duration;
             }catch(Exception ex)
             {
                 Tools.ErrorLog(ex.Message);
@@ -363,15 +370,20 @@ namespace BatRecordingManager
 
                         case "Species Manual ID":
                             if (string.IsNullOrWhiteSpace(m_ManualID)) m_ManualID = "";
-                            
-                            m_ManualID = (m_ManualID+" "+entry.Value).Trim();
+                            if (!m_ManualID.Contains(entry.Value.Trim())) // no need to duplicate if this string already present
+                            {
+                                m_ManualID = (m_ManualID + " " + entry.Value).Trim();
+                            }
                             
                             result = true;
                             break;
 
                         case "Species Auto ID":
                             if (string.IsNullOrWhiteSpace(m_AutoID)) m_AutoID = "";
-                            m_AutoID = "(" + (m_AutoID+" "+ entry.Value ).Trim() + ")";
+                            if (!m_AutoID.Contains(entry.Value.Trim())) // no need to duplicate if this string already present
+                            {
+                                m_AutoID = "(" + (m_AutoID + " " + entry.Value).Trim() + ")";
+                            }
                             result = true;
                             break;
 
@@ -488,13 +500,19 @@ namespace BatRecordingManager
 
                     case 0x000C:
                         if (string.IsNullOrWhiteSpace(m_ManualID)) m_ManualID = "";
-                        m_ManualID = (m_ManualID+" "+entry.Value).Trim();
+                        if (!m_ManualID.Contains(entry.Value.Trim())) // no need to duplicate if this string already present
+                        {
+                            m_ManualID = (m_ManualID + " " + entry.Value).Trim();
+                        }
                         result = true;
                         break;
 
                     case 0x000B:
                         if (string.IsNullOrWhiteSpace(m_AutoID)) m_AutoID = "";
-                        m_AutoID = "(" + (entry.Value +" "+ m_AutoID).Trim() + ")";
+                        if (!m_AutoID.Contains(entry.Value.Trim())) // no need to duplicate if this string already present
+                        {
+                            m_AutoID = "(" + (entry.Value + " " + m_AutoID).Trim() + ")";
+                        }
                         result = true;
                         break;
 

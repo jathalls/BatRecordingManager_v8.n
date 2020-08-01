@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace BatRecordingManager
 {
@@ -65,12 +66,28 @@ namespace BatRecordingManager
                     {
                         var position =
                             MatchTag(description, tag.BatTag1); // gives the position of the tag in the description
-                        if (position >= 0)
+                        if (position.Count > 0)
                         {
                             // we had a match
-                            description = description.Remove(position,
+                            description = description.Remove(position[0],
                                 Math.Min(tag.BatTag1.Length, description.Length));
-                            _moddedDescription = _moddedDescription.Replace(tag.BatTag1, tag.Bat.Name);
+                            for (int i = 1; i < position.Count; i++)
+                            {
+                                description = description.Remove(position[0],
+                                Math.Min(tag.BatTag1.Length, description.Length));
+                                
+                            }
+
+                            var mPosition = MatchTag(_moddedDescription, tag.BatTag1);
+                            if (mPosition.Count > 0)
+                            {
+                                _moddedDescription = _moddedDescription.Replace(tag.BatTag1, "");
+                                _moddedDescription = _moddedDescription.Insert(mPosition[0], tag.Bat.Name);
+                                _moddedDescription = _moddedDescription.Trim();
+                            }
+
+                            
+                            
                             batList.Add(tag.Bat);
                             if (string.IsNullOrWhiteSpace(description))
                                 // nothing more in the description to match
@@ -79,7 +96,7 @@ namespace BatRecordingManager
                     }
             }
 
-            return batList;
+            return batList.Distinct().ToList();
         }
 
         /// <summary>
@@ -134,9 +151,9 @@ namespace BatRecordingManager
         /// </param>
         /// <returns>
         /// </returns>
-        private int MatchTag(string description, string batTag1)
+        private List<int> MatchTag(string description, string batTag1)
         {
-            var position = -1;
+            var position = new List<int>();
             if (!string.IsNullOrWhiteSpace(description) && !string.IsNullOrWhiteSpace(batTag1))
             {
                 if (batTag1.ToUpper() != batTag1)
@@ -146,7 +163,19 @@ namespace BatRecordingManager
                     batTag1 = batTag1.ToUpper();
                 }
 
-                if (description.Contains(batTag1)) position = description.IndexOf(batTag1);
+                var match = Regex.Match(description, $"({batTag1})");
+                while (match.Success)
+                {
+                    position.Add(match.Index);
+                    match = match.NextMatch();
+                }
+
+                /*
+                if (description.Contains(batTag1))
+                {
+                    
+                    position = description.IndexOf(batTag1);
+                }*/
             }
 
             return position;
