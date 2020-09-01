@@ -19,7 +19,7 @@ namespace BatPassAnalysisFW
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
-        internal void NotifyPropertyChanged(String propertyName) =>
+        internal void NotifyPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         #region EnvelopeThreshold
@@ -33,11 +33,12 @@ namespace BatPassAnalysisFW
         /// </summary>
         public decimal EnvelopeThreshold
         {
-           
-                get { 
-                return (decimal)_envelopeThreshold; 
+
+            get
+            {
+                return _envelopeThreshold;
             }
-                set 
+            set
             {
                 try
                 {
@@ -46,7 +47,7 @@ namespace BatPassAnalysisFW
                 }
                 catch (Exception) { }
             }
-           
+
         }
 
         #endregion
@@ -58,7 +59,7 @@ namespace BatPassAnalysisFW
         /// </summary>
         public static readonly DependencyProperty EnvelopeLeadinProperty =
             DependencyProperty.Register("EnvelopeLeadin", typeof(decimal), typeof(Settings),
-                new FrameworkPropertyMetadata((decimal)0.2m));
+                new FrameworkPropertyMetadata(0.2m));
 
         /// <summary>
         /// Gets or sets the EnvelopeLeadin property.  This dependency property 
@@ -79,7 +80,7 @@ namespace BatPassAnalysisFW
         /// </summary>
         public static readonly DependencyProperty SpectrumThresholdProperty =
             DependencyProperty.Register("SpectrumThreshold", typeof(decimal), typeof(Settings),
-                new FrameworkPropertyMetadata((decimal)1.5m));
+                new FrameworkPropertyMetadata(1.5m));
 
         /// <summary>
         /// Gets or sets the SpectrumThreshold property.  This dependency property 
@@ -100,7 +101,7 @@ namespace BatPassAnalysisFW
         /// </summary>
         public static readonly DependencyProperty EnvelopeLeadoutProperty =
             DependencyProperty.Register("EnvelopeLeadout", typeof(decimal), typeof(Settings),
-                new FrameworkPropertyMetadata((decimal)1.0m));
+                new FrameworkPropertyMetadata(1.0m));
 
         /// <summary>
         /// Gets or sets the EnvelopeLeadout property.  This dependency property 
@@ -121,7 +122,7 @@ namespace BatPassAnalysisFW
         /// </summary>
         public static readonly DependencyProperty SpectrumLeadinProperty =
             DependencyProperty.Register("SpectrumLeadin", typeof(decimal), typeof(Settings),
-                new FrameworkPropertyMetadata((decimal)4.0m));
+                new FrameworkPropertyMetadata(4.0m));
 
         /// <summary>
         /// Gets or sets the SpectrumLeadin property.  This dependency property 
@@ -142,7 +143,7 @@ namespace BatPassAnalysisFW
         /// </summary>
         public static readonly DependencyProperty SpectrumLeadoutProperty =
             DependencyProperty.Register("SpectrumLeadout", typeof(decimal), typeof(Settings),
-                new FrameworkPropertyMetadata((decimal)5.0m));
+                new FrameworkPropertyMetadata(5.0m));
 
         /// <summary>
         /// Gets or sets the SpectrumLeadout property.  This dependency property 
@@ -163,7 +164,7 @@ namespace BatPassAnalysisFW
         /// </summary>
         public static readonly DependencyProperty DirectoryPathProperty =
             DependencyProperty.Register("DirectoryPath", typeof(string), typeof(Settings),
-                new FrameworkPropertyMetadata((string)""));
+                new FrameworkPropertyMetadata(""));
 
         /// <summary>
         /// Gets or sets the DirectoryPath property.  This dependency property 
@@ -177,7 +178,7 @@ namespace BatPassAnalysisFW
 
         public static readonly DependencyProperty EnableFilterProperty =
             DependencyProperty.Register("EnableFilter", typeof(bool), typeof(Settings),
-                new FrameworkPropertyMetadata((bool)false));
+                new FrameworkPropertyMetadata(false));
         public bool EnableFilter
         {
             get { return ((bool)GetValue(EnableFilterProperty)); }
@@ -197,8 +198,8 @@ namespace BatPassAnalysisFW
             SpectrumThreshold = (decimal)CrossSettings.Current.Get<float>("SpectrumThresholdFactor");
             EnvelopeLeadin = (decimal)CrossSettings.Current.Get<float>("EnvelopeLeadInMS");
             EnvelopeLeadout = (decimal)CrossSettings.Current.Get<float>("EnvelopeLeadOutMS");
-            SpectrumLeadin = (decimal)CrossSettings.Current.Get<int>("SpectrumLeadInSamples");
-            SpectrumLeadout = (decimal)CrossSettings.Current.Get<int>("SpectrumLeadOutSamples");
+            SpectrumLeadin = CrossSettings.Current.Get<int>("SpectrumLeadInSamples");
+            SpectrumLeadout = CrossSettings.Current.Get<int>("SpectrumLeadOutSamples");
             FftSize = CrossSettings.Current.Get<int>("FFTSize");
             DirectoryPath = CrossSettings.Current.Get<string>("InitialDirectory");
             try
@@ -225,7 +226,7 @@ namespace BatPassAnalysisFW
             CrossSettings.Current.SetDefault("FftSize", 1024);
             CrossSettings.Current.SetDefault("InitialDirectory", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
             CrossSettings.Current.SetDefault("CurrentVersion", Assembly.GetExecutingAssembly().GetName().Version.ToString());
-            CrossSettings.Current.SetDefault("EnableFilter", (bool)true);
+            CrossSettings.Current.SetDefault("EnableFilter", true);
         }
 
         private void ResetButton_Click(object sender, RoutedEventArgs e)
@@ -255,7 +256,7 @@ namespace BatPassAnalysisFW
             CrossSettings.Current.Set("SpectrumLeadInSamples", (int)SpectrumLeadin);
             CrossSettings.Current.Set("SpectrumLeadOutSamples", (int)SpectrumLeadout);
             CrossSettings.Current.Set("FftSize", FftSize);
-            CrossSettings.Current.Set<bool>("EnableFilter", (bool)EnableFilter);
+            CrossSettings.Current.Set<bool>("EnableFilter", EnableFilter);
             if (Directory.Exists(DirectoryPath))
             {
                 CrossSettings.Current.Set("InitialDirectory", DirectoryPath);
@@ -286,7 +287,7 @@ namespace BatPassAnalysisFW
         private void defaultDirectoryButton_Click(object sender, RoutedEventArgs e)
         {
             string folder = SelectFolder();
-            if (!String.IsNullOrWhiteSpace(folder))
+            if (!string.IsNullOrWhiteSpace(folder))
             {
                 if (Directory.Exists(folder))
                 {
@@ -346,6 +347,6 @@ namespace BatPassAnalysisFW
             return (FolderPath);
         }
 
-       
+
     }
 }

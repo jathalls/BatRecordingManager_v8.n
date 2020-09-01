@@ -14,12 +14,12 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -499,7 +499,7 @@ namespace BatRecordingManager
         /// </summary>
         public static readonly DependencyProperty CurrentBatProperty =
             DependencyProperty.Register(nameof(CurrentBat), typeof(Bat), typeof(BatAndCallImageScrollerControl),
-                new FrameworkPropertyMetadata((Bat) null));
+                new FrameworkPropertyMetadata((Bat)null));
 
         /// <summary>
         ///     Gets or sets the CurrentBat property.  This dependency property
@@ -507,7 +507,7 @@ namespace BatRecordingManager
         /// </summary>
         public Bat CurrentBat
         {
-            get => (Bat) GetValue(CurrentBatProperty);
+            get => (Bat)GetValue(CurrentBatProperty);
             set
             {
                 // First clear out the image source lists

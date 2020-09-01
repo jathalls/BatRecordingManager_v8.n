@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DarkSkyApi;
+﻿using DarkSkyApi;
 using DarkSkyApi.Models;
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace BatRecordingManager
 {
@@ -21,7 +18,7 @@ namespace BatRecordingManager
         {
 
             //var it = GetWeatherHistoryAsync(51, -.1, DateTime.Now);
-            
+
             string result = "";
             string key = APIKeys.DarkSkyApiKey;
             var client = new DarkSkyService(key);
@@ -74,7 +71,7 @@ namespace BatRecordingManager
                             await client.GetTimeMachineWeatherAsync(Latitude, Longitude, when, Unit.UK2);
                         if (forecast != null)
                         {
-                            
+
                             result =
                                 $"Provided By DarkSky:- {forecast.Currently.Summary}, t={forecast.Currently.Temperature}C, Cloud={forecast.Currently.CloudCover}, Wind={forecast.Currently.WindSpeed} mph";
                             OnWeatherReceived(new weatherEventArgs(result));
@@ -82,7 +79,7 @@ namespace BatRecordingManager
                     }
                     catch (Exception)
                     {
-                        
+
                         return result;
                     }
 

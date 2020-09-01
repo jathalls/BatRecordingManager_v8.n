@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -16,9 +12,9 @@ namespace BatPassAnalysisFW
     public class WaitCursor : IDisposable
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
-        private string _oldStatus = "null";
+        private readonly string _oldStatus = "null";
         private Cursor _previousCursor = Cursors.Arrow;
-        private int Depth = 0;
+        private readonly int Depth = 0;
 
 
         /// <summary>
@@ -57,7 +53,7 @@ namespace BatPassAnalysisFW
 
                 if (Mouse.OverrideCursor == null)
                 {
-                    var mw = Application.Current.MainWindow as Window;
+                    var mw = Application.Current.MainWindow;
                     if (mw != null)
                     {
                         mw.Dispatcher.Invoke(delegate
@@ -104,8 +100,8 @@ namespace BatPassAnalysisFW
             {
                 if (Depth == 0)
                 {
-                    
-                    var mw = Application.Current.MainWindow as Window;
+
+                    var mw = Application.Current.MainWindow;
                     if (mw != null)
                     {
                         mw.Dispatcher.Invoke(delegate

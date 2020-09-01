@@ -14,8 +14,8 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
-using System.Diagnostics;
 using Microsoft.VisualStudio.Language.Intellisense;
+using System.Diagnostics;
 
 namespace BatRecordingManager
 {
@@ -55,6 +55,7 @@ namespace BatRecordingManager
                 if (_comparisonWindow == null)
                 {
                     _comparisonWindow = new ComparisonWindow();
+
                     _comparisonWindow.Show();
                 }
 

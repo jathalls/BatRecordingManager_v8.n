@@ -1,24 +1,24 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -76,8 +76,8 @@ namespace BatRecordingManager
                         if (batStats.bat != null)
                         {
                             var thisBatStatsForSession = from bs in allStatsForSession
-                                where bs.batCommonName == batStats.bat.Name
-                                select bs;
+                                                         where bs.batCommonName == batStats.bat.Name
+                                                         select bs;
                             if (!thisBatStatsForSession.IsNullOrEmpty())
                             {
                                 var statsForAllSessions = new BatStats();
@@ -90,8 +90,8 @@ namespace BatRecordingManager
                                     {
                                         var allSTatsForRecording = recording.GetStats();
                                         var thisBatStatsForRecording = from bs in allSTatsForRecording
-                                            where bs.batCommonName == batStats.Name
-                                            select bs;
+                                                                       where bs.batCommonName == batStats.Name
+                                                                       select bs;
                                         if (!thisBatStatsForRecording.IsNullOrEmpty())
                                         {
                                             if (statsForAllSessions.passes > 0 &&
@@ -163,9 +163,9 @@ namespace BatRecordingManager
             ReportDataGrid.Columns.Add(column);
             column = CreateColumn("Location", "session.Location", Visibility.Visible, "");
             ReportDataGrid.Columns.Add(column);
-            column = CreateColumn("Latitude", "recording.RecordingGPSLatitude", Visibility.Visible, "");
+            column = CreateColumn("Latitude", "recording.LatitudeAsString", Visibility.Visible, "");
             ReportDataGrid.Columns.Add(column);
-            column = CreateColumn("Longitude", "recording.RecordingGPSLongitude", Visibility.Visible, "");
+            column = CreateColumn("Longitude", "recording.LongitudeAsString", Visibility.Visible, "");
             ReportDataGrid.Columns.Add(column);
             column = CreateColumn("GridRef", "GridRef", Visibility.Visible, "");
             ReportDataGrid.Columns.Add(column);

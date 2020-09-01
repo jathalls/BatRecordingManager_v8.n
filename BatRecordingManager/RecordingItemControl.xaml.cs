@@ -14,10 +14,10 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -76,7 +76,7 @@ namespace BatRecordingManager
         /// </value>
         public Recording RecordingItem
         {
-            get => (Recording) GetValue(recordingItemProperty);
+            get => (Recording)GetValue(recordingItemProperty);
             set
             {
                 SetValue(recordingItemProperty, value);
@@ -97,14 +97,14 @@ namespace BatRecordingManager
                 if (_summary != null && _summary.Count > 0)
                     foreach (var batType in _summary)
                     {
-                        var batPassControl = new BatPassSummaryControl {PassSummary = batType};
+                        var batPassControl = new BatPassSummaryControl { PassSummary = batType };
                         BatPassSummaryStackPanel.Children.Add(batPassControl);
                     }
 
                 LabelledSegmentListView.Items.Clear();
                 foreach (var segment in value.LabelledSegments)
                 {
-                    var labelledSegmentControl = new LabelledSegmentControl {labelledSegment = segment};
+                    var labelledSegmentControl = new LabelledSegmentControl { labelledSegment = segment };
                     LabelledSegmentListView.Items.Add(labelledSegmentControl);
                 }
 

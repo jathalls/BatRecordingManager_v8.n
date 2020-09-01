@@ -14,13 +14,13 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -124,7 +124,7 @@ namespace BatRecordingManager
         /// <param name="recordingSession"></param>
         internal void AutoFill(RecordingSession recordingSession)
         {
-            var recording = new Recording {RecordingSessionId = recordingSession.Id};
+            var recording = new Recording { RecordingSessionId = recordingSession.Id };
             if (string.IsNullOrWhiteSpace(recording.RecordingName))
                 recording.RecordingName = recordingSession.SessionTag + ".wav";
             recording.RecordingDate = recordingSession.SessionDate;
@@ -150,7 +150,7 @@ namespace BatRecordingManager
                 {
                     foreach (var line in lines)
                     {
-                        var newSegment = new LabelledSegment {Comment = line};
+                        var newSegment = new LabelledSegment { Comment = line };
                         recording.LabelledSegments.Add(newSegment);
                         _modifiedFlag.Add(true);
                     }
@@ -563,7 +563,7 @@ namespace BatRecordingManager
         /// </summary>
         public BulkObservableCollection<LabelledSegment> LabelledSegmentsList
         {
-            get => (BulkObservableCollection<LabelledSegment>) GetValue(LabelledSegmentsListProperty);
+            get => (BulkObservableCollection<LabelledSegment>)GetValue(LabelledSegmentsListProperty);
             set
             {
                 SetValue(LabelledSegmentsListProperty, value);
@@ -596,11 +596,11 @@ namespace BatRecordingManager
         {
             get
             {
-                var recording = (Recording) GetValue(recordingProperty);
+                var recording = (Recording)GetValue(recordingProperty);
                 recording.RecordingEndTime = EndDateTimePicker.SelectedDate.TimeOfDay;
                 recording.RecordingStartTime = StartDateTimePicker.SelectedDate.TimeOfDay;
                 recording.RecordingDate = StartDateTimePicker.SelectedDate;
-                
+
                 recording.RecordingName = RecordingNameTextBox.Text;
                 recording.RecordingNotes = RecordingNotesTextBox.Text;
                 recording.RecordingGPSLatitude = GpsLatitudeTextBox.Text;
@@ -642,10 +642,10 @@ namespace BatRecordingManager
                     var recDate = value.RecordingDate ?? date;
                     var start = recDate.Date + (value.RecordingStartTime ?? new TimeSpan(18, 0, 0));
                     var end = recDate.Date + (value.RecordingEndTime ?? new TimeSpan(23, 59, 59));
-                    
+
                     EndDateTimePicker.SelectedDate = end;
                     StartDateTimePicker.SelectedDate = start;
-                        new DateTime((value.RecordingStartTime ?? new TimeSpan(18, 0, 0)).Ticks);
+                    new DateTime((value.RecordingStartTime ?? new TimeSpan(18, 0, 0)).Ticks);
                     RecordingNameTextBox.Text = value.RecordingName ?? "";
                     RecordingNotesTextBox.Text = value.RecordingNotes ?? "";
                     GpsLatitudeTextBox.Text = value.RecordingGPSLatitude ?? "";

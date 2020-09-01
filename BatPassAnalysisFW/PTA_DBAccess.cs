@@ -23,7 +23,7 @@ namespace BatPassAnalysisFW
         {
             if (source != null)
             {
-                foreach(var item in source)
+                foreach (var item in source)
                 {
                     func(item);
                 }
@@ -39,13 +39,13 @@ namespace BatPassAnalysisFW
                 //string script = $@"DROP DATABASE IF EXISTS '{databaseName}'";
                 //dc.ExecuteCommand(script);
 
-                    dc.DeleteDatabase();
-                    //dc.SubmitChanges();
-                
+                dc.DeleteDatabase();
+                //dc.SubmitChanges();
+
                 dc.CreateDatabase();
 
-                
-                
+
+
             }
         }
 
@@ -62,10 +62,10 @@ namespace BatPassAnalysisFW
         internal static void SaveRecording(bpaRecording srcRecording)
         {
             var dc = getDataContext();
-            
-            if(srcRecording!=null && !String.IsNullOrWhiteSpace(srcRecording.FQfilename))
+
+            if (srcRecording != null && !string.IsNullOrWhiteSpace(srcRecording.FQfilename))
             {
-                PTARecording rec=GetRecording(srcRecording.FQfilename,dc);
+                PTARecording rec = GetRecording(srcRecording.FQfilename, dc);
                 if (rec != null)
                 {
                     UpdateRecording(rec, srcRecording, dc);
@@ -74,7 +74,7 @@ namespace BatPassAnalysisFW
                 {
                     InsertRecording(srcRecording, dc);
                 }
-               
+
 
             }
         }
@@ -85,7 +85,7 @@ namespace BatPassAnalysisFW
         /// </summary>
         /// <param name="filename"></param>
         /// <param name="dc"></param>
-        private static PTARecording GetRecording(string filename, PulseTrainAnalysisDBMLDataContext dc=null)
+        private static PTARecording GetRecording(string filename, PulseTrainAnalysisDBMLDataContext dc = null)
         {
             if (dc == null) dc = getDataContext();
             string bareName = Path.GetFileName(filename);
@@ -93,7 +93,7 @@ namespace BatPassAnalysisFW
             var result = (from rec in dc.PTARecordings
                           where rec.FileName == bareName && rec.FilePath == path
                           select rec)?.FirstOrDefault();
-            if(result==null || result.PTARecordingID < 1)
+            if (result == null || result.PTARecordingID < 1)
             {
                 return (null);
             }
@@ -108,7 +108,7 @@ namespace BatPassAnalysisFW
         /// <param name="destRecording"></param>
         /// <param name="srcRecording"></param>
         /// <param name="dc"></param>
-        private static void UpdateRecording(PTARecording destRecording,bpaRecording srcRecording,PulseTrainAnalysisDBMLDataContext dc)
+        private static void UpdateRecording(PTARecording destRecording, bpaRecording srcRecording, PulseTrainAnalysisDBMLDataContext dc)
         {
             if (dc == null) return;
             if (srcRecording == null || destRecording == null) return;
@@ -117,13 +117,13 @@ namespace BatPassAnalysisFW
             destRecording.RecordingNumber = srcRecording.recNumber;
             destRecording.SampleRate = srcRecording.SampleRate;
             dc.SubmitChanges();
-            foreach(var seg in srcRecording.getSegmentList())
+            foreach (var seg in srcRecording.getSegmentList())
             {
-                SaveSegment( srcRecording.FQfilename, seg, dc, destRecording.PTARecordingID);
+                SaveSegment(srcRecording.FQfilename, seg, dc, destRecording.PTARecordingID);
             }
         }
 
-        private static void InsertRecording(bpaRecording srcRecording,PulseTrainAnalysisDBMLDataContext dc = null)
+        private static void InsertRecording(bpaRecording srcRecording, PulseTrainAnalysisDBMLDataContext dc = null)
         {
             if (dc == null) dc = getDataContext();
             if (srcRecording == null) return;
@@ -134,13 +134,13 @@ namespace BatPassAnalysisFW
             destRecording.SampleRate = srcRecording.SampleRate;
             dc.PTARecordings.InsertOnSubmit(destRecording);
             dc.SubmitChanges();
-            foreach(var seg in srcRecording.getSegmentList())
+            foreach (var seg in srcRecording.getSegmentList())
             {
                 SaveSegment(srcRecording.FQfilename, seg, dc, destRecording.PTARecordingID);
             }
         }
 
-     
+
         /// <summary>
         /// Inserts or updates the given segment as appropriate.  The segment is linked to the recording identified by the 
         /// recordingID or by the filename if the ID is not given.
@@ -149,7 +149,7 @@ namespace BatPassAnalysisFW
         /// <param name="srcSegment"></param>
         /// <param name="dc"></param>
         /// <param name="ptaRecordingID"></param>
-        public static void SaveSegment(string filename, bpaSegment srcSegment,PulseTrainAnalysisDBMLDataContext dc=null,int ptaRecordingID = -1)
+        public static void SaveSegment(string filename, bpaSegment srcSegment, PulseTrainAnalysisDBMLDataContext dc = null, int ptaRecordingID = -1)
         {
             if (dc == null) dc = getDataContext();
             if (ptaRecordingID < 0)
@@ -187,7 +187,7 @@ namespace BatPassAnalysisFW
             destSegment.SegmentNumber = (short)srcSegment.No;
             destSegment.StartTimeInRec = srcSegment.GetOffsetInRecording();
             dc.SubmitChanges();
-            foreach(var pass in srcSegment.getPassList())
+            foreach (var pass in srcSegment.getPassList())
             {
                 SavePass(pass, dc, destSegment.PTASegmentID);
             }
@@ -217,22 +217,22 @@ namespace BatPassAnalysisFW
             }
         }
 
-        private static PTASegment GetSegment(int recID,int segNumber,PulseTrainAnalysisDBMLDataContext dc=null)
+        private static PTASegment GetSegment(int recID, int segNumber, PulseTrainAnalysisDBMLDataContext dc = null)
         {
             if (dc == null) dc = getDataContext();
 
             var result = (from seg in dc.PTASegments
                           where seg.Recording == recID && seg.SegmentNumber == segNumber
                           select seg)?.FirstOrDefault();
-            if(result==null || result.PTASegmentID < 1)
+            if (result == null || result.PTASegmentID < 1)
             {
                 return (null);
             }
             return (result);
-                        
+
         }
 
-        private static PTAPass GetPass(int PassNumber, int SegmentID,PulseTrainAnalysisDBMLDataContext dc=null)
+        private static PTAPass GetPass(int PassNumber, int SegmentID, PulseTrainAnalysisDBMLDataContext dc = null)
         {
             if (dc == null) dc = getDataContext();
             var destPass = (from pass in dc.PTAPasses
@@ -249,37 +249,37 @@ namespace BatPassAnalysisFW
 
         }
 
-        public static void SavePass(bpaPass srcPass,PulseTrainAnalysisDBMLDataContext dc, int SegmentID)
+        public static void SavePass(bpaPass srcPass, PulseTrainAnalysisDBMLDataContext dc, int SegmentID)
         {
             if (dc == null || SegmentID < 1) return;
             var destPass = GetPass(srcPass.Pass_Number, SegmentID);
-            if(destPass==null || destPass.PTAPassID < 1)
+            if (destPass == null || destPass.PTAPassID < 1)
             {
-                destPass=InsertPass(srcPass,SegmentID, dc);
+                destPass = InsertPass(srcPass, SegmentID, dc);
             }
             else
             {
                 UpdatePass(srcPass, destPass, dc);
             }
             var pulseList = srcPass.getPulseList();
-            if (pulseList!= null) 
+            if (pulseList != null)
             {
-                foreach(var pulse in pulseList)
+                foreach (var pulse in pulseList)
                 {
                     SavePulse(pulse, destPass.PTAPassID, dc);
                 }
-                
+
             }
         }
 
-        private static void UpdatePass(bpaPass srcPass, PTAPass destPass,PulseTrainAnalysisDBMLDataContext dc)
+        private static void UpdatePass(bpaPass srcPass, PTAPass destPass, PulseTrainAnalysisDBMLDataContext dc)
         {
             if (dc == null) return;
             CopyPassBPA2PTA(srcPass, ref destPass);
             dc.SubmitChanges();
         }
 
-        private static PTAPass InsertPass(bpaPass srcPass,int SegmentID, PulseTrainAnalysisDBMLDataContext dc)
+        private static PTAPass InsertPass(bpaPass srcPass, int SegmentID, PulseTrainAnalysisDBMLDataContext dc)
         {
             if (dc == null) dc = getDataContext();
             var destPass = new PTAPass();
@@ -290,15 +290,15 @@ namespace BatPassAnalysisFW
             return (destPass);
         }
 
-        private static void CopyPassBPA2PTA(bpaPass srcPass,ref PTAPass destPass)
+        private static void CopyPassBPA2PTA(bpaPass srcPass, ref PTAPass destPass)
         {
             destPass.OffsetInSegmentInSamples = srcPass.getOffsetInSegmentInSamples();
             destPass.PassLengthInSamples = srcPass.getPassLengthInSamples();
             destPass.PassNumber = (short)srcPass.Pass_Number;
             destPass.EnvelopeThresholdFactor = (float)srcPass.thresholdFactor;
             destPass.SpectrumThresholdFactor = (float)srcPass.spectrumfactor;
-            
-            
+
+
         }
 
         /// <summary>
@@ -307,10 +307,10 @@ namespace BatPassAnalysisFW
         /// <param name="srcPulse"></param>
         /// <param name="PassID"></param>
         /// <param name="dc"></param>
-        public static void SavePulse(Pulse srcPulse,int PassID,PulseTrainAnalysisDBMLDataContext dc)
+        public static void SavePulse(Pulse srcPulse, int PassID, PulseTrainAnalysisDBMLDataContext dc)
         {
             if (dc == null) dc = getDataContext();
-            var destPulse = GetPulse(srcPulse, PassID,dc);
+            var destPulse = GetPulse(srcPulse, PassID, dc);
             if (destPulse == null)
             {
                 InsertPulse(srcPulse, PassID, dc);
@@ -323,12 +323,12 @@ namespace BatPassAnalysisFW
 
         }
 
-        private static PTAPulse GetPulse(Pulse srcPulse,int PassID, PulseTrainAnalysisDBMLDataContext dc)
+        private static PTAPulse GetPulse(Pulse srcPulse, int PassID, PulseTrainAnalysisDBMLDataContext dc)
         {
             var result = (from dbPulse in dc.PTAPulses
                           where dbPulse.Pass == PassID && dbPulse.PulseNumber == srcPulse.Pulse_Number
                           select dbPulse)?.FirstOrDefault();
-            if(result==null || result.PTAPulseID < 1)
+            if (result == null || result.PTAPulseID < 1)
             {
                 return (null);
             }
@@ -338,7 +338,7 @@ namespace BatPassAnalysisFW
             }
         }
 
-        private static void InsertPulse(Pulse srcPulse,int PassID,PulseTrainAnalysisDBMLDataContext dc)
+        private static void InsertPulse(Pulse srcPulse, int PassID, PulseTrainAnalysisDBMLDataContext dc)
         {
             if (dc == null) dc = getDataContext();
             var destPulse = new PTAPulse();
@@ -348,7 +348,7 @@ namespace BatPassAnalysisFW
             dc.SubmitChanges();
         }
 
-        private static void UpdatePulse(Pulse srcPulse,ref PTAPulse destPulse,PulseTrainAnalysisDBMLDataContext dc)
+        private static void UpdatePulse(Pulse srcPulse, ref PTAPulse destPulse, PulseTrainAnalysisDBMLDataContext dc)
         {
             if (dc == null) return;
             CopyPulseBPA2PTA(srcPulse, ref destPulse);
@@ -359,9 +359,11 @@ namespace BatPassAnalysisFW
         {
             destPulse.AbsoluteThreshold = srcPulse.getPeak().AbsoluteThreshold;
             var spectrumdetails = srcPulse?.GetSpectrumDetails();
-            if (spectrumdetails != null && spectrumdetails.spectralPeakList!=null && spectrumdetails.spectralPeakList.Any()) {
+            if (spectrumdetails != null && spectrumdetails.spectralPeakList != null && spectrumdetails.spectralPeakList.Any())
+            {
                 var spectralPeak = spectrumdetails.spectralPeakList?.First() as SpectralPeak;
-                if (spectralPeak != null) {
+                if (spectralPeak != null)
+                {
                     destPulse.AutoCorrelationWidth = spectralPeak?.AutoCorrelationWidth;
                     destPulse.HalfHeightHighFrequency = spectralPeak.halfHeightHighFrequency;
                     destPulse.HalfHeightLowFrequency = spectralPeak.halfHeightLowFrequency;
@@ -371,7 +373,7 @@ namespace BatPassAnalysisFW
                     destPulse.MaxVal = spectralPeak.GetMaxVal();
                     destPulse.PeakFrequency = spectralPeak.peakFrequency;
                     destPulse.PrevIntervalSamples = srcPulse.getPeak().GetPrevIntervalSamples();
-                  
+
                 }
                 destPulse.FFTSize = spectrumdetails.getSpectrum().getFFTSize();
             }
@@ -384,17 +386,17 @@ namespace BatPassAnalysisFW
         public static bool RecordingExists(string FQFileName)
         {
             PulseTrainAnalysisDBMLDataContext dc = getDataContext();
-        bool result = false;
+            bool result = false;
             string recPath = Path.GetDirectoryName(FQFileName);
             string recFile = Path.GetFileName(FQFileName);
             var recordings = from rec in dc.PTARecordings
                              where rec.FilePath == recPath && rec.FileName == recFile
                              select rec;
-            if(recordings!=null && recordings.Any())
+            if (recordings != null && recordings.Any())
             {
                 result = true;
             }
-        return (result);
+            return (result);
         }
 
         internal static bpaRecording getBPARecordingAndDescendants(string FQFileName)
@@ -407,10 +409,10 @@ namespace BatPassAnalysisFW
                                          where rec.FilePath == recPath && rec.FileName == recFile
                                          select rec)?.FirstOrDefault();
             if (srcRecording == null || srcRecording.PTARecordingID < 1) return (null); // didn't find a valid record
-            
-            bpaRecording destRecording=CopyRecordingPTA2BPA(srcRecording);
 
-            foreach(var srcSegment in srcRecording.PTASegments)
+            bpaRecording destRecording = CopyRecordingPTA2BPA(srcRecording);
+
+            foreach (var srcSegment in srcRecording.PTASegments)
             {
                 bpaSegment destSegment = CopySegmentPTA2BPA(srcSegment);
                 destRecording.AddSegment(destSegment);
@@ -429,19 +431,19 @@ namespace BatPassAnalysisFW
         /// <returns></returns>
         private static bpaSegment CopySegmentPTA2BPA(PTASegment srcSegment)
         {
-            bpaSegment destSegment = new bpaSegment( srcSegment.PTARecording.RecordingNumber,
+            bpaSegment destSegment = new bpaSegment(srcSegment.PTARecording.RecordingNumber,
                 srcSegment.SegmentNumber,
                 (int)(srcSegment.StartTimeInRec.TotalSeconds * srcSegment.PTARecording.SampleRate),
                 new DataAccessBlock(Path.Combine(srcSegment.PTARecording.FilePath, srcSegment.PTARecording.FileName),
                                     (long)(srcSegment.StartTimeInRec.TotalSeconds * srcSegment.PTARecording.SampleRate),
                                     (long)(srcSegment.Duration.TotalSeconds * srcSegment.PTARecording.SampleRate)
                                     ),
-                srcSegment.PTARecording.SampleRate??384000,
+                srcSegment.PTARecording.SampleRate ?? 384000,
                 srcSegment.Comment);
 
-            foreach(var srcPass in srcSegment.PTAPasses)
+            foreach (var srcPass in srcSegment.PTAPasses)
             {
-                bpaPass destPass=CopyPassPTA2BPA(srcPass);
+                bpaPass destPass = CopyPassPTA2BPA(srcPass);
                 destSegment.AddPass(destPass);
             }
 
@@ -458,7 +460,7 @@ namespace BatPassAnalysisFW
         private static bpaPass CopyPassPTA2BPA(PTAPass srcPass)
         {
             DataAccessBlock passDab = new DataAccessBlock(Path.Combine(srcPass.PTASegment.PTARecording.FilePath, srcPass.PTASegment.PTARecording.FileName),
-                                                            srcPass.OffsetInSegmentInSamples+(long)(srcPass.PTASegment.StartTimeInRec.TotalSeconds*srcPass.PTASegment.PTARecording.SampleRate),
+                                                            srcPass.OffsetInSegmentInSamples + (long)(srcPass.PTASegment.StartTimeInRec.TotalSeconds * srcPass.PTASegment.PTARecording.SampleRate),
                                                             srcPass.PassLengthInSamples
                                                             );
             if (passDab.Length <= 0)
@@ -470,17 +472,17 @@ namespace BatPassAnalysisFW
                                         srcPass.PassNumber,
                                         srcPass.OffsetInSegmentInSamples,
                                         passDab,
-                                        srcPass.PTASegment.PTARecording.SampleRate??384000,
+                                        srcPass.PTASegment.PTARecording.SampleRate ?? 384000,
                                         srcPass.PTASegment.Comment,
                                         (float)(srcPass.PTASegment.Duration.TotalSeconds),
                                         srcPass.PTASegment.StartTimeInRec
                                         );
-            destPass.thresholdFactor = (decimal)(srcPass.EnvelopeThresholdFactor??1.5f);
-            destPass.spectrumfactor = (decimal)(srcPass.SpectrumThresholdFactor??1.5f);
-            
-            
+            destPass.thresholdFactor = (decimal)(srcPass.EnvelopeThresholdFactor ?? 1.5f);
+            destPass.spectrumfactor = (decimal)(srcPass.SpectrumThresholdFactor ?? 1.5f);
+
+
             //Debug.WriteLine($"Pass {destPass.Pass_Number} at {destPass.getOffsetInSegmentInSamples()} in segment {destPass.segmentNumber}");
-            foreach(var srcPulse in srcPass.PTAPulses)
+            foreach (var srcPulse in srcPass.PTAPulses)
             {
                 Peak peak = new Peak(peakNumber: srcPulse.PulseNumber,
                                     rate: srcPulse.PTAPass.PTASegment.PTARecording.SampleRate ?? 384000,
@@ -493,9 +495,9 @@ namespace BatPassAnalysisFW
                                     RecordingNumber: srcPulse.PTAPass.PTASegment.PTARecording.RecordingNumber,
                                     AbsoluteThreshold: (float)srcPulse.AbsoluteThreshold);
                 SpectrumDetails destSpectrumDetails = CopySpectrumDetailsPTA2BPA(srcPulse, peak);
-                Pulse destPulse = CopyPulsePTA2BPA(srcPulse,passDab,destSpectrumDetails,peak,destPass.spectrumfactor);
-                
-                
+                Pulse destPulse = CopyPulsePTA2BPA(srcPulse, passDab, destSpectrumDetails, peak, destPass.spectrumfactor);
+
+
                 destPulse.spectralDetails = destSpectrumDetails;
                 destPass.AddPulse(destPulse);
             }
@@ -505,23 +507,23 @@ namespace BatPassAnalysisFW
 
         private static SpectrumDetails CopySpectrumDetailsPTA2BPA(PTAPulse srcPulse, Peak peak)
         {
-            Spectrum destSpectrum = new Spectrum(srcPulse.PTAPass.PTASegment.PTARecording.SampleRate??384000,
-                                                srcPulse.FFTSize??1024,
+            Spectrum destSpectrum = new Spectrum(srcPulse.PTAPass.PTASegment.PTARecording.SampleRate ?? 384000,
+                                                srcPulse.FFTSize ?? 1024,
                                                 srcPulse.PulseNumber);
             SpectrumDetails destSpectrumDetails = new SpectrumDetails(destSpectrum);
-            destSpectrumDetails.pfMeanOfPeakFrequenciesInSpectralPeaksList = (float)(srcPulse.PeakFrequency??0.0f);
-            destSpectrumDetails.pfStart = (float)(srcPulse.HighFrequency??0.0f);
+            destSpectrumDetails.pfMeanOfPeakFrequenciesInSpectralPeaksList = (float)(srcPulse.PeakFrequency ?? 0.0f);
+            destSpectrumDetails.pfStart = (float)(srcPulse.HighFrequency ?? 0.0f);
             destSpectrumDetails.pfEnd = (float)(srcPulse.LowFrequency ?? 0.0f);
-            SpectralPeak spectralPeak = CopySpectralPeakPTA2BPA(srcPulse,peak);
+            SpectralPeak spectralPeak = CopySpectralPeakPTA2BPA(srcPulse, peak);
             destSpectrumDetails.AddSpectralPeak(spectralPeak);
             return (destSpectrumDetails);
         }
 
-        private static SpectralPeak CopySpectralPeakPTA2BPA(PTAPulse srcPulse,Peak peak)
+        private static SpectralPeak CopySpectralPeakPTA2BPA(PTAPulse srcPulse, Peak peak)
         {
             var sampleRate = srcPulse.PTAPass.PTASegment.PTARecording.SampleRate;
             var fftSize = srcPulse.FFTSize;
-            var HzPerSample = (sampleRate??384000) / (fftSize??1024);
+            var HzPerSample = (sampleRate ?? 384000) / (fftSize ?? 1024);
             var result = SpectralPeak.Create(1,// int
                 peakStart: (srcPulse.LowFrequency / HzPerSample) ?? 0,// int
                 peakCount: 1,//int
@@ -539,7 +541,7 @@ namespace BatPassAnalysisFW
                 RecordingNumber: srcPulse.PTAPass.PTASegment.PTARecording.RecordingNumber,//int =1
                 AbsoluteThreshold: 0.0f// float = 0.0f
                 );
-            result.peakFrequency = srcPulse.PeakFrequency??0;
+            result.peakFrequency = srcPulse.PeakFrequency ?? 0;
             result.highFrequency = srcPulse.HighFrequency ?? 0;
             result.lowFrequency = srcPulse.LowFrequency ?? 0;
             result.halfHeightHighFrequency = srcPulse.HalfHeightHighFrequency ?? 0;
@@ -554,14 +556,14 @@ namespace BatPassAnalysisFW
         /// </summary>
         /// <param name="srcPulse"></param>
         /// <returns></returns>
-        private static Pulse CopyPulsePTA2BPA(PTAPulse srcPulse,DataAccessBlock PassDab,SpectrumDetails spectralDetails,Peak peak,decimal SpectrumThresholdFactor)
+        private static Pulse CopyPulsePTA2BPA(PTAPulse srcPulse, DataAccessBlock PassDab, SpectrumDetails spectralDetails, Peak peak, decimal SpectrumThresholdFactor)
         {
             Pulse destPulse;
             //DataAccessBlock PassDab = new DataAccessBlock(FQFileName,
             //                            (long)srcPulse.PTAPass.OffsetInSegmentInSamples,
             //                            (long)srcPulse.PTAPass.PassLengthInSamples,
             //                            (long)(srcPulse.PTAPass.PTASegment.Duration.TotalSeconds * (double)(srcPulse.PTAPass.PTASegment.PTARecording.SampleRate ?? 384000)));
-            
+
             //Debug.WriteLine($"    Pulse {srcPulse.PulseNumber} at {peak.getStartAsSampleInPass()} in pass, {peak.GetStartAsSampleInSeg()}");
             try
             {
@@ -574,7 +576,8 @@ namespace BatPassAnalysisFW
                             SpectrumThresholdFactor,
                             spectralDetails
                             );
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -589,12 +592,12 @@ namespace BatPassAnalysisFW
         /// <returns></returns>
         private static bpaRecording CopyRecordingPTA2BPA(PTARecording srcRecording)
         {
-            bpaRecording destRecording = new bpaRecording(srcRecording.RecordingNumber,Path.Combine(srcRecording.FilePath, srcRecording.FileName) );
-            destRecording.SampleRate = srcRecording.SampleRate??-1;
+            bpaRecording destRecording = new bpaRecording(srcRecording.RecordingNumber, Path.Combine(srcRecording.FilePath, srcRecording.FileName));
+            destRecording.SampleRate = srcRecording.SampleRate ?? -1;
             return (destRecording);
 
         }
     }
 
-    
+
 }

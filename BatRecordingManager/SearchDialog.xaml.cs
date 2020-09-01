@@ -14,10 +14,10 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Text.RegularExpressions;
 using System.Windows;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -279,7 +279,7 @@ namespace BatRecordingManager
         /// The flag defaults to false and is false if no parameter is supplied.
         /// </summary>
         /// <param name="state"></param>
-        public BoolEventArgs(bool state=false)
+        public BoolEventArgs(bool state = false)
         {
             this.state = state;
         }

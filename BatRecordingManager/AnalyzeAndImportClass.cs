@@ -135,7 +135,7 @@ namespace BatRecordingManager
                     FolderSelected = true;
                     SetAudacityExportFolder(FolderPath);
                     SessionTag = recordingToAnalyse.RecordingSession.SessionTag;
-                    FileToAnalyse = FolderPath+recordingToAnalyse.RecordingName;
+                    FileToAnalyse = FolderPath + recordingToAnalyse.RecordingName;
                     ThisRecordingSession = recordingToAnalyse.RecordingSession;
                     ThisGpxHandler = new GpxHandler(FolderPath);
                     //Analyse(FileToAnalyse);
@@ -161,7 +161,7 @@ namespace BatRecordingManager
             string moddedFolderPath = folderPath.Replace(@"\\", @"\"); // first ensure that hte path only contains single backslashes - which it should
             moddedFolderPath = moddedFolderPath.Replace(@"\", @"\\"); // then ensure that all backslashes are doubled for insertion into the config file
             string configFile = @"C:\audacity-win-portable\Portable Settings\audacity.cfg";
-            if (File.Exists(configFile) && (new FileInfo(configFile).Length>0L))
+            if (File.Exists(configFile) && (new FileInfo(configFile).Length > 0L))
             {
                 var lines = File.ReadAllLines(configFile);
                 for (int i = 0; i < lines.Length; i++)
@@ -171,7 +171,7 @@ namespace BatRecordingManager
                         lines[i] = "DefaultExportPath=" + moddedFolderPath;
                     }
                 }
-                File.WriteAllLines(configFile,lines);
+                File.WriteAllLines(configFile, lines);
             }
         }
 
@@ -335,8 +335,8 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
                 FilesRemaining = 0;
 
                 FilesRemaining = (from file in WavFileList
-                    where file.Substring(file.LastIndexOf(@"\")).Contains(SessionTag)
-                    select file).Count();
+                                  where file.Substring(file.LastIndexOf(@"\")).Contains(SessionTag)
+                                  select file).Count();
                 /*foreach (var file in WavFileList)
                 {
                     if (file.Substring(file.LastIndexOf(@"\")).Contains(SessionTag))
@@ -468,7 +468,7 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
             if (bareFileName.LastIndexOf('.') > 0)
                 bareFileName = bareFileName.Substring(0, bareFileName.LastIndexOf('.'));
 
-            if (string.IsNullOrWhiteSpace(FQFileName) || !File.Exists(FQFileName)  || (new FileInfo(FQFileName).Length<=0L)) return;
+            if (string.IsNullOrWhiteSpace(FQFileName) || !File.Exists(FQFileName) || (new FileInfo(FQFileName).Length <= 0L)) return;
             if (ExternalProcess != null)
             {
                 MessageBox.Show("Close previous instance of Audacity First!");
@@ -485,8 +485,8 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
 
             ExternalProcess.EnableRaisingEvents = true;
             ExternalProcess.Exited += ExternalProcess_Exited;
-            startedAt=DateTime.Now;
-            
+            startedAt = DateTime.Now;
+
             ExternalProcess = Tools.OpenWavAndTextFile(FQFileName, ExternalProcess);
 
             try
@@ -502,13 +502,13 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
                  * */
                 var ipSim = new InputSimulator();
                 var epHandle = ExternalProcess.MainWindowHandle;
-                if (epHandle == (IntPtr) 0L) return;
+                if (epHandle == (IntPtr)0L) return;
 
 
                 // ALT-S,N - 'Select'-None
                 SetForegroundWindow(epHandle);
 
-                ipSim.Keyboard.ModifiedKeyStroke(new[] {VirtualKeyCode.CONTROL, VirtualKeyCode.LSHIFT},
+                ipSim.Keyboard.ModifiedKeyStroke(new[] { VirtualKeyCode.CONTROL, VirtualKeyCode.LSHIFT },
                     VirtualKeyCode.VK_N);
 
                 if (!Tools.WaitForIdle(ExternalProcess)) return;
@@ -549,12 +549,12 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
                 //Thread.Sleep(2000);
                 //SetForegroundWindow(h);
                 //s.Keyboard.KeyPress(VirtualKeyCode.VK_N);
-                ipSim.Keyboard.ModifiedKeyStroke(new[] {VirtualKeyCode.CONTROL, VirtualKeyCode.LSHIFT},
+                ipSim.Keyboard.ModifiedKeyStroke(new[] { VirtualKeyCode.CONTROL, VirtualKeyCode.LSHIFT },
                     VirtualKeyCode.VK_N);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("From OpenWavFile:- "+ex.Message);
+                Debug.WriteLine("From OpenWavFile:- " + ex.Message);
             }
         }
 
@@ -625,7 +625,7 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
         /// <returns></returns>
         private bool Analyse(string FQFileName)
         {
-            if (!File.Exists(FQFileName) || (new FileInfo(FQFileName).Length<=0L)) return false;
+            if (!File.Exists(FQFileName) || (new FileInfo(FQFileName).Length <= 0L)) return false;
             var bareFilename = Path.GetFileName(FQFileName);
             //if (file.Contains(@"\") && !file.EndsWith(@"\")) bareFilename = file.Substring(file.LastIndexOf(@"\") + 1);
             OnAnalysing(new AnalysingEventArgs(bareFilename));
@@ -666,7 +666,7 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
             if (IsCurrentMatchingTextFile())
             {
                 SaveRecording();
-                string result=AnalyseNextFile();
+                string result = AnalyseNextFile();
                 if (string.IsNullOrWhiteSpace(result))
                 {
                     if (FilesRemaining <= 0)
@@ -731,8 +731,8 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
                 }
 
                 WavFileList = (from wavs in listOfWavFiles
-                    where !listOfTxtFiles.Contains(wavs.ToLower().Substring(0, wavs.Length - 4) + ".txt")
-                    select wavs).ToList(); // process wav files that do not have matching txt files
+                               where !listOfTxtFiles.Contains(wavs.ToLower().Substring(0, wavs.Length - 4) + ".txt")
+                               select wavs).ToList(); // process wav files that do not have matching txt files
             }
         }
 
@@ -758,7 +758,7 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
             {
                 if (!string.IsNullOrWhiteSpace(FileToAnalyse)) // if we have a file that we have been analysing...
                 {
-                    
+
                     if (IsCurrentMatchingTextFile()) // if so...
                     {
                         WavFileList.Remove(FileToAnalyse); // remove the .wav file from the list
@@ -794,19 +794,19 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
                 // any file that has a matching .txt file is removed from the list
                 // if any files remain, the first one become the FileToAnalyse and the FilesRemaining
                 // equals the size of the list
-                List<String> filesToRemove=new List<string>();
+                List<string> filesToRemove = new List<string>();
                 foreach (var file in WavFileList)
                 {
-                    if (File.Exists(file) && (new FileInfo(file).Length>0L))
+                    if (File.Exists(file) && (new FileInfo(file).Length > 0L))
                     {
 
                         if (IsCurrentMatchingTextFile(file))
                         {
                             filesToRemove.Add(file);
-                            
+
                         }
 
-                        
+
                     }
                     else
                     {
@@ -814,7 +814,7 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
                     }
                 }
 
-                foreach (var file in filesToRemove )
+                foreach (var file in filesToRemove)
                 {
                     if (WavFileList.Contains(file))
                     {
@@ -889,14 +889,14 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
         ///     returns true if there is a current file to analyse and it has a matching text file
         /// </summary>
         /// <returns></returns>
-        private bool IsCurrentMatchingTextFile(string wavFile=null)
+        private bool IsCurrentMatchingTextFile(string wavFile = null)
         {
             if (string.IsNullOrWhiteSpace(wavFile))
             {
                 wavFile = FileToAnalyse;
             }
             var result = false;
-            if (!string.IsNullOrWhiteSpace(wavFile) && File.Exists(wavFile) && (new FileInfo(wavFile).Length>0L))
+            if (!string.IsNullOrWhiteSpace(wavFile) && File.Exists(wavFile) && (new FileInfo(wavFile).Length > 0L))
             {
                 var matchingTextFile = wavFile.Substring(0, wavFile.LastIndexOf(".")) + ".txt";
                 if (File.Exists(matchingTextFile)) result = true;
@@ -916,7 +916,7 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
             var result = "Text File does not exist";
             if (ThisGpxHandler == null)
             {
-                ThisGpxHandler=new GpxHandler(FolderPath);
+                ThisGpxHandler = new GpxHandler(FolderPath);
             }
             var textFileToProcess = FileToAnalyse.Substring(0, FileToAnalyse.Length - 4) + ".txt";
             if (File.Exists(textFileToProcess))

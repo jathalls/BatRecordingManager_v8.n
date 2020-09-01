@@ -14,9 +14,9 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using DataVirtualizationLibrary;
 using System.ComponentModel;
 using System.Windows.Controls;
-using DataVirtualizationLibrary;
 
 namespace BatRecordingManager
 {

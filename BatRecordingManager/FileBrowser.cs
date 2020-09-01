@@ -14,13 +14,13 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -243,8 +243,8 @@ namespace BatRecordingManager
                         //var TXTFiles= Directory.EnumerateFiles(folderPath, "*.TXT", SearchOption.TopDirectoryOnly);
                         //txtFiles = txtFiles.Concat<string>(TXTFiles);
                         var files = from file in txtFiles
-                            orderby file
-                            select file;
+                                    orderby file
+                                    select file;
                         TextFileNames.Clear();
                         foreach (var filename in files)
                             if (!filename.ToLower().EndsWith(".log.txt")) // except for .log.txt files
@@ -479,7 +479,7 @@ namespace BatRecordingManager
                     if (!string.IsNullOrWhiteSpace(file))
                     {
                         var wavfile = file.Substring(0, file.Length - 4) + ".wav";
-                        if ((!File.Exists(wavfile) || (new FileInfo(wavfile).Length<=0)) && !file.Contains(".log.txt") && file.ToUpper().EndsWith(".TXT") &&
+                        if ((!File.Exists(wavfile) || (new FileInfo(wavfile).Length <= 0)) && !file.Contains(".log.txt") && file.ToUpper().EndsWith(".TXT") &&
                             File.Exists(file))
                         {
                             var lines = File.ReadAllLines(file);
@@ -554,8 +554,8 @@ namespace BatRecordingManager
                 if (!files.IsNullOrEmpty())
                 {
                     var wavFiles = from file in files
-                        where file.ToUpper().EndsWith(ext.ToUpper())
-                        select file;
+                                   where file.ToUpper().EndsWith(ext.ToUpper())
+                                   select file;
                     if (!wavFiles.IsNullOrEmpty()) return true;
                 }
             }

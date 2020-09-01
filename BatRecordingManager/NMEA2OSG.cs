@@ -218,7 +218,7 @@ namespace BatRecordingManager
             eing = eing.Substring(lnth - 5);
             lnth = ning.Length;
             ning = ning.Substring(lnth - 5);
-            ngr = Convert.ToString((char) (tmp + 65)) + Convert.ToString((char) (eX + 65)) + " " + eing + " " + ning;
+            ngr = Convert.ToString((char)(tmp + 65)) + Convert.ToString((char)(eX + 65)) + " " + eing + " " + ning;
             if (!string.IsNullOrWhiteSpace(ngr)) return true;
             return false;
             // Notify the calling application of the change

@@ -14,8 +14,8 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
-using System.Windows;
 using Microsoft.VisualStudio.Language.Intellisense;
+using System.Windows;
 
 namespace BatRecordingManager
 {
@@ -83,8 +83,8 @@ namespace BatRecordingManager
         private void DELButton_Click(object sender, RoutedEventArgs e)
         {
             if (FileListBox.SelectedIndex >= 0 && FileListBox.SelectedItem != null)
-                if (fileList.Contains((string) FileListBox.SelectedItem))
-                    fileList.Remove((string) FileListBox.SelectedItem);
+                if (fileList.Contains((string)FileListBox.SelectedItem))
+                    fileList.Remove((string)FileListBox.SelectedItem);
             FileListBox.Items.Refresh();
         }
 
@@ -158,7 +158,7 @@ namespace BatRecordingManager
         /// </summary>
         public BulkObservableCollection<string> fileList
         {
-            get => (BulkObservableCollection<string>) GetValue(fileListProperty);
+            get => (BulkObservableCollection<string>)GetValue(fileListProperty);
             set => SetValue(fileListProperty, value);
         }
 

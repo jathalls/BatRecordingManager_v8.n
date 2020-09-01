@@ -14,13 +14,13 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.Maps.MapControl.WPF;
+using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Microsoft.Maps.MapControl.WPF;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -96,7 +96,7 @@ namespace BatRecordingManager
             if (Math.Abs(lat) > 90.0 || Math.Abs(longit) > 180.0d) return;
             coordinates = new Location(lat, longit);
 
-            var mapWindow = new MapWindow(false) {MapControl = {coordinates = coordinates}};
+            var mapWindow = new MapWindow(false) { MapControl = { coordinates = coordinates } };
             mapWindow.Show();
             if (recordingSession?.Recordings != null && recordingSession.Recordings.Count > 0)
             {
@@ -137,7 +137,7 @@ namespace BatRecordingManager
 
                     mapWindow.MapControl.ThisMap.Center = oldLocation;
                     mapWindow.MapControl.AddPushPin(oldLocation);
-                    
+
                 }
             }
 
@@ -148,7 +148,7 @@ namespace BatRecordingManager
                 if (lastSelectedLocation != null)
                 {
                     recordingSession.LocationGPSLatitude = (decimal)lastSelectedLocation.Latitude;
-                    recordingSession.LocationGPSLongitude = (decimal) lastSelectedLocation.Longitude;
+                    recordingSession.LocationGPSLongitude = (decimal)lastSelectedLocation.Longitude;
                     //GpsLatitudeTextBox.Text = lastSelectedLocation.Latitude.ToString();
                     //GpsLongitudeTextBox.Text = lastSelectedLocation.Longitude.ToString();
                 }
@@ -165,7 +165,7 @@ namespace BatRecordingManager
             if (sessionDate != null && sessionDate.Year > 1970)
                 if (lat < 200 && longit < 200 && !(lat == 0.0 && longit == 0.0))
                 {
-                    var sunset = SessionManager.CalculateSunset(sessionDate, (decimal?) lat, (decimal?) longit);
+                    var sunset = SessionManager.CalculateSunset(sessionDate, (decimal?)lat, (decimal?)longit);
                     if (sunset != null && sunset.Value.Hours > 0)
                     {
                         recordingSession.Sunset = sunset;
@@ -194,21 +194,21 @@ namespace BatRecordingManager
         {
             get
             {
-                var session = (RecordingSession) GetValue(recordingSessionProperty);
+                var session = (RecordingSession)GetValue(recordingSessionProperty);
                 if (session != null)
                     try
                     {
                         session.SessionTag = SessionTagTextBlock.Text;
                         session.SessionDate = SessionStartDateTime.SelectedDate;
                         session.SessionStartTime = session.SessionDate.TimeOfDay;
-                        
-                            session.SessionEndTime = SessionEndDateTime.SelectedDate.TimeOfDay;
+
+                        session.SessionEndTime = SessionEndDateTime.SelectedDate.TimeOfDay;
                         session.EndDate = SessionEndDateTime.SelectedDate;
 
                         //session.SessionDate = SessionStartDatePicker.SelectedDate ?? new DateTime();
                         //session.SessionStartTime = (StartTimePicker.Value ?? new DateTime()).TimeOfDay;
                         //session.SessionEndTime = (EndTimePicker.Value ?? new DateTime()).TimeOfDay;
-                        session.Temp = (short?) TemperatureIntegerUpDown.Value;
+                        session.Temp = (short?)TemperatureIntegerUpDown.Value;
                         session.Weather = WeatherTextBox.Text;
                         session.Sunset = (SunsetTimePicker.SelectedDate).TimeOfDay;
                         session.Equipment = EquipmentComboBox.Text;
@@ -243,7 +243,7 @@ namespace BatRecordingManager
                         SessionTagTextBlock.Text = value.SessionTag;
 
                         //SessionStartDateTime.Value =
-                        value.SessionDate=value.SessionDate.Date + (value.SessionStartTime ?? new TimeSpan());
+                        value.SessionDate = value.SessionDate.Date + (value.SessionStartTime ?? new TimeSpan());
                         //RecordingSessionStartDateTime = value.SessionDate;
                         SessionStartDateTime.SelectedDate = value.SessionDate;
 
@@ -252,7 +252,7 @@ namespace BatRecordingManager
                         if (value.EndDate == null)
                             value.EndDate = value.SessionDate.Date +
                                             (value.SessionEndTime ?? (value.SessionStartTime ?? new TimeSpan()));
-                        SessionEndDateTime.SelectedDate = value.EndDate??new DateTime();
+                        SessionEndDateTime.SelectedDate = value.EndDate ?? new DateTime();
 
                         //StartTimePicker.Value = new DateTime() + (value.SessionStartTime ?? new TimeSpan());
 
@@ -282,7 +282,7 @@ namespace BatRecordingManager
 
                         //SessionDatePicker.DisplayDate = value.SessionDate;
                         //SessionDatePicker.SelectedDate = value.SessionDate;
-                        TemperatureIntegerUpDown.Value = (decimal)(value.Temp??0);
+                        TemperatureIntegerUpDown.Value = value.Temp ?? 0;
                         FolderTextBox.Text = value.OriginalFilePath;
                         /*
                         if (string.IsNullOrWhiteSpace(WeatherTextBox.Text))
@@ -366,7 +366,7 @@ namespace BatRecordingManager
         /// </summary>
         public string selectedFolder
         {
-            get => (string) GetValue(selectedFolderProperty);
+            get => (string)GetValue(selectedFolderProperty);
             set => SetValue(selectedFolderProperty, value);
         }
 
@@ -385,14 +385,14 @@ namespace BatRecordingManager
             {
                 appendWeather = false;
             }
-            
+
             Weather weather = new Weather();
             weather.weatherReceived += Weather_weatherReceived;
 
             var res = weather.GetWeatherHistory((double)recordingSession.LocationGPSLatitude,
                 (double)recordingSession.LocationGPSLongitude, recordingSession.SessionDate.Date + (recordingSession.SessionStartTime ?? new TimeSpan(20, 0, 0)));
-            
-            
+
+
         }
     }
 }

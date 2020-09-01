@@ -14,11 +14,10 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -52,33 +51,30 @@ namespace BatRecordingManager
             reportDataList.Clear();
             HeaderTextBox.Text = "";
 
-            var recnum = 0;
-
             var sessionList = new List<int>();
 
             foreach (var session in reportSessionList)
             {
                 if (session == null) continue;
-                var isHeaderWritten = false;
                 var allStatsForSession = session.GetStats();
                 var condensedStats = Tools.CondenseStatsList(allStatsForSession);
-                 
 
-                    if (!condensedStats.IsNullOrEmpty())
+
+                if (!condensedStats.IsNullOrEmpty())
+                {
+                    foreach (var bs in condensedStats)
                     {
-                        foreach (var bs in condensedStats)
-                        {
 
 
-                            var reportData = new ReportData();
-                            reportData.session = session;
-                        
-                            reportData.recordingStats = bs;
+                        var reportData = new ReportData();
+                        reportData.session = session;
 
-                            reportDataList.Add(reportData);
-                        }
+                        reportData.recordingStats = bs;
+
+                        reportDataList.Add(reportData);
                     }
-                
+                }
+
             }
 
             CreateTable();
@@ -93,8 +89,8 @@ namespace BatRecordingManager
         {
             DataGridTextColumn column;
 
-            
-            
+
+
             column = CreateColumn("Location", "session.Location", Visibility = Visibility.Visible, "");
             ReportDataGrid.Columns.Add(column);
 
@@ -119,19 +115,19 @@ namespace BatRecordingManager
             column = CreateColumn("Passes/Segments", "passesAndSegments", Visibility.Visible, "");
             ReportDataGrid.Columns.Add(column);
 
-            column = CreateColumn("Min", "recordingStats.minDuration",Visibility.Visible,"ShortTime_Converter");
+            column = CreateColumn("Min", "recordingStats.minDuration", Visibility.Visible, "ShortTime_Converter");
             ReportDataGrid.Columns.Add(column);
 
-            column = CreateColumn("Max", "recordingStats.maxDuration",Visibility.Visible,"ShortTime_Converter");
+            column = CreateColumn("Max", "recordingStats.maxDuration", Visibility.Visible, "ShortTime_Converter");
             ReportDataGrid.Columns.Add(column);
 
-            column = CreateColumn("Mean", "recordingStats.meanDuration",Visibility.Visible,"ShortTime_Converter");
+            column = CreateColumn("Mean", "recordingStats.meanDuration", Visibility.Visible, "ShortTime_Converter");
             ReportDataGrid.Columns.Add(column);
 
-            column = CreateColumn("Total", "recordingStats.totalDuration",Visibility.Visible,"ShortTime_Converter");
+            column = CreateColumn("Total", "recordingStats.totalDuration", Visibility.Visible, "ShortTime_Converter");
             ReportDataGrid.Columns.Add(column);
 
-            
+
         }
     }
 }

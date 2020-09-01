@@ -14,11 +14,11 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -63,8 +63,8 @@ namespace BatRecordingManager
                         if (batStats.bat != null)
                         {
                             var thisBatStatsForSession = from bs in allStatsForSession
-                                where bs.batCommonName == batStats.bat.Name
-                                select bs;
+                                                         where bs.batCommonName == batStats.bat.Name
+                                                         select bs;
                             if (!thisBatStatsForSession.IsNullOrEmpty())
                             {
                                 var statsForAllSessions = new BatStats();
@@ -77,8 +77,8 @@ namespace BatRecordingManager
                                     {
                                         var allSTatsForRecording = recording.GetStats();
                                         var thisBatStatsForRecording = from bs in allSTatsForRecording
-                                            where bs.batCommonName == batStats.Name
-                                            select bs;
+                                                                       where bs.batCommonName == batStats.Name
+                                                                       select bs;
                                         if (!thisBatStatsForRecording.IsNullOrEmpty())
                                         {
                                             if (statsForAllSessions.passes > 0 &&

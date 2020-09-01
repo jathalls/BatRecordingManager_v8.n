@@ -88,7 +88,7 @@ namespace BatRecordingManager
             get
             {
                 if (_soundOut != null)
-                    return Math.Min(100, Math.Max((int) (_soundOut.Volume * 100), 0));
+                    return Math.Min(100, Math.Max((int)(_soundOut.Volume * 100), 0));
                 return 100;
             }
             set
@@ -103,7 +103,7 @@ namespace BatRecordingManager
         {
             if (itemToPlay == null) return;
             if (string.IsNullOrWhiteSpace(itemToPlay.filename)) return;
-            if (!File.Exists(itemToPlay.filename) || (new FileInfo(itemToPlay.filename).Length<=0L)) return;
+            if (!File.Exists(itemToPlay.filename) || (new FileInfo(itemToPlay.filename).Length <= 0L)) return;
 
             Open(itemToPlay, _device);
             _waveSource.SetPosition(itemToPlay.startOffset);
@@ -112,7 +112,7 @@ namespace BatRecordingManager
             Debug.WriteLine("Play from " + itemToPlay.startOffset + " to " + end);
             Debug.WriteLine("Starting at:-" + DateTime.Now.TimeOfDay);
 
-            _soundOut = new WasapiOut {Latency = 100, Device = _device};
+            _soundOut = new WasapiOut { Latency = 100, Device = _device };
             _soundOut.Initialize(_waveSource);
             if (e_PlaybackStopped != null) _soundOut.Stopped += e_PlaybackStopped;
             Play();

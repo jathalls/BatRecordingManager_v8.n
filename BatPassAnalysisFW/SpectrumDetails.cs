@@ -1,8 +1,6 @@
 ﻿using Acr.Settings;
 using DspSharp.Utilities.Collections;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace BatPassAnalysisFW
@@ -13,7 +11,7 @@ namespace BatPassAnalysisFW
     /// </summary>
     public class SpectrumDetails
     {
-        private Spectrum m_Spect;
+        private readonly Spectrum m_Spect;
 
         public int pulse { get; set; } = 0;
 
@@ -29,17 +27,17 @@ namespace BatPassAnalysisFW
             get
             {
                 if (_pfMeanOfPeakFrequenciesInSpectralPeaksList == null)
-               
+
                 {
                     var pfMeanList = from sp in spectralPeakList
                                      where sp != null && (sp as SpectralPeak) != null && (sp as SpectralPeak).peakFrequency >= 15000.0
                                      select (sp as SpectralPeak).peakFrequency;
                     if (pfMeanList != null && pfMeanList.Any())
                     {
-                        _pfMeanOfPeakFrequenciesInSpectralPeaksList= ((float)pfMeanList.Average());
+                        _pfMeanOfPeakFrequenciesInSpectralPeaksList = ((float)pfMeanList.Average());
                     }
                 }
-                return _pfMeanOfPeakFrequenciesInSpectralPeaksList??-1.0f;
+                return _pfMeanOfPeakFrequenciesInSpectralPeaksList ?? -1.0f;
             }
 
             set
@@ -60,7 +58,7 @@ namespace BatPassAnalysisFW
                                       select (sp as SpectralPeak).highFrequency;
                     if (pfStartList != null && pfStartList.Any())
                     {
-                        _pfStart= ((float)pfStartList.Average());
+                        _pfStart = ((float)pfStartList.Average());
                     }
                 }
                 return _pfStart ?? -1.0f;
@@ -85,7 +83,7 @@ namespace BatPassAnalysisFW
                                     select (sp as SpectralPeak).lowFrequency;
                     if (pfEndList != null && pfEndList.Any())
                     {
-                        _pfEnd= ((float)pfEndList.Average());
+                        _pfEnd = ((float)pfEndList.Average());
                     }
                 }
                 return _pfEnd ?? -1.0f;
@@ -109,15 +107,15 @@ namespace BatPassAnalysisFW
             spectralPeakList.Add(spectPeak);
         }
 
-       
-   
+
+
 
         public Spectrum getSpectrum()
         {
             return (m_Spect);
         }
 
-        internal bool GetDetailsFromSpectrum(List<double> fft,Peak parentPeak,bool isValidPulse, int passNumber=1,decimal spectrumFactor=1.8m)
+        internal bool GetDetailsFromSpectrum(List<double> fft, Peak parentPeak, bool isValidPulse, int passNumber = 1, decimal spectrumFactor = 1.8m)
         {
             if (m_Spect == null) return false;
             //Debug.WriteLine($"\nFor pulse number {m_Spect.pulseNumber}");
@@ -130,7 +128,7 @@ namespace BatPassAnalysisFW
                 leadInSamples = 5;
                 CrossSettings.Current.Set<int>("SpectrumLeadInSamples", leadInSamples);
             }
-            
+
 
             int leadOutSamples = CrossSettings.Current.Get<int>("SpectrumLeadOutSamples");
             if (leadOutSamples <= 0.0f)
@@ -138,11 +136,11 @@ namespace BatPassAnalysisFW
                 leadOutSamples = 4;
                 CrossSettings.Current.Set<float>("SpectrumLeadOutSamples", leadOutSamples);
             }
-            
+
 
             //float[] shortData = data.Skip(40).ToArray<float>();
-            PassAnalysis.getPeaks(ref data, m_Spect.sampleRate, leadInSamples:leadInSamples, leadOutSamples:leadOutSamples,thresholdFactor:(float)spectrumFactor, 
-                out spectralPeakList, m_Spect.autoCorrelationWidth, startOfPassInSegment:0, asSpectralPeak:true,parentPeak,isValidPulse,PassNumber:passNumber,RecordingNumber:parentPeak.recordingNumber);
+            PassAnalysis.getPeaks(ref data, m_Spect.sampleRate, leadInSamples: leadInSamples, leadOutSamples: leadOutSamples, thresholdFactor: (float)spectrumFactor,
+                out spectralPeakList, m_Spect.autoCorrelationWidth, startOfPassInSegment: 0, asSpectralPeak: true, parentPeak, isValidPulse, PassNumber: passNumber, RecordingNumber: parentPeak.recordingNumber);
             var orderedData = new List<Peak>();
             orderedData = (from d in spectralPeakList
                            orderby d.GetPeakArea() descending
@@ -162,6 +160,6 @@ namespace BatPassAnalysisFW
         }
 
 
-        
+
     }
 }

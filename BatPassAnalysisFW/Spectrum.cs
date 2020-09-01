@@ -48,8 +48,8 @@ namespace BatPassAnalysisFW
         /// the original sample rate
         /// </summary>
         public int sampleRate;
-        private int HzPerBin;
-        private int frameSize;
+        private readonly int HzPerBin;
+        private readonly int frameSize;
 
         public Spectrum(int sampleRate, int FFTSize, int pulseNumber = 0)
         {
@@ -60,7 +60,7 @@ namespace BatPassAnalysisFW
             HzPerBin = (sampleRate / 2) / (frameSize / 2);
         }
 
-        public bool GetSpectralData(float[] sample, float[] pre_sample,Peak peak, out List<double> fft, out List<float> autoCorr, int Overlap = -1, int frameSize = -1)
+        public bool GetSpectralData(float[] sample, float[] pre_sample, Peak peak, out List<double> fft, out List<float> autoCorr, int Overlap = -1, int frameSize = -1)
         {
             fft = null;
             autoCorr = null;
@@ -80,9 +80,9 @@ namespace BatPassAnalysisFW
 
             if (sample != null && sample.Length > 0)
             {
-                isValidPulse=GetSpectrum(sample,pre_sample, frameSize, Overlap,peak, out sampleFFT,out rawPreFFT);
-                
-                
+                isValidPulse = GetSpectrum(sample, pre_sample, frameSize, Overlap, peak, out sampleFFT, out rawPreFFT);
+
+
             }
             //Scale(1000, ref sampleFFT);
             sampleFFT = Smooth(sampleFFT, 3);
@@ -122,7 +122,7 @@ namespace BatPassAnalysisFW
         }
 
 
-        
+
         /// <summary>
         /// Uses fine resolution FFTs to tray and determine the shape of the pulse
         /// </summary>
@@ -137,9 +137,9 @@ namespace BatPassAnalysisFW
                 if (peakPos.Length < FFTSize + 70)
                 {
                     FFTSize = 256;
-                    if (peakPos.Length < FFTSize + 70) return(result);
+                    if (peakPos.Length < FFTSize + 70) return (result);
                 }
-                double[,] spectrogram = new double[FFTSize,FFTSize];
+                double[,] spectrogram = new double[FFTSize, FFTSize];
                 result = GetSpectrogram(sample, pre_sample, FFTSize, peakPos);
             }
             return (result);
@@ -152,37 +152,34 @@ namespace BatPassAnalysisFW
         /// <param name="sample"></param>
         /// <param name="v"></param>
         /// <returns></returns>
-        private (float startSlope,float midSlope,float endSlope,float allSLope) GetSpectrogram(float[] sample, float[] pre_sample, int FFTSize, (int Offset, int Length) peakPos)
+        private (float startSlope, float midSlope, float endSlope, float allSLope) GetSpectrogram(float[] sample, float[] pre_sample, int FFTSize, (int Offset, int Length) peakPos)
         {
             (float startSlope, float midSlope, float endSlope, float allSLope) result = (0.0f, 0.0f, 0.0f, 0.0f);
             //double[,] result = new double[FFTSize, FFTSize];
             double[] preFFT = null;
-            int advance = (int)(.0001f / (1.0f/sampleRate));   // advance corresponds to 0.1ms per datum in the result
+            int advance = (int)(.0001f / (1.0f / sampleRate));   // advance corresponds to 0.1ms per datum in the result
             advance = 5;
             if (pre_sample.Length >= FFTSize)
             {
                 float[] section = pre_sample.Take(FFTSize).ToArray();
                 preFFT = getFFT(section);
             }
-
-            int peakStart = 0;
             if (peakPos.Offset > FFTSize / 2) peakPos.Offset = peakPos.Offset - FFTSize / 2;
             else peakPos.Offset = 0;
-            int peakEnd = 0;
             float[] peakData = sample.Skip(peakPos.Offset).Take(peakPos.Length).ToArray();
             List<int> fPeakList = new List<int>();
-            for (int start = 0, i = 0; (start + FFTSize < peakData.Length) ; start += advance, i++)
+            for (int start = 0, i = 0; (start + FFTSize < peakData.Length); start += advance, i++)
             {
                 var section = peakData.Skip(start).Take(FFTSize).ToArray();
-                
+
 
                 double[] spFFT = getFFT(section);
-                
+
 
                 double max = double.MinValue;
 
                 int jMax = 0;
-                for (int j = 0; j < spFFT.Length/2; j++)
+                for (int j = 0; j < spFFT.Length / 2; j++)
                 {
                     double val;
                     if (preFFT != null)
@@ -197,7 +194,7 @@ namespace BatPassAnalysisFW
                     //result[j, i] = val;  // NB order of indices.  First index is by frequency, second by time
                     if (val > max)
                     {
-                        if (j != 0 && j < FFTSize/2)
+                        if (j != 0 && j < FFTSize / 2)
                         {
                             max = val;
                             jMax = j;
@@ -210,9 +207,9 @@ namespace BatPassAnalysisFW
             int[] fPeakArray = fPeakList.ToArray();
 
             int last = fPeakArray[0];
-            
 
-            List<(float slope,float slopeGrad)> slopeList = new List<(float slope, float slopeGrad)>();
+
+            List<(float slope, float slopeGrad)> slopeList = new List<(float slope, float slopeGrad)>();
             var peakLength = fPeakArray.Length;
             if (peakLength > 10)
             {
@@ -224,7 +221,7 @@ namespace BatPassAnalysisFW
                 {
                     if (seg * segSize < peakLength)
                     {
-                        
+
                         var newSlope = 0.0f;
                         float slopeTotal = 0.0f;
                         int count = 0;
@@ -248,7 +245,7 @@ namespace BatPassAnalysisFW
 
                             }
                             lastSlope = slope;
-                            slopeList.Add((slope,newSlope));
+                            slopeList.Add((slope, newSlope));
                         }
                     }
                 }
@@ -263,7 +260,7 @@ namespace BatPassAnalysisFW
             Debug.WriteLine("=====================\n");
 
             var revSlope = new List<int>();
-            for(int i = fPeakArray.Max(); i >= fPeakArray.Min(); i--)
+            for (int i = fPeakArray.Max(); i >= fPeakArray.Min(); i--)
             {
                 revSlope.Add((from v in fPeakArray
                               where v == i
@@ -285,8 +282,8 @@ namespace BatPassAnalysisFW
             }
             File.AppendAllText(@"C:\BRMTestData\spect.csv", "\n");
 
-            
-            
+
+
 
 #endif
 
@@ -360,11 +357,11 @@ namespace BatPassAnalysisFW
             return (result);
         }
 
-        private void Scale(Double factor, ref Double[] data)
+        private void Scale(double factor, ref double[] data)
         {
-            Double max = data.Max();
-            Double min = data.Min();
-            Double range = max - min;
+            double max = data.Max();
+            double min = data.Min();
+            double range = max - min;
             for (int i = 0; i < data.Length; i++)
             {
                 data[i] = ((data[i] - min) / range) * factor;
@@ -400,35 +397,33 @@ namespace BatPassAnalysisFW
                 default: break;
             }
 
-            string filename = "";
 
 
 
-            
 
-            dataFFT = calculateFFT(data, frameSize,order, Overlap);
+            dataFFT = calculateFFT(data, frameSize, order, Overlap);
             preFFT = calculateFFT(preData, frameSize, order, Overlap);
 
-            bool result = ValidateSpectrum(peak,ref data,ref preData);
+            bool result = ValidateSpectrum(peak, ref data, ref preData);
 
 
 
             return (result);
         }
 
-        private double[] calculateFFT(float[] data,int frameSize,int order, int Overlap)
+        private double[] calculateFFT(float[] data, int frameSize, int order, int Overlap)
         {
             double[] dataFFT = new double[frameSize / 2];
             for (int i = 0; i < dataFFT.Length; i++)
             {
                 dataFFT[i] = 0.0d;
-                
+
             }
             if (data == null || data.Length <= 0) return (dataFFT);
             Complex[] dataBlock = new Complex[frameSize];
             int numBlocks = 0;
             int locationOfData = 0;
-            while (locationOfData >= 0 && locationOfData<data.Length)
+            while (locationOfData >= 0 && locationOfData < data.Length)
             {
                 locationOfData = GetDataBlock(data, locationOfData, frameSize, Overlap, out dataBlock);
                 FastFourierTransform.FFT(true, order, dataBlock);
@@ -453,9 +448,9 @@ namespace BatPassAnalysisFW
             return (dataFFT);
         }
 
-        private bool ValidateSpectrum(Peak peak,ref float[] data,ref float[] preData)
+        private bool ValidateSpectrum(Peak peak, ref float[] data, ref float[] preData)
         {
-            if (sampleRate>=192000 && peak.getPeakWidthSamples() > sampleRate/1000) // only validat pulses >1ms @ 384000 or 192000
+            if (sampleRate >= 192000 && peak.getPeakWidthSamples() > sampleRate / 1000) // only validat pulses >1ms @ 384000 or 192000
             {
                 int FFTSize = 128;
                 int FFTOrder = 7;
@@ -466,15 +461,15 @@ namespace BatPassAnalysisFW
                     FFTOrder = 6;
                 }
 
-                
-                double[] firstFFT = new double[FFTSize/2];
-                double[] lastFFT = new double[FFTSize/2];
+
+                double[] firstFFT = new double[FFTSize / 2];
+                double[] lastFFT = new double[FFTSize / 2];
                 double[] preFFT = new double[FFTSize / 2];
 
-                int shortHzPerBin = (sampleRate / 2) / (FFTSize/2);
+                int shortHzPerBin = (sampleRate / 2) / (FFTSize / 2);
                 int short15KBorder = 15000 / shortHzPerBin;
 
-                for(int i = 0; i < short15KBorder; i++)
+                for (int i = 0; i < short15KBorder; i++)
                 {
                     firstFFT[i] = 0.0d;
                     lastFFT[i] = 0.0d;
@@ -482,10 +477,10 @@ namespace BatPassAnalysisFW
                 }
                 Complex[] dataBlock;
 
-                if(preData!=null && preData.Length > FFTSize)
+                if (preData != null && preData.Length > FFTSize)
                 {
-                    int margin = (preData.Length - FFTSize)/2;
-                    _=GetDataBlock(preData, margin, FFTSize, 0, out dataBlock);
+                    int margin = (preData.Length - FFTSize) / 2;
+                    _ = GetDataBlock(preData, margin, FFTSize, 0, out dataBlock);
                     FastFourierTransform.FFT(true, FFTOrder, dataBlock);
                     for (int i = short15KBorder; i < dataBlock.Length / 2 && i < firstFFT.Length; i++)
                     {
@@ -493,24 +488,24 @@ namespace BatPassAnalysisFW
                     }
                 }
 
-                _ = GetDataBlock(data, peak.startPosInPulse+(FFTSize/2), FFTSize, 0, out dataBlock);
+                _ = GetDataBlock(data, peak.startPosInPulse + (FFTSize / 2), FFTSize, 0, out dataBlock);
                 FastFourierTransform.FFT(true, FFTOrder, dataBlock);
 
                 for (int i = short15KBorder; i < dataBlock.Length / 2 && i < firstFFT.Length; i++)
                 {
-                    firstFFT[i] = (Math.Sqrt((dataBlock[i].X * dataBlock[i].X) + (dataBlock[i].Y * dataBlock[i].Y)))-preFFT[i];
+                    firstFFT[i] = (Math.Sqrt((dataBlock[i].X * dataBlock[i].X) + (dataBlock[i].Y * dataBlock[i].Y))) - preFFT[i];
                 }
 
-                _ = GetDataBlock(data, peak.startPosInPulse + peak.getPeakWidthSamples() - (int)(1.5*FFTSize), FFTSize, 0, out dataBlock);
+                _ = GetDataBlock(data, peak.startPosInPulse + peak.getPeakWidthSamples() - (int)(1.5 * FFTSize), FFTSize, 0, out dataBlock);
                 for (int i = short15KBorder; i < dataBlock.Length / 2 && i < firstFFT.Length; i++)
                 {
-                    lastFFT[i] = (Math.Sqrt((dataBlock[i].X * dataBlock[i].X) + (dataBlock[i].Y * dataBlock[i].Y)))-preFFT[i];
+                    lastFFT[i] = (Math.Sqrt((dataBlock[i].X * dataBlock[i].X) + (dataBlock[i].Y * dataBlock[i].Y))) - preFFT[i];
                 }
 
 
                 int firstPeak = firstFFT.MaxIndex();
                 int lastPeak = lastFFT.MaxIndex();
-                Debug.WriteLine($"for Pulse {peak.peak_Number} - {firstPeak*shortHzPerBin}->{lastPeak*shortHzPerBin}");
+                Debug.WriteLine($"for Pulse {peak.peak_Number} - {firstPeak * shortHzPerBin}->{lastPeak * shortHzPerBin}");
                 if (lastPeak > firstPeak) return (false);
             }
             return (true);
@@ -562,11 +557,11 @@ namespace BatPassAnalysisFW
         }
 
         ///calculates and retuns the smoothed FFT and the autocorrelation of the supplied data
-        internal void getFrequencyDomain(out List<float> fftData, out List<float> autoCorr, List<float> sectionData, List<float> preData,Peak peak)
+        internal void getFrequencyDomain(out List<float> fftData, out List<float> autoCorr, List<float> sectionData, List<float> preData, Peak peak)
         {
             List<double> fftDataDbl = new List<double>();
             fftData = new List<float>();
-            GetSpectralData(sectionData.ToArray(), preData.ToArray(),peak, out fftDataDbl, out autoCorr);
+            GetSpectralData(sectionData.ToArray(), preData.ToArray(), peak, out fftDataDbl, out autoCorr);
             foreach (var d in fftDataDbl)
             {
                 fftData.Add((float)d);
@@ -582,7 +577,7 @@ namespace BatPassAnalysisFW
             {
                 if (autoCorrelation[i] < half)
                 {
-                    float secs = (float)i / (float)sampleRate;
+                    float secs = i / (float)sampleRate;
                     return (secs * 1000);
                 }
             }

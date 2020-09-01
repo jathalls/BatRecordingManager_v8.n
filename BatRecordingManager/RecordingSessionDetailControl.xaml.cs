@@ -14,11 +14,11 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.Maps.MapControl.WPF;
 using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Microsoft.Maps.MapControl.WPF;
 
 namespace BatRecordingManager
 {
@@ -49,7 +49,7 @@ namespace BatRecordingManager
             if (Math.Abs(lat) > 90.0d || Math.Abs(longit) > 180.0d) return;
             coordinates = new Location(lat, longit);
 
-            var mapWindow = new MapWindow(false) {MapControl = {coordinates = coordinates}};
+            var mapWindow = new MapWindow(false) { MapControl = { coordinates = coordinates } };
             mapWindow.Show();
             if (recordingSession?.Recordings != null && recordingSession.Recordings.Count > 0)
             {
@@ -87,8 +87,8 @@ namespace BatRecordingManager
                 {
                     if (recordingSession.LocationGPSLatitude != null)
                     {
-                        var lat = (double) recordingSession.LocationGPSLatitude;
-                        var longit = (double) recordingSession.LocationGPSLongitude;
+                        var lat = (double)recordingSession.LocationGPSLatitude;
+                        var longit = (double)recordingSession.LocationGPSLongitude;
                         _gridRef = GPSLocation.ConvertGPStoGridRef(lat, longit);
                     }
                 }
@@ -100,7 +100,7 @@ namespace BatRecordingManager
         /// </summary>
         public RecordingSession recordingSession
         {
-            get => (RecordingSession) GetValue(SelectedSessionProperty);
+            get => (RecordingSession)GetValue(SelectedSessionProperty);
             set
             {
                 SetValue(SelectedSessionProperty, value);
@@ -117,7 +117,7 @@ namespace BatRecordingManager
                     if (value.EndDate == null)
                         value.EndDate = value.SessionDate.Date +
                                         (value.SessionEndTime ?? (value.SessionStartTime ?? new TimeSpan()));
-                    SessionEndDateTime.SelectedDate = value.EndDate??new DateTime();
+                    SessionEndDateTime.SelectedDate = value.EndDate ?? new DateTime();
                     SunsetTimePicker.Value = (value.Sunset ?? new TimeSpan());
                     //SunsetTimePicker.Text = (value.Sunset ?? new TimeSpan()).ToString();
                     TemperatureIntegerUpDown.Text = value.Temp <= 0 ? "" : value.Temp + @"°C";
@@ -136,8 +136,8 @@ namespace BatRecordingManager
                         GpsLatitudeTextBox.Text = value.LocationGPSLatitude.Value.ToString();
 
                         GridRefTextBox.Text = GPSLocation.ConvertGPStoGridRef(
-                            (double) (value.LocationGPSLatitude ?? 200.0m),
-                            (double) (value.LocationGPSLongitude ?? 200.0m));
+                            (double)(value.LocationGPSLatitude ?? 200.0m),
+                            (double)(value.LocationGPSLongitude ?? 200.0m));
                     }
 
                     if (value.LocationGPSLongitude == null || value.LocationGPSLongitude.Value < -180.0m ||

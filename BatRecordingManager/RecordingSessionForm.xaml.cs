@@ -59,7 +59,9 @@ namespace BatRecordingManager
         {
             RecordingSessionControl.recordingSession = new RecordingSession
             {
-                LocationGPSLongitude = null, LocationGPSLatitude = null,hasGPSLocation = false
+                LocationGPSLongitude = null,
+                LocationGPSLatitude = null,
+                hasGPSLocation = false
             };
         }
 

@@ -6,9 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace BatPassAnalysisFW
 
@@ -139,7 +137,8 @@ namespace BatPassAnalysisFW
                             duration = afr.TotalTime;
 
                         }
-                    } catch (Exception ex)
+                    }
+                    catch (Exception ex)
                     {
                         AnalysisMainControl.ErrorLog($"Error using AudioFileReader ({segNumber}):" + ex.Message);
                     }
@@ -159,7 +158,7 @@ namespace BatPassAnalysisFW
                                         continue; // no text or a continuation line so ignore it
                                     }
                                     getLabelLine(line, out double startTimeOfSegment, out double end, out string comment);
-                                    if (!String.IsNullOrWhiteSpace(comment))
+                                    if (!string.IsNullOrWhiteSpace(comment))
                                     {
                                         Comment = comment;
                                     }
@@ -174,7 +173,7 @@ namespace BatPassAnalysisFW
                                     //sp.Skip(TimeSpan.FromSeconds(start));
                                     //sp.Read(data, 0, data.Length);
 
-                                    DataAccessBlock dab = new DataAccessBlock(FQfilename, (long)(startTimeOfSegment * SampleRate), (long)segmentLength);
+                                    DataAccessBlock dab = new DataAccessBlock(FQfilename, (long)(startTimeOfSegment * SampleRate), segmentLength);
                                     bpaSegment segment = new bpaSegment(recNumber, segNumber++, (int)(startTimeOfSegment * SampleRate), dab, SampleRate, Comment);
 
                                     segmentList.Add(segment);
@@ -212,7 +211,7 @@ namespace BatPassAnalysisFW
                         //data = new float[totalSamples];
                         //afr.ToSampleProvider().Read(data, 0, (int)totalSamples);
                         DataAccessBlock dab = new DataAccessBlock(FQfilename, 0, totalSamples); // dab for the whole recording is a single segment
-                        bpaSegment segment = new bpaSegment( recNumber, segNumber++, 0, dab, SampleRate, Comment);
+                        bpaSegment segment = new bpaSegment(recNumber, segNumber++, 0, dab, SampleRate, Comment);
 
                         segmentList.Add(segment);
 
@@ -242,7 +241,7 @@ namespace BatPassAnalysisFW
             string result = "";
             var chunk = wfr.GetChunkData(md);
             string wamdChunk = System.Text.Encoding.UTF8.GetString(chunk);
-            if (!String.IsNullOrWhiteSpace(wamdChunk))
+            if (!string.IsNullOrWhiteSpace(wamdChunk))
             {
                 result = wamdChunk;
             }
@@ -298,7 +297,7 @@ namespace BatPassAnalysisFW
                     float startOfSegmentInRecording = (float)segment.GetOffsetInRecording().TotalSeconds;
                     foreach (var pulse in pass.getPulseList())
                     {
-                        float pulseStartInSegment = (float)pulse.getPeak().GetStartAsSampleInSeg() / (float)SampleRate;
+                        float pulseStartInSegment = pulse.getPeak().GetStartAsSampleInSeg() / (float)SampleRate;
                         float pulseStartInrecording = pulseStartInSegment + startOfSegmentInRecording;
                         if (!inLabel)
                         {
@@ -335,7 +334,7 @@ namespace BatPassAnalysisFW
 
         internal decimal getSpectrumThresholdFactor()
         {
-            if(segmentList!=null && segmentList.Count > 0)
+            if (segmentList != null && segmentList.Count > 0)
             {
                 return (segmentList.First().getSpectrumThresholdFactor());
             }
@@ -433,9 +432,10 @@ namespace BatPassAnalysisFW
             var segment = (from seg in segmentList
                            where seg.No == pass.segmentNumber
                            select seg).SingleOrDefault();
-            if (segment != null) {
-                int passesRemaining=segment.DeletePass(pass);
-                if (passesRemaining==0)
+            if (segment != null)
+            {
+                int passesRemaining = segment.DeletePass(pass);
+                if (passesRemaining == 0)
                 {
                     segmentList.Remove(segment);
                 }
@@ -454,7 +454,7 @@ namespace BatPassAnalysisFW
             var segment = (from seg in segmentList
                            where seg.No == pass.segmentNumber
                            select seg).FirstOrDefault();
-            if (segment != null && segment.No>0)
+            if (segment != null && segment.No > 0)
             {
                 segment.Comment += $"({pass.Pass_Number}:{comment}";
                 segment.AppendCommentForPass(pass, comment);

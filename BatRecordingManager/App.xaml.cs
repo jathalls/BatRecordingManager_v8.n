@@ -53,7 +53,7 @@ namespace BatRecordingManager
             set { _dbFileName = value; }
         }
 
-        
+
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -77,11 +77,11 @@ namespace BatRecordingManager
 
             dbFileLocation = defaultDBLocation;
             dbFileName = defaultDBFileName;
-            
-            
-            
+
+
+
             base.OnStartup(e);
-            
+
         }
 
         /// <summary>
@@ -93,6 +93,6 @@ namespace BatRecordingManager
             dbFileName = defaultDBFileName;
         }
 
-        
+
     }
 }

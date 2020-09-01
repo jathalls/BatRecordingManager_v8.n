@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BatRecordingManager
+﻿namespace BatRecordingManager
 {
     /// <summary>
     /// Class to hold freely available, but non-sharable API Keys.

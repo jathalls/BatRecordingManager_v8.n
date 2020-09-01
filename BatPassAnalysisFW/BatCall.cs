@@ -9,10 +9,10 @@ namespace BatPassAnalysisFW
     /// </summary>
     public class BatCall
     {
-        private XElement m_Call;
-        private XElement m_Label;
+        private readonly XElement m_Call;
+        private readonly XElement m_Label;
         public string Bat { get; set; }
-        
+
         public (float Upper, float Lower, float Median) fStart { get; set; }
 
         public (float Upper, float Lower, float Median) fEnd { get; set; }
@@ -22,7 +22,7 @@ namespace BatPassAnalysisFW
         public (float Upper, float Lower, float Median) Interval { get; set; }
 
         public (float Upper, float Lower, float Median) Duration { get; set; }
-        
+
 
         /// <summary>
         /// default constructor for the BatCall class
@@ -38,7 +38,7 @@ namespace BatPassAnalysisFW
             m_Label = label;
 
             ParseFloats("fStart", out float lower, out float upper);
-            fStart = (Upper:upper,Lower:lower,Median:(upper+lower)/2.0f);
+            fStart = (Upper: upper, Lower: lower, Median: (upper + lower) / 2.0f);
 
             ParseFloats("fEnd", out lower, out upper);
             fEnd = (Upper: upper, Lower: lower, Median: (upper + lower) / 2.0f);
@@ -56,7 +56,7 @@ namespace BatPassAnalysisFW
 
         }
 
-        private bool ParseFloats(string name,out float first,out float second)
+        private bool ParseFloats(string name, out float first, out float second)
         {
             first = 0.0f;
             second = 0.0f;
@@ -77,8 +77,8 @@ namespace BatPassAnalysisFW
                     {
                         upper = lower + .001f;
                         lower -= .001f;
-                        
-                        
+
+
                     }
                 }
                 else
@@ -96,5 +96,5 @@ namespace BatPassAnalysisFW
         }
     }
 
-    
+
 }

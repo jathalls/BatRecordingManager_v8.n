@@ -14,6 +14,7 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,9 +26,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
-using System.Windows.Forms;
 using System.Windows.Input;
-using Microsoft.VisualStudio.Language.Intellisense;
 using Binding = System.Windows.Data.Binding;
 using Control = System.Windows.Controls.Control;
 
@@ -67,6 +66,7 @@ namespace BatRecordingManager
         internal void AddImage(StoredImage image, bool asModified = false)
         {
             var displayImage = new DisplayStoredImageControl();
+            displayImage.DisplayActualSize = image.DisplayActualSize;
             displayImage.e_UpButtonPressed += DisplayImage_UpButtonPressed;
             displayImage.e_DownButtonPressed += DisplayImage_DownButtonPressed;
             displayImage.e_DelButtonPressed += DisplayImage_DelButtonPressed;
@@ -79,11 +79,23 @@ namespace BatRecordingManager
             displayImage.storedImage = image;
             displayImage.DataContext = displayImage.storedImage;
             displayImage.IsModified = asModified;
+            if (displayImage.DisplayActualSize)
+            {
+
+                //displayImage.DisplayImageCanvas.Height = image.image.Height;
+                displayImage.DisplayImageCanvas.Width = image.image.Width;
+                displayImage.imageBrush.Stretch = System.Windows.Media.Stretch.None;
+            }
+            else
+            {
+                displayImage.imageBrush.Stretch = System.Windows.Media.Stretch.Uniform;
+            }
             //DisplayImage.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
 
-            var binding = new MultiBinding {Converter = new MultiscaleConverter()};
-            binding.Bindings.Add(new Binding("ActualHeight") {Source = this});
-            binding.Bindings.Add(new Binding("scaleValue") {Source = displayImage});
+
+            var binding = new MultiBinding { Converter = new MultiscaleConverter() };
+            binding.Bindings.Add(new Binding("ActualHeight") { Source = this });
+            binding.Bindings.Add(new Binding("scaleValue") { Source = displayImage });
 
             //Binding binding = new Binding();
             //binding.Source = this;
@@ -93,10 +105,11 @@ namespace BatRecordingManager
             //binding.ConverterParameter = "0.5";
             displayImage.SetBinding(HeightProperty, binding);
 
-            binding = new MultiBinding {Converter = new MultiscaleConverter()};
-            binding.Bindings.Add(new Binding("ActualWidth") {Source = this});
-            binding.Bindings.Add(new Binding("scaleValue") {Source = displayImage});
+            binding = new MultiBinding { Converter = new MultiscaleConverter() };
+            binding.Bindings.Add(new Binding("ActualWidth") { Source = this });
+            binding.Bindings.Add(new Binding("scaleValue") { Source = displayImage });
             displayImage.SetBinding(WidthProperty, binding);
+
             storedImageList.Add(displayImage);
 
             var view = CollectionViewSource.GetDefaultView(ComparisonStackPanel.ItemsSource);
@@ -168,7 +181,7 @@ namespace BatRecordingManager
             var item = sender as DisplayStoredImageControl;
             ComparisonStackPanel.SelectedItem = item;
             var storedImage = item.storedImage;
-            
+
             if (ComparisonStackPanel.SelectedIndex >= 0) storedImageList.RemoveAt(ComparisonStackPanel.SelectedIndex);
             if (be?.state ?? false)
             {
@@ -284,7 +297,7 @@ namespace BatRecordingManager
         /// </summary>
         /// <param name="isPNG"></param>
         private void ExportPictures(bool isPNG)
-        { 
+        {
 
             if (!storedImageList.IsNullOrEmpty())
             {
@@ -358,9 +371,10 @@ namespace BatRecordingManager
                 e.Handled = true;
                 var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
                 {
-                    RoutedEvent = MouseWheelEvent, Source = sender
+                    RoutedEvent = MouseWheelEvent,
+                    Source = sender
                 };
-                var parent = ((Control) sender).Parent as UIElement;
+                var parent = ((Control)sender).Parent as UIElement;
                 parent.RaiseEvent(eventArg);
             }
         }
@@ -383,8 +397,8 @@ namespace BatRecordingManager
                 var ieList = new List<DisplayStoredImageControl>();
                 ieList.AddRange(storedImageList);
                 var sortedList = from item in ieList
-                    orderby item.DescriptionTextBox.Text
-                    select item;
+                                 orderby item.DescriptionTextBox.Text
+                                 select item;
                 storedImageList.Clear();
                 storedImageList.AddRange(sortedList);
             }
@@ -430,7 +444,7 @@ namespace BatRecordingManager
         /// </summary>
         public BulkObservableCollection<DisplayStoredImageControl> storedImageList
         {
-            get => (BulkObservableCollection<DisplayStoredImageControl>) GetValue(storedImageListProperty);
+            get => (BulkObservableCollection<DisplayStoredImageControl>)GetValue(storedImageListProperty);
             set => SetValue(storedImageListProperty, value);
         }
 
@@ -475,7 +489,7 @@ namespace BatRecordingManager
             try
             {
                 // Here's where you put the code do handle the value conversion.
-                return (double) value / 2;
+                return (double)value / 2;
             }
             catch
             {

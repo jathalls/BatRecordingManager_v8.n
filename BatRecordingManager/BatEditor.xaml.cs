@@ -14,13 +14,13 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Xml;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -67,7 +67,7 @@ namespace BatRecordingManager
             BatNameListBox.ItemsSource = BatList;
         }
 
-        
+
 
         /// <summary>
         ///     Handles the Click event of the AddRecordButton control.
@@ -86,11 +86,11 @@ namespace BatRecordingManager
             //int index = BatNameListBox.SelectedIndex;
             if (string.IsNullOrWhiteSpace(errString))
             {
-                var bat = new Bat {Name = "bat", Batgenus = "BatGenus", BatSpecies = "BatSpecies"};
+                var bat = new Bat { Name = "bat", Batgenus = "BatGenus", BatSpecies = "BatSpecies" };
 
                 var max = short.MinValue;
 
-                var bt = new BatTag {BatTag1 = "BatTag"};
+                var bt = new BatTag { BatTag1 = "BatTag" };
                 max = short.MinValue;
                 foreach (var tg in bat.BatTags)
                     if (tg.SortIndex != null && tg.SortIndex.Value > max)
@@ -136,7 +136,7 @@ namespace BatRecordingManager
             //ListBox senderListBox = sender as ListBox;
             if (e?.RemovedItems != null && e.RemovedItems.Count > 0)
             {
-                var deselected = (Bat) e.RemovedItems[0]; //is the item we are moving away from
+                var deselected = (Bat)e.RemovedItems[0]; //is the item we are moving away from
                 if (deselected != null)
                 {
                     var index = BatNameListBox.Items.IndexOf(deselected);
@@ -170,7 +170,7 @@ namespace BatRecordingManager
         private void BatTagsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (BatTagsListView.SelectedItem != null)
-                IdTagEditBox.Text = ((XmlElement) BatTagsListView.SelectedItem).InnerText;
+                IdTagEditBox.Text = ((XmlElement)BatTagsListView.SelectedItem).InnerText;
         }
 
         /// <summary>
@@ -348,8 +348,8 @@ namespace BatRecordingManager
             var lastSelectedIndex = BatNameListBox.SelectedIndex;
 
             var bats = from bat in BatList
-                orderby bat.SortIndex
-                select bat;
+                       orderby bat.SortIndex
+                       select bat;
             short i = 1;
             foreach (var bat in bats) bat.SortIndex = i++;
 
@@ -379,7 +379,7 @@ namespace BatRecordingManager
         /// </returns>
         private Bat SelectedBat()
         {
-            var selectedBatElement = (Bat) BatNameListBox.SelectedItem;
+            var selectedBatElement = (Bat)BatNameListBox.SelectedItem;
             return selectedBatElement;
         }
 
@@ -424,8 +424,8 @@ namespace BatRecordingManager
                 if (selectedBat != null)
                 {
                     var tags = from tg in selectedBat.BatTags
-                        orderby tg.SortIndex
-                        select tg;
+                               orderby tg.SortIndex
+                               select tg;
 
                     if (tags != null)
                     {
@@ -435,7 +435,7 @@ namespace BatRecordingManager
 
                         foreach (var tag in tags) tag.SortIndex++;
 
-                        var newTag = new BatTag {BatTag1 = IdTagEditBox.Text, SortIndex = 0};
+                        var newTag = new BatTag { BatTag1 = IdTagEditBox.Text, SortIndex = 0 };
                         selectedBat.BatTags.Add(newTag);
                         DBAccess.UpdateBat(selectedBat, null, null, null);
                     }
@@ -463,8 +463,8 @@ namespace BatRecordingManager
                 if (selectedBat != null)
                 {
                     var selTag = (from tg in selectedBat.BatTags
-                        where tg.BatTag1 == selectedTag
-                        select tg).First();
+                                  where tg.BatTag1 == selectedTag
+                                  select tg).First();
 
                     DBAccess.DeleteTag(selTag);
                 }
@@ -492,18 +492,18 @@ namespace BatRecordingManager
                 if (selectedBat != null)
                 {
                     var tags = from tg in selectedBat.BatTags
-                        orderby tg.SortIndex
-                        select tg;
+                               orderby tg.SortIndex
+                               select tg;
 
                     if (!tags.IsNullOrEmpty())
                     {
-                        for (var i = 0; i < tags.Count(); i++) tags.ElementAt(i).SortIndex = (short) i;
+                        for (var i = 0; i < tags.Count(); i++) tags.ElementAt(i).SortIndex = (short)i;
 
                         for (var i = 0; i < tags.Count() - 1; i++)
                             if (tags.ElementAt(i).BatTag1 == IdTagEditBox.Text)
                             {
-                                tags.ElementAt(i).SortIndex = (short) (i + 1);
-                                tags.ElementAt(i + 1).SortIndex = (short) i;
+                                tags.ElementAt(i).SortIndex = (short)(i + 1);
+                                tags.ElementAt(i + 1).SortIndex = (short)i;
                                 break;
                             }
 
@@ -532,18 +532,18 @@ namespace BatRecordingManager
                 if (selectedBat != null)
                 {
                     var tags = from tg in selectedBat.BatTags
-                        orderby tg.SortIndex
-                        select tg;
+                               orderby tg.SortIndex
+                               select tg;
 
                     if (!tags.IsNullOrEmpty())
                     {
-                        for (var i = 0; i < tags.Count(); i++) tags.ElementAt(i).SortIndex = (short) i;
+                        for (var i = 0; i < tags.Count(); i++) tags.ElementAt(i).SortIndex = (short)i;
 
                         for (var i = 1; i < tags.Count(); i++)
                             if (tags.ElementAt(i).BatTag1 == IdTagEditBox.Text)
                             {
-                                tags.ElementAt(i).SortIndex = (short) (i - 1);
-                                tags.ElementAt(i - 1).SortIndex = (short) i;
+                                tags.ElementAt(i).SortIndex = (short)(i - 1);
+                                tags.ElementAt(i - 1).SortIndex = (short)i;
                                 break;
                             }
 

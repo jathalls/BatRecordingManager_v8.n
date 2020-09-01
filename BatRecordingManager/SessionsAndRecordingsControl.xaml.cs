@@ -14,6 +14,8 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using DataVirtualizationLibrary;
+using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,8 +26,6 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
-using DataVirtualizationLibrary;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -329,16 +329,16 @@ namespace BatRecordingManager
         }
 
         private Recording thisRecording { get; set; } = null;
-        private AnalyseAndImportClass aai = null;
+        private readonly AnalyseAndImportClass aai = null;
         private void RecordingsDataGrid_MouseDoubleClick(object sender, EventArgs e)
         {
             //var dg = sender as DataGrid;
             var dg = RecordingsDataGrid;
             var selectedItem = dg.SelectedItem as BatSessionRecordingData;
-            thisRecording = DBAccess.GetRecording(selectedItem.RecordingId??-1);
+            thisRecording = DBAccess.GetRecording(selectedItem.RecordingId ?? -1);
             if (thisRecording != null)
             {
-                var aai=new AnalyseAndImportClass(thisRecording);
+                var aai = new AnalyseAndImportClass(thisRecording);
                 aai.e_DataUpdated += Aai_e_DataUpdated;
                 aai.AnalyseRecording();
             }
@@ -349,9 +349,9 @@ namespace BatRecordingManager
 
         private void Aai_e_DataUpdated(object sender, EventArgs e)
         {
-            if (thisRecording != null && aai!=null)
+            if (thisRecording != null && aai != null)
             {
-                if (Tools.IsTextFileModified(aai.startedAt??DateTime.Now,thisRecording))
+                if (Tools.IsTextFileModified(aai.startedAt ?? DateTime.Now, thisRecording))
                 {
                     if (!Dispatcher.CheckAccess())
                     {
@@ -377,7 +377,7 @@ namespace BatRecordingManager
         /// </summary>
         private void RefreshParentData()
         {
-            var topParent=Tools.FindParent<BatRecordingsListDetailControl>(this);
+            var topParent = Tools.FindParent<BatRecordingsListDetailControl>(this);
             topParent.RefreshData();
         }
 
@@ -425,7 +425,7 @@ namespace BatRecordingManager
                         new BatSessionRecordingDataProvider(batIdList, sessionIdList, numRecordings), 25, 100);
                     matchingRecordingData.PropertyChanged += MatchingRecordingData_PropertyChanged;
                     RecordingsDataGrid.SetBinding(ItemsControl.ItemsSourceProperty,
-                        new Binding {Source = matchingRecordingData, IsAsync = true});
+                        new Binding { Source = matchingRecordingData, IsAsync = true });
                 }
             }
         }
@@ -443,7 +443,7 @@ namespace BatRecordingManager
                 else
                 {
                     Debug.WriteLine("Clear wait cursor");
-                   // RecordingsDataGrid.Cursor = Cursors.Arrow;
+                    // RecordingsDataGrid.Cursor = Cursors.Arrow;
                 }
             }
         }
@@ -532,19 +532,19 @@ namespace BatRecordingManager
                 _importPictureDialog.Show();
                 _isPictureDialogOpen = true;
             }
-            
+
         }
 
         private void miExportFiles_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             if ((RecordingsDataGrid.SelectedItems.Count) <= 0) return;
             string folder = Tools.SelectWavFileFolder("");
-            if (String.IsNullOrWhiteSpace(folder)) return;
+            if (string.IsNullOrWhiteSpace(folder)) return;
             if (!Directory.Exists(folder)) return;
-            foreach(var obj in RecordingsDataGrid.SelectedItems)
+            foreach (var obj in RecordingsDataGrid.SelectedItems)
             {
                 var bsrd = obj as BatSessionRecordingData;
-                var session = DBAccess.GetRecordingSession(bsrd?.SessionId??-1);
+                var session = DBAccess.GetRecordingSession(bsrd?.SessionId ?? -1);
                 var parentFolder = session?.OriginalFilePath;
                 if (!Directory.Exists(parentFolder))
                 {
@@ -556,12 +556,12 @@ namespace BatRecordingManager
                     Debug.WriteLine($"Recording <{bsrd.RecordingName}> does not exist in folder <{parentFolder}>");
                     continue;
                 }
-                string filename=parentFolder+ bsrd?.RecordingName;
+                string filename = parentFolder + bsrd?.RecordingName;
                 AppFilter.TransferFile(filename, folder, false);
             }
         }
 
-        
+
     }
 
     /// <summary>
@@ -586,14 +586,14 @@ namespace BatRecordingManager
                 if (recording != null && bat != null)
                 {
                     imageCount = (from seg in recording.LabelledSegments
-                        from link in seg.BatSegmentLinks
-                        where link.BatID == bat.Id
-                        select seg.SegmentDatas.Count).Sum();
+                                  from link in seg.BatSegmentLinks
+                                  where link.BatID == bat.Id
+                                  select seg.SegmentDatas.Count).Sum();
 
                     segmentCountForBat = (from seg in recording.LabelledSegments
-                        from lnk in seg.BatSegmentLinks
-                        where lnk.BatID == bat.Id
-                        select seg).Count();
+                                          from lnk in seg.BatSegmentLinks
+                                          where lnk.BatID == bat.Id
+                                          select seg).Count();
                 }
 
                 //segmentCountForBat = recording.GetSegmentCount(bat);
@@ -658,15 +658,15 @@ namespace BatRecordingManager
                     batRecordings.Add(rec);
                 }*/
                 var recordingsWithBat = from rec in session.Recordings
-                    from brLink in rec.BatRecordingLinks
-                    where brLink.BatID == bat.Id
-                    select rec;
+                                        from brLink in rec.BatRecordingLinks
+                                        where brLink.BatID == bat.Id
+                                        select rec;
 
                 imageCount = (from rec in recordingsWithBat
-                    from seg in rec.LabelledSegments
-                    from lnk in seg.BatSegmentLinks
-                    where lnk.BatID == bat.Id
-                    select seg.SegmentDatas.Count).Sum();
+                              from seg in rec.LabelledSegments
+                              from lnk in seg.BatSegmentLinks
+                              where lnk.BatID == bat.Id
+                              select seg.SegmentDatas.Count).Sum();
                 batRecordings.AddRange(recordingsWithBat);
 
                 //}

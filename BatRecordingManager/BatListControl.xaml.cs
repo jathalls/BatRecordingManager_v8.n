@@ -14,11 +14,11 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -77,7 +77,7 @@ namespace BatRecordingManager
 
         private void AddBatButton_Click(object sender, RoutedEventArgs e)
         {
-            var batEditingForm = new EditBatForm {NewBat = new Bat {Id = -1}};
+            var batEditingForm = new EditBatForm { NewBat = new Bat { Id = -1 } };
             batEditingForm.ShowDialog();
             if (batEditingForm.DialogResult != null && batEditingForm.DialogResult.Value)
                 //DBAccess.InsertBat(batEditingForm.newBat);
@@ -176,7 +176,7 @@ namespace BatRecordingManager
             BatDetailControl.Reset();
             var batEditingForm = new EditBatForm();
             if (BatsDataGrid.SelectedItem == null)
-                batEditingForm.NewBat = new Bat {Id = -1};
+                batEditingForm.NewBat = new Bat { Id = -1 };
             else
                 batEditingForm.NewBat = BatsDataGrid.SelectedItem as Bat;
 
@@ -220,7 +220,7 @@ namespace BatRecordingManager
         ///     Gets or sets the SortedBatList property. This dependency property indicates ....
         /// </summary>
         public BulkObservableCollection<Bat> SortedBatList =>
-            (BulkObservableCollection<Bat>) GetValue(SortedBatListProperty);
+            (BulkObservableCollection<Bat>)GetValue(SortedBatListProperty);
 
         #endregion SortedBatList
     }

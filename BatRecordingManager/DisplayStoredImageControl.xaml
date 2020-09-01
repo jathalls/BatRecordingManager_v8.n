@@ -167,11 +167,20 @@
                     </TextBlock>
                 </Button.ToolTip>
             </Button>
+            <Button x:Name="ZoomInButton"
+                    Content="Zoom In"
+                    Visibility="{Binding Path=DisplayActualSize,Converter={StaticResource VisibilityConverter},FallbackValue=Visible}"
+                    Style="{StaticResource SimpleButton}" Click="ZoomInButton_Click"/>
+            <Button x:Name="ZoomOutButton"
+                    Content="Zoom Out"
+                    Visibility="{Binding Path=DisplayActualSize,Converter={StaticResource VisibilityConverter},FallbackValue=Visible}"
+                    Style="{StaticResource SimpleButton}" Click="ZoomOutButton_Click"/>
         </StackPanel>
 
+        <ScrollViewer Grid.Row="2" x:Name="scrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
         <Canvas
             x:Name="DisplayImageCanvas"
-            Grid.Row="2"
+            
             Panel.ZIndex="0"
             Focusable="True"
             Loaded="DisplayImage_Loaded"
@@ -181,7 +190,7 @@
             MouseLeftButtonDown="displayImageCanvas_MouseLeftButtonDown"
             SnapsToDevicePixels="True" MouseRightButtonDown="DisplayImageCanvas_MouseRightButtonDown">
             <Canvas.Background>
-                <ImageBrush
+                <ImageBrush x:Name="imageBrush"
                     ImageSource="{Binding Path=image}" Stretch="Uniform" />
             </Canvas.Background>
 
@@ -416,6 +425,7 @@
                 </Grid.ColumnDefinitions>
             </Grid>-->
         </Canvas>
+        </ScrollViewer>
 
         <TextBox
             x:Name="DescriptionTextBox"

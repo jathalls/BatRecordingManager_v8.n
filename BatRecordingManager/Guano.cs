@@ -764,19 +764,19 @@ namespace BatRecordingManager
                     var durationInSecs = 0.0d;
                     if (byteRate > 0 && channels > 0 && dataBytes > 0)
                     {
-                        durationInSecs = (double) dataBytes / byteRate;
+                        durationInSecs = (double)dataBytes / byteRate;
                         duration = TimeSpan.FromSeconds(durationInSecs);
                         if (wamdData != null) wamdData.duration = durationInSecs;
                         result = result + @"
-Duration: " + new TimeSpan((long) (durationInSecs * 10000000L)).ToString(@"hh\:mm\:ss\.ff");
+Duration: " + new TimeSpan((long)(durationInSecs * 10000000L)).ToString(@"hh\:mm\:ss\.ff");
                     }
                 }
             }
             catch (Exception ex)
             {
-                if(ex.Message.Contains("used by another process"))
+                if (ex.Message.Contains("used by another process"))
                 {
-                    
+
                 }
                 Tools.ErrorLog(ex.Message);
                 Debug.WriteLine(ex);
@@ -834,7 +834,7 @@ Duration: " + new TimeSpan((long) (durationInSecs * 10000000L)).ToString(@"hh\:m
             var sessionNotes = DBAccess.GetRecordingSessionNotes(currentRecordingSessionId);
             if (string.IsNullOrWhiteSpace(sessionNotes)) return "";
             if (!sessionNotes.Contains("[GUANO]")) return "";
-            if (!File.Exists(wavfile) || (new FileInfo(wavfile).Length<=0L)) return "";
+            if (!File.Exists(wavfile) || (new FileInfo(wavfile).Length <= 0L)) return "";
             byte[] metadata = null;
             WAMD_Data wamdData = null;
             var guanoData = Get_WAVFile_MetaData(wavfile, out metadata, out wamdData);

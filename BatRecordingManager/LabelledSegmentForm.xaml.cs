@@ -53,7 +53,7 @@ namespace BatRecordingManager
         {
             get
             {
-                var result = (LabelledSegment) GetValue(labelledSegmentProperty);
+                var result = (LabelledSegment)GetValue(labelledSegmentProperty);
                 result.StartOffset = Tools.ConvertDoubleToTimeSpan((double)StartOffsetDoubleUpDown.Value);
                 result.EndOffset = Tools.ConvertDoubleToTimeSpan((double)EndOffsetDoubleUpDown.Value);
                 result.Comment = CommentTextBox.Text;

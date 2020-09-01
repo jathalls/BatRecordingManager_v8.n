@@ -142,7 +142,7 @@ namespace BatRecordingManager
                 else
                 {
                     var realPasses = duration.TotalSeconds / 5.0d;
-                    passes += (int) Math.Round(realPasses);
+                    passes += (int)Math.Round(realPasses);
                 }
 
                 count++;

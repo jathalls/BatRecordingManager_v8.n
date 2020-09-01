@@ -48,7 +48,7 @@ namespace BatRecordingManager
         /// </returns>
         public Button AddCustomButton(string label, int index, string name)
         {
-            var newButton = new Button {Name = name, Style = (Style) FindResource("SimpleButton"), Content = label};
+            var newButton = new Button { Name = name, Style = (Style)FindResource("SimpleButton"), Content = label };
             if (index < 0) index = 0;
             if (index > ButtonPanel.Children.Count) index = ButtonPanel.Children.Count;
             ButtonPanel.Children.Insert(index, newButton);

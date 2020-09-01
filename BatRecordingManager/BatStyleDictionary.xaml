@@ -155,6 +155,10 @@
 
     <local:FilePathBrushConverter x:Key="FilePathBrushConverter"/>
 
+    <local:VisibilityConverter x:Key="VisibilityConverter"/>
+
+    <local:InVisibilityConverter x:Key="InVisibilityConverter"/>
+
     <DataTemplate x:Key="ImageTemplate">
         <local:ImageScrollerControl
             x:Name="imageScroller" />

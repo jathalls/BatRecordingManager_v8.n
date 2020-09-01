@@ -285,7 +285,7 @@ namespace DataVirtualizationLibrary
 
         bool IList.Contains(object value)
         {
-            return Contains((T) value);
+            return Contains((T)value);
         }
 
 
@@ -322,7 +322,7 @@ namespace DataVirtualizationLibrary
 
         int IList.IndexOf(object value)
         {
-            return IndexOf((T) value);
+            return IndexOf((T)value);
         }
 
         /// <summary>
@@ -359,7 +359,7 @@ namespace DataVirtualizationLibrary
 
         void IList.Insert(int index, object value)
         {
-            Insert(index, (T) value);
+            Insert(index, (T)value);
         }
 
         #endregion

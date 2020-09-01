@@ -12,7 +12,7 @@ namespace AnalysisMain
     /// </summary>
     public partial class MainWindow : Window
     {
-        
+
         public BitmapImage defaultBmpi { get; set; }
 
         public decimal thresholdFactor { get; set; } = 1.5m;
@@ -21,7 +21,7 @@ namespace AnalysisMain
 
         public MainWindow()
         {
-            
+
             InitializeComponent();
             this.DataContext = this;
             string[] args = Environment.GetCommandLineArgs();
@@ -31,15 +31,15 @@ namespace AnalysisMain
             }
         }
 
-        
 
-        
 
-        
+
+
+
 
         public static BitmapImage loadBitmap(Bitmap source)
         {
-            
+
             BitmapImage bmpi = null;
             try
             {
@@ -50,17 +50,18 @@ namespace AnalysisMain
                 bmpi.BeginInit();
                 bmpi.StreamSource = ms;
                 bmpi.EndInit();
-                
-               
-            }catch(Exception ex)
+
+
+            }
+            catch (Exception ex)
             {
                 Debug.WriteLine("Error in Load Bitmap:-" + ex.Message);
             }
 
             return bmpi;
         }
-        
+
     }
-    
+
 }
 

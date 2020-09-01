@@ -3,18 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace BatRecordingManager
@@ -24,9 +16,9 @@ namespace BatRecordingManager
     /// </summary>
     public partial class AppFilter : UserControl
     {
-        private IEnumerable<String> _parentFileList;
+        private IEnumerable<string> _parentFileList;
 
-        private List<String> _filteredFileList;
+        private List<string> _filteredFileList;
 
         private List<string> _errors = new List<string>();
 
@@ -40,7 +32,7 @@ namespace BatRecordingManager
         /// </summary>
         public static readonly DependencyProperty _parentFolderPathProperty =
             DependencyProperty.Register("_parentFolderPath", typeof(string), typeof(AppFilter),
-                new FrameworkPropertyMetadata((string)""));
+                new FrameworkPropertyMetadata(""));
 
         /// <summary>
         /// Gets or sets the _parentFolderPath property.  This dependency property 
@@ -57,7 +49,7 @@ namespace BatRecordingManager
 
         //public String _parentFolderPath { get; set; } = "";
 
-        public String _defaultSubFolderName { get; set; }
+        public string _defaultSubFolderName { get; set; }
 
         /// <summary>
         /// cumulative status string which is bound to statusTextBlock.text
@@ -70,7 +62,7 @@ namespace BatRecordingManager
         /// </summary>
         public static readonly DependencyProperty statusTextProperty =
             DependencyProperty.Register("statusText", typeof(string), typeof(AppFilter),
-                new FrameworkPropertyMetadata((string)""));
+                new FrameworkPropertyMetadata(""));
 
         /// <summary>
         /// Gets or sets the statusText property.  This dependency property 
@@ -94,7 +86,7 @@ namespace BatRecordingManager
 
         public void SetDefaultFolderPath(string folderPath)
         {
-            
+
             if (!string.IsNullOrWhiteSpace(folderPath))
             {
                 if (!folderPath.EndsWith(@"\"))
@@ -126,7 +118,7 @@ namespace BatRecordingManager
 
         private void AppFilterSelectFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            string FolderPath=Tools.SelectWavFileFolder("");
+            string FolderPath = Tools.SelectWavFileFolder("");
             if (string.IsNullOrWhiteSpace(FolderPath) || !Directory.Exists(FolderPath))
             {
                 _ = MessageBox.Show($"Directory not found, unable to search", "Directory not found", MessageBoxButton.OK);
@@ -135,7 +127,7 @@ namespace BatRecordingManager
             SetDefaultFolderPath(FolderPath);
             //_parentFileList = Directory.EnumerateFiles(_parentFolderPath, "*.wav");
             //AppFilterFolderText.Text = _parentFolderPath;
-            
+
 
         }
 
@@ -154,7 +146,7 @@ namespace BatRecordingManager
                 statusText += $"Extract Failed - parent folder {_parentFolderPath} does not exist\n";
                 return;               // selected folder doesn't exist
             }
-            
+
             if (_parentFileList == null || !_parentFileList.Any())
             {
                 statusText += $"Extract Failed - No files in the parent folder {_parentFolderPath}\n";
@@ -162,8 +154,8 @@ namespace BatRecordingManager
             }
             if (!_parentFolderPath.EndsWith(@"\")) _parentFolderPath += @"\";
 
-            
-            
+
+
             _defaultSubFolderName = _parentFolderPath + @"Filtered\";
             if (!Directory.Exists(_defaultSubFolderName))
             {
@@ -199,7 +191,7 @@ namespace BatRecordingManager
             {
                 // if here there is an existing sub-folder and the new files are to be merged with it after re-merging existing files to the database
                 Debug.WriteLine("Restore first, then transfer files");
-                int NumberOfFilesRestored=RestoreFilteredFiles(_defaultSubFolderName);
+                int NumberOfFilesRestored = RestoreFilteredFiles(_defaultSubFolderName);
                 statusText += $"Restored {NumberOfFilesRestored} from {_defaultSubFolderName} Prior to extraction\n";
             }
             if (Directory.Exists(_parentFolderPath)) _parentFileList = Directory.EnumerateFiles(_parentFolderPath, "*.wav");
@@ -210,9 +202,9 @@ namespace BatRecordingManager
                 return; // no files returned by the filter
             }
 
-            int numberOfFiles=TransferFilteredFiles(destination);
+            int numberOfFiles = TransferFilteredFiles(destination);
             statusText += $"Extracted {numberOfFiles} files to {destination}\n";
-            
+
 
 
         }
@@ -225,7 +217,7 @@ namespace BatRecordingManager
         {
             _errors = new List<string>();
             List<string> filesToRestore = unFilterFiles(filteredFileFolderName);
-            foreach (string file in filesToRestore??new List<string>())
+            foreach (string file in filesToRestore ?? new List<string>())
             {
                 RestoreFile(file);
             }
@@ -246,7 +238,7 @@ namespace BatRecordingManager
                 TransferFile(txtFileName, _parentFolderPath, true);
             }
 
-            UpdateDatabase(_parentFolderPath+Tools.ExtractWavFilename(file));
+            UpdateDatabase(_parentFolderPath + Tools.ExtractWavFilename(file));
         }
 
         /// <summary>
@@ -265,7 +257,7 @@ namespace BatRecordingManager
             Recording existingRecording = DBAccess.GetRecordingForWavFile(wavFile);
             if (existingRecording == null)
             {
-                
+
                 existingSession = DBAccess.GetRecordingSessionForWavFile(wavFile);
             }
             else
@@ -289,7 +281,7 @@ namespace BatRecordingManager
         /// <returns></returns>
         private List<string> unFilterFiles(string filteredFileFolderName)
         {
-            List<string> selectedFiles=new List<string>();
+            List<string> selectedFiles = new List<string>();
             var filesInFolder = Directory.EnumerateFiles(filteredFileFolderName, "*.wav");
             var filteredFiles = ApplyFilter(filesInFolder.AsEnumerable());
             foreach (var file in filesInFolder)
@@ -317,7 +309,7 @@ namespace BatRecordingManager
                 {
                     _defaultSubFolderName = _defaultSubFolderName.Substring(0, _defaultSubFolderName.Length - 1);
                 }
-                folderName = _defaultSubFolderName + suffix.ToString()+@"\";
+                folderName = _defaultSubFolderName + suffix.ToString() + @"\";
                 suffix++;
                 if (suffix > 100)
                 {
@@ -341,7 +333,7 @@ namespace BatRecordingManager
         /// </summary>
         private int TransferFilteredFiles(string newSubFolderName)
         {
-            
+
             bool move = AppFilterMoveFiles.IsChecked ?? false;
             if (!Directory.Exists(newSubFolderName))
             {
@@ -352,12 +344,12 @@ namespace BatRecordingManager
             int filesTransferred = 0;
             foreach (string file in _filteredFileList)
             {
-                TransferFile(file,newSubFolderName,move);
+                TransferFile(file, newSubFolderName, move);
                 string txtFileName = ChangeExtensionToTxt(file);
                 if (File.Exists(txtFileName))
                 {
-                    TransferFile(txtFileName,newSubFolderName,move);
-                    
+                    TransferFile(txtFileName, newSubFolderName, move);
+
                 }
                 filesTransferred++;
             }
@@ -367,7 +359,7 @@ namespace BatRecordingManager
         private void deleteWavFiles(string newSubFolderName)
         {
             var files = Directory.EnumerateFiles(newSubFolderName, "*.wav");
-            foreach(var file in files)
+            foreach (var file in files)
             {
                 File.Delete(file);
             }
@@ -375,8 +367,8 @@ namespace BatRecordingManager
 
         private void renameExistingFilesToBak(string newSubFolderName)
         {
-            var files = Directory.EnumerateFiles(newSubFolderName,"*.wav");
-            foreach(var file in files)
+            var files = Directory.EnumerateFiles(newSubFolderName, "*.wav");
+            foreach (var file in files)
             {
                 if (File.Exists(file + ".bak"))
                 {
@@ -402,21 +394,21 @@ namespace BatRecordingManager
             {
                 if (File.Exists(destination + ".bak"))
                 {
-                    File.Delete(destination+".bak");
+                    File.Delete(destination + ".bak");
                 }
                 File.Move(destination, destination + ".bak");
             }
             if (move)
             {
-                
-                File.Move(file,destination);
+
+                File.Move(file, destination);
             }
             else
             {
-                File.Copy(file,destination);
+                File.Copy(file, destination);
             }
-            File.SetCreationTime(destination,created);
-            File.SetLastWriteTime(destination,written);
+            File.SetCreationTime(destination, created);
+            File.SetLastWriteTime(destination, written);
         }
 
         /// <summary>
@@ -425,7 +417,7 @@ namespace BatRecordingManager
         /// </summary>
         private int TransferFilteredFiles()
         {
-            return(TransferFilteredFiles(_defaultSubFolderName));
+            return (TransferFilteredFiles(_defaultSubFolderName));
         }
 
         /// <summary>
@@ -438,16 +430,16 @@ namespace BatRecordingManager
         public List<string> ApplyFilter(IEnumerable<string> parentFileList)
         {
             var filteredFileList = new List<string>();
-            if (parentFileList == null || !parentFileList.Any()) return(filteredFileList);
+            if (parentFileList == null || !parentFileList.Any()) return (filteredFileList);
 
             string parentFolderPath = Tools.GetPath(parentFileList.First());
             using (new WaitCursor())
             {
-                
-                
+
+
                 foreach (var fileName in parentFileList)
                 {
-                    if(!File.Exists(fileName)) continue;
+                    if (!File.Exists(fileName)) continue;
                     string comments = GetCommentsForFile(fileName);
                     if (comments == null) continue;
                     if (ContainsKeywords(comments))
@@ -462,7 +454,7 @@ namespace BatRecordingManager
                 }
             }
             Debug.WriteLine("FilteredFileList:-");
-            foreach(var name in filteredFileList)
+            foreach (var name in filteredFileList)
             {
                 Debug.Write($"\t->\t{name}");
                 if (_errors.Contains(name))
@@ -477,7 +469,7 @@ namespace BatRecordingManager
             if (_errors.Any())
             {
                 string failedFiles = "Unable to search the following files:-\n";
-                foreach(var file in _errors)
+                foreach (var file in _errors)
                 {
                     failedFiles += file + "\n";
                 }
@@ -497,10 +489,10 @@ namespace BatRecordingManager
             bool matchCase = AppFilterMatchCase.IsChecked ?? false;
             bool bracketed = AppFilterBrackets.IsChecked ?? false;
             var keywords = AppFilterComboBox.Items;
-            List<String> keywordList=new List<string>();
+            List<string> keywordList = new List<string>();
             foreach (var item in keywords)
             {
-                keywordList.Add(item as String);
+                keywordList.Add(item as string);
             }
 
             if (keywordList.IsNullOrEmpty()) return (true); // if no keywords, all files are selected
@@ -544,11 +536,11 @@ namespace BatRecordingManager
             else
             {
                 string pattern = @"({.*[}\n\r$])+";
-                comments=Regex.Replace(comments??" ", pattern, " ");
+                comments = Regex.Replace(comments ?? " ", pattern, " ");
             }
             Debug.WriteLine($"Finding /{key}/ in /{comments}/ case={matchCase} bracketed={bracketed}");
 
-            if (comments.Contains(key??"")) return (true);
+            if (comments.Contains(key ?? "")) return (true);
             return (false);
         }
 
@@ -562,7 +554,7 @@ namespace BatRecordingManager
         {
             string result = "";
             if (!fileName.ToUpper().EndsWith(".WAV")) return (result);
-            var wavFileMetadata=new WavFileMetaData(fileName);
+            var wavFileMetadata = new WavFileMetaData(fileName);
             if (!wavFileMetadata.success)
             {
                 _errors.Add(fileName);
@@ -572,7 +564,7 @@ namespace BatRecordingManager
             if (AppFilterSearchManualID.IsChecked ?? true) result += " " + wavFileMetadata.m_ManualID;
             if (AppFilterSearchAutoId.IsChecked ?? false) result += " " + wavFileMetadata.m_AutoID;
             result = result.Trim();
-            
+
             fileName = ChangeExtensionToTxt(fileName);
             if (File.Exists(fileName))
             {
@@ -613,9 +605,9 @@ namespace BatRecordingManager
         protected virtual void OnCloseClicked(CloseClickedEventArgs e) => CloseClicked?.Invoke(this, e);
 
 
-        
 
-        
+
+
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
@@ -631,7 +623,7 @@ namespace BatRecordingManager
         private void RestoreButton_Click(object sender, RoutedEventArgs e)
         {
             string source = _defaultSubFolderName;
-            if (String.IsNullOrWhiteSpace(_parentFolderPath))
+            if (string.IsNullOrWhiteSpace(_parentFolderPath))
             {
                 return;
             }
@@ -640,15 +632,15 @@ namespace BatRecordingManager
                 return;
             }
             var subDirList = Directory.EnumerateDirectories(_parentFolderPath);
-            
+
             var validSubFolders = subDirList.Where(folder => folder.Contains("Filtered"));
             if (!validSubFolders.Any())
             {
                 return;
             }
-            if (validSubFolders.Count()>1)
+            if (validSubFolders.Count() > 1)
             {
-                source=SelectFromList(validSubFolders);
+                source = SelectFromList(validSubFolders);
             }
             else
             {
@@ -658,7 +650,7 @@ namespace BatRecordingManager
 
             if (Directory.Exists(source))
             {
-                int numberOfRestoredfiles=RestoreFilteredFiles(source);
+                int numberOfRestoredfiles = RestoreFilteredFiles(source);
                 statusText += $"Restored {numberOfRestoredfiles} from {source}\n";
             }
             else
@@ -720,7 +712,7 @@ selecting the filter App", "Invalid Folder selected", MessageBoxButton.OK);
 
         private void AppFilterComboAdd_Click(object sender, RoutedEventArgs e)
         {
-            if (!String.IsNullOrWhiteSpace(AppFilterComboBox.Text))
+            if (!string.IsNullOrWhiteSpace(AppFilterComboBox.Text))
             {
                 if (!AppFilterComboBox.Items.Contains(AppFilterComboBox.Text))
                 {

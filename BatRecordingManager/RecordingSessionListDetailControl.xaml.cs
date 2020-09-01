@@ -14,19 +14,18 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using DataVirtualizationLibrary;
+using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
-using DataVirtualizationLibrary;
-using Microsoft.VisualStudio.Language.Intellisense;
 //using Task = Microsoft.Build.Utilities.Task;
 
 namespace BatRecordingManager
@@ -149,7 +148,7 @@ namespace BatRecordingManager
                 recordingSessionDataList =
                     new VirtualizingCollection<RecordingSessionData>(new RecordingSessionDataProvider(), 50, 100);
                 //recordingSessionDataList.CollectionChanged += RecordingSessionDataList_CollectionChanged;
-                
+
 
 
                 //if (!recordingSessionDataList.IsLoading) recordingSessionDataList.Refresh();
@@ -191,11 +190,11 @@ namespace BatRecordingManager
                 }
                 else
                 {
-                    RecordingSessionListView_SelectionChanged(this,null);
+                    RecordingSessionListView_SelectionChanged(this, null);
                 }
             }
 
-            
+
         }
 
         /// <summary>
@@ -268,7 +267,9 @@ Mouse.OverrideCursor = null;*/
                 recordingSessionForm.Clear();
                 var newSession = new RecordingSession
                 {
-                    LocationGPSLatitude = null, LocationGPSLongitude = null, SessionDate = DateTime.Today
+                    LocationGPSLatitude = null,
+                    LocationGPSLongitude = null,
+                    SessionDate = DateTime.Today
                 };
                 newSession.EndDate = newSession.SessionDate;
                 newSession.SessionStartTime = new TimeSpan(18, 0, 0);
@@ -384,7 +385,7 @@ Mouse.OverrideCursor = null;*/
             if (selectedSession == null) return;
             if (selectedSession.Recordings == null || selectedSession.Recordings.Count <= 0) return;
             if (!Directory.Exists(selectedSession.OriginalFilePath)) return;
-            
+
             // only carry on if we have just one session selected
             using (new WaitCursor())
             {
@@ -484,7 +485,7 @@ Mouse.OverrideCursor = null;*/
                     }
             }
         }
-        
+
 
 
         private void OnListViewItemFocused(object sender, RoutedEventArgs e)
@@ -493,7 +494,7 @@ Mouse.OverrideCursor = null;*/
             //lvi.IsSelected = true;
             //lvi.BringIntoView();
         }
-        
+
 
         /// <summary>
         ///     called when the control is initialized and the data can be refreshed for the first time
@@ -563,7 +564,7 @@ Mouse.OverrideCursor = null;*/
                     var sessionSummary = Tools.GetSessionSummary(RecordingSessionControl.recordingSession);
                     foreach (var item in sessionSummary)
                     {
-                        var batPassSummary = new BatPassSummaryControl {Content = item};
+                        var batPassSummary = new BatPassSummaryControl { Content = item };
                         SessionSummaryStackPanel.Children.Add(batPassSummary);
                     }
 
@@ -609,10 +610,10 @@ Mouse.OverrideCursor = null;*/
         /// <param name="e"></param>
         public void ReportSessionDataButton_Click(object sender, RoutedEventArgs e)
         {
-           
+
             //UiServices.SetBusyState();
-                GenerateReportSet(sender, e);
-            
+            GenerateReportSet(sender, e);
+
 
 
         }
@@ -636,10 +637,10 @@ Mouse.OverrideCursor = null;*/
         /// </summary>
         /// <param name="doFullExport"></param>
         /// <returns></returns>
-        public bool GenerateReportSet(RecordingSession SpecificSession=null, bool doFullExport=false)
-        { 
+        public bool GenerateReportSet(RecordingSession SpecificSession = null, bool doFullExport = false)
+        {
 
-        
+
             var reportBatStatsList = new List<BatStatistics>();
             var reportSessionList = new List<RecordingSession>();
             var reportRecordingList = new List<Recording>();
@@ -707,8 +708,8 @@ Mouse.OverrideCursor = null;*/
                         var bstat = new BatStatistics(DBAccess.GetNamedBat(bs.batCommonName));
                         reportBatStatsList.Add(bstat);
                         var recordingsToreport = (from brLink in bstat.bat.BatRecordingLinks
-                            join sess in reportSessionList on brLink.Recording.RecordingSessionId equals sess.Id
-                            select brLink.Recording).Distinct();
+                                                  join sess in reportSessionList on brLink.Recording.RecordingSessionId equals sess.Id
+                                                  select brLink.Recording).Distinct();
 
                         if (recordingsToreport != null)
                             foreach (var rec in recordingsToreport)
@@ -755,7 +756,7 @@ Mouse.OverrideCursor = null;*/
         /// </summary>
         public VirtualizingCollection<RecordingSessionData> recordingSessionDataList
         {
-            get => (VirtualizingCollection<RecordingSessionData>) GetValue(recordingSessionDataListProperty);
+            get => (VirtualizingCollection<RecordingSessionData>)GetValue(recordingSessionDataListProperty);
             set => SetValue(recordingSessionDataListProperty, value);
         }
 

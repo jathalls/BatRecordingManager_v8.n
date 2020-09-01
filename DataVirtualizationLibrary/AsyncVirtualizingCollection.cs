@@ -195,7 +195,7 @@ namespace DataVirtualizationLibrary
         /// <param name="args">Number of items returned.</param>
         private void LoadCountCompleted(object args)
         {
-            Count = (int) args;
+            Count = (int)args;
             IsLoading = false;
             //Debug.WriteLine("LoadCountCompleted()=" + Count);
 
@@ -219,11 +219,11 @@ namespace DataVirtualizationLibrary
         /// <param name="args">Index of the page to load.</param>
         private void LoadPageWork(object args)
         {
-            var pageIndex = (int) args;
+            var pageIndex = (int)args;
             //Debug.WriteLine("LoadPageWork() at " + pageIndex);
             var page = FetchPage(pageIndex);
             //Debug.WriteLine("LoadPageWork() at " + pageIndex);
-            SynchronizationContext.Send(LoadPageCompleted, new object[] {pageIndex, page});
+            SynchronizationContext.Send(LoadPageCompleted, new object[] { pageIndex, page });
         }
 
         /// <summary>
@@ -232,8 +232,8 @@ namespace DataVirtualizationLibrary
         /// <param name="args">object[] { int pageIndex, IList(T) page }</param>
         private void LoadPageCompleted(object args)
         {
-            var pageIndex = (int) ((object[])args)[0];
-            var page = (IList<T>) ((object[])args)[1];
+            var pageIndex = (int)((object[])args)[0];
+            var page = (IList<T>)((object[])args)[1];
             //Debug.WriteLine("LoadPageCompleted() at " + pageIndex);
             PopulatePage(pageIndex, page);
             IsLoading = false;

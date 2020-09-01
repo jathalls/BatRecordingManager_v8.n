@@ -344,7 +344,7 @@ namespace BatRecordingManager
         /// </summary>
         public StoredImage storedImage
         {
-            get => (StoredImage) GetValue(storedImageProperty);
+            get => (StoredImage)GetValue(storedImageProperty);
             set => SetValue(storedImageProperty, value);
         }
 

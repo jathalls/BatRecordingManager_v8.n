@@ -44,7 +44,7 @@ namespace BatRecordingManager
         /// </summary>
         public static readonly DependencyProperty GridControlsVisibilityProperty =
             DependencyProperty.Register("GridControlsVisibility", typeof(Visibility), typeof(DisplayStoredImageControl),
-                new FrameworkPropertyMetadata((Visibility)Visibility.Hidden,
+                new FrameworkPropertyMetadata(Visibility.Hidden,
                     FrameworkPropertyMetadataOptions.None));
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace BatRecordingManager
                 Debug.WriteLine("_showGrid and miFidsCopyGridFids.IsEnabled set to " + value);
             }
         }
-        private StoredImage _storedImage = new StoredImage(null, "", "", -1);
+        private readonly StoredImage _storedImage = new StoredImage(null, "", "", -1);
 
         private EventHandler<EventArgs> _upButtonPressedEvent;
 
@@ -114,6 +114,8 @@ namespace BatRecordingManager
         ///     indicate if the gridlines need to be resaved
         /// </summary>
         public bool IsModified;
+
+        public bool DisplayActualSize { get; set; } = false;
 
 
         /// <summary>
@@ -132,7 +134,7 @@ namespace BatRecordingManager
             miShrinkGrid5.DataContext = this;
             miShrinkGrid1.DataContext = this;
             miCopyGridFids.DataContext = this;
-            
+
 
             gridTopMargin = _defaultGridTopMargin;
             gridLeftMargin = _defaultGridLeftMargin;
@@ -144,9 +146,26 @@ namespace BatRecordingManager
             AxisGrid675.Visibility = Visibility.Hidden;
             GridControlsVisibility = Visibility.Hidden;
 
+            if (DisplayActualSize)
+            {
+                SetImageFull(FullSizeButton.Content as string == "FULL");
 
+
+                imageBrush.Stretch = Stretch.Fill;
+                DisplayImageCanvas.Width = storedImage.image.Width;
+
+                BringIntoView();
+                Focus();
+                DisplayImageCanvas.Focus();
+            }
+            else
+            {
+                imageBrush.Stretch = Stretch.Uniform;
+            }
             DisplayImageCanvas.Focus();
         }
+
+
 
 
         /// <summary>
@@ -154,12 +173,30 @@ namespace BatRecordingManager
         /// </summary>
         public StoredImage storedImage
         {
-            get => (StoredImage) GetValue(storedImageProperty);
+            get => (StoredImage)GetValue(storedImageProperty);
 
             set
             {
                 SetValue(storedImageProperty, DBAccess.GetImage(value));
                 PlayButton.IsEnabled = value.isPlayable;
+                DisplayActualSize = storedImage.DisplayActualSize;
+                if (DisplayActualSize)
+                {
+                    SetImageFull(FullSizeButton.Content as string == "FULL");
+
+
+                    imageBrush.Stretch = Stretch.Fill;
+                    DisplayImageCanvas.Width = storedImage.image.Width;
+
+                    BringIntoView();
+                    Focus();
+                    DisplayImageCanvas.Focus();
+                }
+                else
+                {
+                    imageBrush.Stretch = Stretch.Uniform;
+
+                }
             }
         }
 
@@ -216,10 +253,10 @@ namespace BatRecordingManager
                 //if we get here there are no horizontal or vertical gridlines defined
                 storedImage.HorizontalGridlines.Clear();
                 foreach (var hglProp in duplicateEventArgs.HLineProportions)
-                    storedImage.HorizontalGridlines.Add((int) (hglProp * storedImage.image.Height));
+                    storedImage.HorizontalGridlines.Add((int)(hglProp * storedImage.image.Height));
                 storedImage.VerticalGridLines.Clear();
                 foreach (var vglProp in duplicateEventArgs.VLineProportions)
-                    storedImage.VerticalGridLines.Add((int) (vglProp * storedImage.image.Width));
+                    storedImage.VerticalGridLines.Add((int)(vglProp * storedImage.image.Width));
 
                 FiducialsButton_Click(this, new RoutedEventArgs());
             }
@@ -338,7 +375,7 @@ namespace BatRecordingManager
         /// <param name="e"><see cref="EventArgs" /> object that provides the arguments for the event.</param>
         protected virtual void OnDelButtonPressed(BoolEventArgs e)
         {
-            
+
             EventHandler<EventArgs> handler = null;
 
             lock (_delButtonPressedEventLock)
@@ -655,11 +692,11 @@ namespace BatRecordingManager
                 {
                     horizontal = false;
                 }
-                DisplayImage_AddFiducial(horizontal,pos);
+                DisplayImage_AddFiducial(horizontal, pos);
             }
         }
 
-        private void DisplayImage_AddFiducial(bool horizontal,Point pos)
+        private void DisplayImage_AddFiducial(bool horizontal, Point pos)
         {
 
             if (FiducialsButton.IsChecked ?? false)
@@ -674,14 +711,11 @@ namespace BatRecordingManager
                     //Tools.InfoLog("Right Mouse Button");
                     _selectedLine = -1;
                     HighlightSelectedLine();
-                    var isVertical = false;
                     var imageLineIndex = -1;
 
                     var line = new Line();
                     if (!horizontal)
                     {
-                        isVertical = true;
-
                         if (storedImage.VerticalGridLines == null) storedImage.VerticalGridLines = new List<int>();
                         storedImage.VerticalGridLines.Add(WidthDeScale(pos.X));
                         imageLineIndex = storedImage.VerticalGridLines.Count - 1;
@@ -693,8 +727,6 @@ namespace BatRecordingManager
                     {
                         try
                         {
-                            isVertical = false;
-
                             var newGl = HeightDeScale(pos.Y);
 
                             if (storedImage.HorizontalGridlines == null)
@@ -948,7 +980,7 @@ namespace BatRecordingManager
         /// <param name="direction"></param>
         private void DrawLine(int indexToGridLine, Orientation direction)
         {
-            var line = new Line {Stroke = Brushes.Black, StrokeThickness = 1};
+            var line = new Line { Stroke = Brushes.Black, StrokeThickness = 1 };
 
 
             if (direction == Orientation.HORIZONTAL && indexToGridLine >= 0 &&
@@ -964,7 +996,7 @@ namespace BatRecordingManager
                 //binding.Path = new PropertyPath("ActualWidth");
                 //BindingOperations.SetBinding(line, Line.X2Property, binding);
 
-                var mbXBinding = new MultiBinding {Converter = new LeftMarginConverter()};
+                var mbXBinding = new MultiBinding { Converter = new LeftMarginConverter() };
                 var binding = new Binding
                 {
                     RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
@@ -982,12 +1014,12 @@ namespace BatRecordingManager
                 //binding.Source = this;
                 mbXBinding.Bindings.Add(binding);
 
-                binding = new Binding {Source = this, Path = new PropertyPath(nameof(storedImage))};
+                binding = new Binding { Source = this, Path = new PropertyPath(nameof(storedImage)) };
                 mbXBinding.Bindings.Add(binding);
 
                 BindingOperations.SetBinding(line, Line.X1Property, mbXBinding);
 
-                mbXBinding = new MultiBinding {Converter = new RightMarginConverter()};
+                mbXBinding = new MultiBinding { Converter = new RightMarginConverter() };
                 binding = new Binding
                 {
                     RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
@@ -1005,15 +1037,15 @@ namespace BatRecordingManager
                 //binding.Source = this;
                 mbXBinding.Bindings.Add(binding);
 
-                binding = new Binding {Source = this, Path = new PropertyPath(nameof(storedImage))};
+                binding = new Binding { Source = this, Path = new PropertyPath(nameof(storedImage)) };
                 mbXBinding.Bindings.Add(binding);
 
                 BindingOperations.SetBinding(line, Line.X2Property, mbXBinding);
 
 
-                var mBinding = new MultiBinding {Converter = new HGridLineConverter()};
+                var mBinding = new MultiBinding { Converter = new HGridLineConverter() };
 
-                binding = new Binding {Source = indexToGridLine.ToString()};
+                binding = new Binding { Source = indexToGridLine.ToString() };
                 //double proportion = FindHScaleProportion(gridline);
                 mBinding.Bindings.Add(binding);
 
@@ -1038,7 +1070,9 @@ namespace BatRecordingManager
                 binding.Path = new PropertyPath("storedImage");*/
                 binding = new Binding
                 {
-                    Source = storedImage, BindsDirectlyToSource = true, NotifyOnSourceUpdated = true
+                    Source = storedImage,
+                    BindsDirectlyToSource = true,
+                    NotifyOnSourceUpdated = true
                 };
                 mBinding.Bindings.Add(binding);
 
@@ -1057,7 +1091,7 @@ namespace BatRecordingManager
                 //binding.Path = new PropertyPath("ActualHeight");
                 //BindingOperations.SetBinding(line, Line.Y2Property, binding);
 
-                var mbXBinding = new MultiBinding {Converter = new TopMarginConverter()};
+                var mbXBinding = new MultiBinding { Converter = new TopMarginConverter() };
                 var binding = new Binding
                 {
                     RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
@@ -1075,12 +1109,12 @@ namespace BatRecordingManager
                 //binding.Source = this;
                 mbXBinding.Bindings.Add(binding);
 
-                binding = new Binding {Source = this, Path = new PropertyPath(nameof(storedImage))};
+                binding = new Binding { Source = this, Path = new PropertyPath(nameof(storedImage)) };
                 mbXBinding.Bindings.Add(binding);
 
                 BindingOperations.SetBinding(line, Line.Y1Property, mbXBinding);
 
-                mbXBinding = new MultiBinding {Converter = new BottomMarginConverter()};
+                mbXBinding = new MultiBinding { Converter = new BottomMarginConverter() };
                 binding = new Binding
                 {
                     RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Canvas), 1),
@@ -1098,14 +1132,14 @@ namespace BatRecordingManager
                 //binding.Source = this;
                 mbXBinding.Bindings.Add(binding);
 
-                binding = new Binding {Source = this, Path = new PropertyPath(nameof(storedImage))};
+                binding = new Binding { Source = this, Path = new PropertyPath(nameof(storedImage)) };
                 mbXBinding.Bindings.Add(binding);
 
                 BindingOperations.SetBinding(line, Line.Y2Property, mbXBinding);
 
 
-                var mBinding = new MultiBinding {Converter = new VGridLineConverter()};
-                binding = new Binding {Source = indexToGridLine.ToString()};
+                var mBinding = new MultiBinding { Converter = new VGridLineConverter() };
+                binding = new Binding { Source = indexToGridLine.ToString() };
                 //double proportion = FindHScaleProportion(gridline);
                 mBinding.Bindings.Add(binding);
 
@@ -1125,7 +1159,7 @@ namespace BatRecordingManager
                 //binding.Source = this;
                 mBinding.Bindings.Add(binding);
 
-                binding = new Binding {Source = this, Path = new PropertyPath(nameof(storedImage))};
+                binding = new Binding { Source = this, Path = new PropertyPath(nameof(storedImage)) };
                 mBinding.Bindings.Add(binding);
 
                 BindingOperations.SetBinding(line, Line.X1Property, mBinding);
@@ -1189,7 +1223,7 @@ namespace BatRecordingManager
 
             var thisButton = sender as Button;
 
-            SetImageFull(thisButton.Content as string == "FULL");
+            SetImageFull(FullSizeButton.Content as string == "FULL");
 
 
             BringIntoView();
@@ -1238,7 +1272,7 @@ namespace BatRecordingManager
         /// <returns></returns>
         private int GetImageXPosition(double x1)
         {
-            var pos = (int) (x1 / DisplayImageCanvas.ActualWidth * storedImage.image.Width);
+            var pos = (int)(x1 / DisplayImageCanvas.ActualWidth * storedImage.image.Width);
             return pos;
         }
 
@@ -1250,7 +1284,7 @@ namespace BatRecordingManager
         /// <returns></returns>
         private int GetImageYPosition(double y1)
         {
-            var pos = (int) (y1 / DisplayImageCanvas.ActualHeight * storedImage.image.Height);
+            var pos = (int)(y1 / DisplayImageCanvas.ActualHeight * storedImage.image.Height);
             return pos;
         }
 
@@ -1271,7 +1305,7 @@ namespace BatRecordingManager
                 //FiducialGrid.Visibility = Visibility.Hidden;
 
                 _showGrid = false;
-                
+
             }
             else
             {
@@ -1301,7 +1335,7 @@ namespace BatRecordingManager
                 GridSelectionComboBox.Visibility = Visibility.Visible;
                 GridSelectionComboBox.IsDropDownOpen = true;
                 _showGrid = true;
-                
+
             }
         }
 
@@ -1360,7 +1394,7 @@ namespace BatRecordingManager
             var positionInScaledImage = y - topAndBottomMargins / 2;
             var proportionOfScaledImage = positionInScaledImage / (storedImage.image.Height * actualScale);
             var positionInImage = proportionOfScaledImage * storedImage.image.Height;
-            return (int) positionInImage;
+            return (int)positionInImage;
         }
 
 
@@ -1460,10 +1494,10 @@ namespace BatRecordingManager
                         else
                         {
                             HighlightGrid(true);
-                            
+
                         }
                     }
-                    
+
                 }
             }
 
@@ -1485,7 +1519,7 @@ namespace BatRecordingManager
             {
                 currentGrid = AxisGrid7029A;
             }
-            foreach(var child in currentGrid.Children)
+            foreach (var child in currentGrid.Children)
             {
                 if (child is Line)
                 {
@@ -1510,7 +1544,7 @@ namespace BatRecordingManager
             {
                 _selectedLine++;
             }
-            while (_selectedLine < DisplayImageCanvas.Children.Count && _selectedLine>=0 &&
+            while (_selectedLine < DisplayImageCanvas.Children.Count && _selectedLine >= 0 &&
                    !(DisplayImageCanvas.Children[_selectedLine] is Line)) _selectedLine++;
 
             if (_selectedLine >= DisplayImageCanvas.Children.Count) _selectedLine = -1;
@@ -1557,7 +1591,7 @@ namespace BatRecordingManager
                         var xy = VLineMap[_selectedLine];
                         storedImage.VerticalGridLines[xy] += moveSize;
                         if (storedImage.VerticalGridLines[xy] > storedImage.image.Width)
-                            storedImage.VerticalGridLines[xy] = (int) storedImage.image.Width;
+                            storedImage.VerticalGridLines[xy] = (int)storedImage.image.Width;
 
                         //line.X1 = WidthScale(storedImage.VerticalGridLines[xy]);
                         //ine.X2 = line.X1;
@@ -1581,7 +1615,7 @@ namespace BatRecordingManager
                         var xy = HLineMap[_selectedLine];
                         storedImage.HorizontalGridlines[xy] += moveSize;
                         if (storedImage.HorizontalGridlines[xy] > storedImage.image.Height)
-                            storedImage.HorizontalGridlines[xy] = (int) storedImage.image.Height;
+                            storedImage.HorizontalGridlines[xy] = (int)storedImage.image.Height;
                         //line.Y1 = HeightScale(storedImage.HorizontalGridlines[xy]);
                         //line.Y2 = line.Y1;
                         result = true;
@@ -1676,7 +1710,7 @@ namespace BatRecordingManager
             var positionInScaledImage = x - rightAndLeftMargins / 2;
             var proportionOfScaledImage = positionInScaledImage / (storedImage.image.Width * actualScale);
             var positionInImage = proportionOfScaledImage * storedImage.image.Width;
-            return (int) positionInImage;
+            return (int)positionInImage;
         }
 
         /// <summary>
@@ -1851,7 +1885,7 @@ namespace BatRecordingManager
         /// </summary>
         public string scaleValue
         {
-            get => (string) GetValue(scaleValueProperty);
+            get => (string)GetValue(scaleValueProperty);
             set => SetValue(scaleValueProperty, value);
         }
 
@@ -1872,7 +1906,7 @@ namespace BatRecordingManager
         /// </summary>
         public double gridScaleValue
         {
-            get => (double) GetValue(gridScaleValueProperty);
+            get => (double)GetValue(gridScaleValueProperty);
             set => SetValue(gridScaleValueProperty, value);
         }
 
@@ -1893,7 +1927,7 @@ namespace BatRecordingManager
         /// </summary>
         public double gridLeftMargin
         {
-            get => (double) GetValue(gridLeftMarginProperty);
+            get => (double)GetValue(gridLeftMarginProperty);
             set => SetValue(gridLeftMarginProperty, value);
         }
 
@@ -1914,7 +1948,7 @@ namespace BatRecordingManager
         /// </summary>
         public double gridTopMargin
         {
-            get => (double) GetValue(gridTopMarginProperty);
+            get => (double)GetValue(gridTopMarginProperty);
             set => SetValue(gridTopMarginProperty, value);
         }
 
@@ -1999,7 +2033,7 @@ Are you sure?", "Delete Image from database", MessageBoxButton.OKCancel);
 
         private void MiDeleteFiducialLine_Click(object sender, RoutedEventArgs e)
         {
-            if (_selectedLine >= 0)  DeleteGridLine();
+            if (_selectedLine >= 0) DeleteGridLine();
             DisplayImageCanvas.Focus();
         }
 
@@ -2011,7 +2045,7 @@ Are you sure?", "Delete Image from database", MessageBoxButton.OKCancel);
 
                 var pos = rightMousePos;
                 bool horizontal = true;
-                
+
                 DisplayImage_AddFiducial(horizontal, pos);
             }
         }
@@ -2116,8 +2150,31 @@ Are you sure?", "Delete Image from database", MessageBoxButton.OKCancel);
                 storedImage.HorizontalGridlines.Clear();
                 storedImage.VerticalGridLines.Clear();
                 ClearGridlines();
-                
+
             }
+        }
+
+        private void ZoomInButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (DisplayImageCanvas.ActualWidth * 2 < storedImage.image.Width * 8)
+            {
+                DisplayImageCanvas.Width = DisplayImageCanvas.ActualWidth * 2;
+            }
+            else
+            {
+                DisplayImageCanvas.Width = storedImage.image.Width;
+            }
+            DisplayImageCanvas.Focus();
+        }
+
+        private void ZoomOutButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (DisplayImageCanvas.ActualWidth > 200)
+            {
+                DisplayImageCanvas.Width = DisplayImageCanvas.ActualWidth / 2;
+                imageBrush.Stretch = Stretch.Fill;
+            }
+            DisplayImageCanvas.Focus();
         }
     }
 

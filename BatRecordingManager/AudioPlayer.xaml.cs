@@ -146,7 +146,7 @@ namespace BatRecordingManager
         {
             string filename = "";
             var looped = (sender as Button).Content as string == "LOOP";
-            if ((sender as Button).Content as String == "SAVE")
+            if ((sender as Button).Content as string == "SAVE")
             {
                 filename = Tools.GetFileToWriteTo("", ".wav");
             }
@@ -156,7 +156,7 @@ namespace BatRecordingManager
 
                 if (itemToPlay != null)
                 {
-                    PlayItem(itemToPlay, looped,filename);
+                    PlayItem(itemToPlay, looped, filename);
                     if (string.IsNullOrWhiteSpace(filename))
                     {
                         PlayButton.Content = "STOP";
@@ -201,9 +201,9 @@ namespace BatRecordingManager
             return (item);
         }
 
-        private void PlayItem(PlayListItem itemToPlay, bool playLooped,string filename)
+        private void PlayItem(PlayListItem itemToPlay, bool playLooped, string filename)
         {
-            _wrapper = new NaudioWrapper {Frequency = (decimal) Frequency};
+            _wrapper = new NaudioWrapper { Frequency = (decimal)Frequency };
             _wrapper.e_Stopped += Wrapper_Stopped;
             if (!TunedButton.IsChecked ?? false)
             {
@@ -212,8 +212,8 @@ namespace BatRecordingManager
                 if (TenthButton.IsChecked ?? false) rate = 0.1m;
                 if (FifthButton.IsChecked ?? false) rate = 0.2m;
                 if (TwentiethButton.IsChecked ?? false) rate = 0.05m;
-                
-                _wrapper.Play(itemToPlay, rate, playLooped,filename);
+
+                _wrapper.Play(itemToPlay, rate, playLooped, filename);
             }
             else
             {
@@ -246,7 +246,7 @@ namespace BatRecordingManager
 
         private void FrequencySlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (_wrapper != null) _wrapper.Frequency = (decimal) (sender as Slider).Value;
+            if (_wrapper != null) _wrapper.Frequency = (decimal)(sender as Slider).Value;
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)
@@ -284,17 +284,17 @@ namespace BatRecordingManager
         /// </summary>
         public double Frequency
         {
-            get => (double) GetValue(FrequencyProperty);
+            get => (double)GetValue(FrequencyProperty);
             set
-            { 
-                if (_wrapper != null) _wrapper.Frequency = (decimal) value;
+            {
+                if (_wrapper != null) _wrapper.Frequency = (decimal)value;
                 SetValue(FrequencyProperty, value);
             }
         }
 
         #endregion
 
-       
+
     }
 
     /// <summary>
@@ -332,10 +332,13 @@ namespace BatRecordingManager
         public static PlayListItem Create(string filename, TimeSpan start, TimeSpan duration, string label)
         {
             if (string.IsNullOrWhiteSpace(filename)) return null;
-            if (!File.Exists(filename) || (new FileInfo(filename).Length<=0L)) return null;
+            if (!File.Exists(filename) || (new FileInfo(filename).Length <= 0L)) return null;
             var result = new PlayListItem
             {
-                filename = filename, startOffset = start, playLength = duration, label = label
+                filename = filename,
+                startOffset = start,
+                playLength = duration,
+                label = label
             };
 
 

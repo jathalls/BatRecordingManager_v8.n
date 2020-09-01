@@ -56,7 +56,7 @@ namespace BatRecordingManager
         /// </summary>
         public static readonly DependencyProperty _windowTitleProperty =
             DependencyProperty.Register("_windowTitle", typeof(string), typeof(MainWindow),
-                new FrameworkPropertyMetadata((string)""));
+                new FrameworkPropertyMetadata(""));
 
         /// <summary>
         /// Gets or sets the _windowTitle property.  This dependency property 
@@ -64,9 +64,9 @@ namespace BatRecordingManager
         /// </summary>
         public string _windowTitle
         {
-            get { return (string) GetValue(_windowTitleProperty); }
+            get { return (string)GetValue(_windowTitleProperty); }
             set { SetValue(_windowTitleProperty, value); }
-        } 
+        }
 
         #endregion
 
@@ -98,7 +98,7 @@ namespace BatRecordingManager
                 try
                 {
                     Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
-                    
+
                     DBAccess.InitializeDatabase();
                 }
                 catch (Exception ex)
@@ -109,7 +109,7 @@ namespace BatRecordingManager
 
                 _windowTitle = "Bat Log Manager v";
                 InitializeComponent();
-                
+
                 try
                 {
                     ShowDatabase = App.ShowDatabase;
@@ -209,11 +209,11 @@ namespace BatRecordingManager
         /// </param>
         private void miAbout_Click(object sender, RoutedEventArgs e)
         {
-            var about = new AboutScreen {Version = {Content = "v " + _build}};
+            var about = new AboutScreen { Version = { Content = "v " + _build } };
             about.ShowDialog();
         }
 
-        
+
 
         /// <summary>
         ///     Handles the Click event of the miBatReference control.
@@ -351,7 +351,7 @@ namespace BatRecordingManager
             var workingFolder = DBAccess.GetWorkingDatabaseLocation();
             if (string.IsNullOrWhiteSpace(workingFolder) || !Directory.Exists(workingFolder))
             {
-                
+
                 workingFolder = DBAccess.GetWorkingDatabaseLocation();
             }
 
@@ -560,16 +560,16 @@ Do you wish to update that database to the latest specification?", "Out of Date 
             if (_analyseAndImport == null)
             {
                 _importPictureDialog = new ImportPictureDialog();
-                if (_useCurrentSession )
+                if (_useCurrentSession)
                 {
                     var currentSession = recordingSessionListControl.GetSelectedSession();
                     if (currentSession != null)
                     {
-                        _analyseAndImport=new AnalyseAndImportClass(currentSession.SessionTag);
+                        _analyseAndImport = new AnalyseAndImportClass(currentSession.SessionTag);
                     }
                     else
                     {
-                        _analyseAndImport=new AnalyseAndImportClass();
+                        _analyseAndImport = new AnalyseAndImportClass();
                     }
                 }
                 else
@@ -665,7 +665,7 @@ Do you wish to update that database to the latest specification?", "Out of Date 
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Error closing AnalyseAndImport:- "+ex.Message);
+                Debug.WriteLine("Error closing AnalyseAndImport:- " + ex.Message);
                 Tools.ErrorLog("Error closing AnalyseAndImport:- " + ex.Message);
             }
 
@@ -681,7 +681,7 @@ Do you wish to update that database to the latest specification?", "Out of Date 
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Error invoking a close of import picture dialog when ending analyse and import:- "+ex.Message);
+                Debug.WriteLine("Error invoking a close of import picture dialog when ending analyse and import:- " + ex.Message);
                 Tools.ErrorLog("Error invoking a close of import picture dialog when ending analyse and import:- " + ex.Message);
             }
         }
@@ -710,9 +710,9 @@ Do you wish to update that database to the latest specification?", "Out of Date 
                                 //recordingSessionListControl.SelectSession(sessionUpdated);
 
                                 //recordingSessionListControl.ReportSessionDataButton_Click(sender,
-                                    //new RoutedEventArgs());
-                                    RecordingSession upDatedSession = DBAccess.GetRecordingSession(UpdatedSessionTag);
-                                    recordingSessionListControl.GenerateReportSet(upDatedSession, true);
+                                //new RoutedEventArgs());
+                                RecordingSession upDatedSession = DBAccess.GetRecordingSession(UpdatedSessionTag);
+                                recordingSessionListControl.GenerateReportSet(upDatedSession, true);
                             }));
                 }
             }
@@ -825,8 +825,8 @@ Do you wish to update that database to the latest specification?", "Out of Date 
             }
 
             var source = DBAccess.GetWorkingDatabaseLocation();
-            source = source+DBAccess.GetWorkingDatabaseName(source);
-            File.Copy(source,destination);
+            source = source + DBAccess.GetWorkingDatabaseName(source);
+            File.Copy(source, destination);
 
         }
 
@@ -856,7 +856,7 @@ Do you wish to update that database to the latest specification?", "Out of Date 
             string original = @"C:\BRMTestData\Original\";
             using (new WaitCursor())
             {
-                
+
                 if (Keyboard.IsKeyDown(Key.LeftCtrl))
                 {
                     if (Directory.Exists(actual))
@@ -869,10 +869,10 @@ Do you wish to update that database to the latest specification?", "Out of Date 
                     }
                 }
             }
-            folderPath = Path.GetDirectoryName(actual+@"WAVFILES.DIR\");
+            folderPath = Path.GetDirectoryName(actual + @"WAVFILES.DIR\");
 #endif //DEBUG
-            
-            if(recordingSessionListControl!=null)
+
+            if (recordingSessionListControl != null)
             {
                 var sess = recordingSessionListControl.GetSelectedSession();
                 if (sess != null)
@@ -880,7 +880,7 @@ Do you wish to update that database to the latest specification?", "Out of Date 
                     folderPath = sess.OriginalFilePath;
                 }
             }
-            AppMainWindow amw=new AppMainWindow();
+            AppMainWindow amw = new AppMainWindow();
             AppFilter appFilter = new AppFilter();
             appFilter.SetDefaultFolderPath(folderPath);
             amw.DisplayControl(appFilter);
@@ -894,10 +894,10 @@ Do you wish to update that database to the latest specification?", "Out of Date 
 
         private void miAnalyse_Click(object sender, RoutedEventArgs e)
         {
-            string workingFolder=Environment.CurrentDirectory;
+            string workingFolder = Environment.CurrentDirectory;
             if (Directory.Exists(workingFolder))
             {
-                string excutable = Path.Combine(new string[]{ workingFolder,@"PulseTrainAnalysis.exe"});
+                string excutable = Path.Combine(new string[] { workingFolder, @"PulseTrainAnalysis.exe" });
                 Process ExternalProcess = new Process();
                 if (ExternalProcess == null) return;
 

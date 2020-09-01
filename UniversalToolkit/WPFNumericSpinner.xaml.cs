@@ -159,7 +159,7 @@ namespace UniversalToolkit
             get { return (string)GetValue(CaptionProperty); }
             set
             {
-                
+
                 SetValue(CaptionProperty, value);
             }
         }

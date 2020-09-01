@@ -14,6 +14,7 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Data.Linq;
 using System.Diagnostics;
@@ -23,7 +24,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -188,7 +188,7 @@ namespace BatRecordingManager
             {
                 if (!(DataContext is Bat thisBat)) return;
                 var sortIndex = BatTagsListView.SelectedIndex;
-                var newTagForm = new NewTagForm {TagText = tag.BatTag1};
+                var newTagForm = new NewTagForm { TagText = tag.BatTag1 };
                 newTagForm.ShowDialog();
                 if (newTagForm.DialogResult != null && newTagForm.DialogResult.Value)
                 {
@@ -243,7 +243,7 @@ namespace BatRecordingManager
         /// </summary>
         public Bat selectedBat
         {
-            get => (Bat) GetValue(selectedBatProperty);
+            get => (Bat)GetValue(selectedBatProperty);
             set
             {
                 SetValue(selectedBatProperty, value);
@@ -403,8 +403,8 @@ namespace BatRecordingManager
 
                 var tagList = value as EntitySet<BatTag>;
                 var sortedTagList = from tag in tagList
-                    orderby tag.SortIndex
-                    select tag;
+                                    orderby tag.SortIndex
+                                    select tag;
                 return sortedTagList;
             }
             catch (Exception ex)

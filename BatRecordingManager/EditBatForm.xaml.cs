@@ -14,13 +14,13 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Data.Linq;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -43,11 +43,11 @@ namespace BatRecordingManager
         public EditBatForm()
         {
             InitializeComponent();
-            NewBat = new Bat {Name = "Unknown", Batgenus = "Unknown", BatSpecies = "unknown", Id = -1};
+            NewBat = new Bat { Name = "Unknown", Batgenus = "Unknown", BatSpecies = "unknown", Id = -1 };
             CallList.Clear();
 
             NewBat.Notes = "";
-            var bt = new BatTag {BatTag1 = "bat", BatID = NewBat.Id};
+            var bt = new BatTag { BatTag1 = "bat", BatID = NewBat.Id };
             NewBat.BatTags.Add(bt);
             //SelectedCallIndex = -1;
             AddNewTagButton.IsEnabled = true;
@@ -130,7 +130,7 @@ namespace BatRecordingManager
             Update();
             if (NewBat == null)
             {
-                NewBat = new Bat {Id = -1};
+                NewBat = new Bat { Id = -1 };
             }
 
             if (NewBat.BatTags == null) NewBat.BatTags = new EntitySet<BatTag>();
@@ -139,8 +139,8 @@ namespace BatRecordingManager
             if (!NewBat.BatTags.IsNullOrEmpty())
             {
                 var matchingTags = from tg in NewBat.BatTags
-                    where tg.BatTag1 == TagEditBox.Text
-                    select tg;
+                                   where tg.BatTag1 == TagEditBox.Text
+                                   select tg;
                 if (!matchingTags.IsNullOrEmpty())
                     return; // tag in the edit box is already in the tag list
                 AddTag(TagEditBox.Text);
@@ -167,13 +167,13 @@ namespace BatRecordingManager
 
             if (NewBat == null)
             {
-                NewBat = new Bat {Id = -1};
+                NewBat = new Bat { Id = -1 };
             }
 
             if (NewBat.BatTags == null) NewBat.BatTags = new EntitySet<BatTag>();
             if (!string.IsNullOrWhiteSpace(text))
             {
-                var newTag = new BatTag {BatID = NewBat.Id, BatTag1 = text};
+                var newTag = new BatTag { BatID = NewBat.Id, BatTag1 = text };
                 NewBat.BatTags.Add(newTag);
 
                 DataContext = NewBat;
@@ -254,7 +254,7 @@ namespace BatRecordingManager
             Update();
             if (NewBat == null)
             {
-                NewBat = new Bat {Id = -1};
+                NewBat = new Bat { Id = -1 };
             }
 
             if (NewBat.BatTags == null) NewBat.BatTags = new EntitySet<BatTag>();
@@ -357,7 +357,7 @@ namespace BatRecordingManager
         /// </summary>
         public Bat NewBat
         {
-            get => (Bat) GetValue(newBatProperty);
+            get => (Bat)GetValue(newBatProperty);
             set
             {
                 SetValue(newBatProperty, value);

@@ -50,7 +50,7 @@ namespace BatRecordingManager
         /// </summary>
         public LabelledSegment labelledSegment
         {
-            get => (LabelledSegment) GetValue(labelledSegmentProperty);
+            get => (LabelledSegment)GetValue(labelledSegmentProperty);
             set
             {
                 SetValue(labelledSegmentProperty, value);
@@ -81,7 +81,7 @@ namespace BatRecordingManager
         /// </summary>
         public TimeSpan startTime
         {
-            get => (TimeSpan) GetValue(startTimeProperty);
+            get => (TimeSpan)GetValue(startTimeProperty);
             set => SetValue(startTimeProperty, value);
         }
 
@@ -101,7 +101,7 @@ namespace BatRecordingManager
         /// </summary>
         public TimeSpan endTime
         {
-            get => (TimeSpan) GetValue(endTimeProperty);
+            get => (TimeSpan)GetValue(endTimeProperty);
             set => SetValue(endTimeProperty, value);
         }
 
@@ -121,7 +121,7 @@ namespace BatRecordingManager
         /// </summary>
         public TimeSpan duration
         {
-            get => (TimeSpan) GetValue(durationProperty);
+            get => (TimeSpan)GetValue(durationProperty);
             set => SetValue(durationProperty, value);
         }
 
@@ -141,7 +141,7 @@ namespace BatRecordingManager
         /// </summary>
         public string comment
         {
-            get => (string) GetValue(commentProperty);
+            get => (string)GetValue(commentProperty);
             set => SetValue(commentProperty, value);
         }
 

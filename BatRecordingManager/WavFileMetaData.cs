@@ -20,7 +20,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Windows.Ink;
 
 namespace BatRecordingManager
 {
@@ -46,7 +45,7 @@ namespace BatRecordingManager
                 if (m_Start == null)
                     if (File.Exists(filename) && (new FileInfo(filename).Length > 0L))
                     {
-                        var duration=Tools.GetFileDatesAndTimes(filename, out string wavfile, out DateTime fileStart, out DateTime fileEnd);
+                        var duration = Tools.GetFileDatesAndTimes(filename, out string wavfile, out DateTime fileStart, out DateTime fileEnd);
 
                         m_Start = fileStart;
                         m_Created = fileStart;
@@ -67,8 +66,9 @@ namespace BatRecordingManager
                 Read_MetaData(filename);
                 if (metadata != null) success = true;
 
-                if (m_Start != null && m_Duration != null && m_End==null) m_End = m_Start + m_Duration;
-            }catch(Exception ex)
+                if (m_Start != null && m_Duration != null && m_End == null) m_End = m_Start + m_Duration;
+            }
+            catch (Exception ex)
             {
                 Tools.ErrorLog(ex.Message);
                 Debug.WriteLine("Error in WavFileMetaData:- " + ex.Message);
@@ -208,7 +208,7 @@ namespace BatRecordingManager
 
             if (string.IsNullOrWhiteSpace(wavFilename)) return result;
             if (!wavFilename.Trim().ToUpper().EndsWith(".WAV")) return result;
-            if (!File.Exists(wavFilename) || (new FileInfo(wavFilename).Length<=0L)) return result;
+            if (!File.Exists(wavFilename) || (new FileInfo(wavFilename).Length <= 0L)) return result;
             try
             {
                 using (var fs = File.Open(wavFilename, FileMode.Open))
@@ -291,7 +291,7 @@ namespace BatRecordingManager
                                     result = DecodeGuanoData(metadataString);
                                 }
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
 
                                 Debug.WriteLine("Overflowed the data file - " + reader.BaseStream.Position + "/" +
@@ -309,7 +309,7 @@ namespace BatRecordingManager
                     var durationInSecs = 0.0d;
                     if (byteRate > 0 && channels > 0 && dataBytes > 0)
                     {
-                        durationInSecs = (double) dataBytes / byteRate;
+                        durationInSecs = (double)dataBytes / byteRate;
                         m_Duration = TimeSpan.FromSeconds(durationInSecs);
                         result = true;
                     }
@@ -374,7 +374,7 @@ namespace BatRecordingManager
                             {
                                 m_ManualID = (m_ManualID + " " + entry.Value).Trim();
                             }
-                            
+
                             result = true;
                             break;
 

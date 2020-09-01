@@ -14,14 +14,13 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -69,7 +68,7 @@ namespace BatRecordingManager
         {
             var oldSelection = BatStatsDataGrid.SelectedIndex;
             var multiSelection = BatStatsDataGrid.SelectedItems;
-            
+
             BatStatisticsList.Clear();
             //BatStatisticsList.AddRange(DBAccess.GetBatStatistics());
             // Stopwatch watch = Stopwatch.StartNew();
@@ -78,7 +77,7 @@ namespace BatRecordingManager
             // Debug.WriteLine("GetBatStatistics took " + watch.ElapsedMilliseconds + "ms");
 
             //BatStatsDataGrid.ItemsSource = BatStatisticsList;
-            if ( multiSelection.Count > 0)
+            if (multiSelection.Count > 0)
             {
                 foreach (var item in multiSelection)
                 {
@@ -210,7 +209,7 @@ namespace BatRecordingManager
             }
         }
 
-       
+
     }
 
     #endregion BatRecordingListDetailControl

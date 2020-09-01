@@ -1,12 +1,9 @@
-﻿using DspSharp.Utilities.Collections;
+﻿using Acr.Settings;
+using DspSharp.Utilities.Collections;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
 using System.Diagnostics;
-using Acr.Settings;
+using System.Linq;
 
 namespace BatPassAnalysisFW
 {
@@ -35,13 +32,13 @@ namespace BatPassAnalysisFW
         /// <summary>
         /// formatted offset of the segment nto the recording mins:sescs:ms
         /// </summary>
-        public String Start
+        public string Start
         {
             get
             {
-                double secs = (double)OffsetInRecordingInSamples / (double)SampleRate;
+                double secs = OffsetInRecordingInSamples / (double)SampleRate;
                 TimeSpan time = TimeSpan.FromSeconds(secs);
-                
+
                 return ($"{time.Minutes:G2}:{time.Seconds:G2}.{time.Milliseconds:G3}");
 
             }
@@ -114,22 +111,22 @@ namespace BatPassAnalysisFW
 
         private ObservableList<bpaPass> PassList { get; set; } = new ObservableList<bpaPass>();
 
-        private int recNumber;
+        private readonly int recNumber;
 
-        private int segNumber;
+        private readonly int segNumber;
 
-        
 
-        public bpaSegment(int recNumber, int index, int offset, DataAccessBlock dab, int sampleRate,string comment)
+
+        public bpaSegment(int recNumber, int index, int offset, DataAccessBlock dab, int sampleRate, string comment)
         {
-            
+
             OffsetInRecordingInSamples = offset;
             SegmentLengthInSamples = (int)dab.Length;
             SampleRate = sampleRate;
             segmentAccessBlock = dab;
 
-            startTime = TimeSpan.FromSeconds((double)offset / (double)sampleRate);
-            duration = TimeSpan.FromSeconds((double)SegmentLengthInSamples / (double)sampleRate);
+            startTime = TimeSpan.FromSeconds(offset / (double)sampleRate);
+            duration = TimeSpan.FromSeconds(SegmentLengthInSamples / (double)sampleRate);
             this.segNumber = index;
             this.recNumber = recNumber;
             Comment = comment;
@@ -146,7 +143,7 @@ namespace BatPassAnalysisFW
             PassList.Add(pass);
         }
 
-        public bool CreatePasses(decimal thresholdFactor,decimal spectrumFactor)
+        public bool CreatePasses(decimal thresholdFactor, decimal spectrumFactor)
         {
             bool result = false;
             PassList.Clear();
@@ -156,7 +153,7 @@ namespace BatPassAnalysisFW
                 //data = new float[SegmentLengthInSamples];
                 // pass the entire segment
 
-                bpaPass pass = new bpaPass(recNumber, segNumber, index++, 0, segmentAccessBlock, SampleRate,Comment,(float)SegmentLengthInSamples/(float)SampleRate,startTime);
+                bpaPass pass = new bpaPass(recNumber, segNumber, index++, 0, segmentAccessBlock, SampleRate, Comment, SegmentLengthInSamples / (float)SampleRate, startTime);
                 PassList.Add(pass);
             }
             else
@@ -168,7 +165,7 @@ namespace BatPassAnalysisFW
                 while (remainingLength > extendedBlockSize)
                 {
                     DataAccessBlock dab = new DataAccessBlock(segmentAccessBlock.FQfileName, segmentAccessBlock.BlockStartInFileInSamples + startOfPassInSegment, blockSize);
-                    bpaPass pass = new bpaPass( recNumber, segNumber, index++, startOfPassInSegment, dab, SampleRate,Comment, (float)SegmentLengthInSamples / (float)SampleRate,startTime);
+                    bpaPass pass = new bpaPass(recNumber, segNumber, index++, startOfPassInSegment, dab, SampleRate, Comment, SegmentLengthInSamples / (float)SampleRate, startTime);
                     PassList.Add(pass);
                     startOfPassInSegment += blockSize;
                     remainingLength -= blockSize;
@@ -176,7 +173,7 @@ namespace BatPassAnalysisFW
                 if (remainingLength > 0)
                 {
                     DataAccessBlock dab = new DataAccessBlock(segmentAccessBlock.FQfileName, segmentAccessBlock.BlockStartInFileInSamples + startOfPassInSegment, remainingLength);
-                    bpaPass pass = new bpaPass( recNumber, segNumber, index++, startOfPassInSegment, dab, SampleRate,Comment, (float)SegmentLengthInSamples / (float)SampleRate,startTime);
+                    bpaPass pass = new bpaPass(recNumber, segNumber, index++, startOfPassInSegment, dab, SampleRate, Comment, SegmentLengthInSamples / (float)SampleRate, startTime);
                     PassList.Add(pass);
                 }
             }
@@ -184,7 +181,7 @@ namespace BatPassAnalysisFW
 
             foreach (var pass in PassList)
             {
-                pass.CreatePass(thresholdFactor,spectrumFactor);
+                pass.CreatePass(thresholdFactor, spectrumFactor);
             }
 
 
@@ -207,7 +204,7 @@ namespace BatPassAnalysisFW
         /// <returns></returns>
         internal TimeSpan GetOffsetInRecording()
         {
-            double secs = (double)OffsetInRecordingInSamples / (double)SampleRate;
+            double secs = OffsetInRecordingInSamples / (double)SampleRate;
             TimeSpan time = TimeSpan.FromSeconds(secs);
             return (time);
         }
@@ -238,23 +235,23 @@ namespace BatPassAnalysisFW
         /// <param name="pulsesToBeRemoved"></param>
         internal ObservableList<bpaPass> DeletePulses(List<Pulse> pulsesToBeRemoved)
         {
-            
-            if(pulsesToBeRemoved!=null && pulsesToBeRemoved.Count() > 0)
+
+            if (pulsesToBeRemoved != null && pulsesToBeRemoved.Count() > 0)
             {
-                foreach(var pass in PassList)
+                foreach (var pass in PassList)
                 {
                     if (pulsesToBeRemoved.Count() <= 0) break;
-                    pulsesToBeRemoved=pass.DeletePulses(pulsesToBeRemoved);
+                    pulsesToBeRemoved = pass.DeletePulses(pulsesToBeRemoved);
                 }
                 List<bpaPass> removed = new List<bpaPass>();
-                foreach(var pass in PassList)
+                foreach (var pass in PassList)
                 {
                     if (pass.getPulseList().Count <= 0)
                     {
                         removed.Add(pass);
                     }
                 }
-                foreach(var pass in removed)
+                foreach (var pass in removed)
                 {
                     PassList.Remove(pass);
                 }
@@ -264,9 +261,9 @@ namespace BatPassAnalysisFW
 
         internal decimal getSpectrumThresholdFactor()
         {
-            if(PassList!=null && PassList.Count > 0)
+            if (PassList != null && PassList.Count > 0)
             {
-                return(PassList.First().GetSpectrumThresholdFactor());
+                return (PassList.First().GetSpectrumThresholdFactor());
             }
             return (CrossSettings.Current.Get<decimal>("SpectrumThresholdFactor"));
         }
@@ -295,7 +292,7 @@ namespace BatPassAnalysisFW
             var thisPass = (from p in PassList
                             where p.Pass_Number == pass.Pass_Number
                             select p).FirstOrDefault();
-            if (thisPass != null && thisPass.Pass_Number>0)
+            if (thisPass != null && thisPass.Pass_Number > 0)
             {
                 thisPass.Comment += comment;
             }

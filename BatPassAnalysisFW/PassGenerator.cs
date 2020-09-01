@@ -31,9 +31,9 @@ namespace BatPassAnalysisFW
             if (Directory.Exists(path))
             {
                 var allWavFiles = Directory.EnumerateFiles(path, "*.wav");
-                if(allWavFiles!=null && allWavFiles.Any())
+                if (allWavFiles != null && allWavFiles.Any())
                 {
-                    foreach(var file in allWavFiles)
+                    foreach (var file in allWavFiles)
                     {
                         passGenerator.CreateLabelFile(file);
                     }
@@ -47,25 +47,25 @@ namespace BatPassAnalysisFW
             if (!File.Exists(FQWavFileName)) return;
             var FQTextFileName = Path.ChangeExtension(FQWavFileName, ".txt");
             if (File.Exists(FQTextFileName)) return;
-            File.WriteAllText(FQTextFileName,$"0\t0\t{FQWavFileName}\n");
+            File.WriteAllText(FQTextFileName, $"0\t0\t{FQWavFileName}\n");
             textFiles.Add(FQTextFileName);
-            (float start,float end,string comment)[] passes= GetPasses(FQWavFileName);
-            if(passes!=null && passes.Any())
+            (float start, float end, string comment)[] passes = GetPasses(FQWavFileName);
+            if (passes != null && passes.Any())
             {
-                foreach(var pass in passes)
+                foreach (var pass in passes)
                 {
-                    File.AppendAllText(FQTextFileName,$"{pass.start}\t{pass.end}\t{pass.comment}\n");
+                    File.AppendAllText(FQTextFileName, $"{pass.start}\t{pass.end}\t{pass.comment}\n");
                 }
             }
 
-            
+
         }
 
         private (float start, float end, string comment)[] GetPasses(string FQWavFileName)
         {
             List<(float start, float end, string comment)> result = new List<(float start, float end, string comment)>();
-            float[] envelope = GetFilteredEnvelope(FQWavFileName,15000,65000,out float mean,out int envelopeRate);
-            result = ScanForPasses(envelope, mean * 3.0f, 0.001f, 0.5f, 0.5f,envelopeRate);
+            float[] envelope = GetFilteredEnvelope(FQWavFileName, 15000, 65000, out float mean, out int envelopeRate);
+            result = ScanForPasses(envelope, mean * 3.0f, 0.001f, 0.5f, 0.5f, envelopeRate);
 
             return (result.ToArray());
         }
@@ -82,7 +82,7 @@ namespace BatPassAnalysisFW
         /// 
         /// <returns></returns>
         private List<(float start, float end, string comment)> ScanForPasses(float[] envelope, float threshold,
-            float LeadInSecs, float leadOutSecs,float PrependSecs, int effectiveSampleRate)
+            float LeadInSecs, float leadOutSecs, float PrependSecs, int effectiveSampleRate)
         {
             var result = new List<(float start, float end, string comment)>();
             int leadInSamples = (int)(LeadInSecs * effectiveSampleRate);
@@ -130,7 +130,7 @@ namespace BatPassAnalysisFW
                         Debug.WriteLine($"Out {i}\n");
                         break;
 
-                        
+
                     case PassAnalysis.peakState.INPEAKLEADOUT:
                         int leadOutCount = 1;
                         while (i < envelope.Length && envelope[i] < threshold)
@@ -147,7 +147,7 @@ namespace BatPassAnalysisFW
                                 }
                                 currentPeakState = PassAnalysis.peakState.NOTINPEAK;
                                 i++;
-                                
+
                                 break;
                             }
                             i++;
@@ -214,7 +214,7 @@ namespace BatPassAnalysisFW
         /// </summary>
         /// <param name="fQWavFileName"></param>
         /// <returns></returns>
-        private float[] GetFilteredEnvelope(string fQWavFileName,int lowFrequency,int highFrequency,out float mean,out int effectiveSampleRate)
+        private float[] GetFilteredEnvelope(string fQWavFileName, int lowFrequency, int highFrequency, out float mean, out int effectiveSampleRate)
         {
             AudioFileReader afr = new AudioFileReader(fQWavFileName);
             int floatsToRead = (int)(afr.Length / sizeof(float));
@@ -223,17 +223,17 @@ namespace BatPassAnalysisFW
             mean = 0.0f;
 
             int sampleRate = afr.WaveFormat.SampleRate;
-            int floatsRead=afr.ToSampleProvider().Read(data, 0, floatsToRead);
-            Debug.WriteLine($"Read {floatsRead} samples = {floatsRead/sampleRate}secs");
+            int floatsRead = afr.ToSampleProvider().Read(data, 0, floatsToRead);
+            Debug.WriteLine($"Read {floatsRead} samples = {floatsRead / sampleRate}secs");
             List<float> envelope = new List<float>();
-            
+
             effectiveSampleRate = sampleRate / 10;
-            var HiPassfilter = BiQuadFilter.HighPassFilter(sampleRate, (float)lowFrequency, 5);
-            var LowPassfilter = BiQuadFilter.LowPassFilter(sampleRate, (float)highFrequency, 5);
+            var HiPassfilter = BiQuadFilter.HighPassFilter(sampleRate, lowFrequency, 5);
+            var LowPassfilter = BiQuadFilter.LowPassFilter(sampleRate, highFrequency, 5);
             var SmoothingFilter = BiQuadFilter.LowPassFilter(sampleRate, 500.0f, 1);
             double shortTotal = 0.0d;
             double max = double.MinValue;
-            for(int i=0,e=0 ;i<floatsRead ; i++)
+            for (int i = 0, e = 0; i < floatsRead; i++)
             {
                 var s = HiPassfilter.Transform(data[i]);
                 s = LowPassfilter.Transform(s);
@@ -257,14 +257,14 @@ namespace BatPassAnalysisFW
                         Debug.WriteLine($"NAN at i={i} e={e} s={s} shortTotal={shortTotal} val={val}");
                     }
                 }
-                
+
             }
-            
+
             mean = (float)(total / envelope.Count());
             Debug.WriteLine($"Total={total} count={envelope.Count()}, Mean={mean}, Max={max}");
-            
+
             return (envelope.ToArray());
-           
+
         }
     }
 }

@@ -435,6 +435,7 @@
     </Compile>
     <Compile Include="DBAccess.cs" />
     <Compile Include="DBMemberHelpers.cs" />
+    <Compile Include="DeepAnalysis.cs" />
     <Compile Include="DisplayStoredImageControl.xaml.cs">
       <DependentUpon>DisplayStoredImageControl.xaml</DependentUpon>
     </Compile>

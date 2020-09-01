@@ -14,11 +14,11 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
+using Mm.ExportableDataGrid;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using Microsoft.VisualStudio.Language.Intellisense;
-using Mm.ExportableDataGrid;
 
 namespace BatRecordingManager
 {
@@ -66,41 +66,41 @@ namespace BatRecordingManager
         /// <param name="visibility"></param>
         /// <param name="converter"></param>
         /// <returns></returns>
-        protected DataGridTextColumn CreateColumn(string header, string bindingSource, Visibility visibility=Visibility.Visible,
-            string converter="")
+        protected DataGridTextColumn CreateColumn(string header, string bindingSource, Visibility visibility = Visibility.Visible,
+            string converter = "")
         {
-            var column = new DataGridTextColumn {Header = header};
+            var column = new DataGridTextColumn { Header = header };
             var bind = new Binding(bindingSource);
             if (!string.IsNullOrWhiteSpace(converter))
             {
                 switch (converter)
                 {
                     case "ShortTime_Converter":
-                        bind.Converter=new ShortTimeConverter();
+                        bind.Converter = new ShortTimeConverter();
                         break;
                     case "ShortDate_Converter":
-                        bind.Converter=new ShortDateConverter();
+                        bind.Converter = new ShortDateConverter();
                         break;
                     case "GPSConverter":
-                        bind.Converter=new GPSConverter();
+                        bind.Converter = new GPSConverter();
                         break;
                     case "MapRefConverter":
-                        bind.Converter=new MapRefConverter();
+                        bind.Converter = new MapRefConverter();
                         break;
                     case "SessionStartDateTimeConverter":
-                        bind.Converter=new SessionStartDateTimeConverter();
+                        bind.Converter = new SessionStartDateTimeConverter();
                         break;
                     case "SessionEndDateTimeConverter":
-                        bind.Converter=new SessionEndDateTimeConverter();
+                        bind.Converter = new SessionEndDateTimeConverter();
                         break;
                     case "BSPassesConverter":
-                        bind.Converter=new BSPassesConverter();
+                        bind.Converter = new BSPassesConverter();
                         break;
                     default:
                         break;
                 }
 
-                
+
             }
 
             column.Binding = bind;

@@ -14,12 +14,12 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -69,7 +69,7 @@ namespace BatRecordingManager
         /// </param>
         public void SetReadOnly(bool isReadOnly)
         {
-            
+
             StartFreqUpDown.IsEnabled = isReadOnly;
             StartFreqVariationTextBox.IsEnabled = isReadOnly;
             EndFreqTextBox.IsEnabled = isReadOnly;
@@ -177,13 +177,13 @@ namespace BatRecordingManager
         {
             get
             {
-                var result = (Call) GetValue(BatCallProperty);
+                var result = (Call)GetValue(BatCallProperty);
 
                 result.CallPictures.Clear();
                 if (CallImageList != null)
                     foreach (var storedImage in CallImageList)
                     {
-                        var callPicture = new CallPicture {BinaryData = storedImage.GetAsBinaryData()};
+                        var callPicture = new CallPicture { BinaryData = storedImage.GetAsBinaryData() };
                         result.CallPictures.Add(callPicture);
                     }
 

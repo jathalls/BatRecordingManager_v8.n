@@ -218,9 +218,14 @@
                                                             MouseLeave="LabelledSegmentTextBlock_MouseLeave">
                                                                 <TextBlock.ContextMenu>
                                                                     <ContextMenu>
-                                                                        <MenuItem x:Name="miOpenSegment" Header="Open in Audacity" Click="miOpenSegment_Click" />
-                                                                        <MenuItem x:Name="miAddImage" Header="Add Image" Click="miAddImage_Click" />
-                                                                        <MenuItem x:Name="miPlaySegment" Header="Play" Click="miPlaySegment_Click" />
+                                                                        <MenuItem x:Name="miOpenSegment" Header="Open in Audacity" Click="miOpenSegment_Click" 
+                                                                                  ToolTip="Open recording in Audacity and zoom to this segment" />
+                                                                        <MenuItem x:Name="miAddImage" Header="Add Image" Click="miAddImage_Click" 
+                                                                                  ToolTip="Open the Import Image Dialog with caption set to this comment" />
+                                                                        <MenuItem x:Name="miPlaySegment" Header="Play" Click="miPlaySegment_Click"
+                                                                                  ToolTip="Play this segment at reduced spped or heterodyned"/>
+                                                                        <MenuItem x:Name="miAnalyseSegment" Header="Analyse" 
+                                                                                  ToolTip="Perform a deep analysis of this segment" Click="miAnalyseSegment_Click"/>
                                                                     </ContextMenu>
                                                                 </TextBlock.ContextMenu>
                                                             

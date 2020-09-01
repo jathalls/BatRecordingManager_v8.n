@@ -71,7 +71,7 @@ namespace BatRecordingManager
         {
             lock (_mLock) // lock for thread safety
             {
-                double zone = -(int) Math.Round(TimeZone.CurrentTimeZone.GetUtcOffset(date).TotalSeconds / 3600);
+                double zone = -(int)Math.Round(TimeZone.CurrentTimeZone.GetUtcOffset(date).TotalSeconds / 3600);
                 var jd = GetJulianDay(date) - 2451545; // Julian day relative to Jan 1.5, 2000
 
                 if (Sign(zone) == Sign(lon) && zone != 0)
@@ -207,7 +207,7 @@ namespace BatRecordingManager
             [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
             public double ToDouble()
             {
-                return Sign() * (MDegrees + (double) MMinutes / 60 + (double) MSeconds / 3600);
+                return Sign() * (MDegrees + (double)MMinutes / 60 + (double)MSeconds / 3600);
             }
 
             protected internal abstract int Sign();
@@ -217,12 +217,12 @@ namespace BatRecordingManager
 
         private const double MDr = Math.PI / 180;
         private const double MK1 = 15 * MDr * 1.0027379;
-        private readonly double[] _mDecensionArr = new double[3] {0.0, 0.0, 0.0};
+        private readonly double[] _mDecensionArr = new double[3] { 0.0, 0.0, 0.0 };
         private bool _mIsSunrise;
         private bool _mIsSunset;
         private readonly object _mLock = new object();
-        private readonly double[] _mRightAscentionArr = new double[3] {0.0, 0.0, 0.0};
-        private readonly int[] _mRiseTimeArr = new int[2] {0, 0};
+        private readonly double[] _mRightAscentionArr = new double[3] { 0.0, 0.0, 0.0 };
+        private readonly int[] _mRiseTimeArr = new int[2] { 0, 0 };
 
         [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private double _mRizeAzimuth;
@@ -230,9 +230,9 @@ namespace BatRecordingManager
         [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private double _mSetAzimuth;
 
-        private readonly int[] _mSetTimeArr = new int[2] {0, 0};
-        private readonly double[] _mSunPositionInSkyArr = new double[2] {0.0, 0.0};
-        private readonly double[] _mVHzArr = new double[3] {0.0, 0.0, 0.0};
+        private readonly int[] _mSetTimeArr = new int[2] { 0, 0 };
+        private readonly double[] _mSunPositionInSkyArr = new double[2] { 0.0, 0.0 };
+        private readonly double[] _mVHzArr = new double[3] { 0.0, 0.0, 0.0 };
 
         #endregion Private Data Members
 
@@ -264,7 +264,7 @@ namespace BatRecordingManager
                 month = month + 12;
             }
 
-            var a = Math.Floor((double) year / 100);
+            var a = Math.Floor((double)year / 100);
             double b = 0;
 
             if (gregorian)
@@ -380,10 +380,10 @@ namespace BatRecordingManager
             if (e > 1 || e < 0)
                 e = (-b - d) / (2 * a);
 
-            time = k + e + 1 / (double) 120; // time of an event
+            time = k + e + 1 / (double)120; // time of an event
 
-            hr = (int) Math.Floor(time);
-            min = (int) Math.Floor((time - hr) * 60);
+            hr = (int)Math.Floor(time);
+            min = (int)Math.Floor((time - hr) * 60);
 
             hz = ha[0] + e * (ha[2] - ha[0]); // azimuth of the sun at the event
             nz = -Math.Cos(_mDecensionArr[1]) * Math.Sin(hz);

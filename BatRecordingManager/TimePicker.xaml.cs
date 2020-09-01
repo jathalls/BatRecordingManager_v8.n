@@ -70,7 +70,7 @@ namespace BatRecordingManager
         /// </value>
         public int Hours
         {
-            get => (int) GetValue(HoursProperty);
+            get => (int)GetValue(HoursProperty);
             set => SetValue(HoursProperty, value);
         }
 
@@ -82,7 +82,7 @@ namespace BatRecordingManager
         /// </value>
         public int Minutes
         {
-            get => (int) GetValue(MinutesProperty);
+            get => (int)GetValue(MinutesProperty);
             set => SetValue(MinutesProperty, value);
         }
 
@@ -94,7 +94,7 @@ namespace BatRecordingManager
         /// </value>
         public int Seconds
         {
-            get => (int) GetValue(SecondsProperty);
+            get => (int)GetValue(SecondsProperty);
             set => SetValue(SecondsProperty, value);
         }
 
@@ -106,7 +106,7 @@ namespace BatRecordingManager
         /// </value>
         public TimeSpan Value
         {
-            get => (TimeSpan) GetValue(ValueProperty);
+            get => (TimeSpan)GetValue(ValueProperty);
             set => SetValue(ValueProperty, value);
         }
 
@@ -137,9 +137,9 @@ namespace BatRecordingManager
         private static void OnValueChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
             var control = obj as TimePicker;
-            control.Hours = ((TimeSpan) e.NewValue).Hours;
-            control.Minutes = ((TimeSpan) e.NewValue).Minutes;
-            control.Seconds = ((TimeSpan) e.NewValue).Seconds;
+            control.Hours = ((TimeSpan)e.NewValue).Hours;
+            control.Minutes = ((TimeSpan)e.NewValue).Minutes;
+            control.Seconds = ((TimeSpan)e.NewValue).Seconds;
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace BatRecordingManager
         /// </param>
         private void Down(object sender, KeyEventArgs args)
         {
-            switch (((Grid) sender).Name)
+            switch (((Grid)sender).Name)
             {
                 case "sec":
                     if (args.Key == Key.Up)

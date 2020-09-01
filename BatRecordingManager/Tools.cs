@@ -14,6 +14,9 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.Maps.MapControl.WPF;
+using Microsoft.VisualStudio.Language.Intellisense;
+using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.Data.Linq;
@@ -21,6 +24,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.IO.Pipes;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -39,20 +43,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using WindowsInput;
 using WindowsInput.Native;
-using Microsoft.Maps.MapControl.WPF;
-using Microsoft.VisualStudio.Language.Intellisense;
 using Application = System.Windows.Application;
 using Brushes = System.Drawing.Brushes;
-using Color = System.Drawing.Color;
 using Cursor = System.Windows.Input.Cursor;
 using Cursors = System.Windows.Input.Cursors;
 using DataGrid = System.Windows.Controls.DataGrid;
 using MessageBox = System.Windows.Forms.MessageBox;
-using StringAlignment = System.Drawing.StringAlignment;
-using System.Windows.Forms.VisualStyles;
-using System.IO.Pipes;
-using System.Web.SessionState;
-using NAudio.Wave;
 
 namespace BatRecordingManager
 {
@@ -84,8 +80,8 @@ namespace BatRecordingManager
         }
 
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        public static String macroFileName = @"C:\audacity-win-portable\Portable Settings\Macros\BRM-Macro.txt";
-       
+        public static string macroFileName = @"C:\audacity-win-portable\Portable Settings\Macros\BRM-Macro.txt";
+
 
 
         private static readonly bool HasErred = false;
@@ -695,7 +691,7 @@ namespace BatRecordingManager
         internal static void OpenWavFile(string folder)
         {
             if (string.IsNullOrWhiteSpace(folder) || !File.Exists(folder) || (new FileInfo(folder).Length <= 0L)) return;
-            
+
             OpenWavAndTextFile(folder);
         }
 
@@ -745,10 +741,10 @@ namespace BatRecordingManager
             else
             {
                 externalProcess.StartInfo.FileName = audacityFileLocation;
-                
+
             }
 
-            
+
             externalProcess.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
 
             var started = externalProcess.Start();
@@ -758,9 +754,9 @@ namespace BatRecordingManager
                 Debug.Write("!");
             }
 
-            
+
             externalProcess.EnableRaisingEvents = true;
-            
+
             try
             {
                 Application.Current.MainWindow.Focus();
@@ -820,12 +816,12 @@ namespace BatRecordingManager
             return externalProcess;
         }
 
-        private static void startAudacityWithPipes(StreamReader sr, StreamWriter sw, string fQWavFileName,InputSimulator ipSime)
+        private static void startAudacityWithPipes(StreamReader sr, StreamWriter sw, string fQWavFileName, InputSimulator ipSime)
         {
-            
+
             string command = $"Import2: Filename=\"{fQWavFileName}\"\n";
-            DoPipeCommand(sr,sw,command);
-            
+            DoPipeCommand(sr, sw, command);
+
         }
 
         private static void setPipeStrem(out NamedPipeClientStream inStream, out NamedPipeClientStream outStream)
@@ -837,10 +833,10 @@ namespace BatRecordingManager
             inStream.Connect();
             outStream = new NamedPipeClientStream(".", toName, PipeDirection.Out);
             outStream.Connect();
-            
+
         }
 
-       
+
 
         /// <summary>
         ///     Given a Process in which Audacity is running, and an Input Simulator, sends keyboard commands to
@@ -856,9 +852,9 @@ namespace BatRecordingManager
         /// <param name="ipSim"></param>
         /// <param name="textFileName"></param>
         /// <returns></returns>
-        private static bool CreateAudacityLabelFile(Process externalProcess, InputSimulator ipSim, string textFileName,StreamReader sr=null,StreamWriter sw=null)
+        private static bool CreateAudacityLabelFile(Process externalProcess, InputSimulator ipSim, string textFileName, StreamReader sr = null, StreamWriter sw = null)
         {
-            
+
             if (externalProcess == null || ipSim == null || externalProcess.HasExited) return false;
             var epHandle = externalProcess.MainWindowHandle;
             if (epHandle == (IntPtr)0L) return false;
@@ -880,23 +876,23 @@ namespace BatRecordingManager
             {
                 SetForegroundWindow(epHandle);
 
-                
+
 
                 #region using Pipes
-                
-                    string command = $"SelectNone:\n";
-                    DoPipeCommand(sr, sw, command);
-                    command = $"NewLabelTrack:\n";
-                    DoPipeCommand(sr, sw, command);
-                    command = $"SetTrack:Name=\"{bareFileName}\"\n";
-                    DoPipeCommand(sr, sw, command);
-                    command = $"SelectTracks:Mode=\"Set\" Track=\"0\" TrackCount=\"1\"\n";
-                    DoPipeCommand(sr, sw, command);
-                    command = $"SelectNone:\n";
-                    DoPipeCommand(sr, sw, command);
-                    return (true);
-                    
-                
+
+                string command = $"SelectNone:\n";
+                DoPipeCommand(sr, sw, command);
+                command = $"NewLabelTrack:\n";
+                DoPipeCommand(sr, sw, command);
+                command = $"SetTrack:Name=\"{bareFileName}\"\n";
+                DoPipeCommand(sr, sw, command);
+                command = $"SelectTracks:Mode=\"Set\" Track=\"0\" TrackCount=\"1\"\n";
+                DoPipeCommand(sr, sw, command);
+                command = $"SelectNone:\n";
+                DoPipeCommand(sr, sw, command);
+                return (true);
+
+
                 #endregion
 
 
@@ -911,22 +907,23 @@ namespace BatRecordingManager
             return result;
         }
 
-        private static string DoPipeCommand(StreamReader sr,StreamWriter sw,string command)
+        private static string DoPipeCommand(StreamReader sr, StreamWriter sw, string command)
         {
-            
+
             Debug.WriteLine($"Sent: {command}");
             sw.Write(command);
             sr.DiscardBufferedData();
             sw.Flush();
-            
+
             string line;
             string result = "";
-            do { 
-                line = sr.ReadLine(); 
+            do
+            {
+                line = sr.ReadLine();
                 Debug.WriteLine($"Recvd:- <{line}>");
                 result = result + line;
             } while (!string.IsNullOrWhiteSpace(line));
-            return(result);
+            return (result);
         }
 
         /// <summary>
@@ -943,9 +940,9 @@ namespace BatRecordingManager
         /// <param name="ipSim"></param>
         /// <param name="textFileName"></param>
         /// <returns></returns>
-        private static bool OpenAudacityLabelFile(Process externalProcess, InputSimulator ipSim, string textFileName,StreamReader sr,StreamWriter sw)
+        private static bool OpenAudacityLabelFile(Process externalProcess, InputSimulator ipSim, string textFileName, StreamReader sr, StreamWriter sw)
         {
-                        
+
             sw.Write("ImportLabels:\n");
             sr.DiscardBufferedData();
             sw.Flush();
@@ -957,7 +954,7 @@ namespace BatRecordingManager
             string line;
             do { line = sr.ReadLine(); Debug.WriteLine($"Recvd:- <{line}>"); } while (!string.IsNullOrWhiteSpace(line));
             return (true);
-            
+
         }
 
         /// <summary>
@@ -1218,10 +1215,10 @@ namespace BatRecordingManager
                  * */
                 var ipSim = new InputSimulator();
                 SetForegroundWindow(epHandle);
-                ZoomAudacity(startOffset.TotalSeconds, endOffset.TotalSeconds,ipSim);
+                ZoomAudacity(startOffset.TotalSeconds, endOffset.TotalSeconds, ipSim);
 
 
-                 
+
 
 
                 Debug.WriteLine("Audacity zoomed");
@@ -1233,7 +1230,7 @@ namespace BatRecordingManager
             }
         }
 
-        private static void ZoomAudacity(double start, double end,InputSimulator ipSim)
+        private static void ZoomAudacity(double start, double end, InputSimulator ipSim)
         {
             if (File.Exists(macroFileName))
             {
@@ -1241,7 +1238,7 @@ namespace BatRecordingManager
             }
             string[] macro =
             {
-                        
+
                         "SelectNone",
                         $"Select:End=\"{end}\" Mode=\"Set\" Start=\"{start}\" Track=\"0\" TrackCount=\"1\"",
                         "ZoomSel:",
@@ -1311,7 +1308,7 @@ namespace BatRecordingManager
             File.SetAttributes(path, File.GetAttributes(path) | FileAttributes.System);
         }
 
-        
+
 
         /// <summary>
         ///     Parses a line in the format 00'00.00 into a TimeSpan the original strting has been
@@ -1379,8 +1376,6 @@ namespace BatRecordingManager
         public static TimeSpan GetFileDatesAndTimes(string fileName, out string wavfile, out DateTime fileStart,
             out DateTime fileEnd)
         {
-
-            DateTime creationTime;
             fileStart = DateTime.Now;
             fileEnd = new DateTime();
 
@@ -1433,8 +1428,8 @@ namespace BatRecordingManager
                     {
                         duration = wfr.TotalTime;
                         fileEnd = fileStart + duration;
-                        
-                        
+
+
                         return (duration);
 
                     }
@@ -1656,7 +1651,7 @@ namespace BatRecordingManager
             //Int32Rect.Empty,
             //BitmapSizeOptions.FromEmptyOptions());
             return result;
-            
+
         }
 
         /// <summary>
@@ -1782,9 +1777,9 @@ namespace BatRecordingManager
 
         internal static string SelectWavFileFolder(string initialDirectory)
         {
-            String FolderPath = "";
+            string FolderPath = "";
 
-            if(string.IsNullOrWhiteSpace(initialDirectory) || !Directory.Exists(initialDirectory))
+            if (string.IsNullOrWhiteSpace(initialDirectory) || !Directory.Exists(initialDirectory))
             {
                 initialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             }
@@ -1945,18 +1940,18 @@ namespace BatRecordingManager
         {
             try
             {
-                double dblValue=(double)value;
-                
+                double dblValue = (double)value;
+
 
                 string format = "{0.00}";
-                if (!string.IsNullOrWhiteSpace((parameter as String)))
+                if (!string.IsNullOrWhiteSpace((parameter as string)))
                 {
-                    format = "{"+(parameter as String)+"}";
+                    format = "{" + (parameter as string) + "}";
                 }
                 // Here's where you put the code do handle the value conversion.
                 var str = "";
 
-                str = String.Format(format, dblValue);
+                str = string.Format(format, dblValue);
 
                 return str;
             }
@@ -1972,7 +1967,7 @@ namespace BatRecordingManager
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             // Not implemented
-            double.TryParse((string) value, out var d);
+            double.TryParse((string)value, out var d);
             if (d < 0) return null;
 
             return d;
@@ -2005,14 +2000,14 @@ namespace BatRecordingManager
 
 
                 string format = "{0.00}";
-                if (!string.IsNullOrWhiteSpace((parameter as String)))
+                if (!string.IsNullOrWhiteSpace((parameter as string)))
                 {
-                    format = "{" + (parameter as String) + "}";
+                    format = "{" + (parameter as string) + "}";
                 }
                 // Here's where you put the code do handle the value conversion.
                 var str = "";
 
-                str = String.Format(format, dblValue);
+                str = string.Format(format, dblValue);
 
                 return str;
             }
@@ -2034,9 +2029,9 @@ namespace BatRecordingManager
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 
         {
-           
+
             decimal.TryParse((string)value, out var d);
-            
+
 
             return d;
         }
@@ -2177,7 +2172,7 @@ namespace BatRecordingManager
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var text = value as string;
-            var modifiedSegment = new LabelledSegment {Comment = text};
+            var modifiedSegment = new LabelledSegment { Comment = text };
 
             return modifiedSegment;
         }
@@ -2551,7 +2546,7 @@ namespace BatRecordingManager
                 // Here's where you put the code do handle the value conversion.  
                 if (value is RecordingSession)
                 {
-                    RecordingSession session=value as RecordingSession;
+                    RecordingSession session = value as RecordingSession;
                     return (session.LocationGPSLatitude.ToString() + ", " + session.LocationGPSLongitude.ToString());
                 }
 
@@ -2584,12 +2579,12 @@ namespace BatRecordingManager
                 // Here's where you put the code do handle the value conversion.  
                 if (value is RecordingSession)
                 {
-                    RecordingSession session=value as RecordingSession;
+                    RecordingSession session = value as RecordingSession;
 
                     if (session.hasGPSLocation)
                     {
-                        var lat = (double) session.LocationGPSLatitude;
-                        var longit = (double) session.LocationGPSLongitude;
+                        var lat = (double)session.LocationGPSLatitude;
+                        var longit = (double)session.LocationGPSLongitude;
                         var gridRef = GPSLocation.ConvertGPStoGridRef(lat, longit);
                         return (gridRef);
                     }
@@ -2629,10 +2624,10 @@ namespace BatRecordingManager
                 // Here's where you put the code do handle the value conversion.  
                 if (value is RecordingSession)
                 {
-                    RecordingSession session=value as RecordingSession;
+                    RecordingSession session = value as RecordingSession;
                     string result = (session.SessionDate.Date +
                                      (session.SessionStartTime ?? new TimeSpan(18, 0, 0))).ToString();
-                    return(result);
+                    return (result);
                 }
 
                 return (" - ");
@@ -2664,7 +2659,7 @@ namespace BatRecordingManager
                 if (value is RecordingSession)
                 {
                     RecordingSession session = value as RecordingSession;
-                    string result = ((session.EndDate??session.SessionDate).Date +
+                    string result = ((session.EndDate ?? session.SessionDate).Date +
                                      (session.SessionEndTime ?? new TimeSpan(23, 59, 0))).ToString();
                     return (result);
                 }
@@ -2698,7 +2693,7 @@ namespace BatRecordingManager
                 // Here's where you put the code do handle the value conversion.  
                 if (value is BatStats)
                 {
-                    BatStats bs=value as BatStats;
+                    BatStats bs = value as BatStats;
                     string result = bs.passes + "/" + bs.segments;
                     return (result);
                 }
@@ -2732,7 +2727,7 @@ namespace BatRecordingManager
         /// </summary>
         private static bool IsBusy;
 
-       
+
 
         /// <summary>
         /// Sets the busystate as busy.
@@ -2765,7 +2760,7 @@ namespace BatRecordingManager
                         });
                     }
                 }
-                
+
 
                 if (IsBusy)
                 {
@@ -2797,9 +2792,9 @@ namespace BatRecordingManager
     public class WaitCursor : IDisposable
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
-        private string _oldStatus = "null";
+        private readonly string _oldStatus = "null";
         private Cursor _previousCursor = Cursors.Arrow;
-        private int Depth = 0;
+        private readonly int Depth = 0;
 
 
         /// <summary>
@@ -2809,7 +2804,7 @@ namespace BatRecordingManager
         /// <param name="status"></param>
         /// <param name="caller"></param>
         /// <param name="linenumber"></param>
-        public WaitCursor(string status = "null",[CallerMemberName] string caller=null,[CallerLineNumber] int linenumber=0)
+        public WaitCursor(string status = "null", [CallerMemberName] string caller = null, [CallerLineNumber] int linenumber = 0)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             try
@@ -2937,12 +2932,12 @@ namespace BatRecordingManager
             {
                 if (value != null && parameter != null)
                 {
-                    var val = (double) value;
-                    var parm = (double) parameter;
+                    var val = (double)value;
+                    var parm = (double)parameter;
                     return val / parm;
                 }
 
-                return (double) value / 2;
+                return (double)value / 2;
             }
             catch
             {
@@ -2978,7 +2973,7 @@ namespace BatRecordingManager
             {
                 // Here's where you put the code do handle the value conversion.
                 double.TryParse(parameter as string, out var factor);
-                return (double) value * factor;
+                return (double)value * factor;
             }
             catch
             {
@@ -2997,7 +2992,7 @@ namespace BatRecordingManager
     #endregion Times2Converter (ValueConverter)
 
 
-        #region AddValueConverter (ValueConverter)
+    #region AddValueConverter (ValueConverter)
 
 
     /// <summary>
@@ -3015,7 +3010,7 @@ namespace BatRecordingManager
             {
                 // Here's where you put the code do handle the value conversion.
                 double.TryParse(parameter as string, out var factor);
-                return (double) value + factor;
+                return (double)value + factor;
             }
             catch
             {
@@ -3046,30 +3041,30 @@ namespace BatRecordingManager
 
 
 
-        /// <summary>
-        ///     Used to set the height of a scale grid inside a canvas of variable size.
-        ///     The converter is passed to bound values the height of the parent canvas and a
-        ///     scale factor.  it returns a value of the height multiplied by the scale factor.
-        /// </summary>
-        public class GridScaleConverter : IMultiValueConverter
+    /// <summary>
+    ///     Used to set the height of a scale grid inside a canvas of variable size.
+    ///     The converter is passed to bound values the height of the parent canvas and a
+    ///     scale factor.  it returns a value of the height multiplied by the scale factor.
+    /// </summary>
+    public class GridScaleConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-            {
-                if (values.Length < 2) return 0.0d as double?;
-                if (values.Length == 1) return values[0] as double?;
-                var height = values[0] as double?;
-                var scale = values[1] as double?;
-                return height * scale;
-            }
-
-            public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-            {
-                throw new NotImplementedException();
-            }
+            if (values.Length < 2) return 0.0d as double?;
+            if (values.Length == 1) return values[0] as double?;
+            var height = values[0] as double?;
+            var scale = values[1] as double?;
+            return height * scale;
         }
-    
 
-    
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
+
 
     #region multiscaleConverter (ValueConverter)
 
@@ -3104,7 +3099,7 @@ namespace BatRecordingManager
                         double.TryParse(strHeight, out height);
                     }
 
-                    if (values[0] is double) height = ((double?) values[0]).Value;
+                    if (values[0] is double) height = ((double?)values[0]).Value;
 
                     if (values[1] is string)
                     {
@@ -3112,7 +3107,7 @@ namespace BatRecordingManager
                         double.TryParse(strFactor, out factor);
                     }
 
-                    if (values[1] is double) factor = ((double?) values[1]).Value;
+                    if (values[1] is double) factor = ((double?)values[1]).Value;
 
                     return height * factor;
                 }
@@ -3548,8 +3543,8 @@ namespace BatRecordingManager
                 var imgs = 0;
 
                 imgs = (from rec in recordings
-                    from seg in rec.LabelledSegments
-                    select seg.SegmentDatas.Count).Sum();
+                        from seg in rec.LabelledSegments
+                        select seg.SegmentDatas.Count).Sum();
                 /*
                 foreach(var rec in recordings)
                 {
@@ -3657,10 +3652,10 @@ namespace BatRecordingManager
                 if (!(values[0] is BulkObservableCollection<Recording> recordings) || recordings.Count <= 0) return "-";
 
                 numberOfImages = (from rec in recordings.AsParallel()
-                    from seg in rec.LabelledSegments.AsParallel()
-                    from link in seg.BatSegmentLinks.AsParallel()
-                    where link.BatID == bat.Id
-                    select seg.SegmentDatas.Count).Sum();
+                                  from seg in rec.LabelledSegments.AsParallel()
+                                  from link in seg.BatSegmentLinks.AsParallel()
+                                  where link.BatID == bat.Id
+                                  select seg.SegmentDatas.Count).Sum();
 
                 /*
                 foreach(var rec in recordings)
@@ -3791,18 +3786,18 @@ namespace BatRecordingManager
 
                 if (values[1] is LabelledSegment)
                 {
-                    segment=(LabelledSegment)values[1];
+                    segment = (LabelledSegment)values[1];
                 }
-                
-                    if (segment!=null)
-                    {
-                        result = Tools.FormattedSegmentLine(segment,offsets);
-                        while (result.Trim().EndsWith("*")) result = result.Substring(0, result.Length - 1);
-                        result = result.Trim();
-                        if (!result.EndsWith(")") && segment.SegmentDatas.Count > 0)
-                            result = result + " (" + segment.SegmentDatas.Count + " images )";
-                    }
-                
+
+                if (segment != null)
+                {
+                    result = Tools.FormattedSegmentLine(segment, offsets);
+                    while (result.Trim().EndsWith("*")) result = result.Substring(0, result.Length - 1);
+                    result = result.Trim();
+                    if (!result.EndsWith(")") && segment.SegmentDatas.Count > 0)
+                        result = result + " (" + segment.SegmentDatas.Count + " images )";
+                }
+
 
                 return result;
             }
@@ -3906,6 +3901,104 @@ namespace BatRecordingManager
     }
 
     #endregion BatCallConverter (ValueConverter)
+
+
+    #region VisibilityConverter (ValueConverter)
+
+    /// <summary>
+    /// converter class for boolean to visibility
+    /// </summary>
+    public class VisibilityConverter : IValueConverter
+    {
+        /// <summary>
+        /// converts a bool to visibility true=visible false=hidden default visible
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                if (value is bool)
+                {
+                    bool? b = value as bool?;
+                    if (b ?? false)
+                    {
+                        return (Visibility.Visible);
+                    }
+                    else
+                    {
+                        return (Visibility.Hidden);
+                    }
+                }
+                return Visibility.Visible;
+            }
+            catch
+            {
+                return Visibility.Visible;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    #endregion
+
+    #region InVisibilityConverter (ValueConverter)
+
+    /// <summary>
+    /// class determines visibility by a boolean - true is hidden, false is visible
+    /// </summary>
+    public class InVisibilityConverter : IValueConverter
+    {
+        /// <summary>
+        /// converts a boolean to visibility true=hidden false=visible default visible
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                if (value is bool)
+                {
+                    bool? b = value as bool?;
+                    if (b ?? false)
+                    {
+                        return (Visibility.Hidden);
+                    }
+                    else
+                    {
+                        return (Visibility.Visible);
+                    }
+                }
+                return Visibility.Visible;
+            }
+            catch
+            {
+                return Visibility.Visible;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    #endregion
+
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
     internal struct Lpshfoldercustomsettings
@@ -4050,7 +4143,7 @@ namespace BatRecordingManager
             return FindVisualParent<T>(parentObject);
         }
 
-        
+
 
     }
 }

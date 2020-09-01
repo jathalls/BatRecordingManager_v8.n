@@ -14,13 +14,13 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -46,7 +46,7 @@ namespace BatRecordingManager
         /// <summary>
         ///     The GPX namespace
         /// </summary>
-        private XNamespace _gpxNamespace;
+        private readonly XNamespace _gpxNamespace;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="GpxHandler" /> class.

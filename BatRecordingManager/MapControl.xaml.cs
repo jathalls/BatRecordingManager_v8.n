@@ -14,14 +14,13 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.Maps.MapControl.WPF;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Microsoft.Maps.MapControl.WPF;
-using Microsoft.Maps.MapControl.WPF.Core;
 
 namespace BatRecordingManager
 {
-    
+
     /// <summary>
     ///     Interaction logic for MapControl.xaml
     /// </summary>
@@ -42,12 +41,12 @@ namespace BatRecordingManager
         {
             InitializeComponent();
             DataContext = this;
-            ThisMap.CredentialsProvider=new ApplicationIdCredentialsProvider(APIKeys.BingMapsLicenseKey);
+            ThisMap.CredentialsProvider = new ApplicationIdCredentialsProvider(APIKeys.BingMapsLicenseKey);
             ThisMap.Focus();
             lastInsertedPinLocation = null;
-           LabelMode = ThisMap.Mode;
-           
-           
+            LabelMode = ThisMap.Mode;
+
+
         }
 
         /// <summary>
@@ -81,7 +80,7 @@ namespace BatRecordingManager
         /// </param>
         public void AddPushPin(Location pinCoordinates, string text)
         {
-            var pin = new Pushpin {Location = pinCoordinates, Content = text,PositionOrigin = PositionOrigin.BottomCenter};
+            var pin = new Pushpin { Location = pinCoordinates, Content = text, PositionOrigin = PositionOrigin.BottomCenter };
             ThisMap.Children.Add(pin);
         }
 
@@ -91,11 +90,11 @@ namespace BatRecordingManager
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             //var pin = new Pushpin {Location = location,PositionOrigin = PositionOrigin.BottomCenter};
-            var pin=new Pushpin();
+            var pin = new Pushpin();
             pin.PositionOrigin = PositionOrigin.BottomCenter;
             pin.Location = location;
-            
-            
+
+
             ThisMap.Children.Add(pin);
         }
 
@@ -106,7 +105,7 @@ namespace BatRecordingManager
             var mousePosition = e.GetPosition(ThisMap);
             var pinLocation = ThisMap.ViewportPointToLocation(mousePosition);
 
-            var pin = new Pushpin {PositionOrigin = PositionOrigin.BottomCenter};
+            var pin = new Pushpin { PositionOrigin = PositionOrigin.BottomCenter };
             pin.Location = pinLocation;
             lastInsertedPinLocation = pinLocation;
             ThisMap.Children.Add(pin);
@@ -114,19 +113,19 @@ namespace BatRecordingManager
 
         private void AerialButton_Checked(object sender, System.Windows.RoutedEventArgs e)
         {
-            
+
             ThisMap.Mode = new AerialMode();
         }
 
         private void AerialLabelButton_Checked(object sender, System.Windows.RoutedEventArgs e)
         {
-            
+
             ThisMap.Mode = new AerialMode(true);
         }
 
         private void RoadButton_Checked(object sender, System.Windows.RoutedEventArgs e)
         {
-            
+
             ThisMap.Mode = new RoadMode();
         }
     }

@@ -14,11 +14,11 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -517,7 +517,7 @@ namespace BatRecordingManager
         {
             get
             {
-                var img = (StoredImage) GetValue(selectedImageProperty);
+                var img = (StoredImage)GetValue(selectedImageProperty);
 
                 if (img != null && !_locked)
                 {
@@ -573,7 +573,7 @@ namespace BatRecordingManager
         /// </summary>
         public bool IsReadOnly
         {
-            get => (bool) GetValue(IsReadOnlyProperty);
+            get => (bool)GetValue(IsReadOnlyProperty);
             set
             {
                 SetValue(IsReadOnlyProperty, value);

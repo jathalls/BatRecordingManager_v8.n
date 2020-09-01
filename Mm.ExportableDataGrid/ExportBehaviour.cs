@@ -30,7 +30,7 @@ namespace Mm.ExportableDataGrid
 
         public static string GetExportString(DataGridColumn column)
         {
-            return (string) column.GetValue(ExportStringProperty);
+            return (string)column.GetValue(ExportStringProperty);
         }
 
         public static void SetExportString(DataGridColumn column, string value)

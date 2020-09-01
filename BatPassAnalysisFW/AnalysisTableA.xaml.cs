@@ -36,7 +36,8 @@ namespace BatPassAnalysisFW
                 DataContext = tableData;
                 headerImage.Source = tableData.FrequencyHeader;
                 //Debug.WriteLine($"Set header source {tableData.FrequencyHeader.Width}x{tableData.FrequencyHeader.Height}");
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 AnalysisMainControl.ErrorLog($"failed initializing AnalysisTableA {ex.Message}");
             }
@@ -49,14 +50,15 @@ namespace BatPassAnalysisFW
             {
                 tableData = data;
                 this.DataContext = tableData;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 AnalysisMainControl.ErrorLog($"Error copying data to tableData:{ex.Message}");
             }
 
         }
 
-       
+
         /// <summary>
         /// if the selection of the segment changes then update the itemssources for the details grid
         /// </summary>
@@ -64,7 +66,7 @@ namespace BatPassAnalysisFW
         /// <param name="e"></param>
         internal void segmentDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            
+
             tableData.segmentDataGrid_SelectionChanged(null);
 
         }
@@ -94,32 +96,32 @@ namespace BatPassAnalysisFW
             RecalcButton.IsEnabled = false;
             tableData.ReProcessFile(file, EnvelopeThresholdUpDown.Value, SpectrumThresholdUpDown.Value);
             RecalcButton.IsEnabled = true;
-            
+
 
         }
 
         internal void ReProcessFile()
         {
-           
+
             RecalcButton.IsEnabled = false;
             if (tableData != null)
             {
                 if (tableData.combinedRecordingList != null && tableData.combinedRecordingList.Count > 0)
                 {
-                    foreach(var recording in tableData.combinedRecordingList)
+                    foreach (var recording in tableData.combinedRecordingList)
                     {
-                        tableData.ReProcessFile(recording.FQfilename,EnvelopeThresholdUpDown.Value,SpectrumThresholdUpDown.Value);
+                        tableData.ReProcessFile(recording.FQfilename, EnvelopeThresholdUpDown.Value, SpectrumThresholdUpDown.Value);
                     }
                 }
-                
+
 
             }
-            
+
             RecalcButton.IsEnabled = true;
-            
+
         }
 
-         
+
 
         internal async void ProcessFile(string selectedFQ_FileName)
         {
@@ -174,7 +176,8 @@ namespace BatPassAnalysisFW
                 try
                 {
                     ProcessWavFileFolder(folderPath);
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     AnalysisMainControl.ErrorLog($"Process multiple files error:- {ex.Message}");
                     return (false);
@@ -229,9 +232,9 @@ namespace BatPassAnalysisFW
                         if (!skipDatabaseCheck && PTA_DBAccess.RecordingExists(FQwavFile))
                         {
                             recording = PTA_DBAccess.getBPARecordingAndDescendants(FQwavFile);
-                             
+
                             tableData.thresholdFactor = recording.getThresholdFactor();
-                            
+
                             tableData.spectrumFactor = recording.getSpectrumThresholdFactor();
                         }
                         else
@@ -257,7 +260,7 @@ namespace BatPassAnalysisFW
                 }
                 tableData.SetRecordings(allRecordings);
                 RecalcButton.IsEnabled = true;
-                
+
             }
         }
 
@@ -271,19 +274,21 @@ namespace BatPassAnalysisFW
                 return null;
             }
 
-            if (!skipDatabaseCheck && PTA_DBAccess .RecordingExists(file))
+            if (!skipDatabaseCheck && PTA_DBAccess.RecordingExists(file))
             {
                 recording = PTA_DBAccess.getBPARecordingAndDescendants(file);
                 tableData.thresholdFactor = recording.getThresholdFactor();
                 tableData.spectrumFactor = recording.getSpectrumThresholdFactor();
             }
-            else {
+            else
+            {
                 recording = new bpaRecording(recNumber: 1, file);
 
                 try
                 {
                     recording.CreateSegments(tableData.thresholdFactor, tableData.spectrumFactor);
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     AnalysisMainControl.ErrorLog($"Error creating segments:{ex.Message}");
                 }
@@ -294,7 +299,7 @@ namespace BatPassAnalysisFW
             }
             tableData.SetRecording(recording);
 
-            
+
             RecalcButton.IsEnabled = true;
             return (recording);
 
@@ -330,7 +335,7 @@ namespace BatPassAnalysisFW
 
         private void recordingsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            
+
             tableData.recordingsDataGrid_SelectionChanged(null);
 
 
@@ -378,7 +383,7 @@ namespace BatPassAnalysisFW
                         selectedPasses.Add(item as bpaPass);
                     }
 
-                    foreach(var pass in selectedPasses)
+                    foreach (var pass in selectedPasses)
                     {
                         var selection = passDataGrid.SelectedItems;
                         tableData.UpdatePass(pass);
@@ -387,16 +392,16 @@ namespace BatPassAnalysisFW
                         //pass.CreatePass(tableData.thresholdFactor, tableData.spectrumFactor);
                     }
 
-                   /* var selecteddRecordings = (from pass in selectedPasses
-                                               from rec in tableData.combinedRecordingList
-                                               where pass.recordingNumber == rec.recNumber
-                                               select rec.FQfilename).Distinct<string>().ToList<string>();
+                    /* var selecteddRecordings = (from pass in selectedPasses
+                                                from rec in tableData.combinedRecordingList
+                                                where pass.recordingNumber == rec.recNumber
+                                                select rec.FQfilename).Distinct<string>().ToList<string>();
 
-                    foreach (var file in selecteddRecordings)
-                    {
+                     foreach (var file in selecteddRecordings)
+                     {
 
-                        ReProcessFile(file);
-                    }*/
+                         ReProcessFile(file);
+                     }*/
                 }
                 else
                 {
@@ -408,7 +413,7 @@ namespace BatPassAnalysisFW
             skipDatabaseCheck = false;
             tableData.passDataGrid_SelectionChanged(passDataGrid.SelectedItems);
             if (tableData.EnvelopeImage != null) tableData.EnvelopeEnabled = true;
-           
+
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -459,7 +464,8 @@ namespace BatPassAnalysisFW
 
 
             //passDataGrid.ExportUsingRefection(exporter,@"C:\ExportedBatData\Passes.csv");
-            this.Dispatcher.Invoke(() => {
+            this.Dispatcher.Invoke(() =>
+            {
                 spectralPeakDataGrid.Visibility = Visibility.Hidden;
 
 
@@ -579,15 +585,15 @@ namespace BatPassAnalysisFW
 
                 tableData.AutoRemoveOutliers();
                 tableData.passDataGrid_SelectionChanged(null);
-                
-                
+
+
                 tableData.AutoDeleteBlankPasses();
                 tableData.passDataGrid_SelectionChanged(null);
 
                 tableData.recordingsDataGrid_SelectionChanged(tableData.combinedRecordingList);
 
-                
-                
+
+
             }
         }
 
@@ -596,9 +602,9 @@ namespace BatPassAnalysisFW
             using (new WaitCursor())
             {
                 Classifier classify = new Classifier();
-                if(passDataGrid.SelectedItems!=null && passDataGrid.SelectedItems.Count > 0)
+                if (passDataGrid.SelectedItems != null && passDataGrid.SelectedItems.Count > 0)
                 {
-                    foreach(var item in passDataGrid.SelectedItems)
+                    foreach (var item in passDataGrid.SelectedItems)
                     {
                         bpaPass pass = item as bpaPass;
                         string comment = classify.Classify(pass);
@@ -608,18 +614,18 @@ namespace BatPassAnalysisFW
 
 
                                     select rec).FirstOrDefault();
-                        if (root != null && root.recNumber>0)
+                        if (root != null && root.recNumber > 0)
                         {
-                            root.appendCommentForPass(pass,"AC="+comment);
+                            root.appendCommentForPass(pass, "AC=" + comment);
                         }
                         pass.Comment += "AC=" + comment;
 
-                        
-                        
+
+
                     }
                     var selected = passDataGrid.SelectedItems;
                     tableData.segmentDataGrid_SelectionChanged(null);
-                    
+
                     tableData.passDataGrid_SelectionChanged(passDataGrid.SelectedItems);
                 }
             }
@@ -639,10 +645,10 @@ namespace BatPassAnalysisFW
             }
         }
 
-       
+
     }
 
-    
+
 
 
 }

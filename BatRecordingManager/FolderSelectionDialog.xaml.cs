@@ -14,12 +14,12 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -53,7 +53,7 @@ namespace BatRecordingManager
             if (!browser.WavFileFolders.IsNullOrEmpty())
             {
                 var combinedList = FolderList.Concat(browser.WavFileFolders).Distinct();
-                FolderList = (BulkObservableCollection<string>) combinedList;
+                FolderList = (BulkObservableCollection<string>)combinedList;
             }
         }
 
@@ -107,7 +107,7 @@ namespace BatRecordingManager
         /// </summary>
         public BulkObservableCollection<string> FolderList
         {
-            get => (BulkObservableCollection<string>) GetValue(FolderListProperty);
+            get => (BulkObservableCollection<string>)GetValue(FolderListProperty);
             set
             {
                 if (!value.IsNullOrEmpty())

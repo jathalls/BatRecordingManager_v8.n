@@ -32,7 +32,7 @@ namespace BatPassAnalysisFW
         {
             get
             {
-                
+
                 return (_peakFrequency);
             }
             set
@@ -53,7 +53,7 @@ namespace BatPassAnalysisFW
             {
                 if (_highFrequency < 0)
                 {
-                    _highFrequency = (int)((GetStartAsSampleInSeg() + getPeakWidthSamples()) * HzPerSample);
+                    _highFrequency = (GetStartAsSampleInSeg() + getPeakWidthSamples()) * HzPerSample;
                 }
                 return (_highFrequency);
             }
@@ -71,7 +71,7 @@ namespace BatPassAnalysisFW
             {
                 if (_lowFrequency < 0)
                 {
-                    _lowFrequency = (int)(GetStartAsSampleInSeg() * HzPerSample);
+                    _lowFrequency = GetStartAsSampleInSeg() * HzPerSample;
                 }
                 return (_lowFrequency);
             }
@@ -178,7 +178,7 @@ namespace BatPassAnalysisFW
         /// <param name="interval"></param>
         /// <param name="data"></param>
         public SpectralPeak(int peakNumber, int rate, int segmentStart, int peakStart, int peakWidth, double peakArea, float peakMaxHeight, int interval, ref float[] data,
-            int HzPerSample, float autoCorrelationWidth, Peak parentPeak = null,bool isValidPulse=true, int PassNumber = 1, int RecordingNumber = 1, float AbsoluteThreshold = 0.0f) :
+            int HzPerSample, float autoCorrelationWidth, Peak parentPeak = null, bool isValidPulse = true, int PassNumber = 1, int RecordingNumber = 1, float AbsoluteThreshold = 0.0f) :
             base(peakNumber, rate, segmentStart, peakStart, peakWidth, peakArea, peakMaxHeight, interval, AbsoluteThreshold: AbsoluteThreshold)
         {
 
@@ -194,19 +194,19 @@ namespace BatPassAnalysisFW
                 Pulse_ = parentPeak.peak_Number;
                 Pulse_Length_ms = parentPeak.peakWidthMs;
                 Pulse_Interval_ms = parentPeak.prevIntervalMs;
-                
+
 
             }
             IsValidPulse = isValidPulse;
             this.recordingNumber = RecordingNumber;
             this.AutoCorrelationWidth = autoCorrelationWidth;
             this.AbsoluteThreshold = AbsoluteThreshold;
-            findPeakFrequency(ref data,peakMaxHeight);
+            findPeakFrequency(ref data, peakMaxHeight);
 
             //AutoCorrelationWidth = getAutoCorrelationWidth();
         }
 
-        private void findPeakFrequency(ref float[] data,float max)
+        private void findPeakFrequency(ref float[] data, float max)
         {
             if (data == null || data.Length <= 0)
             {
@@ -218,8 +218,8 @@ namespace BatPassAnalysisFW
                 if (_peakFrequency < 0)
                 {
                     //var max = data.Max<float>();
-                    var index = Array.IndexOf(data,max);
-                    _peakFrequency = (index + (int)GetStartAsSampleInSeg()) * HzPerSample;
+                    var index = Array.IndexOf(data, max);
+                    _peakFrequency = (index + GetStartAsSampleInSeg()) * HzPerSample;
                     /*
                     double max = double.MinValue;
 
@@ -235,7 +235,7 @@ namespace BatPassAnalysisFW
             }
         }
 
-        
+
 
         public Peak getPulsePeak()
         {
@@ -249,12 +249,12 @@ namespace BatPassAnalysisFW
         /// <param name="peakStart"></param>
         /// <param name="peakCount"></param>
         public static SpectralPeak Create(int peakNumber, int peakStart, int peakCount, double peakArea, float maxHeight, int interval, int sampleRate, float autoCorrelationWidth,
-            Peak parentPeak = null,bool isValidPulse=true, double startOffset = 0.0d, float[] data = null, int HzPerSample = 1, int PassNumber = 1, int RecordingNumber = 1, float AbsoluteThreshold = 0.0f)
+            Peak parentPeak = null, bool isValidPulse = true, double startOffset = 0.0d, float[] data = null, int HzPerSample = 1, int PassNumber = 1, int RecordingNumber = 1, float AbsoluteThreshold = 0.0f)
         {
 
             //Debug.WriteLine($"Peak at {peakStart} for {peakCount} - {(float)peakStart / sampleRate}/{(float)peakCount / sampleRate}");
             SpectralPeak peak = new SpectralPeak(peakNumber, sampleRate, (int)(startOffset * sampleRate), peakStart, peakCount, peakArea, maxHeight, interval, ref data, HzPerSample,
-                autoCorrelationWidth, parentPeak,isValidPulse, PassNumber, RecordingNumber, AbsoluteThreshold);
+                autoCorrelationWidth, parentPeak, isValidPulse, PassNumber, RecordingNumber, AbsoluteThreshold);
 
             return (peak);
 
@@ -292,8 +292,8 @@ namespace BatPassAnalysisFW
                 }
             }
             //Debug.WriteLine($"halfHeightWidth:- he={highEdge} le={lowEdge} hhw={highEdge - lowEdge}");
-            _halfHeightHighFrequency = (int)((GetStartAsSampleInSeg() + highEdge) * HzPerSample);
-            _halfHeightLowFrequency = (int)((GetStartAsSampleInSeg() + lowEdge) * HzPerSample);
+            _halfHeightHighFrequency = (GetStartAsSampleInSeg() + highEdge) * HzPerSample;
+            _halfHeightLowFrequency = (GetStartAsSampleInSeg() + lowEdge) * HzPerSample;
             _halfHeightWidthHz = _halfHeightHighFrequency - _halfHeightLowFrequency;
 
 

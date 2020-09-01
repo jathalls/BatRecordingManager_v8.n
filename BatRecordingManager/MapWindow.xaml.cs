@@ -14,8 +14,8 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
-using System.Windows;
 using Microsoft.Maps.MapControl.WPF;
+using System.Windows;
 
 namespace BatRecordingManager
 {

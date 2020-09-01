@@ -200,9 +200,9 @@ namespace Mm.ExportableDataGrid
                                                  * an Id (SelectedValuePath) equal to the selected CategoryId */
                                                 var comboBoxSource = cmbColumn.ItemsSource.Cast<object>();
                                                 var obj = (from oo in comboBoxSource
-                                                    let prop = oo.GetType().GetProperty(cmbColumn.SelectedValuePath)
-                                                    where prop != null && prop.GetValue(oo).Equals(boundProperyValue)
-                                                    select oo).FirstOrDefault();
+                                                           let prop = oo.GetType().GetProperty(cmbColumn.SelectedValuePath)
+                                                           where prop != null && prop.GetValue(oo).Equals(boundProperyValue)
+                                                           select oo).FirstOrDefault();
                                                 if (obj != null)
                                                 {
                                                     /* Get the Name (DisplayMemberPath) of the Category object */

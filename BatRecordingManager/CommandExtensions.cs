@@ -40,7 +40,7 @@ namespace BatRecordingManager
         /// </returns>
         public static ICommand GetCommand(DependencyObject obj)
         {
-            return (ICommand) obj.GetValue(CommandProperty);
+            return (ICommand)obj.GetValue(CommandProperty);
         }
 
         /// <summary>

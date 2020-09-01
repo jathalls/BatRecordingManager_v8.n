@@ -14,6 +14,8 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+//using FluentAssertions;
+using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,9 +23,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
-//using FluentAssertions;
-using Microsoft.VisualStudio.Language.Intellisense;
-using NAudio.Wave;
 
 
 namespace BatRecordingManager
@@ -69,7 +68,8 @@ namespace BatRecordingManager
         {
             var segBatList = new SegmentAndBatList
             {
-                Segment = segment, BatList = DBAccess.GetDescribedBats(segment.Comment)
+                Segment = segment,
+                BatList = DBAccess.GetDescribedBats(segment.Comment)
             };
 
 
@@ -381,8 +381,8 @@ namespace BatRecordingManager
             return result;
         }
 
-        
-        
+
+
 
         /// <summary>
         ///     Determines whether [is manual file line] [the specified line].
@@ -482,13 +482,13 @@ namespace BatRecordingManager
             double.TryParse(startStr, out var startTimeSeconds);
             double.TryParse(endStr, out var endTimeSeconds);
 
-            var minutes = (int) Math.Floor(startTimeSeconds / 60);
-            var seconds = (int) Math.Floor(startTimeSeconds - minutes * 60);
-            var milliseconds = (int) Math.Floor(1000 * (startTimeSeconds - Math.Floor(startTimeSeconds)));
+            var minutes = (int)Math.Floor(startTimeSeconds / 60);
+            var seconds = (int)Math.Floor(startTimeSeconds - minutes * 60);
+            var milliseconds = (int)Math.Floor(1000 * (startTimeSeconds - Math.Floor(startTimeSeconds)));
             startTime = new TimeSpan(0, 0, minutes, seconds, milliseconds);
-            minutes = (int) Math.Floor(endTimeSeconds / 60);
-            seconds = (int) Math.Floor(endTimeSeconds - minutes * 60);
-            milliseconds = (int) Math.Floor(1000 * (endTimeSeconds - Math.Floor(endTimeSeconds)));
+            minutes = (int)Math.Floor(endTimeSeconds / 60);
+            seconds = (int)Math.Floor(endTimeSeconds - minutes * 60);
+            milliseconds = (int)Math.Floor(1000 * (endTimeSeconds - Math.Floor(endTimeSeconds)));
             endTime = new TimeSpan(0, 0, minutes, seconds, milliseconds);
 
             duration = endTime - startTime;
@@ -528,10 +528,10 @@ namespace BatRecordingManager
             string result = "";
             var batsFound = new Dictionary<string, BatStats>();
             DBAccess.DeleteAllSegmentsForRecording(recording.Id);
-            result=ProcessLabelOrManualFile(labelFileName, new GpxHandler(recording.RecordingSession.Location),
-                recording.RecordingSession.Id,recording, ref batsFound);
-           
-            
+            result = ProcessLabelOrManualFile(labelFileName, new GpxHandler(recording.RecordingSession.Location),
+                recording.RecordingSession.Id, recording, ref batsFound);
+
+
             return (result);
         }
 
@@ -588,7 +588,7 @@ namespace BatRecordingManager
                 {
                     var wavfile = fileName.Substring(0, fileName.Length - 4) + ".wav";
                     duration = Tools.GetFileDatesAndTimes(fileName, out wavfile, out var fileStart, out var fileEnd);
-                    if (File.Exists(wavfile) && (new FileInfo(wavfile).Length>0L))
+                    if (File.Exists(wavfile) && (new FileInfo(wavfile).Length > 0L))
                     {
                         wfmd = new WavFileMetaData(wavfile);
                         //Guano GuanoData=new Guano(Guano.GetGuanoData(CurrentRecordingSessionId, wavfile));
@@ -654,8 +654,8 @@ namespace BatRecordingManager
                                     (recording.RecordingSession.LocationGPSLatitude == null ||
                                      recording.RecordingSession.LocationGPSLatitude < 5.0m))
                                 {
-                                    recording.RecordingSession.LocationGPSLatitude = (decimal) location.Item1;
-                                    recording.RecordingSession.LocationGPSLongitude = (decimal) location.Item2;
+                                    recording.RecordingSession.LocationGPSLatitude = (decimal)location.Item1;
+                                    recording.RecordingSession.LocationGPSLongitude = (decimal)location.Item2;
                                 }
                             }
                         }
@@ -716,12 +716,12 @@ namespace BatRecordingManager
                 {
                     allLines = File.ReadAllLines(fileName);
                     if (!allLines.Any() || string.IsNullOrWhiteSpace(allLines[0]))
-                        allLines = new[] {"Start - End \t No Bats"};
+                        allLines = new[] { "Start - End \t No Bats" };
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex+"\n  ******** Assuming empty text file and no bats");
+                Debug.WriteLine(ex + "\n  ******** Assuming empty text file and no bats");
                 allLines = new[] { "Start - End \t No Bats" };
             }
 
@@ -831,7 +831,7 @@ namespace BatRecordingManager
                     if (!string.IsNullOrWhiteSpace(line))
                     {
                         var modline = Regex.Replace(line, @"[Ss][Tt][Aa][Rr][Tt]", "0.0");
-                        modline = Regex.Replace(modline, @"[Ee][Nn][Dd]", ((decimal) duration.TotalSeconds).ToString());
+                        modline = Regex.Replace(modline, @"[Ee][Nn][Dd]", ((decimal)duration.TotalSeconds).ToString());
                         var processedLine = "";
                         var bats = new BulkObservableCollection<Bat>();
                         if (IsLabelFileLine(modline, out string startStr, out var endStr, out var comment))

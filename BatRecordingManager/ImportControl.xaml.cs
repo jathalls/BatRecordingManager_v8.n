@@ -14,6 +14,7 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,7 +22,6 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace BatRecordingManager
 {
@@ -80,7 +80,7 @@ namespace BatRecordingManager
             _fileProcessor = new FileProcessor();
             ImportPictureControl.Visibility = Visibility.Hidden;
             OutputWindowScrollViewer.Visibility = Visibility.Visible;
-            
+
             UpdateRecordingButton.ToolTip = "Update a specific Recording by selecting a single .wav file";
         }
 
@@ -344,7 +344,7 @@ namespace BatRecordingManager
                     _sessionForFolder = SessionManager.CreateSession(_fileBrowser.WorkingFolder,
                         SessionManager.GetSessionTag(_fileBrowser), _gpxHandler);
                     //sessionForFolder.OriginalFilePath = fileBrowser.WorkingFolder;
-                    
+
                 }
 
                 if (_sessionForFolder != null)
@@ -402,13 +402,13 @@ namespace BatRecordingManager
                         totalBatsFound.Add(bat.Key, bat.Value);
             var distinct = totalBatsFound.Distinct();
             totalBatsFound = new Dictionary<string, BatStats>();
-            foreach (var bat in distinct) totalBatsFound.Add(bat.Key,bat.Value);
+            foreach (var bat in distinct) totalBatsFound.Add(bat.Key, bat.Value);
             return totalBatsFound;
         }
 
         private RecordingSession GetNewRecordingSession(FileBrowser fileBrowser)
         {
-            var newSession = new RecordingSession {LocationGPSLatitude = null, LocationGPSLongitude = null};
+            var newSession = new RecordingSession { LocationGPSLatitude = null, LocationGPSLongitude = null };
 
             newSession = SessionManager.PopulateSession(newSession, fileBrowser);
             return newSession;
@@ -579,7 +579,7 @@ namespace BatRecordingManager
                 }
 
                 var wavFiles = Directory.EnumerateFiles(_fileBrowser.WorkingFolder, "*.wav");
-                
+
 
                 //var WAVFilesEnum = Directory.EnumerateFiles(fileBrowser.WorkingFolder, "*.WAV");
                 //var wavFiles = wavFilesEnum.Concat<string>(WAVFilesEnum).ToList<string>();
@@ -658,7 +658,7 @@ namespace BatRecordingManager
         {
             if (_fileBrowser?.WavFileFolders != null && _fileBrowser.WavFileFolders.Count > 1)
             {
-                var fsd = new FolderSelectionDialog {FolderList = _fileBrowser.WavFileFolders};
+                var fsd = new FolderSelectionDialog { FolderList = _fileBrowser.WavFileFolders };
                 fsd.ShowDialog();
                 if (fsd.DialogResult ?? false)
                 {

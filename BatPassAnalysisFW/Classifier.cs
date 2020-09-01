@@ -11,7 +11,7 @@ namespace BatPassAnalysisFW
     /// </summary>
     public class Classifier
     {
-        private Bats bats;
+        private readonly Bats bats;
         /// <summary>
         /// default constructor for the Classifier class
         /// </summary>
@@ -24,8 +24,8 @@ namespace BatPassAnalysisFW
         {
             string result = "";
             string shapeStr = "";
-            var callList=bats.getAllCalls();
-            List<(string Bat,float Score)> scores = new List<(string Bat,float Score)>();
+            var callList = bats.getAllCalls();
+            List<(string Bat, float Score)> scores = new List<(string Bat, float Score)>();
             Pulse pulse = null;
             try
             {
@@ -33,13 +33,13 @@ namespace BatPassAnalysisFW
                          where p.getPeak().getPeakWidthSamples() > 326
                          orderby p.getPeak().GetMaxVal() descending
                          select p).FirstOrDefault();
-                if (pulse != null && pulse.Pulse_Number>0)
+                if (pulse != null && pulse.Pulse_Number > 0)
                 {
                     List<float> sample = new List<float>();
                     List<float> pre_sample = new List<float>();
-                    var peakPos=(Offset: pulse.getData(ref sample, ref pre_sample),Length:pulse.getPeak().getPeakWidthSamples());
+                    var peakPos = (Offset: pulse.getData(ref sample, ref pre_sample), Length: pulse.getPeak().getPeakWidthSamples());
 
-                    (float startSlope, float midSlope, float endSlope, float allSLope) shape=pulse.spectralDetails.getSpectrum().GetFFTDetail(sample.ToArray(), pre_sample.ToArray(),peakPos);
+                    (float startSlope, float midSlope, float endSlope, float allSLope) shape = pulse.spectralDetails.getSpectrum().GetFFTDetail(sample.ToArray(), pre_sample.ToArray(), peakPos);
                     float slopeLoLimit = shape.allSLope * .8f;
                     float slopeHiLimit = shape.allSLope * 1.2f;
                     string shapeCode = "";
@@ -70,28 +70,28 @@ namespace BatPassAnalysisFW
                         case "MLM": shapeStr = "FM2"; break;
                         case "LLH": shapeStr = "CF-FM"; break;
                         case "LLM": shapeStr = "CF-FM"; break;
-                            
+
                         default: shapeStr = shapeCode; break;
                     }
 
                     Debug.WriteLine($"Slopes={shape.startSlope:0.00}, {shape.midSlope:0.00}, {shape.endSlope:0.00}. mean={shape.allSLope:0.00} => {shapeCode}");
-                    
+
                 }
             }
             catch (Exception) { }
-            
+
             foreach (var call in callList)
             {
-                (string Bat,float Score) score = getScore(passToClassify, call);
+                (string Bat, float Score) score = getScore(passToClassify, call);
                 scores.Add(score);
             }
             var goodList = from sc in scores
                            where sc.Score > 0.0
                            orderby sc.Score descending
                            select sc;
-            if(goodList!=null && goodList.Count() > 0)
+            if (goodList != null && goodList.Count() > 0)
             {
-                foreach(var item in goodList)
+                foreach (var item in goodList)
                 {
                     result += $"{item.Bat}";
                     if (goodList.Count() > 1)
@@ -105,7 +105,7 @@ namespace BatPassAnalysisFW
                 }
                 result += "shape=" + shapeStr;
             }
-            
+
             return (result);
         }
 
@@ -116,19 +116,18 @@ namespace BatPassAnalysisFW
         /// <param name="passToClassify"></param>
         /// <param name="call"></param>
         /// <returns></returns>
-        private (string Bat,float Score) getScore(bpaPass passToClassify, BatCall call)
+        private (string Bat, float Score) getScore(bpaPass passToClassify, BatCall call)
         {
-            
+
 
             float score = 1.0f;
-            int possible = 0;
             System.Diagnostics.Debug.WriteLine($"-------{call.Bat}");
-            if(passToClassify!=null && call != null)
+            if (passToClassify != null && call != null)
             {
-                var Score1= scoreForParameter(passToClassify.startDetails, call.fStart);
+                var Score1 = scoreForParameter(passToClassify.startDetails, call.fStart);
                 System.Diagnostics.Debug.WriteLine($"fStart {Score1.Score}/{Score1.Possible}");
-                score *= Score1.Score/(Score1.Possible!=0?Score1.Possible:1);
-                
+                score *= Score1.Score / (Score1.Possible != 0 ? Score1.Possible : 1);
+
 
                 var Score2 = scoreForParameter(passToClassify.endDetails, call.fEnd);
                 System.Diagnostics.Debug.Write($", fEnd {Score2.Score}/{Score2.Possible}");
@@ -147,14 +146,14 @@ namespace BatPassAnalysisFW
                 score *= Score5.Score / (Score5.Possible != 0 ? Score5.Possible : 1);
 
                 float refPeakPosition = (call.fpeak.Median - call.fEnd.Median) / (call.fStart.Median - call.fEnd.Median);
-                float passPeakPosition = (passToClassify.peakDetails.Mean - passToClassify.endDetails.Mean) / 
+                float passPeakPosition = (passToClassify.peakDetails.Mean - passToClassify.endDetails.Mean) /
                     (passToClassify.startDetails.Mean - passToClassify.endDetails.Mean);
                 score *= (1.0f - (float)Math.Abs(refPeakPosition - passPeakPosition));
-                
+
                 Debug.WriteLine($"\nScore={score}");
             }
-            
-            return (Bat:call.Bat,Score:score);
+
+            return (Bat: call.Bat, Score: score);
         }
 
         /// <summary>
@@ -164,7 +163,7 @@ namespace BatPassAnalysisFW
         /// <param name="PassParams"></param>
         /// <param name="CallParams"></param>
         /// <returns></returns>
-        private (float Score,int Possible) scoreForParameter((float Mean, float SD, float NoPulses) PassParams, 
+        private (float Score, int Possible) scoreForParameter((float Mean, float SD, float NoPulses) PassParams,
             (float Upper, float Lower, float Median) CallParams)
         {
             float score = 0.0f;
@@ -178,11 +177,11 @@ namespace BatPassAnalysisFW
                 //    possible++;
                 // }
 
-                score += Overlap(PassParams, CallParams) ; // one point for overlapping ranges
-                possible ++;
+                score += Overlap(PassParams, CallParams); // one point for overlapping ranges
+                possible++;
                 if (score > 0)
                 {
-                    float diff = Math.Abs((CallParams.Median*CallParams.Median) - (PassParams.Mean*PassParams.Mean));
+                    float diff = Math.Abs((CallParams.Median * CallParams.Median) - (PassParams.Mean * PassParams.Mean));
                     float variance = (float)Math.Sqrt(diff);
                     score += 1.0f - (float)Math.Abs(variance / CallParams.Median); // one point for proximity of the means
 
@@ -194,7 +193,7 @@ namespace BatPassAnalysisFW
                 //    possible *= (int)paramDetails.NoPulses;
                 //}
 
-                
+
 
 
 

@@ -14,12 +14,12 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
-using System;
-using System.Diagnostics;
-using System.IO;
 using NAudio.Dsp;
 using NAudio.Utils;
 using NAudio.Wave;
+using System;
+using System.Diagnostics;
+using System.IO;
 
 namespace BatRecordingManager
 {
@@ -162,7 +162,7 @@ namespace BatRecordingManager
             var outFormat = new WaveFormat(21000, _reader.WaveFormat.Channels);
             _resampler = new MediaFoundationResampler(_reader, outFormat);
 
-            
+
             if (!string.IsNullOrWhiteSpace(fileName))
             {
                 try
@@ -177,7 +177,7 @@ namespace BatRecordingManager
                 {
                     CleanUp();
                     OnStopped(new EventArgs());
-                    
+
                 }
             }
             else
@@ -205,7 +205,7 @@ namespace BatRecordingManager
             }
         }
 
-        public void Play(PlayListItem itemToPlay, decimal speedFactor, bool playInLoop,string filename="")
+        public void Play(PlayListItem itemToPlay, decimal speedFactor, bool playInLoop, string filename = "")
         {
             CleanUp();
             _doLoop = playInLoop;
@@ -265,14 +265,14 @@ namespace BatRecordingManager
             if (_player != null && _player.PlaybackState != PlaybackState.Stopped) return;
             if (itemToPlay == null) return;
             if (string.IsNullOrWhiteSpace(itemToPlay.filename)) return;
-            if (!File.Exists(itemToPlay.filename) || (new FileInfo(itemToPlay.filename).Length<=0L)) return;
+            if (!File.Exists(itemToPlay.filename) || (new FileInfo(itemToPlay.filename).Length <= 0L)) return;
 
 
             using (var afr = new AudioFileReader(itemToPlay.filename))
             {
                 if (afr != null)
                 {
-                    afr.Skip((int) itemToPlay.startOffset.TotalSeconds);
+                    afr.Skip((int)itemToPlay.startOffset.TotalSeconds);
 
 
                     if (itemToPlay.playLength.TotalSeconds < 1)
@@ -292,9 +292,9 @@ namespace BatRecordingManager
                     if (takenb != null)
                     {
                         //afr.Dispose();
-                        var wf = new WaveFormat((int) (takenb.WaveFormat.SampleRate * speedFactor),
+                        var wf = new WaveFormat((int)(takenb.WaveFormat.SampleRate * speedFactor),
                             takenb.WaveFormat.BitsPerSample, takenb.WaveFormat.Channels);
-                        wf = WaveFormat.CreateIeeeFloatWaveFormat((int) (takenb.WaveFormat.SampleRate * speedFactor),
+                        wf = WaveFormat.CreateIeeeFloatWaveFormat((int)(takenb.WaveFormat.SampleRate * speedFactor),
                             takenb.WaveFormat.Channels);
                         _ms = new MemoryStream();
                         if (wf != null && _ms != null)
@@ -369,7 +369,7 @@ namespace BatRecordingManager
         private float[] Fill(float[] sineBuffer, decimal frequency)
         {
             for (var i = 0; i < sineBuffer.Length; i++)
-                sineBuffer[i] = (float) Math.Sin(2.0d * Math.PI * i * (double) frequency / sineBuffer.Length);
+                sineBuffer[i] = (float)Math.Sin(2.0d * Math.PI * i * (double)frequency / sineBuffer.Length);
             return sineBuffer;
         }
 
@@ -470,9 +470,9 @@ namespace BatRecordingManager
         private int _channels;
 
         private int _cutOffFreq;
-        private string _fileName = "";
+        private readonly string _fileName = "";
         private BiQuadFilter[] _filters;
-        private Stream _inputStream;
+        private readonly Stream _inputStream;
 
 
         /// <summary>

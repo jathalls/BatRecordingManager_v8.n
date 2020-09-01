@@ -31,7 +31,7 @@ namespace BatRecordingManager
             var shellWindow = GetShellWindow();
             var windows = new Dictionary<HWND, string>();
 
-            EnumWindows(delegate(HWND hWnd, int lParam)
+            EnumWindows(delegate (HWND hWnd, int lParam)
             {
                 if (hWnd == shellWindow) return true;
                 if (!IsWindowVisible(hWnd)) return true;

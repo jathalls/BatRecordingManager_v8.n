@@ -1,11 +1,6 @@
 ﻿using NAudio.Wave;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BatPassAnalysisFW
 {
@@ -31,7 +26,7 @@ namespace BatPassAnalysisFW
         /// </summary>
         public long Length { get; set; }
 
-        
+
         /// <summary>
         /// Creates a new data access block for a specified file, a specified start point within the file and a specified length
         /// </summary>
@@ -49,7 +44,7 @@ namespace BatPassAnalysisFW
             FQfileName = FQfilename;
             BlockStartInFileInSamples = StartPosInFileInSamples;
             this.Length = length;
-            
+
         }
 
         /// <summary>
@@ -68,12 +63,12 @@ namespace BatPassAnalysisFW
             float[] data = new float[Length];
             using (AudioFileReader audioFileReader = new AudioFileReader(FQfileName))
             {
-                
+
                 audioFileReader.Position = BlockStartInFileInSamples * 4; // to convert the start location in floats to location in bytes
                 audioFileReader.Read(data, 0, data.Length);
             }
             return (data);
-            
+
         }
 
         /// <summary>
@@ -82,7 +77,7 @@ namespace BatPassAnalysisFW
         /// <param name="StartPosInFRecordingInSamples"></param>
         /// <param name="Length"></param>
         /// <returns></returns>
-        public float[] getData(int StartPosInFRecordingInSamples,int Length)
+        public float[] getData(int StartPosInFRecordingInSamples, int Length)
         {
             float[] data = new float[Length];
             using (AudioFileReader audioFileReader = new AudioFileReader(FQfileName))

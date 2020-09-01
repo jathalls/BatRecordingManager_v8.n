@@ -82,7 +82,7 @@ namespace BatRecordingManager
                 parts[1] = parts[1].Substring(1).Trim();
                 double.TryParse(parts[0], out var mean);
                 double.TryParse(parts[1], out var variation);
-                result = new Parameter {Mean = mean, Variation = variation};
+                result = new Parameter { Mean = mean, Variation = variation };
             }
 
             return result;
@@ -120,7 +120,7 @@ namespace BatRecordingManager
             Parameter result = null;
             if (double.TryParse(v.Trim(), out var value))
             {
-                result = new Parameter {Mean = value, Variation = 0.0};
+                result = new Parameter { Mean = value, Variation = 0.0 };
             }
 
             return result;
@@ -373,8 +373,8 @@ namespace BatRecordingManager
             var dc = DBAccess.GetFastDataContext();
 
             var x = (from cp in dc.Calls
-                where cp.CallFunction.Trim().ToUpper() == v.Trim().ToUpper()
-                select cp).Count();
+                     where cp.CallFunction.Trim().ToUpper() == v.Trim().ToUpper()
+                     select cp).Count();
             if (x > 0) return true;
 
             return false;
@@ -392,8 +392,8 @@ namespace BatRecordingManager
             var dc = DBAccess.GetFastDataContext();
 
             var x = (from cp in dc.Calls
-                where cp.CallType.Trim().ToUpper() == v.Trim().ToUpper()
-                select cp).Count();
+                     where cp.CallType.Trim().ToUpper() == v.Trim().ToUpper()
+                     select cp).Count();
             if (x > 0) return true;
 
             return false;

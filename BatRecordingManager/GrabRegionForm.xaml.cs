@@ -54,7 +54,7 @@ namespace BatRecordingManager
                 e.Handled = true;
                 if (e.ChangedButton == MouseButton.Right)
                 {
-                    rect = new Rectangle((int) Left, (int) Top, (int) Width, (int) Height);
+                    rect = new Rectangle((int)Left, (int)Top, (int)Width, (int)Height);
 
                     Close();
                 }

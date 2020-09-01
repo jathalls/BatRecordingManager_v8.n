@@ -1,10 +1,9 @@
 ﻿using Acr.Settings;
-using System.Windows.Forms;
 using System;
 using System.IO;
 using System.Reflection;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Media;
 
 namespace BatPassAnalysisFW
@@ -18,7 +17,7 @@ namespace BatPassAnalysisFW
 
         //private decimal thresholdFactor = 1.5m;
 
-        
+
 
         public AnalysisMainControl()
         {
@@ -28,7 +27,8 @@ namespace BatPassAnalysisFW
             {
                 var version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
                 AnalysisTable.tableData.Version = "Version:- " + version;
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 ErrorLog($"Unable to get Version:{ex.Message}");
             }
@@ -40,7 +40,8 @@ namespace BatPassAnalysisFW
                 {
                     SetDefaultSettings();
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 ErrorLog($"Unabble to set default settings:" + ex.Message);
             }
@@ -55,7 +56,8 @@ namespace BatPassAnalysisFW
 
                 //tableData.bmpiCreated += TableData_bmpiCreated;
                 this.DataContext = AnalysisTable.tableData;
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 ErrorLog($"Unable to set data context:" + ex.Message);
             }
@@ -67,7 +69,7 @@ namespace BatPassAnalysisFW
             {
                 Directory.CreateDirectory(@"C:\AMCErrors\");
             }
-            File.AppendAllText( @"C:\AMCErrors\Errors.log", DateTime.Now.ToString() + message + "\n");
+            File.AppendAllText(@"C:\AMCErrors\Errors.log", DateTime.Now.ToString() + message + "\n");
         }
 
         public void CommandLineArgs(string[] args)
@@ -77,7 +79,7 @@ namespace BatPassAnalysisFW
                 string entry = args[1];
                 if (!string.IsNullOrWhiteSpace(entry))
                 {
-                    if(File.Exists(entry) || Directory.Exists(entry))
+                    if (File.Exists(entry) || Directory.Exists(entry))
                     {
                         using (new WaitCursor())
                         {
@@ -93,7 +95,7 @@ namespace BatPassAnalysisFW
                                 ErrorLog("Process File Failed:- " + ex.Message);
                             }
                         }
-                        
+
                     }
                 }
             }
@@ -103,17 +105,17 @@ namespace BatPassAnalysisFW
         {
 
             Settings.SetDefaults();
-            
+
         }
 
-        
+
 
         private void FileOpen_Click(object sender, RoutedEventArgs e)
         {
 
             string selectedFQ_FileName;
             string initialDirectory = CrossSettings.Current.Get<string>("InitialDirectory");
-            if (!Directory.Exists(initialDirectory??""))
+            if (!Directory.Exists(initialDirectory ?? ""))
             {
                 initialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             }
@@ -140,23 +142,23 @@ namespace BatPassAnalysisFW
                     //HeaderFileName = dialog.FileName;
                     //folderPath = System.IO.Path.GetDirectoryName(dialog.FileName);
                     selectedFQ_FileName = dialog.FileName;
-                if (selectedFQ_FileName.EndsWith("Select Folder")||selectedFQ_FileName.Trim().EndsWith(@"\"))
+                if (selectedFQ_FileName.EndsWith("Select Folder") || selectedFQ_FileName.Trim().EndsWith(@"\"))
                 {
                     string path = System.IO.Path.GetDirectoryName(selectedFQ_FileName);
                     if (Directory.Exists(path))
                     {
                         //CreateLabelFilesForFolder(path);
-                        
+
 
 
                     }
                     else
                     {
                         selectedFQ_FileName = "";
-                        
+
                     }
                 }
-                
+
             }
             using (new WaitCursor())
             {
@@ -191,18 +193,18 @@ namespace BatPassAnalysisFW
 
         }
 
-        
+
 
         private void Settings_Click(object sender, RoutedEventArgs e)
         {
             Settings settings = new Settings();
 
             var result = settings.ShowDialog();
-            if(result!=null && result.Value )
+            if (result != null && result.Value)
             {
                 AnalysisTable.tableData.thresholdFactor = (decimal)CrossSettings.Current.Get<float>("EnvelopeThresholdFactor");
                 AnalysisTable.tableData.spectrumFactor = (decimal)CrossSettings.Current.Get<float>("SpectrumThresholdFactor");
-                AnalysisTable.tableData.EnableFilter = (bool)CrossSettings.Current.Get<bool>("EnableFilter");
+                AnalysisTable.tableData.EnableFilter = CrossSettings.Current.Get<bool>("EnableFilter");
             }
             settings.Close();
 

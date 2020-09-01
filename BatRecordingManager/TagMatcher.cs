@@ -75,7 +75,7 @@ namespace BatRecordingManager
                             {
                                 description = description.Remove(position[0],
                                 Math.Min(tag.BatTag1.Length, description.Length));
-                                
+
                             }
 
                             var mPosition = MatchTag(_moddedDescription, tag.BatTag1);
@@ -86,8 +86,8 @@ namespace BatRecordingManager
                                 _moddedDescription = _moddedDescription.Trim();
                             }
 
-                            
-                            
+
+
                             batList.Add(tag.Bat);
                             if (string.IsNullOrWhiteSpace(description))
                                 // nothing more in the description to match
@@ -131,11 +131,11 @@ namespace BatRecordingManager
         private List<BatTag> GetAllTags(string description)
         {
             var tags = (from tg in _tagList
-                where tg.BatTag1.ToUpper() == tg.BatTag1
-                    ? description.Contains(tg.BatTag1)
-                    : description.ToUpper().Contains(tg.BatTag1.ToUpper())
-                orderby tg.BatTag1.Length descending
-                select tg).Distinct();
+                        where tg.BatTag1.ToUpper() == tg.BatTag1
+                            ? description.Contains(tg.BatTag1)
+                            : description.ToUpper().Contains(tg.BatTag1.ToUpper())
+                        orderby tg.BatTag1.Length descending
+                        select tg).Distinct();
             return tags?.ToList();
         }
 
