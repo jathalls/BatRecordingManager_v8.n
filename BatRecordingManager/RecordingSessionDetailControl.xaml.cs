@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -60,7 +60,11 @@ namespace BatRecordingManager
                     if (double.TryParse(rec.RecordingGPSLatitude, out var latitude))
                         if (double.TryParse(rec.RecordingGPSLongitude, out var longitude))
                             if (Math.Abs(latitude) <= 90.0d && Math.Abs(longitude) <= 180.0d)
-                                mapWindow.MapControl.AddPushPin(new Location(latitude, longitude), i.ToString());
+                                if (rec.BatRecordingLinks != null && rec.BatRecordingLinks.Count > 0)
+                                {
+                                    string batNames = rec.GetBatTags6();
+                                    mapWindow.MapControl.AddPushPin(new Location(latitude, longitude), batNames);
+                                }
                 }
             }
         }
@@ -74,8 +78,6 @@ namespace BatRecordingManager
             DependencyProperty.Register(nameof(recordingSession), typeof(RecordingSession),
                 typeof(RecordingSessionDetailControl),
                 new FrameworkPropertyMetadata(new RecordingSession()));
-
-        private string _gridRef = "";
 
         public string GridRef
         {
@@ -167,6 +169,8 @@ namespace BatRecordingManager
                 }
             }
         }
+
+        private string _gridRef = "";
 
         #endregion SelectedSession
     }

@@ -440,11 +440,35 @@ namespace BatRecordingManager
             }
         }
 
+        public double LatitudeAsDouble
+        {
+            get
+            {
+                if (double.TryParse(RecordingGPSLatitude, out double result))
+                {
+                    return (result);
+                }
+                return (0.0d);
+            }
+        }
+
         public string LatitudeAsString
         {
             get
             {
                 return (RecordingOrSessionLocationAsStrings.latitude);
+            }
+        }
+
+        public double LongitudeAsDouble
+        {
+            get
+            {
+                if (double.TryParse(RecordingGPSLongitude, out double result))
+                {
+                    return (result);
+                }
+                return (0.0d);
             }
         }
 
@@ -580,6 +604,50 @@ namespace BatRecordingManager
 
                 return (_sunset);
             }
+        }
+
+        /// <summary>
+        /// Gets the list of bats for this recording and returns them as a single string in six-letter
+        /// batnomic format e.g. PIPPIP, PIPYG, NYCNOC etc.
+        /// </summary>
+        /// <returns></returns>
+        public string GetBatTags6()
+        {
+            string result = "";
+            var array = GetBatTags6AsArray();
+            foreach (var str in array)
+            {
+                result = result + str + ",";
+            }
+            if (result.EndsWith(","))
+            {
+                result = result.Substring(0, result.Length - 1);
+            }
+            return (result);
+        }
+
+        /// <summary>
+        /// Gets the list of bats for this recording and returns them as a string array in six-letter
+        /// batnomic format e.g. PIPPIP, PIPYG, NYCNOC etc.
+        /// </summary>
+        /// <returns></returns>
+        public string[] GetBatTags6AsArray()
+        {
+            List<string> result = new List<string>();
+            foreach (var lnk in this.BatRecordingLinks)
+            {
+                Bat bat = lnk.Bat;
+                if (!(bat.Name == "No Bats"))
+                {
+                    if (!string.IsNullOrWhiteSpace(bat.Batgenus) && bat.Batgenus.Length >= 3 && !string.IsNullOrWhiteSpace(bat.BatSpecies) &&
+                        (bat.BatSpecies.Length >= 3 || bat.BatSpecies == "sp"))
+                    {
+                        string batstr = (bat.Batgenus.Substring(0, 3) + bat.BatSpecies.Substring(0, 3)).ToUpper();
+                        result.Add(batstr);
+                    }
+                }
+            }
+            return (result.ToArray());
         }
 
         private TimeSpan? _endAfterSunset = null;

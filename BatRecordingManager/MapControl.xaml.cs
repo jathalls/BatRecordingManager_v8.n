@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,20 +20,11 @@ using System.Windows.Input;
 
 namespace BatRecordingManager
 {
-
     /// <summary>
     ///     Interaction logic for MapControl.xaml
     /// </summary>
     public partial class MapControl : UserControl
     {
-        private Location _coordinates;
-
-        private MapMode LabelMode { get; set; } = null;
-        private MapMode AerialMode { get; set; } = null;
-        private MapMode RoadMode { get; set; } = null;
-
-        public string BingMapsApiKey { get; } = APIKeys.BingMapsLicenseKey;
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="MapControl" /> class.
         /// </summary>
@@ -45,9 +36,9 @@ namespace BatRecordingManager
             ThisMap.Focus();
             lastInsertedPinLocation = null;
             LabelMode = ThisMap.Mode;
-
-
         }
+
+        public string BingMapsApiKey { get; } = APIKeys.BingMapsLicenseKey;
 
         /// <summary>
         ///     Gets or sets the coordinates.
@@ -65,9 +56,7 @@ namespace BatRecordingManager
             }
         }
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public Location lastInsertedPinLocation { get; set; }
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
         /// <summary>
         ///     Adds the push pin.
@@ -81,10 +70,9 @@ namespace BatRecordingManager
         public void AddPushPin(Location pinCoordinates, string text)
         {
             var pin = new Pushpin { Location = pinCoordinates, Content = text, PositionOrigin = PositionOrigin.BottomCenter };
+
             ThisMap.Children.Add(pin);
         }
-
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
         public void AddPushPin(Location location)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
@@ -94,8 +82,26 @@ namespace BatRecordingManager
             pin.PositionOrigin = PositionOrigin.BottomCenter;
             pin.Location = location;
 
-
             ThisMap.Children.Add(pin);
+        }
+
+        private Location _coordinates;
+
+        private MapMode AerialMode { get; set; } = null;
+        private MapMode LabelMode { get; set; } = null;
+        private MapMode RoadMode { get; set; } = null;
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+        private void AerialButton_Checked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            ThisMap.Mode = new AerialMode();
+        }
+
+        private void AerialLabelButton_Checked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            ThisMap.Mode = new AerialMode(true);
         }
 
         private void mapControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -111,21 +117,8 @@ namespace BatRecordingManager
             ThisMap.Children.Add(pin);
         }
 
-        private void AerialButton_Checked(object sender, System.Windows.RoutedEventArgs e)
-        {
-
-            ThisMap.Mode = new AerialMode();
-        }
-
-        private void AerialLabelButton_Checked(object sender, System.Windows.RoutedEventArgs e)
-        {
-
-            ThisMap.Mode = new AerialMode(true);
-        }
-
         private void RoadButton_Checked(object sender, System.Windows.RoutedEventArgs e)
         {
-
             ThisMap.Mode = new RoadMode();
         }
     }

@@ -71,9 +71,19 @@
                         Content="Export"
                         IsEnabled="False"
                         ToolTip="Re-writes all the .txt files for the recordings in this session.  Overwrites existing files. [CTRL-CLICK] only writes missing files"
-                        Style="{StaticResource SimpleButton}" Click="ExportSessionDataButton_Click" >
-                        
+                        Style="{StaticResource SimpleButton}" Click="ExportSessionDataButton_Click">
                     </Button>
+                    <Button
+                         x:Name="ShowMapButton"
+                        Style="{StaticResource SimpleButton}"
+                        IsEnabled="true"
+                        Content="Map" Click="ShowMapButton_Click" />
+                    <Button
+                        x:Name="SplitByDateButton"
+                        Style="{StaticResource SimpleButton}"
+                        IsEnabled="False"
+                        ToolTip="Splits the selected session into separate 24-hour noon-noon sessions"
+                        Content="Split" Click="SplitByDateButton_Click" />
                     <Button
                         x:Name="ReportSessionDataButton"
                         Width="50" Height="25"
@@ -96,7 +106,8 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="213*" />
                         <ColumnDefinition Width="15*" />
-                        <ColumnDefinition Width="214*" />
+                        <ColumnDefinition Width="56*" />
+                        <ColumnDefinition Width="158*" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="1" />
@@ -167,14 +178,13 @@
                         Style="{StaticResource VdgStyle}"
                         SelectionChanged="RecordingSessionListView_SelectionChanged"
 
-
                         ItemsSource="{Binding recordingSessionDataList,IsAsync=true}"
                         AutoGenerateColumns="False"
 
                         HeadersVisibility="Column"
                         AreRowDetailsFrozen="True"
                         CanUserAddRows="False"
-                        CanUserResizeRows="False" IsReadOnly="True" IsTextSearchEnabled="True" Grid.ColumnSpan="3">
+                        CanUserResizeRows="False" IsReadOnly="True" IsTextSearchEnabled="True" Grid.ColumnSpan="4">
 
                         <DataGrid.Columns>
                             <DataGridTextColumn x:Name="TagColumn" Binding="{Binding SessionTag}" Header="Tag"

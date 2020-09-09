@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,7 +39,6 @@ namespace BatRecordingManager
         /// </summary>
         public new static readonly AnalysingEventArgs Empty = new AnalysingEventArgs("");
 
-
         #region Constructors
 
         /// <summary>
@@ -62,26 +61,12 @@ namespace BatRecordingManager
         #endregion Public Properties
     }
 
-
     /// <summary>
     ///     Analyzes all the .wav files in a folder sequentially using Audacity, and
     ///     imports the results to the database as each file is dealt with
     /// </summary>
     internal class AnalyseAndImportClass
     {
-        private readonly object _analysingEventLock = new object();
-        private readonly object _analysingFinishedEventLock = new object();
-        private readonly object _dataUpdatedEventLock = new object();
-        private EventHandler _analysingEvent;
-        private EventHandler _analysingFinishedEvent;
-        private EventHandler<EventArgs> _dataUpdatedEvent;
-        public Recording ThisRecording { get; set; } = null;
-
-        private string _kaleidoscopeFolderPath = "";
-
-        internal int FilesRemaining;
-        internal bool FolderSelected;
-
         /// <summary>
         ///     class constructor - default mode for allowing user to select a new folder to analyse
         /// </summary>
@@ -93,8 +78,6 @@ namespace BatRecordingManager
             FolderPath = SelectFolder();
             if (!string.IsNullOrWhiteSpace(FolderPath) && Directory.Exists(FolderPath) && !WavFileList.IsNullOrEmpty())
             {
-
-
                 FolderSelected = true;
                 SetAudacityExportFolder(FolderPath);
             }
@@ -109,8 +92,6 @@ namespace BatRecordingManager
             FolderPath = SelectFolder();
             if (!string.IsNullOrWhiteSpace(FolderPath) && Directory.Exists(FolderPath) && !WavFileList.IsNullOrEmpty())
             {
-
-
                 FolderSelected = true;
                 SetAudacityExportFolder(FolderPath);
             }
@@ -142,53 +123,6 @@ namespace BatRecordingManager
                 }
             }
         }
-
-        public void AnalyseRecording()
-        {
-            if (ThisRecording != null && !string.IsNullOrWhiteSpace(FileToAnalyse))
-            {
-                Analyse(FileToAnalyse);
-            }
-        }
-
-        /// <summary>
-        /// Opens the C:\Audacity Config file and edits the export labels folder to
-        /// the current selected folder;
-        /// </summary>
-        /// <param name="folderPath"></param>
-        private void SetAudacityExportFolder(string folderPath)
-        {
-            string moddedFolderPath = folderPath.Replace(@"\\", @"\"); // first ensure that hte path only contains single backslashes - which it should
-            moddedFolderPath = moddedFolderPath.Replace(@"\", @"\\"); // then ensure that all backslashes are doubled for insertion into the config file
-            string configFile = @"C:\audacity-win-portable\Portable Settings\audacity.cfg";
-            if (File.Exists(configFile) && (new FileInfo(configFile).Length > 0L))
-            {
-                var lines = File.ReadAllLines(configFile);
-                for (int i = 0; i < lines.Length; i++)
-                {
-                    if (lines[i].StartsWith("DefaultExportPath"))
-                    {
-                        lines[i] = "DefaultExportPath=" + moddedFolderPath;
-                    }
-                }
-                File.WriteAllLines(configFile, lines);
-            }
-        }
-
-        public string SessionTag { get; set; }
-        private Process ExternalProcess { get; set; }
-        private string FileToAnalyse { get; set; }
-        private string FolderPath { get; set; }
-        private GpxHandler ThisGpxHandler { get; set; }
-        private RecordingSession ThisRecordingSession { get; set; }
-
-        public DateTime? startedAt { get; set; } = null;
-
-        /// <summary>
-        ///     wavFileList is a list of all .wav files in the current folder which
-        ///     do not have associated .txt files
-        /// </summary>
-        private List<string> WavFileList { get; set; }
 
         /// <summary>
         ///     Event raised after the  property value has changed.
@@ -253,6 +187,18 @@ namespace BatRecordingManager
             }
         }
 
+        public string SessionTag { get; set; }
+        public DateTime? startedAt { get; set; } = null;
+        public Recording ThisRecording { get; set; } = null;
+
+        public void AnalyseRecording()
+        {
+            if (ThisRecording != null && !string.IsNullOrWhiteSpace(FileToAnalyse))
+            {
+                Analyse(FileToAnalyse);
+            }
+        }
+
         /// <summary>
         ///     Allows user to select a folder containing .wav files to be analyzed and
         ///     imported.
@@ -261,7 +207,6 @@ namespace BatRecordingManager
         public string SelectFolder()
         {
             FolderPath = "";
-
 
             //using (System.Windows.Forms.OpenFileDialog dialog = new OpenFileDialog())
             //using(Ookii.Dialogs.Wpf.VistaOpenFileDialog dialog=new VistaOpenFileDialog())
@@ -281,7 +226,6 @@ namespace BatRecordingManager
             {
                 dialog.FileOk += Dialog_FileOk;
 
-
                 //dialog.Description = "Select the folder containing the .wav and descriptive text files";
                 //dialog.ShowNewFolderButton = true;
                 //dialog.RootFolder = Environment.SpecialFolder.MyComputer;
@@ -295,10 +239,8 @@ namespace BatRecordingManager
                     return null;
             }
 
-
             if (string.IsNullOrWhiteSpace(FolderPath)) return null;
             if (!Directory.Exists(FolderPath)) return null;
-
 
             GetFileList();
             if (!string.IsNullOrWhiteSpace(SessionTag) && DBAccess.SessionTagExists(SessionTag))
@@ -351,31 +293,8 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
             return null;
         }
 
-        /// <summary>
-        ///     Event handler fired when the dialog OK button is hit
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Dialog_FileOk(object sender, CancelEventArgs e)
-        {
-            try
-            {
-                e.Cancel = false;
-                var f = (sender as OpenFileDialog).FileName;
-                if (string.IsNullOrWhiteSpace(f)) e.Cancel = true;
-                var folder = Tools.GetPath(f);
-                if (string.IsNullOrWhiteSpace(folder)) e.Cancel = true;
-                if (!Directory.Exists(folder)) e.Cancel = true;
-                var files = Directory.EnumerateFiles(folder ?? "", "*.wav");
-                if (!files.Any()) e.Cancel = true;
-            }
-            catch (Exception)
-            {
-                e.Cancel = true;
-            }
-
-            if (e.Cancel) (sender as OpenFileDialog).FileName = "Select Folder";
-        }
+        internal int FilesRemaining;
+        internal bool FolderSelected;
 
         internal static void ActivateApp(string processName)
         {
@@ -403,6 +322,11 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
             Debug.WriteLine("AnalyseAndImport.Close()" + FolderPath);
         }
 
+        internal string GetProcessWindowTitle()
+        {
+            return ExternalProcess.MainWindowTitle;
+        }
+
         /// <summary>
         ///     Opens Kaleidoscope in an ExternalProcess which will generate a call back when
         ///     Kaleidoscope is closed.  The call back will update the database from the folder.
@@ -424,42 +348,9 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
             //externalProcess.StartInfo.Arguments = folder;
             ExternalProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
 
-
             ExternalProcess.EnableRaisingEvents = true;
             ExternalProcess.Exited += ExternalProcess_ExitedKaleidoscope;
             ExternalProcess = Tools.OpenKaleidoscope(FolderPath, ExternalProcess);
-        }
-
-
-        /// <summary>
-        ///     EventHandler triggered when the Kaleidoscope process has exited and presumably the user has
-        ///     finished analysing as many files as they want to.  This triggers the importation of the session and
-        ///     any wav file data not already in the database.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ExternalProcess_ExitedKaleidoscope(object sender, EventArgs e)
-        {
-            using (new WaitCursor("Importing Kaleidoscope Data"))
-            {
-                if (!string.IsNullOrWhiteSpace(_kaleidoscopeFolderPath) && Directory.Exists(_kaleidoscopeFolderPath))
-                {
-                    ImportKaleidoscopeFolder(_kaleidoscopeFolderPath);
-                    OnDataUpdated(new EventArgs());
-                }
-            }
-        }
-
-        private void ImportKaleidoscopeFolder(string kaleidoscopeFolderPath)
-        {
-            Debug.WriteLine("Starting to import recordings " + DateTime.Now);
-
-            var wavFileArray = Directory.EnumerateFiles(kaleidoscopeFolderPath, "*.wav");
-            //var WAVFileArray= Directory.EnumerateFiles(kaleidoscopeFolderPath, "*.WAV");
-            //wavFileArray = wavFileArray.Concat<string>(WAVFileArray);
-            foreach (var file in wavFileArray) ThisRecordingSession.ImportWavFile(file);
-
-            Debug.WriteLine("Recordings imported at " + DateTime.Now);
         }
 
         internal void OpenWavFile(string FQFileName, string bareFileName)
@@ -482,7 +373,6 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
             //externalProcess.StartInfo.Arguments = folder;
             ExternalProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
 
-
             ExternalProcess.EnableRaisingEvents = true;
             ExternalProcess.Exited += ExternalProcess_Exited;
             startedAt = DateTime.Now;
@@ -503,7 +393,6 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
                 var ipSim = new InputSimulator();
                 var epHandle = ExternalProcess.MainWindowHandle;
                 if (epHandle == (IntPtr)0L) return;
-
 
                 // ALT-S,N - 'Select'-None
                 SetForegroundWindow(epHandle);
@@ -615,6 +504,29 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
             handler(this, e);
         }
 
+        private readonly object _analysingEventLock = new object();
+        private readonly object _analysingFinishedEventLock = new object();
+        private readonly object _dataUpdatedEventLock = new object();
+        private EventHandler _analysingEvent;
+        private EventHandler _analysingFinishedEvent;
+        private EventHandler<EventArgs> _dataUpdatedEvent;
+        private string _kaleidoscopeFolderPath = "";
+        private Process ExternalProcess { get; set; }
+
+        private string FileToAnalyse { get; set; }
+
+        private string FolderPath { get; set; }
+
+        private GpxHandler ThisGpxHandler { get; set; }
+
+        private RecordingSession ThisRecordingSession { get; set; }
+
+        /// <summary>
+        ///     wavFileList is a list of all .wav files in the current folder which
+        ///     do not have associated .txt files
+        /// </summary>
+        private List<string> WavFileList { get; set; }
+
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
@@ -646,6 +558,32 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
             if (newSession != null) OnDataUpdated(new EventArgs());
 
             return newSession;
+        }
+
+        /// <summary>
+        ///     Event handler fired when the dialog OK button is hit
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Dialog_FileOk(object sender, CancelEventArgs e)
+        {
+            try
+            {
+                e.Cancel = false;
+                var f = (sender as OpenFileDialog).FileName;
+                if (string.IsNullOrWhiteSpace(f)) e.Cancel = true;
+                var folder = Tools.GetPath(f);
+                if (string.IsNullOrWhiteSpace(folder)) e.Cancel = true;
+                if (!Directory.Exists(folder)) e.Cancel = true;
+                var files = Directory.EnumerateFiles(folder ?? "", "*.wav");
+                if (!files.Any()) e.Cancel = true;
+            }
+            catch (Exception)
+            {
+                e.Cancel = true;
+            }
+
+            if (e.Cancel) (sender as OpenFileDialog).FileName = "Select Folder";
         }
 
         /// <summary>
@@ -687,6 +625,25 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
         }
 
         /// <summary>
+        ///     EventHandler triggered when the Kaleidoscope process has exited and presumably the user has
+        ///     finished analysing as many files as they want to.  This triggers the importation of the session and
+        ///     any wav file data not already in the database.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ExternalProcess_ExitedKaleidoscope(object sender, EventArgs e)
+        {
+            using (new WaitCursor("Importing Kaleidoscope Data"))
+            {
+                if (!string.IsNullOrWhiteSpace(_kaleidoscopeFolderPath) && Directory.Exists(_kaleidoscopeFolderPath))
+                {
+                    ImportKaleidoscopeFolder(_kaleidoscopeFolderPath);
+                    OnDataUpdated(new EventArgs());
+                }
+            }
+        }
+
+        /// <summary>
         ///     Uses the header file to try and populate a new recordingSession,
         ///     otherwise returns a new RecordingSession;
         /// </summary>
@@ -695,11 +652,6 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
         private RecordingSession FillSessionFromHeader(string headerFile)
         {
             return SessionManager.FillSessionFromHeader(headerFile, SessionTag);
-        }
-
-        internal string GetProcessWindowTitle()
-        {
-            return ExternalProcess.MainWindowTitle;
         }
 
         /// <summary>
@@ -749,7 +701,7 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
         /// <summary>
         /// At start, wavFileList contains a list of .wav files to analyse, which may be empty
         /// FileToAnalyse is the previous file that was selected from the list to analyse
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         private string GetNextFile()
@@ -758,7 +710,6 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
             {
                 if (!string.IsNullOrWhiteSpace(FileToAnalyse)) // if we have a file that we have been analysing...
                 {
-
                     if (IsCurrentMatchingTextFile()) // if so...
                     {
                         WavFileList.Remove(FileToAnalyse); // remove the .wav file from the list
@@ -770,7 +721,6 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
                             Tools.SetFolderIconTick(FolderPath);
                             return null; // and if there are no more files in the list, return a null
                         }
-
                     }
                 }
 
@@ -799,14 +749,10 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
                 {
                     if (File.Exists(file) && (new FileInfo(file).Length > 0L))
                     {
-
                         if (IsCurrentMatchingTextFile(file))
                         {
                             filesToRemove.Add(file);
-
                         }
-
-
                     }
                     else
                     {
@@ -855,7 +801,8 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
             if (!WavFileList.IsNullOrEmpty())
                 foreach (var file in WavFileList)
                 {
-                    var fileName = file.Substring(file.LastIndexOf(@"\"));
+                    //var fileName = file.Substring(file.LastIndexOf(@"\"));
+                    var fileName = Path.GetFileName(file);
                     var result = Regex.Match(fileName, tagPattern);
                     if (result.Success)
                     {
@@ -865,8 +812,15 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
                 }
 
             string path = Tools.GetPath(WavFileList.FirstOrDefault());
+
             if (!string.IsNullOrWhiteSpace(path))
             {
+                var result = Regex.Match(path, tagPattern);
+                if (result.Success)
+                {
+                    SessionTag = result.Value;
+                    return (SessionTag);
+                }
                 if (path.EndsWith("\\"))
                 {
                     path = path.Substring(0, path.Length - 1);
@@ -883,6 +837,18 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
             }
 
             return SessionTag;
+        }
+
+        private void ImportKaleidoscopeFolder(string kaleidoscopeFolderPath)
+        {
+            Debug.WriteLine("Starting to import recordings " + DateTime.Now);
+
+            var wavFileArray = Directory.EnumerateFiles(kaleidoscopeFolderPath, "*.wav");
+            //var WAVFileArray= Directory.EnumerateFiles(kaleidoscopeFolderPath, "*.WAV");
+            //wavFileArray = wavFileArray.Concat<string>(WAVFileArray);
+            foreach (var file in wavFileArray) ThisRecordingSession.ImportWavFile(file);
+
+            Debug.WriteLine("Recordings imported at " + DateTime.Now);
         }
 
         /// <summary>
@@ -948,6 +914,30 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
 
             OnDataUpdated(new EventArgs());
             return savedSession;
+        }
+
+        /// <summary>
+        /// Opens the C:\Audacity Config file and edits the export labels folder to
+        /// the current selected folder;
+        /// </summary>
+        /// <param name="folderPath"></param>
+        private void SetAudacityExportFolder(string folderPath)
+        {
+            string moddedFolderPath = folderPath.Replace(@"\\", @"\"); // first ensure that hte path only contains single backslashes - which it should
+            moddedFolderPath = moddedFolderPath.Replace(@"\", @"\\"); // then ensure that all backslashes are doubled for insertion into the config file
+            string configFile = @"C:\audacity-win-portable\Portable Settings\audacity.cfg";
+            if (File.Exists(configFile) && (new FileInfo(configFile).Length > 0L))
+            {
+                var lines = File.ReadAllLines(configFile);
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    if (lines[i].StartsWith("DefaultExportPath"))
+                    {
+                        lines[i] = "DefaultExportPath=" + moddedFolderPath;
+                    }
+                }
+                File.WriteAllLines(configFile, lines);
+            }
         }
     }
 }

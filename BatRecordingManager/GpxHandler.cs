@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,10 +16,12 @@
 
 using Microsoft.VisualStudio.Language.Intellisense;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows.Documents;
 using System.Xml.Linq;
 
 namespace BatRecordingManager
@@ -33,21 +35,6 @@ namespace BatRecordingManager
     /// </summary>
     internal class GpxHandler
     {
-        /// <summary>
-        ///     The GPX data
-        /// </summary>
-        private readonly XDocument _gpxData;
-
-        /// <summary>
-        ///     The GPX file exists
-        /// </summary>
-        private readonly bool _gpxFileExists;
-
-        /// <summary>
-        ///     The GPX namespace
-        /// </summary>
-        private readonly XNamespace _gpxNamespace;
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="GpxHandler" /> class.
         /// Tries the location as aGPX filename or if not, if it is folder containing a .gpx file.
@@ -108,6 +95,49 @@ namespace BatRecordingManager
             if (_gpxFileExists) _gpxNamespace = GetGpxNameSpace();
         }
 
+        public bool gpxFileExists
+        {
+            get
+            {
+                return (_gpxFileExists);
+            }
+        }
+
+        public List<ValueTuple<decimal, decimal>> getAllTrackPoints(DateTime start = new DateTime(), TimeSpan? endTime = null)
+        {
+            List<ValueTuple<decimal, decimal>> trackPointList = new List<ValueTuple<decimal, decimal>>();
+            if (_gpxFileExists && _gpxData != null)
+            {
+                XElement previous = null;
+                var all = _gpxData.Descendants();
+
+                // var trackPoints = GPXData.Descendants(gpxNamespace + "trkpt");
+                var trackPoints = _gpxData.Descendants().Where(x => x.ToString().StartsWith("<trkpt"));
+
+                //var trackPoints =
+                //    from tp in GPXData.Descendants("trk")
+                //   select (tp.Value);
+                if (!trackPoints.IsNullOrEmpty())
+                    foreach (var trkpt in trackPoints)
+                    {
+                        DateTime trkptTime = GetTrackPointTime(trkpt);
+                        if (start.Ticks > 0L) // check for correct date
+                        {
+                            if (start.Date != trkptTime.Date) continue;
+
+                            // so we have a valid date - now do we have a valid time
+                            if (trkptTime.TimeOfDay < start.TimeOfDay) continue; // track point earlier in the day
+                            if (endTime != null && trkptTime.TimeOfDay > endTime) continue; // track point after the end of session
+                        }
+
+                        var coords = GetGpsCoordinates(trkpt);
+                        var coord = (latitude: coords[0], longitude: coords[1]);
+                        trackPointList.Add(coord);
+                    }
+            }
+
+            return (trackPointList);
+        }
 
         /// <summary>
         ///     Gets the location.
@@ -166,6 +196,21 @@ namespace BatRecordingManager
 
             return result;
         }
+
+        /// <summary>
+        ///     The GPX data
+        /// </summary>
+        private readonly XDocument _gpxData;
+
+        /// <summary>
+        ///     The GPX file exists
+        /// </summary>
+        private readonly bool _gpxFileExists;
+
+        /// <summary>
+        ///     The GPX namespace
+        /// </summary>
+        private readonly XNamespace _gpxNamespace;
 
         /// <summary>
         ///     Gets the GPS coordinates.
