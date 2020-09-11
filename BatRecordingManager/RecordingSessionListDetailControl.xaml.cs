@@ -813,6 +813,17 @@ Mouse.OverrideCursor = null;*/
         /// <param name="e"></param>
         private void SplitByDateButton_Click(object sender, RoutedEventArgs e)
         {
+            if (RecordingSessionListView.SelectedItems != null &&
+                            RecordingSessionListView.SelectedItems.Count > 0)
+            {
+                foreach (var item in RecordingSessionListView.SelectedItems)
+                {
+                    var sessionData = item as RecordingSessionData;
+
+                    DBAccess.SplitSessionByDate(sessionData.Id);
+                }
+                this.RefreshData();
+            }
         }
     }
 }
