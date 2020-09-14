@@ -4579,6 +4579,17 @@ namespace BatRecordingManager
         /// <returns></returns>
         private static RecordingSession ExtractSession(RecordingSession bigSession, DateTime dayStart, DateTime dayEnd, int dayNum, BatReferenceDBLinqDataContext dc)
         {
+            var recsToMove = from rec in bigSession.Recordings.ToList()
+                             where rec.RecordingSessionId == bigSession.Id
+                             let recStart = (rec.RecordingDate ?? dayStart).Date + (rec.RecordingStartTime ?? dayStart.TimeOfDay)
+                             where recStart >= dayStart && recStart < dayEnd
+                             select rec;
+
+            if (recsToMove == null || !recsToMove.Any())
+            {
+                return (bigSession);
+            }
+
             string tag = bigSession.SessionTag + $"_d{dayNum}";
             string newTag = tag;
             int n = 1;
@@ -4607,12 +4618,6 @@ namespace BatRecordingManager
 
             dc.RecordingSessions.InsertOnSubmit(newSession);
             dc.SubmitChanges();
-
-            var recsToMove = from rec in bigSession.Recordings.ToList()
-                             where rec.RecordingSessionId == bigSession.Id
-                             let recStart = (rec.RecordingDate ?? dayStart).Date + (rec.RecordingStartTime ?? dayStart.TimeOfDay)
-                             where recStart >= dayStart && recStart < dayEnd
-                             select rec;
 
             if (recsToMove != null)
             {

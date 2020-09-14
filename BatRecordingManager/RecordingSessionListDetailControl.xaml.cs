@@ -411,33 +411,37 @@ Mouse.OverrideCursor = null;*/
 
         private void DeleteRecordingSessionButton_Click(object sender, RoutedEventArgs e)
         {
+            int oldIndex = 0;
             using (new WaitCursor("Deleting Recording Session"))
             {
                 if (RecordingSessionListView.SelectedItem != null && RecordingSessionListView.SelectedItems.Count > 0)
                 {
-                    var oldIndex = RecordingSessionListView.SelectedIndex;
-                    var session =
-                        DBAccess.GetRecordingSession((RecordingSessionListView.SelectedItems[0] as RecordingSessionData)
-                            .Id);
-                    var result = MessageBox.Show(
-                        $"This will remove session {session.SessionTag} From the Database\nAre You Sure?",
-                        "Delete RecordingSession", MessageBoxButton.YesNo);
-                    if (result == MessageBoxResult.Yes)
+                    oldIndex = RecordingSessionListView.SelectedIndex;
+                    for (int i = 0; i < RecordingSessionListView.SelectedItems.Count; i++)
                     {
-                        //recordingSessionDataList.RemoveAt(oldIndex);
-                        if (RecordingSessionListView.Items.Count > 0)
+                        var session =
+                            DBAccess.GetRecordingSession((RecordingSessionListView.SelectedItems[i] as RecordingSessionData)
+                                .Id);
+                        var result = MessageBox.Show(
+                            $"This will remove session {session.SessionTag} From the Database\nAre You Sure?",
+                            "Delete RecordingSession", MessageBoxButton.YesNo);
+                        if (result == MessageBoxResult.Yes)
                         {
-                            oldIndex--;
-                            if (oldIndex < 0) oldIndex = 0;
-                            RecordingSessionListView.SelectedIndex = oldIndex;
-                        }
-                        else
-                        {
-                            RecordingSessionControl.recordingSession = null;
-                            RecordingsListControl.recordingsList.Clear();
-                        }
+                            //recordingSessionDataList.RemoveAt(oldIndex);
+                            if (RecordingSessionListView.Items.Count > 0)
+                            {
+                                oldIndex--;
+                                if (oldIndex < 0) oldIndex = 0;
+                                //RecordingSessionListView.SelectedIndex = oldIndex;
+                            }
+                            else
+                            {
+                                RecordingSessionControl.recordingSession = null;
+                                RecordingsListControl.recordingsList.Clear();
+                            }
 
-                        DBAccess.DeleteSession(session);
+                            DBAccess.DeleteSession(session);
+                        }
                     }
 
                     RefreshData(PageSize, CurrentTopOfScreen);

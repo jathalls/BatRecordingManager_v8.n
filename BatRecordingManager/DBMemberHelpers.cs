@@ -606,6 +606,52 @@ namespace BatRecordingManager
             }
         }
 
+        public string[] GetBatTags4AsArray()
+        {
+            List<string> result = new List<string>();
+            foreach (var lnk in this.BatRecordingLinks)
+            {
+                Bat bat = lnk.Bat;
+                if (!(bat.Name == "No Bats"))
+                {
+                    if (bat.Batgenus.ToLower() == "unknown" || bat.BatSpecies.ToLower() == "unknown")
+                    {
+                        result.Add("????");
+                    }
+                    else if (!string.IsNullOrWhiteSpace(bat.Batgenus) && bat.Batgenus.Length >= 2 && !string.IsNullOrWhiteSpace(bat.BatSpecies) &&
+                       (bat.BatSpecies.Length >= 2))
+                    {
+                        string specie = bat.BatSpecies.Substring(0, 2);
+                        if (specie != "sp") specie = specie.ToUpper();
+                        string batstr = bat.Batgenus.Substring(0, 2).ToUpper() + specie;
+                        result.Add(batstr);
+                    }
+                    else
+                    {
+                        string genus = "??";
+                        if (!string.IsNullOrWhiteSpace(bat.Batgenus))
+                        {
+                            if (bat.Batgenus.Length > 2) genus = bat.Batgenus.Substring(0, 2).ToUpper();
+                            else genus = bat.Batgenus.ToUpper();
+                        }
+                        string species = "??";
+                        if (!string.IsNullOrWhiteSpace(bat.BatSpecies))
+                        {
+                            if (bat.BatSpecies.ToLower().StartsWith("sp")) species = "sp";
+                            else if (bat.BatSpecies.Length > 2) species = bat.BatSpecies.Substring(0, 2).ToUpper();
+                            else species = bat.BatSpecies.ToUpper();
+                        }
+                        result.Add(genus + species);
+                    }
+                }
+                else
+                {
+                    result.Add("nb");
+                }
+            }
+            return (result.ToArray());
+        }
+
         /// <summary>
         /// Gets the list of bats for this recording and returns them as a single string in six-letter
         /// batnomic format e.g. PIPPIP, PIPYG, NYCNOC etc.
@@ -645,6 +691,10 @@ namespace BatRecordingManager
                         string batstr = (bat.Batgenus.Substring(0, 3) + bat.BatSpecies.Substring(0, 3)).ToUpper();
                         result.Add(batstr);
                     }
+                }
+                else
+                {
+                    result.Add("nb");
                 }
             }
             return (result.ToArray());

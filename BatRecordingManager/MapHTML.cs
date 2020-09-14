@@ -30,16 +30,17 @@ namespace BatRecordingManager
             {
                 template = AddCredentials(template);
                 template = AddCentreLocation(session, template);
+                if (string.IsNullOrWhiteSpace(template))
+                {
+                    return ("");
+                }
                 template = AddHeaderText(session, template);
                 if (gpx.gpxFileExists)
                 {
                     var trackPointList = gpx.getAllTrackPoints(session.SessionDate, session.SessionEndTime);
                     template = AddTrack(trackPointList, template);
                 }
-                else
-                {
-                    template = template.Replace("$$$$Track", "");
-                }
+
                 template = AddPushPins(session, template);
 
                 template = AddClustering(template);
@@ -51,14 +52,32 @@ namespace BatRecordingManager
 
         private string AddCentreLocation(RecordingSession session, string template)
         {
-            var latitude = (from rec in session.Recordings
+            double latitude = double.NaN;
+            double longitude = double.NaN;
+            if (session.Recordings != null && session.Recordings.Any())
+            {
+                latitude = (from rec in session.Recordings
                             where rec.HasGPS
                             select rec.LatitudeAsDouble).Average();
-            var longitude = (from rec in session.Recordings
+                longitude = (from rec in session.Recordings
                              where rec.HasGPS
                              select rec.LongitudeAsDouble).Average();
-            string parameter = $"{latitude},{longitude}";
-            template = template.Replace("$$$$Centreloc", parameter);
+            }
+            if (double.IsNaN(latitude) || double.IsNaN(longitude))
+            {
+                latitude = ((double?)session.LocationGPSLatitude) ?? double.NaN;
+                longitude = ((double?)session.LocationGPSLongitude) ?? double.NaN;
+            }
+
+            if (double.IsNaN(latitude) || double.IsNaN(longitude))
+            {
+                return (null);
+            }
+
+            //var centreLat = 51.7855527272727;
+            //var centreLong = -0.169722727272727;
+            string parameter = $"centreLat={latitude};\ncentreLong={longitude};\n";
+            template = template.Replace(@"//$$$$Centreloc", parameter);
             return (template);
         }
 
@@ -119,7 +138,7 @@ namespace BatRecordingManager
             {
                 if (rec.HasGPS)
                 {
-                    var batlist = rec.GetBatTags6AsArray();
+                    var batlist = rec.GetBatTags4AsArray();
                     string batStrings = "";
                     foreach (var bat in batlist)
                     {
@@ -159,7 +178,7 @@ namespace BatRecordingManager
 
             if (trackPointList != null && trackPointList.Any())
             {
-                code = "var coords=[";
+                code = "coords=[";
                 foreach (var trkpt in trackPointList)
                 {
                     code += $"new Microsoft.Maps.Location({trkpt.Item1},{trkpt.Item2}),\n";
@@ -169,17 +188,18 @@ namespace BatRecordingManager
                     code = code.Substring(0, code.Length - 1);
                 }
                 code += "];\n";
-                template = template.Replace("$$$$Trackarray", code);
+
+                template = template.Replace("//$$$$Trackarray", code);
                 code = "";
                 code += @"var line=new Microsoft.Maps.Polyline(coords,{strokeColor: 'red', strokeThickness: 3});";
                 code += "\nmap.entities.push(line);\n";
             }
             else
             {
-                template = template.Replace("$$$$Trackarray", "");
+                template = template.Replace("//$$$$Trackarray", "");
             }
 
-            template = template.Replace("$$$$Track", code);
+            template = template.Replace("//$$$$DrawTrack", code);
             return (template);
         }
 

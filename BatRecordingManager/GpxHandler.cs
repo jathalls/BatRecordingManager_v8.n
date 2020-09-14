@@ -47,6 +47,7 @@ namespace BatRecordingManager
         {
             var filename = "";
             _gpxFileExists = false;
+            if (string.IsNullOrWhiteSpace(location)) return;
             //GPXData = new XDocument();
             //GPXData.Add(XElement.Parse("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>"));
             if (location.ToUpper().EndsWith(".GPX"))

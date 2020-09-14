@@ -14,9 +14,17 @@
         function GetMap() {
             // Seting Map Options
 
-            centre = new Microsoft.Maps.Location($$$$Centreloc);
-            //var coords = [centre, new Microsoft.Maps.Location(centre[0] + 0.5, centre[1] + 0.5)];
-            $$$$Trackarray
+            var centreLat = 51.786;
+            var centreLong = -0.17;
+            //$$$$Centreloc
+            centre = new Microsoft.Maps.Location(centreLat, centreLong);
+            var p1 = new Microsoft.Maps.Location(centreLat - 0.01, centreLong - 0.01);
+            var p2 = new Microsoft.Maps.Location(centreLat + 0.01, centreLong + 0.01);
+            var coords = [p1, p2];
+
+            //centre = new Microsoft.Maps.Location($$$$Centreloc);
+            //var coords = [new Microsoft.Maps.Location(centre[0] - 0.5, centre[1] + 0.5), new Microsoft.Maps.Location(centre[0] + 0.5, centre[1] + 0.5)];
+            //$$$$Trackarray
 
             map = new Microsoft.Maps.Map(document.getElementById("myMap"),
                 {
@@ -34,9 +42,14 @@
             //Assign infobox on variabel map
             infobox.setMap(map);
 
-            $$$$Track
+            //$$$$DrawTrack
 
             $$$$Adddata
+
+            for (var i = 0; i < pushpins.length; i++) {
+                Microsoft.Maps.Events.addHandler(pushpins[i], 'mouseover', pushpinOver);
+                Microsoft.Maps.Events.addHandler(pushpins[i], 'mouseout', pushpinNotOver);
+            }
 
             Microsoft.Maps.loadModule("Microsoft.Maps.Clustering", function () {
 
@@ -47,6 +60,25 @@
                 });
                 map.layers.insert(clusterLayer);
             });
+        }
+
+        // show an infobox when the mouse is over a pin
+        function pushpinOver(e) {
+            showInfobox(e.target);
+
+        }
+
+        function pushpinNotOver(e) {
+            /*var pin=e.target;
+            var pinTitle=pin.getTitle();
+            var pinSubTitle=pin.getSubTitle();
+            var infoTitle=infobox.getTitle();
+            var infoSubTitle=infobox.getSubTitle();
+            if(pinTitle==infoTitle && pinSubTitle==infoSubTitle){
+                infobox.setOptions({visible: false});
+            }*/
+            infobox.setOptions({ visible: false });
+
         }
 
         function createCustomClusterPushpins(cluster) {

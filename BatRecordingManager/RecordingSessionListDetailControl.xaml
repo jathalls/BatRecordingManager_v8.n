@@ -63,7 +63,8 @@
                         Width="50" Height="25"
                         Content="DEL"
                         IsEnabled="False"
-                        ToolTip="Delete the selected recording session from the database"
+                        ToolTip="Delete the selected recording session or sessions
+                        from the database"
                         Style="{StaticResource SimpleButton}" Click="DeleteRecordingSessionButton_Click" />
                     <Button
                         x:Name="ExportSessionDataButton"
