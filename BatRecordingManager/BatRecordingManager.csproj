@@ -554,6 +554,10 @@
     <Compile Include="Tools.cs" />
     <Compile Include="WavFileMetaData.cs" />
     <Compile Include="Weather.cs" />
+    <Compile Include="WebPageWindow.xaml.cs">
+      <DependentUpon>WebPageWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ZcMetadata.cs" />
     <Page Include="AboutScreen.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -765,6 +769,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="WebPageWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -874,6 +882,7 @@
     <Content Include="bing.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Metdata.txt" />
     <Content Include="Properties\AutoVersionUpdater.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>AutoVersionUpdater.txt</LastGenOutput>

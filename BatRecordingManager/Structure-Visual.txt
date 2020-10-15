@@ -534,3 +534,28 @@ ReportMaster.SetData(ReportBatStatsList,ReportSessionList,reportRecordingList)
 	foreach(bat){
 		
 	}
+
+#################################################################################################################################
+// runs AnalyseMain with filename as a command line parameter
+cmiRecordingNameAnalyse_Click()
+	AnalyseRecordingPulses(selectedRecording)
+		new WaitCursor()
+		new PulseAnalysisWindow()
+		pulseWindow?.AnalysisControlMain.CommandLineArgs({"BatRecordingManager",fqFileName})
+		pulseWindow?.Show()
+
+##################################################################################################################################
+
+miAnalyseSegment_Click
+	GetSelectedSegments()
+	new DeepAnalysis()
+	deepAnalyser.AnalyseSegment(selectedSegment)
+		using wfr=newWaveFileReader(file)
+		data=sampleProvider.Skip(segment.StartOffset).Take(segment.Duration)
+		List<float> allData=data.Read in FFTSize blocks
+		BiquadFilter.HighPassFilter(alldata,15000Hz)
+		AnalyseData(alldata)
+			
+	deepAnalyser.GetImage()
+	new StoredImage(image)
+	ComparisonHost.Instance.AddImage(storedImage)

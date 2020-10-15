@@ -301,7 +301,7 @@ namespace BatRecordingManager
             //List<Spectrum> spectra = new List<Spectrum>();
             //int FFTOrder = 10;
             float scale = 0.9f / (Math.Abs(Math.Max(data.Max(), Math.Abs(data.Min()))));// scale all data to 90% of maximum value
-            FFTAdvance = (int)Math.Floor(FFTSize * .05d);
+            FFTAdvance = (int)Math.Floor(FFTSize * .5d);
 
             advanceMS = ((double)FFTAdvance / (double)sampleRate) * 1000.0d;
 

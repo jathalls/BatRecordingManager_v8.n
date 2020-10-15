@@ -283,17 +283,20 @@ namespace BatRecordingManager
                 if (RecordingSessionListView.SelectedItem == null)
                 {
                     RecordingSessionControl.recordingSession = null;
-                    RecordingsListControl.recordingsList.Clear();
+                    RecordingsListControl.selectedSession = null;
+                    //RecordingsListControl.virtualRecordingsList.Clear();
                 }
                 else
                 {
                     var selectedID = (RecordingSessionListView.SelectedItem as RecordingSessionData).Id;
                     if ((RecordingSessionControl.recordingSession ?? new RecordingSession()).Id != selectedID)
                     {
-                        RecordingSessionControl.recordingSession = DBAccess.GetRecordingSession(selectedID);
-                        RecordingsListControl.recordingsList.Clear();
-                        RecordingsListControl.recordingsList.AddRange(RecordingSessionControl.recordingSession
-                            .Recordings);
+                        var session = DBAccess.GetRecordingSession(selectedID);
+                        RecordingSessionControl.recordingSession = session;
+                        RecordingsListControl.selectedSession = session;
+                        //RecordingsListControl.virtualRecordingsList.Clear();
+                        //RecordingsListControl.virtualRecordingsList.AddRange(RecordingSessionControl.recordingSession
+                        //.Recordings);
                     }
                 }
 
@@ -437,7 +440,8 @@ Mouse.OverrideCursor = null;*/
                             else
                             {
                                 RecordingSessionControl.recordingSession = null;
-                                RecordingsListControl.recordingsList.Clear();
+                                RecordingsListControl.selectedSession = null;
+                                //RecordingsListControl.virtualRecordingsList.Clear();
                             }
 
                             DBAccess.DeleteSession(session);
@@ -662,17 +666,17 @@ Mouse.OverrideCursor = null;*/
                         break;
                     }
                 }
-                RecordingsListControl.recordingsList.Clear();
-                RecordingsListControl.Refresh();
+                //RecordingsListControl.recordingsList.Clear();
+                //RecordingsListControl.Refresh();
                 var id = (RecordingSessionListView.SelectedItems[0] as RecordingSessionData).Id;
                 RecordingSessionControl.recordingSession = DBAccess.GetRecordingSession(id);
                 SegmentImageScroller.Clear();
                 if (RecordingSessionControl.recordingSession == null)
                 {
                     SessionSummaryStackPanel.Children.Clear();
-
+                    RecordingsListControl.selectedSession = null;
                     //displayedRecordings.Clear();
-                    RecordingsListControl.selectedSession = RecordingSessionControl.recordingSession;
+                    RecordingsListControl.selectedSession = null;
                     ExportSessionDataButton.IsEnabled = false;
                     EditRecordingSessionButton.IsEnabled = false;
                     DeleteRecordingSessionButton.IsEnabled = false;
@@ -681,7 +685,7 @@ Mouse.OverrideCursor = null;*/
                 else
                 {
                     //BulkObservableCollection<BatStats> statsForSession = recordingSessionControl.recordingSession.GetStats();
-
+                    RecordingsListControl.selectedSession = RecordingSessionControl.recordingSession;
                     //statsForSession = CondenseStatsList(statsForSession);
                     SessionSummaryStackPanel.Children.Clear();
                     //foreach (var batstat in statsForSession)
@@ -699,7 +703,8 @@ Mouse.OverrideCursor = null;*/
 
                     //displayedRecordings.Clear();
                     //displayedRecordings.AddRange(recordingSessionControl.recordingSession.Recordings);
-                    RecordingsListControl.selectedSession = RecordingSessionControl.recordingSession;
+                    //RecordingsListControl.selectedSession = RecordingSessionControl.recordingSession;
+                    //RecordingsListControl.SetRecordingsList(RecordingSessionControl.recordingSession.Recordings);
                     ExportSessionDataButton.IsEnabled = true;
                     EditRecordingSessionButton.IsEnabled = true;
                     DeleteRecordingSessionButton.IsEnabled = true;

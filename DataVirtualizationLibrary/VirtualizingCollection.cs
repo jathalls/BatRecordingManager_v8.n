@@ -71,6 +71,10 @@ namespace DataVirtualizationLibrary
             ItemsProvider = itemsProvider;
         }
 
+        public VirtualizingCollection()
+        {
+        }
+
         public string sortColumn
         {
             set
@@ -79,11 +83,7 @@ namespace DataVirtualizationLibrary
             }
         }
 
-        public VirtualizingCollection()
-        {
-        }
-
-        #endregion
+        #endregion Constructors
 
         #region ItemsProvider
 
@@ -93,7 +93,7 @@ namespace DataVirtualizationLibrary
         /// <value>The items provider.</value>
         public IItemsProvider<T> ItemsProvider { get; }
 
-        #endregion
+        #endregion ItemsProvider
 
         #region PageSize
 
@@ -103,7 +103,7 @@ namespace DataVirtualizationLibrary
         /// <value>The size of the page.</value>
         public int PageSize { get; } = 100;
 
-        #endregion
+        #endregion PageSize
 
         #region PageTimeout
 
@@ -113,13 +113,11 @@ namespace DataVirtualizationLibrary
         /// <value>The page timeout.</value>
         public long PageTimeout { get; } = 10000;
 
-        #endregion
+        #endregion PageTimeout
 
         #region IList<T>, IList
 
         #region Count
-
-        private int _count = -1;
 
         /// <summary>
         ///     Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.
@@ -145,7 +143,9 @@ namespace DataVirtualizationLibrary
             set { }
         }
 
-        #endregion
+        private int _count = -1;
+
+        #endregion Count
 
         #region Indexer
 
@@ -204,12 +204,19 @@ namespace DataVirtualizationLibrary
                 }
                 catch (Exception ex)
                 {
+                    Debug.WriteLine($"###### From VirtualizingCollection this<T>[{index}]");
                     Debug.WriteLine(ex.Message);
                     Debug.WriteLine(ex.Source);
                     //Debug.WriteLine("no pages in list at " + index);
                     return ItemsProvider.Default();
                 }
             }
+            set => throw new NotSupportedException();
+        }
+
+        object IList.this[int index]
+        {
+            get => this[index];
             set => throw new NotSupportedException();
         }
 
@@ -223,13 +230,7 @@ namespace DataVirtualizationLibrary
             RequestPage(0);
         }
 
-        object IList.this[int index]
-        {
-            get => this[index];
-            set => throw new NotSupportedException();
-        }
-
-        #endregion
+        #endregion Indexer
 
         #region IEnumerator<T>, IEnumerator
 
@@ -258,7 +259,7 @@ namespace DataVirtualizationLibrary
             return GetEnumerator();
         }
 
-        #endregion
+        #endregion IEnumerator<T>, IEnumerator
 
         #region Add
 
@@ -279,7 +280,7 @@ namespace DataVirtualizationLibrary
             throw new NotSupportedException();
         }
 
-        #endregion
+        #endregion Add
 
         #region Contains
 
@@ -287,7 +288,6 @@ namespace DataVirtualizationLibrary
         {
             return Contains((T)value);
         }
-
 
         /// <summary>
         ///     Not supported.
@@ -301,7 +301,7 @@ namespace DataVirtualizationLibrary
             return false;
         }
 
-        #endregion
+        #endregion Contains
 
         #region Clear
 
@@ -316,7 +316,7 @@ namespace DataVirtualizationLibrary
             //throw new NotSupportedException();
         }
 
-        #endregion
+        #endregion Clear
 
         #region IndexOf
 
@@ -337,7 +337,7 @@ namespace DataVirtualizationLibrary
             return -1;
         }
 
-        #endregion
+        #endregion IndexOf
 
         #region Insert
 
@@ -362,24 +362,9 @@ namespace DataVirtualizationLibrary
             Insert(index, (T)value);
         }
 
-        #endregion
+        #endregion Insert
 
         #region Remove
-
-        /// <summary>
-        ///     Not supported.
-        /// </summary>
-        /// <param name="index">The zero-based index of the item to remove.</param>
-        /// <exception cref="T:System.ArgumentOutOfRangeException">
-        ///     <paramref name="index" /> is not a valid index in the <see cref="T:System.Collections.Generic.IList`1" />.
-        /// </exception>
-        /// <exception cref="T:System.NotSupportedException">
-        ///     The <see cref="T:System.Collections.Generic.IList`1" /> is read-only.
-        /// </exception>
-        public void RemoveAt(int index)
-        {
-            throw new NotSupportedException();
-        }
 
         void IList.Remove(object value)
         {
@@ -403,7 +388,22 @@ namespace DataVirtualizationLibrary
             throw new NotSupportedException();
         }
 
-        #endregion
+        /// <summary>
+        ///     Not supported.
+        /// </summary>
+        /// <param name="index">The zero-based index of the item to remove.</param>
+        /// <exception cref="T:System.ArgumentOutOfRangeException">
+        ///     <paramref name="index" /> is not a valid index in the <see cref="T:System.Collections.Generic.IList`1" />.
+        /// </exception>
+        /// <exception cref="T:System.NotSupportedException">
+        ///     The <see cref="T:System.Collections.Generic.IList`1" /> is read-only.
+        /// </exception>
+        public void RemoveAt(int index)
+        {
+            throw new NotSupportedException();
+        }
+
+        #endregion Remove
 
         #region CopyTo
 
@@ -442,18 +442,27 @@ namespace DataVirtualizationLibrary
             throw new NotSupportedException();
         }
 
-        #endregion
+        #endregion CopyTo
 
         #region Misc
 
         /// <summary>
-        ///     Gets an object that can be used to synchronize access to the <see cref="T:System.Collections.ICollection" />.
+        ///     Gets a value indicating whether the <see cref="T:System.Collections.IList" /> has a fixed size.
         /// </summary>
         /// <value></value>
         /// <returns>
-        ///     An object that can be used to synchronize access to the <see cref="T:System.Collections.ICollection" />.
+        ///     Always false.
         /// </returns>
-        public object SyncRoot => this;
+        public bool IsFixedSize => false;
+
+        /// <summary>
+        ///     Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.
+        /// </summary>
+        /// <value></value>
+        /// <returns>
+        ///     Always true.
+        /// </returns>
+        public bool IsReadOnly => true;
 
         /// <summary>
         ///     Gets a value indicating whether access to the <see cref="T:System.Collections.ICollection" /> is synchronized
@@ -466,31 +475,19 @@ namespace DataVirtualizationLibrary
         public bool IsSynchronized => false;
 
         /// <summary>
-        ///     Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.
+        ///     Gets an object that can be used to synchronize access to the <see cref="T:System.Collections.ICollection" />.
         /// </summary>
         /// <value></value>
         /// <returns>
-        ///     Always true.
+        ///     An object that can be used to synchronize access to the <see cref="T:System.Collections.ICollection" />.
         /// </returns>
-        public bool IsReadOnly => true;
+        public object SyncRoot => this;
 
-        /// <summary>
-        ///     Gets a value indicating whether the <see cref="T:System.Collections.IList" /> has a fixed size.
-        /// </summary>
-        /// <value></value>
-        /// <returns>
-        ///     Always false.
-        /// </returns>
-        public bool IsFixedSize => false;
+        #endregion Misc
 
-        #endregion
-
-        #endregion
+        #endregion IList<T>, IList
 
         #region Paging
-
-        private readonly Dictionary<int, IList<T>> _pages = new Dictionary<int, IList<T>>();
-        private readonly Dictionary<int, DateTime> _pageTouchTimes = new Dictionary<int, DateTime>();
 
         /// <summary>
         ///     Cleans up any stale pages that have not been accessed in the period dictated by PageTimeout.
@@ -574,7 +571,10 @@ namespace DataVirtualizationLibrary
             }
         }
 
-        #endregion
+        private readonly Dictionary<int, IList<T>> _pages = new Dictionary<int, IList<T>>();
+        private readonly Dictionary<int, DateTime> _pageTouchTimes = new Dictionary<int, DateTime>();
+
+        #endregion Paging
 
         #region Load methods
 
@@ -595,9 +595,19 @@ namespace DataVirtualizationLibrary
             PopulatePage(pageIndex, FetchPage(pageIndex));
         }
 
-        #endregion
+        #endregion Load methods
 
         #region Fetch methods
+
+        /// <summary>
+        ///     Fetches the count of itmes from the IItemsProvider.
+        /// </summary>
+        /// <returns></returns>
+        protected int FetchCount()
+        {
+            if (ItemsProvider != null) return ItemsProvider.FetchCount();
+            return 0;
+        }
 
         /// <summary>
         ///     Fetches the requested page from the IItemsProvider.
@@ -611,16 +621,6 @@ namespace DataVirtualizationLibrary
             return new List<T>();
         }
 
-        /// <summary>
-        ///     Fetches the count of itmes from the IItemsProvider.
-        /// </summary>
-        /// <returns></returns>
-        protected int FetchCount()
-        {
-            if (ItemsProvider != null) return ItemsProvider.FetchCount();
-            return 0;
-        }
-
-        #endregion
+        #endregion Fetch methods
     }
 }

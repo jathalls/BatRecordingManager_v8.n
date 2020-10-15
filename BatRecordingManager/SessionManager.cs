@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,6 +27,194 @@ namespace BatRecordingManager
     /// </summary>
     public static class SessionManager
     {
+        public static TimeSpan? CalculateSunset(DateTime sessionDate, decimal? latitude, decimal? longitude)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+        {
+            TimeSpan? sunset = new TimeSpan();
+            var dtSunrise = new DateTime();
+            var dtSunset = new DateTime();
+            var isSunrise = false;
+            var isSunset = false;
+
+            if (latitude == null || longitude == null || Math.Abs((double)latitude) > 90.0 ||
+                Math.Abs((double)longitude) > 180.0 || sessionDate.Year < 1900) return sunset;
+
+            if (SunTimes.Instance.CalculateSunRiseSetTimes((double)latitude.Value, (double)longitude.Value,
+                sessionDate, ref dtSunrise, ref dtSunset, ref isSunrise, ref isSunset))
+            {
+                if (isSunset)
+                    /*
+                        if(dtSunset.IsDaylightSavingTime()){
+                            dtSunset = dtSunset.AddHours(1);
+                        }*/
+                    sunset = dtSunset.TimeOfDay;
+            }
+            else
+            {
+                Tools.ErrorLog("Failed to calculate Sunset");
+            }
+
+            return sunset;
+        }
+
+        /// <summary>
+        ///     Presents a RecordingSessionDialog to the user for filling in or amending and returns
+        ///     the amended session.
+        /// </summary>
+        /// <param name="newSession"></param>
+        /// <param name="sessionTag"></param>
+        /// <param name="folderPath"></param>
+        /// <returns></returns>
+        public static RecordingSession EditSession(RecordingSession newSession, string sessionTag, string folderPath)
+        {
+            if (string.IsNullOrWhiteSpace(newSession.SessionTag)) newSession.SessionTag = sessionTag;
+            if (newSession.SessionDate == null || newSession.SessionDate.Year < 1900)
+            {
+                newSession.SessionDate = GetDateFromTag(sessionTag);
+                if (newSession.SessionDate == null || newSession.SessionDate.Year < 1900)
+                {
+                    newSession.SessionDate = GetDateFromFileOrFolder(newSession, folderPath);
+                }
+                newSession.SessionStartTime = new TimeSpan(18, 0, 0);
+            }
+
+            if (newSession.EndDate == null || newSession.EndDate.Value.Year < 1900)
+            {
+                newSession.EndDate = newSession.SessionDate;
+                newSession.SessionEndTime = new TimeSpan(23, 59, 59);
+            }
+
+            if (string.IsNullOrWhiteSpace(newSession.OriginalFilePath)) newSession.OriginalFilePath = folderPath;
+            if (GetDateTimesFromFiles(folderPath, sessionTag, out var start, out var end)) // Gets it wrong
+            {
+                if (start.Date == newSession.SessionDate.Date) // simple, everything agrees
+                {
+                    newSession.SessionDate = start;
+                    newSession.SessionStartTime = start.TimeOfDay;
+                    newSession.EndDate = end;
+                    newSession.SessionEndTime = end.TimeOfDay;
+                }
+                else // we have discrepancy between tag and file dates and times, we use a composite
+                {
+                    newSession.SessionStartTime = start.TimeOfDay;
+                    newSession.EndDate = end;
+                    newSession.SessionEndTime = end.TimeOfDay;
+                }
+            }
+
+            var sessionForm = new RecordingSessionForm();
+
+            sessionForm.SetRecordingSession(newSession);
+            if (sessionForm.ShowDialog() ?? false)
+            {
+                newSession = sessionForm.GetRecordingSession();
+                //DBAccess.UpdateRecordingSession(sessionForFolder);
+                sessionTag = newSession.SessionTag;
+                var existingSession = DBAccess.GetRecordingSession(sessionTag);
+                newSession.Id = existingSession != null ? existingSession.Id : 0;
+            }
+            else
+            {
+                newSession = null; // we hit Cancel in the form so nullify the entire process
+            }
+
+            return newSession;
+        }
+
+        /// <summary>
+        ///     Uses the header file to try and populate a new recordingSession,
+        ///     otherwise returns a new RecordingSession;
+        /// </summary>
+        /// <param name="headerFile"></param>
+        /// <returns></returns>
+        public static RecordingSession FillSessionFromHeader(string headerFile, string sessionTag,
+            BulkObservableCollection<string> wavFileFolders = null)
+        {
+            var recordingSession = new RecordingSession { SessionTag = sessionTag };
+            //if (!string.IsNullOrWhiteSpace(headerFile) && File.Exists(headerFile))
+            recordingSession = PopulateSession(recordingSession, headerFile, sessionTag, wavFileFolders);
+
+            return recordingSession;
+        }
+
+        /// <summary>
+        ///     Looks for a header text file in the selected folder which starts with a [COPY]
+        ///     directive.
+        /// </summary>
+        /// <returns></returns>
+        public static string GetHeaderFile(string folderPath)
+        {
+            var listOfTxtFiles = Directory.EnumerateFiles(folderPath, "*.txt", SearchOption.TopDirectoryOnly);
+            //var listOfTXTFiles= Directory.EnumerateFiles(folderPath, "*.TXT", SearchOption.TopDirectoryOnly);
+            //listOfTxtFiles = listOfTxtFiles.Concat<string>(listOfTXTFiles);
+            if (!listOfTxtFiles.IsNullOrEmpty())
+                foreach (var file in listOfTxtFiles)
+                    if (File.Exists(file))
+                    {
+                        var lines = File.ReadLines(file);
+                        if (!lines.IsNullOrEmpty())
+                        {
+                            var line = lines.First();
+                            if (line.Contains("[COPY]")) return file;
+                        }
+                    }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Saves the recordingSession to the database
+        /// </summary>
+        /// <param name="newSession"></param>
+        /// <returns></returns>
+        public static RecordingSession SaveSession(RecordingSession newSession)
+        {
+            DBAccess.UpdateRecordingSession(newSession);
+            DBAccess.ResolveOrphanImages();
+
+            return DBAccess.GetRecordingSession(newSession.SessionTag);
+        }
+
+        /// <summary>
+        ///     Tries to find a header file and if found tries to populate a new RecordingSession
+        ///     based on it.  Whether or no, then displays a RecordingSession Dialog for the user to
+        ///     populate and/or amend as required.  The RecordingSession is then saved to the
+        ///     database and the RecordingSessiontag is used to replace the current Sessiontag
+        /// </summary>
+        /// <returns></returns>
+        internal static RecordingSession CreateSession(string folderPath, string sessionTag = "", GpxHandler gpxHandler = null)
+        {
+            var newSession = new RecordingSession();
+            string headerFile = "";
+            if (gpxHandler == null) gpxHandler = new GpxHandler(folderPath);
+            var folderList = new BulkObservableCollection<string> { folderPath };
+            if (!string.IsNullOrWhiteSpace(sessionTag))
+            {
+                var sess = DBAccess.GetRecordingSession(sessionTag);
+                if (sess != null) newSession = sess;
+            }
+            if (newSession.Id <= 0)
+            {
+                if (string.IsNullOrWhiteSpace(sessionTag))
+                {
+                    sessionTag = CreateTag(folderPath);
+                }
+
+                headerFile = GetHeaderFile(folderPath);
+                newSession = FillSessionFromHeader(headerFile, sessionTag, folderList);
+                newSession = SetGpsCoordinates(newSession, gpxHandler);
+            }
+
+            newSession.OriginalFilePath = folderPath;
+
+            newSession = EditSession(newSession, sessionTag, folderPath);
+            if (newSession == null) return null;
+            newSession = SaveSession(newSession);
+            sessionTag = newSession.SessionTag;
+
+            return newSession;
+        }
+
         internal static string GetSessionTag(FileBrowser fileBrowser)
         {
             string FolderPath = fileBrowser.WorkingFolder;
@@ -34,8 +222,6 @@ namespace BatRecordingManager
             var tagPattern = @"[A-Z0-9]+[-_]{1}([0-9a-zA-Z]+[-_]{1})?20[0-9]{6}";
             if (!string.IsNullOrWhiteSpace(FolderPath) && Directory.Exists(FolderPath))
             {
-
-
                 var WavFileList = Directory.EnumerateFiles(FolderPath, "*.wav");
                 if (WavFileList.IsNullOrEmpty()) return ("");
 
@@ -48,14 +234,8 @@ namespace BatRecordingManager
                         SessionTag = result.Value;
                         return SessionTag;
                     }
-
-
-
                 }
             }
-
-
-
 
             if (!string.IsNullOrWhiteSpace(fileBrowser.WorkingFolder))
             {
@@ -75,29 +255,8 @@ namespace BatRecordingManager
             return SessionTag;
         }
 
-        /// <summary>
-        ///     Uses the supplied gpxhandler to fill in the GPX co-ordinates for the supplied session
-        /// </summary>
-        /// <param name="session"></param>
-        /// <param name="gpxHandler"></param>
-        /// <returns></returns>
-        internal static RecordingSession SetGpsCoordinates(RecordingSession session, GpxHandler gpxHandler)
-        {
-            if (session.LocationGPSLatitude == null || session.LocationGPSLatitude < 5.0m)
-            {
-                var gpxLoc = gpxHandler?.GetLocation(session.SessionDate);
-                if (gpxLoc != null && gpxLoc.Count == 2)
-                {
-                    session.LocationGPSLatitude = gpxLoc[0];
-                    session.LocationGPSLongitude = gpxLoc[1];
-                }
-            }
-
-            return session;
-        }
-
         internal static RecordingSession PopulateSession(RecordingSession newSession, string headerFile,
-            string sessionTag, BulkObservableCollection<string> wavFileFolders)
+                    string sessionTag, BulkObservableCollection<string> wavFileFolders)
         {
             newSession.SessionTag = sessionTag;
             bool noHeader = false;
@@ -122,7 +281,6 @@ namespace BatRecordingManager
                     wavFileFolders = new BulkObservableCollection<string>();
                     wavFileFolders.Add(workingFolder);
                     newSession.OriginalFilePath = workingFolder;
-
                 }
                 else
                 {
@@ -135,11 +293,13 @@ namespace BatRecordingManager
                 newSession.OriginalFilePath = workingFolder;
             }
 
-
-
             DateTime firstFileDateAndTimeFromName = new DateTime(1, 1, 1);
             DateTime lastFileDateAndTimeFromName = new DateTime(1, 1, 1);
             var wavFileList = Directory.EnumerateFiles(workingFolder, "*.wav").OrderBy(wf => wf);
+            if (wavFileList.IsNullOrEmpty())
+            {
+                wavFileList = Directory.EnumerateFiles(workingFolder, "*.zc").OrderBy(wf => wf);
+            }
             if (!wavFileList.IsNullOrEmpty())
             {
                 // uses FileProcessor to determine the start times and dates of the first and last files in the list
@@ -150,13 +310,10 @@ namespace BatRecordingManager
                 _ = Tools.GetFileDatesAndTimes(wavfileName, out string explicitwavfilename, out DateTime fileStart, out DateTime fileEnd);
                 firstFileDateAndTimeFromName = fileStart;
 
-
-                // wavfileName = wavFileList.Last();
+                wavfileName = wavFileList.Last();
 
                 TimeSpan duration = Tools.GetFileDatesAndTimes(wavfileName, out explicitwavfilename, out fileStart, out fileEnd);
                 lastFileDateAndTimeFromName = fileEnd;
-
-
             }
 
             var existingSession = DBAccess.GetRecordingSession(newSession.SessionTag);
@@ -164,8 +321,6 @@ namespace BatRecordingManager
 
             if (!noHeader && headerFileLines != null && headerFileLines.Length > 0)
             {
-
-
                 newSession = ExtractHeaderData(workingFolder, newSession.SessionTag, headerFileLines);
                 if (newSession.SessionDate.Year < 1950)
                 {
@@ -217,11 +372,7 @@ namespace BatRecordingManager
                 {
                     newSession.EndDate = lastFileDateAndTimeFromName;
                     newSession.SessionEndTime = lastFileDateAndTimeFromName.TimeOfDay;
-
                 }
-
-
-
             }
             else
             {
@@ -234,11 +385,9 @@ namespace BatRecordingManager
                     newSession.SessionStartTime = firstFileDateAndTimeFromName.TimeOfDay;
                     newSession.EndDate = lastFileDateAndTimeFromName;
                     newSession.SessionEndTime = lastFileDateAndTimeFromName.TimeOfDay;
-
                 }
                 else
                 {
-
                     if (!string.IsNullOrWhiteSpace(workingFolder) && Directory.Exists(workingFolder))
                     {
                         newSession.SessionDate = Directory.GetCreationTime(workingFolder);
@@ -254,147 +403,43 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Presents a RecordingSessionDialog to the user for filling in or amending and returns
-        ///     the amended session.
+        ///     Populates the session.
         /// </summary>
-        /// <param name="newSession"></param>
-        /// <param name="sessionTag"></param>
-        /// <param name="folderPath"></param>
-        /// <returns></returns>
-        public static RecordingSession EditSession(RecordingSession newSession, string sessionTag, string folderPath)
+        /// <param name="newSession">
+        ///     The new session.
+        /// </param>
+        /// <param name="fileBrowser">
+        ///     The file browser.
+        /// </param>
+        /// <returns>
+        /// </returns>
+        internal static RecordingSession PopulateSession(RecordingSession newSession, FileBrowser fileBrowser)
         {
-            if (string.IsNullOrWhiteSpace(newSession.SessionTag)) newSession.SessionTag = sessionTag;
-            if (newSession.SessionDate == null || newSession.SessionDate.Year < 1900)
-            {
-                newSession.SessionDate = GetDateFromTag(sessionTag);
-                if (newSession.SessionDate == null || newSession.SessionDate.Year < 1900)
-                {
-                    newSession.SessionDate = GetDateFromFileOrFolder(newSession, folderPath);
+            var sessionTag = GetSessionTag(fileBrowser);
+            var headerFile = fileBrowser.HeaderFileName;
 
-                }
-                newSession.SessionStartTime = new TimeSpan(18, 0, 0);
-            }
-
-            if (newSession.EndDate == null || newSession.EndDate.Value.Year < 1900)
-            {
-                newSession.EndDate = newSession.SessionDate;
-                newSession.SessionEndTime = new TimeSpan(23, 59, 59);
-            }
-
-            if (string.IsNullOrWhiteSpace(newSession.OriginalFilePath)) newSession.OriginalFilePath = folderPath;
-            if (GetDateTimesFromFiles(folderPath, sessionTag, out var start, out var end))
-            {
-                if (start.Date == newSession.SessionDate.Date) // simple, everything agrees
-                {
-                    newSession.SessionDate = start;
-                    newSession.SessionStartTime = start.TimeOfDay;
-                    newSession.EndDate = end;
-                    newSession.SessionEndTime = end.TimeOfDay;
-                }
-                else // we have discrepancy between tag and file dates and times, we use a composite
-                {
-                    newSession.SessionStartTime = start.TimeOfDay;
-                    newSession.EndDate = end;
-                    newSession.SessionEndTime = end.TimeOfDay;
-
-                }
-            }
-
-            var sessionForm = new RecordingSessionForm();
-
-            sessionForm.SetRecordingSession(newSession);
-            if (sessionForm.ShowDialog() ?? false)
-            {
-                newSession = sessionForm.GetRecordingSession();
-                //DBAccess.UpdateRecordingSession(sessionForFolder);
-                sessionTag = newSession.SessionTag;
-                var existingSession = DBAccess.GetRecordingSession(sessionTag);
-                newSession.Id = existingSession != null ? existingSession.Id : 0;
-            }
-            else
-            {
-                newSession = null; // we hit Cancel in the form so nullify the entire process
-            }
-
-            return newSession;
+            return PopulateSession(newSession, headerFile, sessionTag, fileBrowser.WavFileFolders);
         }
 
         /// <summary>
-        /// Gets the date from file or folder.  Is guranteed to return a valid datetime.
-        /// First tries to get the date and time from a .wav file in the folder.  If that fails
-        /// the tries to get the date from the folder (unreliable - probably not the recording date)
-        /// and if all alse fails returns a date of 1/1/2000
+        ///     Uses the supplied gpxhandler to fill in the GPX co-ordinates for the supplied session
         /// </summary>
-        /// <param name="newSession">The new session.</param>
-        /// <param name="folderPath">The folder path.</param>
+        /// <param name="session"></param>
+        /// <param name="gpxHandler"></param>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        private static DateTime GetDateFromFileOrFolder(RecordingSession newSession, string folderPath)
+        internal static RecordingSession SetGpsCoordinates(RecordingSession session, GpxHandler gpxHandler)
         {
-            DateTime result = new DateTime(1900, 1, 1, 0, 0, 0, 0);
-            if (!string.IsNullOrWhiteSpace(folderPath))
+            if (session.LocationGPSLatitude == null || session.LocationGPSLatitude < 5.0m)
             {
-                if (Directory.Exists((folderPath)))
+                var gpxLoc = gpxHandler?.GetLocation(session.SessionDate);
+                if (gpxLoc != null && gpxLoc.Count == 2)
                 {
-                    var wavFiles = Directory.EnumerateFiles(folderPath, "*.wav");
-                    if (wavFiles != null && wavFiles.Any())
-                    {
-                        result = File.GetCreationTime(wavFiles.First());
-                        if (result != null && result.Year > 1900) return (result);
-                    }
-
-                    result = Directory.GetCreationTime(folderPath);
-                    if (result != null && result.Year > 1900)
-                    {
-                        return (result);
-                    }
+                    session.LocationGPSLatitude = gpxLoc[0];
+                    session.LocationGPSLongitude = gpxLoc[1];
                 }
             }
 
-            return (new DateTime(1900, 1, 1, 0, 0, 0, 0));
-        }
-
-        /// <summary>
-        ///     Tries to find a header file and if found tries to populate a new RecordingSession
-        ///     based on it.  Whether or no, then displays a RecordingSession Dialog for the user to
-        ///     populate and/or amend as required.  The RecordingSession is then saved to the
-        ///     database and the RecordingSessiontag is used to replace the current Sessiontag
-        /// </summary>
-        /// <returns></returns>
-        internal static RecordingSession CreateSession(string folderPath, string sessionTag = "", GpxHandler gpxHandler = null)
-        {
-            var newSession = new RecordingSession();
-            string headerFile = "";
-            if (gpxHandler == null) gpxHandler = new GpxHandler(folderPath);
-            var folderList = new BulkObservableCollection<string> { folderPath };
-            if (!string.IsNullOrWhiteSpace(sessionTag))
-            {
-                var sess = DBAccess.GetRecordingSession(sessionTag);
-                if (sess != null) newSession = sess;
-            }
-            if (newSession.Id <= 0)
-            {
-                if (string.IsNullOrWhiteSpace(sessionTag))
-                {
-                    sessionTag = CreateTag(folderPath);
-                }
-
-                headerFile = GetHeaderFile(folderPath);
-                newSession = FillSessionFromHeader(headerFile, sessionTag, folderList);
-                newSession = SetGpsCoordinates(newSession, gpxHandler);
-            }
-
-
-
-            newSession.OriginalFilePath = folderPath;
-
-            newSession = EditSession(newSession, sessionTag, folderPath);
-            if (newSession == null) return null;
-            newSession = SaveSession(newSession);
-            sessionTag = newSession.SessionTag;
-
-
-            return newSession;
+            return session;
         }
 
         private static string CreateTag(string folderPath)
@@ -417,79 +462,6 @@ namespace BatRecordingManager
             }
 
             return result;
-        }
-
-        /// <summary>
-        ///     Saves the recordingSession to the database
-        /// </summary>
-        /// <param name="newSession"></param>
-        /// <returns></returns>
-        public static RecordingSession SaveSession(RecordingSession newSession)
-        {
-            DBAccess.UpdateRecordingSession(newSession);
-            DBAccess.ResolveOrphanImages();
-
-            return DBAccess.GetRecordingSession(newSession.SessionTag);
-        }
-
-        /// <summary>
-        ///     Looks for a header text file in the selected folder which starts with a [COPY]
-        ///     directive.
-        /// </summary>
-        /// <returns></returns>
-        public static string GetHeaderFile(string folderPath)
-        {
-            var listOfTxtFiles = Directory.EnumerateFiles(folderPath, "*.txt", SearchOption.TopDirectoryOnly);
-            //var listOfTXTFiles= Directory.EnumerateFiles(folderPath, "*.TXT", SearchOption.TopDirectoryOnly);
-            //listOfTxtFiles = listOfTxtFiles.Concat<string>(listOfTXTFiles);
-            if (!listOfTxtFiles.IsNullOrEmpty())
-                foreach (var file in listOfTxtFiles)
-                    if (File.Exists(file))
-                    {
-                        var lines = File.ReadLines(file);
-                        if (!lines.IsNullOrEmpty())
-                        {
-                            var line = lines.First();
-                            if (line.Contains("[COPY]")) return file;
-                        }
-                    }
-
-            return null;
-        }
-
-        /// <summary>
-        ///     Uses the header file to try and populate a new recordingSession,
-        ///     otherwise returns a new RecordingSession;
-        /// </summary>
-        /// <param name="headerFile"></param>
-        /// <returns></returns>
-        public static RecordingSession FillSessionFromHeader(string headerFile, string sessionTag,
-            BulkObservableCollection<string> wavFileFolders = null)
-        {
-            var recordingSession = new RecordingSession { SessionTag = sessionTag };
-            //if (!string.IsNullOrWhiteSpace(headerFile) && File.Exists(headerFile))
-            recordingSession = PopulateSession(recordingSession, headerFile, sessionTag, wavFileFolders);
-
-            return recordingSession;
-        }
-
-        /// <summary>
-        ///     Populates the session.
-        /// </summary>
-        /// <param name="newSession">
-        ///     The new session.
-        /// </param>
-        /// <param name="fileBrowser">
-        ///     The file browser.
-        /// </param>
-        /// <returns>
-        /// </returns>
-        internal static RecordingSession PopulateSession(RecordingSession newSession, FileBrowser fileBrowser)
-        {
-            var sessionTag = GetSessionTag(fileBrowser);
-            var headerFile = fileBrowser.HeaderFileName;
-
-            return PopulateSession(newSession, headerFile, sessionTag, fileBrowser.WavFileFolders);
         }
 
         /// <summary>
@@ -555,38 +527,6 @@ namespace BatRecordingManager
             return session;
         }
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
-        public static TimeSpan? CalculateSunset(DateTime sessionDate, decimal? latitude, decimal? longitude)
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        {
-            TimeSpan? sunset = new TimeSpan();
-            var dtSunrise = new DateTime();
-            var dtSunset = new DateTime();
-            var isSunrise = false;
-            var isSunset = false;
-
-            if (latitude == null || longitude == null || Math.Abs((double)latitude) > 90.0 ||
-                Math.Abs((double)longitude) > 180.0 || sessionDate.Year < 1900) return sunset;
-
-            if (SunTimes.Instance.CalculateSunRiseSetTimes((double)latitude.Value, (double)longitude.Value,
-                sessionDate, ref dtSunrise, ref dtSunset, ref isSunrise, ref isSunset))
-            {
-                if (isSunset)
-                    /*
-                        if(dtSunset.IsDaylightSavingTime()){
-                            dtSunset = dtSunset.AddHours(1);
-                        }*/
-                    sunset = dtSunset.TimeOfDay;
-            }
-            else
-            {
-                Tools.ErrorLog("Failed to calculate Sunset");
-            }
-
-            return sunset;
-        }
-
         /// <summary>
         ///     Gets the compressed date. Given a date in the format yyyymmdd returns the
         ///     corresponding DateTime
@@ -640,6 +580,43 @@ namespace BatRecordingManager
         }
 
         /// <summary>
+        /// Gets the date from file or folder.  Is guranteed to return a valid datetime.
+        /// First tries to get the date and time from a .wav file in the folder.  If that fails
+        /// the tries to get the date from the folder (unreliable - probably not the recording date)
+        /// and if all alse fails returns a date of 1/1/2000
+        /// </summary>
+        /// <param name="newSession">The new session.</param>
+        /// <param name="folderPath">The folder path.</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        private static DateTime GetDateFromFileOrFolder(RecordingSession newSession, string folderPath)
+        {
+            DateTime result = new DateTime(1900, 1, 1, 0, 0, 0, 0);
+            if (!string.IsNullOrWhiteSpace(folderPath))
+            {
+                if (Directory.Exists((folderPath)))
+                {
+                    var wavFiles = Directory.EnumerateFiles(folderPath, "*.wav");
+                    if (wavFiles != null && wavFiles.Any())
+                    {
+                        result = File.GetCreationTime(wavFiles.First());
+                        if (result != null && result.Year > 1900) return (result);
+                    }
+
+                    result = Directory.GetCreationTime(folderPath);
+                    if (result != null && result.Year > 1900)
+                    {
+                        return (result);
+                    }
+                }
+            }
+
+            return (new DateTime(1900, 1, 1, 0, 0, 0, 0));
+        }
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+        /// <summary>
         ///     Gets the date from tag.
         /// </summary>
         /// <param name="sessionTag">
@@ -663,8 +640,67 @@ namespace BatRecordingManager
                 }
             }
 
-
             return result;
+        }
+
+        /// <summary>
+        ///     uses the times of files in the specified folder to guess at session
+        ///     start and end times.  Looks for .wav files with the same date as the
+        ///     date included in the tag, then assumes a start at 4 minutes before the
+        ///     time of the earlieast wav file and an end of the time of the last wav file.
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <param name="sessionTag"></param>
+        /// <param name="startTime"></param>
+        /// <param name="endTime"></param>
+        private static bool GetDateTimesFromFiles(string folder, string sessionTag, out DateTime startTime,
+            out DateTime endTime)
+        {
+            startTime = DateTime.Now;
+            endTime = startTime;
+            if (string.IsNullOrWhiteSpace(folder)) return false;
+            var sessiondate = GetDateFromTag(sessionTag);
+
+            try
+            {
+                var wavFiles = Directory.EnumerateFiles(folder, @"*.wav");
+                if (wavFiles.IsNullOrEmpty())
+                {
+                    wavFiles = Directory.EnumerateFiles(folder, "*.zc");
+                }
+                //var WAVFiles = Directory.EnumerateFiles(folder, "*.WAV");
+
+                List<string> firstAndLastWavFiles = new List<string>();
+                // wavFiles = wavFiles.Concat(WAVFiles);
+                if (wavFiles.Count() > 20)
+                {
+                    firstAndLastWavFiles = wavFiles.Take(10).ToList();
+
+                    firstAndLastWavFiles.AddRange(wavFiles.Skip(wavFiles.Count() - 10));
+                }
+                else
+                {
+                    firstAndLastWavFiles = wavFiles.ToList();
+                }
+
+                DateTime startDateTime = DateTime.Now;
+                DateTime endDateTime = new DateTime();
+                foreach (var file in firstAndLastWavFiles)
+                {
+                    Tools.GetFileDatesAndTimes(file, out string wavfileName, out DateTime fileStart, out DateTime fileEnd);
+                    if (fileStart < startDateTime) startDateTime = fileStart;
+                    if (fileEnd > endDateTime) endDateTime = fileEnd;
+                }
+
+                startTime = startDateTime;
+                endTime = endDateTime;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -907,6 +943,7 @@ namespace BatRecordingManager
                     }
             }
         }
+
         /*
         private static DateTime GetDateFromFileName(string folder)
         {
@@ -924,7 +961,7 @@ namespace BatRecordingManager
                             if (match.Success) break;
                         }
                 }
-            
+
             if (match.Success)
             {
                 int.TryParse(match.Groups[1].Value, out var year);
@@ -935,63 +972,5 @@ namespace BatRecordingManager
 
             return new DateTime();
         }*/
-
-        /// <summary>
-        ///     uses the times of files in the specified folder to guess at session
-        ///     start and end times.  Looks for .wav files with the same date as the
-        ///     date included in the tag, then assumes a start at 4 minutes before the
-        ///     time of the earlieast wav file and an end of the time of the last wav file.
-        /// </summary>
-        /// <param name="folder"></param>
-        /// <param name="sessionTag"></param>
-        /// <param name="startTime"></param>
-        /// <param name="endTime"></param>
-        private static bool GetDateTimesFromFiles(string folder, string sessionTag, out DateTime startTime,
-            out DateTime endTime)
-        {
-            startTime = DateTime.Now;
-            endTime = startTime;
-            if (string.IsNullOrWhiteSpace(folder)) return false;
-            var sessiondate = GetDateFromTag(sessionTag);
-
-            try
-            {
-                var wavFiles = Directory.EnumerateFiles(folder, @"*.wav");
-                //var WAVFiles = Directory.EnumerateFiles(folder, "*.WAV");
-
-                List<string> firstAndLastWavFiles = new List<string>();
-                // wavFiles = wavFiles.Concat(WAVFiles);
-                if (wavFiles.Count() > 20)
-                {
-                    firstAndLastWavFiles = wavFiles.Take(10).ToList();
-
-                    firstAndLastWavFiles.AddRange(wavFiles.Skip(wavFiles.Count() - 10));
-                }
-                else
-                {
-                    firstAndLastWavFiles = wavFiles.ToList();
-                }
-
-                DateTime startDateTime = DateTime.Now;
-                DateTime endDateTime = new DateTime();
-                foreach (var file in firstAndLastWavFiles)
-                {
-                    Tools.GetFileDatesAndTimes(file, out string wavfileName, out DateTime fileStart, out DateTime fileEnd);
-                    if (fileStart < startDateTime) startDateTime = fileStart;
-                    if (fileEnd > endDateTime) endDateTime = fileEnd;
-                }
-
-                startTime = startDateTime;
-                endTime = endDateTime;
-
-
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            return true;
-        }
     }
 }

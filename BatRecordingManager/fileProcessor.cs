@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
-
 
 namespace BatRecordingManager
 {
@@ -55,28 +54,6 @@ namespace BatRecordingManager
             Segment = new LabelledSegment();
             BatList = new BulkObservableCollection<Bat>();
             Updated = false;
-        }
-
-        /// <summary>
-        ///     Creates a SegmentAndBatList item using the provided labelledSegment.
-        ///     The SegmentAndBatList contains the provided segment and a list of all
-        ///     the bats referenced by the segment comment.
-        /// </summary>
-        /// <param name="segment"></param>
-        /// <returns></returns>
-        internal static SegmentAndBatList Create(LabelledSegment segment)
-        {
-            var segBatList = new SegmentAndBatList
-            {
-                Segment = segment,
-                BatList = DBAccess.GetDescribedBats(segment.Comment)
-            };
-
-
-            //DBAccess.InsertParamsFromComment(segment.Comment, null);
-            var listOfSegmentImages = segment.GetImageList();
-            DBAccess.UpdateLabelledSegment(segBatList, segment.RecordingID, listOfSegmentImages, null);
-            return segBatList;
         }
 
         /// <summary>
@@ -126,6 +103,27 @@ namespace BatRecordingManager
 
             return result;
         }
+
+        /// <summary>
+        ///     Creates a SegmentAndBatList item using the provided labelledSegment.
+        ///     The SegmentAndBatList contains the provided segment and a list of all
+        ///     the bats referenced by the segment comment.
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <returns></returns>
+        internal static SegmentAndBatList Create(LabelledSegment segment)
+        {
+            var segBatList = new SegmentAndBatList
+            {
+                Segment = segment,
+                BatList = DBAccess.GetDescribedBats(segment.Comment)
+            };
+
+            //DBAccess.InsertParamsFromComment(segment.Comment, null);
+            var listOfSegmentImages = segment.GetImageList();
+            DBAccess.UpdateLabelledSegment(segBatList, segment.RecordingID, listOfSegmentImages, null);
+            return segBatList;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -155,6 +153,35 @@ namespace BatRecordingManager
         ///     The output string
         /// </summary>
         //private string _outputString = "";
+
+        /// <summary>
+        ///     Adds to bat summary.
+        /// </summary>
+        /// <param name="line">
+        ///     The line.
+        /// </param>
+        /// <param name="newDuration">
+        ///     The new duration.
+        /// </param>
+        public static BulkObservableCollection<Bat> AddToBatSummary(string line, TimeSpan newDuration,
+            ref Dictionary<string, BatStats> batsFound)
+        {
+            var bats = DBAccess.GetDescribedBats(line);
+            if (!bats.IsNullOrEmpty())
+                foreach (var bat in bats)
+                {
+                    var batname = bat.Name;
+                    if (!string.IsNullOrWhiteSpace(batname))
+                    {
+                        if (batsFound.ContainsKey(batname))
+                            batsFound[batname].Add(newDuration);
+                        else
+                            batsFound.Add(batname, new BatStats(newDuration));
+                    }
+                }
+
+            return bats;
+        }
 
         /// <summary>
         ///     Determines whether [is label file line] [the specified line].
@@ -235,35 +262,6 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Adds to bat summary.
-        /// </summary>
-        /// <param name="line">
-        ///     The line.
-        /// </param>
-        /// <param name="newDuration">
-        ///     The new duration.
-        /// </param>
-        public static BulkObservableCollection<Bat> AddToBatSummary(string line, TimeSpan newDuration,
-            ref Dictionary<string, BatStats> batsFound)
-        {
-            var bats = DBAccess.GetDescribedBats(line);
-            if (!bats.IsNullOrEmpty())
-                foreach (var bat in bats)
-                {
-                    var batname = bat.Name;
-                    if (!string.IsNullOrWhiteSpace(batname))
-                    {
-                        if (batsFound.ContainsKey(batname))
-                            batsFound[batname].Add(newDuration);
-                        else
-                            batsFound.Add(batname, new BatStats(newDuration));
-                    }
-                }
-
-            return bats;
-        }
-
-        /// <summary>
         ///     Processes the file using ProcessLabelOrManualFile.
         ///     The file may be a .txt file which is a comment/log file made with
         ///     Audacity or a .wav file with embedded 'wamd' metadata
@@ -287,7 +285,7 @@ namespace BatRecordingManager
         {
             //mBatSummary = batSummary;
             var outputString = "";
-            if (fileName.ToUpper().EndsWith(".TXT") || fileName.ToUpper().EndsWith(".WAV"))
+            if (fileName.EndsWith(".TXT", StringComparison.OrdinalIgnoreCase) || fileName.EndsWith(".WAV", StringComparison.OrdinalIgnoreCase) || fileName.EndsWith(".zc", StringComparison.OrdinalIgnoreCase))
                 outputString = ProcessLabelOrManualFile(fileName, gpxHandler, currentRecordingSessionId, ref batsFound);
             return outputString;
         }
@@ -324,6 +322,103 @@ namespace BatRecordingManager
             }
 
             return comment + "\n";
+        }
+
+        /// <summary>
+        ///     Re-processes the specified label file, updating the Labelled segments in the
+        ///     database with new ones derived from the specified file.
+        /// </summary>
+        /// <param name="recording"></param>
+        /// <param name="labelFileName"></param>
+        public static string UpdateRecording(Recording recording, string labelFileName)
+        {
+            string result = "";
+            var batsFound = new Dictionary<string, BatStats>();
+            DBAccess.DeleteAllSegmentsForRecording(recording.Id);
+            result = ProcessLabelOrManualFile(labelFileName, new GpxHandler(recording.RecordingSession.Location),
+                recording.RecordingSession.Id, recording, ref batsFound);
+
+            return (result);
+        }
+
+        private enum Mode
+        {
+            PROCESS,
+            SKIP,
+            COPY,
+            MERGE
+        }
+
+        /// <summary>
+        ///     When reading a line from an Audacity Label file, since Audacity 2.1.3
+        ///     the label may include a second line starting with a '\' containing the
+        ///     upper and lower frequencies of the selection when the label was added.
+        ///     This function is passed as parameters the label text line and the second line
+        ///     starting with the '\'.
+        ///     If the label includes the string "{}" the selection parameters are ignored.
+        ///     If the label does not include a parameter section in {} then the frequency
+        ///     parameters are added as start and end frequencies.
+        ///     If the label includes a parameters section which includes s= or e= then the
+        ///     selection parameters are ignored.
+        ///     If the label includes a parameters section which starts with a number and includes
+        ///     a comma then it is assumed to be an implicit parameter section and the selection
+        ///     parameters are ignored.
+        ///     Otherwise the selection parameters are trimmed to two decimal places and inserted
+        ///     as {s=high,end=low}
+        /// </summary>
+        /// <param name="line"></param>
+        /// <param name="spectralParams"></param>
+        /// <returns></returns>
+        private static string AddSpectralParametersToLine(string line, string spectralParams)
+        {
+            if (line.Contains(@"{}")) return line.Replace("{}", "");
+
+            var fmax = -1.0d;
+            var fmin = -1.0d;
+            if (spectralParams.StartsWith(@"\"))
+            {
+                spectralParams = spectralParams.Substring(1);
+                var freqs = spectralParams.Split('\t');
+                var maxparam = 0;
+
+                if (freqs.Length > 2)
+                    maxparam = 2;
+                else if (freqs.Length > 1) maxparam = 1;
+                if (maxparam > 0)
+                {
+                    double.TryParse(freqs[maxparam - 1], out fmin);
+                    double.TryParse(freqs[maxparam], out fmax);
+                    if (fmax < fmin)
+                    {
+                        var temp = fmin;
+                        fmin = fmax;
+                        fmax = temp;
+                    }
+                }
+            }
+
+            if (fmin < 0.0d) return line;
+
+            if (line.Contains("{"))
+            {
+                var parts = line.Split('{');
+                if (parts.Length > 1)
+                {
+                    if (parts[1].StartsWith("{")) parts[1] = parts[1].Substring(1);
+
+                    if (parts[1].Contains("s=") || parts[1].Contains("e=")) return line;
+
+                    if (char.IsDigit(parts[1].Trim()[0]) && parts[1].Contains(",")) return line;
+
+                    line = $"{parts[0] + "{"}s={fmax:F2},e={fmin:F2},{parts[1]}";
+                }
+            }
+            else
+            {
+                line = $"{line + " {"}s={fmax:F2},e={fmin:F2}{"}"}";
+            }
+
+            return line;
         }
 
         /// <summary>
@@ -380,9 +475,6 @@ namespace BatRecordingManager
 
             return result;
         }
-
-
-
 
         /// <summary>
         ///     Determines whether [is manual file line] [the specified line].
@@ -518,24 +610,6 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Re-processes the specified label file, updating the Labelled segments in the
-        ///     database with new ones derived from the specified file.
-        /// </summary>
-        /// <param name="recording"></param>
-        /// <param name="labelFileName"></param>
-        public static string UpdateRecording(Recording recording, string labelFileName)
-        {
-            string result = "";
-            var batsFound = new Dictionary<string, BatStats>();
-            DBAccess.DeleteAllSegmentsForRecording(recording.Id);
-            result = ProcessLabelOrManualFile(labelFileName, new GpxHandler(recording.RecordingSession.Location),
-                recording.RecordingSession.Id, recording, ref batsFound);
-
-
-            return (result);
-        }
-
-        /// <summary>
         ///     Processes a text file with a simple .txt extension that has been generated as an
         ///     Audacity LabelTrack. The fileName will be added to the output at the start of the OutputString.
         ///     Mod 22/3/2017 allow the use of txt files from Audacity 2.1.3 which may include spectral info
@@ -588,6 +662,7 @@ namespace BatRecordingManager
                 {
                     var wavfile = fileName.Substring(0, fileName.Length - 4) + ".wav";
                     duration = Tools.GetFileDatesAndTimes(fileName, out wavfile, out var fileStart, out var fileEnd);
+                    // wavfile contains name of either .wav or .zc file
                     if (File.Exists(wavfile) && (new FileInfo(wavfile).Length > 0L))
                     {
                         wfmd = new WavFileMetaData(wavfile);
@@ -670,10 +745,10 @@ namespace BatRecordingManager
                         outputString = outputString + ProcessTextFile(fileName, duration, ref listOfsegmentAndBatLists,
                                            mode, ref batsFound);
                     }
-                    else if (fileName.ToUpper().EndsWith(".WAV"))
+                    else if (fileName.EndsWith(".WAV", StringComparison.OrdinalIgnoreCase) || fileName.EndsWith(".zc", StringComparison.OrdinalIgnoreCase))//TODO add a ProcessZCFile or modify ProcessWavFile to suit
                     {
                         var comment = ProcessWavFile(fileName, duration, ref listOfsegmentAndBatLists, mode,
-                            ref batsFound);
+                            ref batsFound, wfmd);
                         recording.RecordingNotes = recording.RecordingNotes + " " + comment;
                         outputString = outputString + comment;
                     }
@@ -700,69 +775,6 @@ namespace BatRecordingManager
                 DBAccess.UpdateRecording(recording, listOfsegmentAndBatLists, null);
             }
 
-            return outputString;
-        }
-
-        private static string ProcessTextFile(string fileName, TimeSpan duration,
-            ref BulkObservableCollection<SegmentAndBatList> listOfsegmentAndBatLists, Mode mode,
-            ref Dictionary<string, BatStats> batsFound)
-        {
-            var allLines = new string[1];
-            var outputString = "";
-
-            try
-            {
-                if (fileName.ToUpper().EndsWith(".TXT"))
-                {
-                    allLines = File.ReadAllLines(fileName);
-                    if (!allLines.Any() || string.IsNullOrWhiteSpace(allLines[0]))
-                        allLines = new[] { "Start - End \t No Bats" };
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex + "\n  ******** Assuming empty text file and no bats");
-                allLines = new[] { "Start - End \t No Bats" };
-            }
-
-            outputString = ProcessText(allLines, duration, ref listOfsegmentAndBatLists, mode, ref batsFound);
-            return outputString;
-        }
-
-        private static string ProcessWavFile(string fileName, TimeSpan duration,
-            ref BulkObservableCollection<SegmentAndBatList> listOfsegmentAndBatLists, Mode mode,
-            ref Dictionary<string, BatStats> batsFound)
-        {
-            var allLines = new string[1];
-            var outputString = "";
-            WavFileMetaData wfmd;
-            var line = "";
-
-            try
-            {
-                wfmd = new WavFileMetaData(fileName);
-                if (wfmd != null)
-                {
-                    if (wfmd.m_Duration != null)
-                    {
-                        line = "0 - " + wfmd.m_Duration.Value.TotalSeconds;
-                        duration = wfmd.m_Duration.Value;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(wfmd.m_ManualID)) line += " " + wfmd.m_ManualID;
-                    if (!string.IsNullOrWhiteSpace(wfmd.m_AutoID)) line += ", " + wfmd.m_AutoID;
-                    if (!string.IsNullOrWhiteSpace(wfmd.m_Note)) line += ", " + wfmd.m_Note;
-                }
-
-                allLines[0] = line;
-            }
-            catch (Exception ex)
-            {
-                Tools.ErrorLog(ex.Message);
-                Debug.WriteLine(ex);
-            }
-
-            outputString = ProcessText(allLines, duration, ref listOfsegmentAndBatLists, mode, ref batsFound);
             return outputString;
         }
 
@@ -852,84 +864,84 @@ namespace BatRecordingManager
             return outputString;
         }
 
-        /// <summary>
-        ///     When reading a line from an Audacity Label file, since Audacity 2.1.3
-        ///     the label may include a second line starting with a '\' containing the
-        ///     upper and lower frequencies of the selection when the label was added.
-        ///     This function is passed as parameters the label text line and the second line
-        ///     starting with the '\'.
-        ///     If the label includes the string "{}" the selection parameters are ignored.
-        ///     If the label does not include a parameter section in {} then the frequency
-        ///     parameters are added as start and end frequencies.
-        ///     If the label includes a parameters section which includes s= or e= then the
-        ///     selection parameters are ignored.
-        ///     If the label includes a parameters section which starts with a number and includes
-        ///     a comma then it is assumed to be an implicit parameter section and the selection
-        ///     parameters are ignored.
-        ///     Otherwise the selection parameters are trimmed to two decimal places and inserted
-        ///     as {s=high,end=low}
-        /// </summary>
-        /// <param name="line"></param>
-        /// <param name="spectralParams"></param>
-        /// <returns></returns>
-        private static string AddSpectralParametersToLine(string line, string spectralParams)
+        private static string ProcessTextFile(string fileName, TimeSpan duration,
+                    ref BulkObservableCollection<SegmentAndBatList> listOfsegmentAndBatLists, Mode mode,
+            ref Dictionary<string, BatStats> batsFound)
         {
-            if (line.Contains(@"{}")) return line.Replace("{}", "");
+            var allLines = new string[1];
+            var outputString = "";
 
-            var fmax = -1.0d;
-            var fmin = -1.0d;
-            if (spectralParams.StartsWith(@"\"))
+            try
             {
-                spectralParams = spectralParams.Substring(1);
-                var freqs = spectralParams.Split('\t');
-                var maxparam = 0;
-
-                if (freqs.Length > 2)
-                    maxparam = 2;
-                else if (freqs.Length > 1) maxparam = 1;
-                if (maxparam > 0)
+                if (fileName.ToUpper().EndsWith(".TXT"))
                 {
-                    double.TryParse(freqs[maxparam - 1], out fmin);
-                    double.TryParse(freqs[maxparam], out fmax);
-                    if (fmax < fmin)
-                    {
-                        var temp = fmin;
-                        fmin = fmax;
-                        fmax = temp;
-                    }
+                    allLines = File.ReadAllLines(fileName);
+                    if (!allLines.Any() || string.IsNullOrWhiteSpace(allLines[0]))
+                        allLines = new[] { "Start - End \t No Bats" };
                 }
             }
-
-            if (fmin < 0.0d) return line;
-
-            if (line.Contains("{"))
+            catch (Exception ex)
             {
-                var parts = line.Split('{');
-                if (parts.Length > 1)
-                {
-                    if (parts[1].StartsWith("{")) parts[1] = parts[1].Substring(1);
-
-                    if (parts[1].Contains("s=") || parts[1].Contains("e=")) return line;
-
-                    if (char.IsDigit(parts[1].Trim()[0]) && parts[1].Contains(",")) return line;
-
-                    line = $"{parts[0] + "{"}s={fmax:F2},e={fmin:F2},{parts[1]}";
-                }
-            }
-            else
-            {
-                line = $"{line + " {"}s={fmax:F2},e={fmin:F2}{"}"}";
+                Debug.WriteLine(ex + "\n  ******** Assuming empty text file and no bats");
+                allLines = new[] { "Start - End \t No Bats" };
             }
 
-            return line;
+            outputString = ProcessText(allLines, duration, ref listOfsegmentAndBatLists, mode, ref batsFound);
+            return outputString;
         }
 
-        private enum Mode
+        /// <summary>
+        /// now deals with both .wav and .zc files
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="duration"></param>
+        /// <param name="listOfsegmentAndBatLists"></param>
+        /// <param name="mode"></param>
+        /// <param name="batsFound"></param>
+        /// <returns></returns>
+        private static string ProcessWavFile(string fileName, TimeSpan duration,
+            ref BulkObservableCollection<SegmentAndBatList> listOfsegmentAndBatLists, Mode mode,
+            ref Dictionary<string, BatStats> batsFound, WavFileMetaData wfmd = null)
         {
-            PROCESS,
-            SKIP,
-            COPY,
-            MERGE
+            var allLines = new string[1];
+            var outputString = "";
+
+            var line = "";
+
+            try
+            {
+                if (wfmd == null)
+                {
+                    wfmd = new WavFileMetaData(fileName);
+                }
+                if (wfmd != null)
+                {
+                    if (wfmd.m_Duration != null)
+                    {
+                        line = "0 - " + wfmd.m_Duration.Value.TotalSeconds;
+                        duration = wfmd.m_Duration.Value;
+                    }
+                    else
+                    {
+                        line = "0 - 0";
+                        duration = new TimeSpan();
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(wfmd.m_ManualID)) line += " " + wfmd.m_ManualID;
+                    if (!string.IsNullOrWhiteSpace(wfmd.m_AutoID)) line += ", " + wfmd.m_AutoID;
+                    if (!string.IsNullOrWhiteSpace(wfmd.m_Note)) line += ", " + wfmd.m_Note;
+                }
+
+                allLines[0] = line;
+            }
+            catch (Exception ex)
+            {
+                Tools.ErrorLog(ex.Message);
+                Debug.WriteLine(ex);
+            }
+
+            outputString = ProcessText(allLines, duration, ref listOfsegmentAndBatLists, mode, ref batsFound);
+            return outputString;
         }
 
         /*       /// <summary>

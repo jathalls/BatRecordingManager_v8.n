@@ -28,9 +28,15 @@
             <Button
                 x:Name="ImportWavFilesButton"
                 Style="{StaticResource SimpleButton}"
-                ToolTip="Import .wav files with embedded notations made by Kaleidoscope (WAMD format)"
+                ToolTip="Import .wav files with embedded notations made by Kaleidoscope (WAMD or GUANO format)"
                 Width="75"
                 Content="Import(Wav)" Click="ImportWavFilesButton_Click" />
+            <Button
+                x:Name="ImportZcFilesButton"
+                Style="{StaticResource SimpleButton}"
+                ToolTip="Import .zc files with embedded notations made by Kaleidoscope or AnalookW "
+                Width="75"
+                Content="Import(ZC)" Click="ImportZcFilesButton_Click" />
             <Button
                 x:Name="ImportPicturesButton"
                 Style="{StaticResource SimpleButton}"

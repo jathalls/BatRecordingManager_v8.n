@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -133,7 +133,6 @@ namespace BatRecordingManager
     /// </summary>
     internal class ParameterSet
     {
-        private Call _call;
         public Parameter Duration = new Parameter();
         public Parameter EndFrequency = new Parameter();
         public Parameter Interval = new Parameter();
@@ -149,12 +148,22 @@ namespace BatRecordingManager
         /// <param name="label"></param>
         public ParameterSet(string label)
         {
+            call = null;
+            HasCallParameters = false;
             if (!string.IsNullOrWhiteSpace(label))
             {
+                label = label.Trim();
                 if (label.Contains("{") && label.Contains("}"))
                     call = InsertParamsFromLabel(label);
-                else
-                    call = null;
+                if (label.Contains("?") || label.Contains("Confidence L") || label.EndsWith("L") || label.EndsWith("L}"))
+                {
+                    if (call == null)
+                    {
+                        call = new Call();
+                        call.CallNotes = "";
+                    }
+                    call.CallType = "LC";
+                }
             }
         }
 
@@ -176,6 +185,7 @@ namespace BatRecordingManager
         }
 
         public bool HasCallParameters { get; set; }
+        private Call _call;
 
         /// <summary>
         ///     Inserts the parameters from comment. Creates a new Call and populates it from the

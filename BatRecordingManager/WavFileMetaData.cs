@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,7 +30,6 @@ namespace BatRecordingManager
     /// </summary>
     internal class WavFileMetaData
     {
-        public bool success { get; set; } = false;
         /// <summary>
         ///     Constructor for WavFileMetaData.  Given a path to a .wav file reads the WAMD or
         ///     GUANO metdata from that file and uses it and other file information to populate the
@@ -78,14 +77,55 @@ namespace BatRecordingManager
         }
 
         /// <summary>
+        ///     The results of any Auto-identification as a string
+        /// </summary>
+        public string m_AutoID { get; private set; }
+
+        /// <summary>
+        ///     The name of the recording device
+        /// </summary>
+        public string m_Device { get; private set; }
+
+        /// <summary>
+        ///     The duration of the .wav file calculated from the file header information
+        /// </summary>
+        public TimeSpan? m_Duration { get; private set; }
+
+        /// <summary>
+        ///     The end date and time for the file extracted from the metadata or by taking the start
+        ///     Date and time and adding the file duration
+        /// </summary>
+        public DateTime? m_End { get; private set; }
+
+        /// <summary>
         ///     the fully qualified name of the file from which the data was extracted
         /// </summary>
         public string m_FileName { get; private set; }
 
         /// <summary>
+        ///     The location for the recording as GPS latitude and longitude as a pair of doubles
+        /// </summary>
+        public GPSLocation m_Location { get; private set; }
+
+        /// <summary>
+        ///     The string containing the manual identification from the Metadata
+        /// </summary>
+        public string m_ManualID { get; private set; }
+
+        /// <summary>
+        ///     The type of microphone used for the recording
+        /// </summary>
+        public string m_Microphone { get; private set; }
+
+        /// <summary>
         ///     The contents of the notes field of the metadata
         /// </summary>
         public string m_Note { get; private set; }
+
+        /// <summary>
+        ///     The software used for the analysis
+        /// </summary>
+        public string m_Software { get; private set; }
 
         /// <summary>
         ///     The start time and date for the wavfile extracted from the filename or metadata, or if that
@@ -95,64 +135,11 @@ namespace BatRecordingManager
         public DateTime? m_Start { get; private set; }
 
         /// <summary>
-        ///     The end date and time for the file extracted from the metadata or by taking the start
-        ///     Date and time and adding the file duration
-        /// </summary>
-        public DateTime? m_End { get; private set; }
-
-        /// <summary>
-        ///     file creation date and time.  Start date is the earlier of this and the embedded metadata
-        ///     date and time as that might be the analysed date rather than the collected date
-        /// </summary>
-        private DateTime? m_Created { get; }
-
-        private DateTime? m_MetaDate { get; set; }
-
-        /// <summary>
-        ///     The duration of the .wav file calculated from the file header information
-        /// </summary>
-        public TimeSpan? m_Duration { get; private set; }
-
-        /// <summary>
-        ///     The string containing the manual identification from the Metadata
-        /// </summary>
-        public string m_ManualID { get; private set; }
-
-        /// <summary>
-        ///     The results of any Auto-identification as a string
-        /// </summary>
-        public string m_AutoID { get; private set; }
-
-        /// <summary>
-        ///     The location for the recording as GPS latitude and longitude as a pair of doubles
-        /// </summary>
-        public GPSLocation m_Location { get; private set; }
-
-        /// <summary>
-        ///     The name of the recording device
-        /// </summary>
-        public string m_Device { get; private set; }
-
-        /// <summary>
-        ///     The software used for the analysis
-        /// </summary>
-        public string m_Software { get; private set; }
-
-        /// <summary>
-        ///     The type of microphone used for the recording
-        /// </summary>
-        public string m_Microphone { get; private set; }
-
-        /// <summary>
         ///     The temperature at the time of the recording
         /// </summary>
         public string m_Temperature { get; private set; }
 
-        private byte[] metadata { get; set; }
-
-        private string m_source { get; set; }
-
-        private string m_Notes { get; set; } = "";
+        public bool success { get; set; } = false;
 
         internal string FormattedText()
         {
@@ -187,138 +174,139 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Retrieves the metadata sections from a .wav file for either WAMD or GUANO formatted data.
-        ///     The file from which to extract the data is wavFilename and the metadata chunk itself is returned as
-        ///     a byte[] called metadata.  Formatted versions of the data are returned in the out parameters wamd_data
-        ///     and guano_data.  If not present in that format the classes will be returned empty.
-        ///     The function returns a string comprising the metadate note section followed by a ; followed by the manual
-        ///     species identification string and an optional auto-identification string in brackets.
-        ///     the data out parameters will be null if not found.
+        ///     file creation date and time.  Start date is the earlier of this and the embedded metadata
+        ///     date and time as that might be the analysed date rather than the collected date
         /// </summary>
-        /// <param name="wavFilename"></param>
+        private DateTime? m_Created { get; }
+
+        private DateTime? m_MetaDate { get; set; }
+        private string m_Notes { get; set; } = "";
+        private string m_source { get; set; }
+        private byte[] metadata { get; set; }
+
+        /// <summary>
+        ///     Given a 'chunk' of metadata from a wav file wamd chunk
+        ///     which is everything after the wamd header and size attribute,
+        ///     Returns true if any wamd data field is found and decoded
+        /// </summary>
         /// <param name="metadata"></param>
-        /// <param name="wamd_data"></param>
-        /// <param name="guano_data"></param>
         /// <returns></returns>
-        private bool Read_MetaData(string wavFilename)
+        private bool decode_wamd_data(byte[] metadata)
         {
             var result = false;
-            metadata = null;
+            var entries = new Dictionary<short, string>();
 
+            var bReader = new BinaryReader(new MemoryStream(metadata));
 
-            if (string.IsNullOrWhiteSpace(wavFilename)) return result;
-            if (!wavFilename.Trim().ToUpper().EndsWith(".WAV")) return result;
-            if (!File.Exists(wavFilename) || (new FileInfo(wavFilename).Length <= 0L)) return result;
-            try
+            while (bReader.BaseStream.Position < bReader.BaseStream.Length)
             {
-                using (var fs = File.Open(wavFilename, FileMode.Open))
-                {
-                    var reader = new BinaryReader(fs);
-
-                    // chunk 0
-                    var chunkID = reader.ReadInt32(); //RIFF
-                    var fileSize = reader.ReadInt32(); // 4 bytes of size
-                    var riffType = reader.ReadInt32(); //WAVE
-
-                    // chunk 1
-                    var fmtID = reader.ReadInt32(); //fmt_
-                    var fmtSize = reader.ReadInt32(); // bytes for this chunk typically 16
-                    int fmtCode = reader.ReadInt16(); // typically 1
-                    int channels = reader.ReadInt16(); // 1 or 2
-                    var sampleRate = reader.ReadInt32(); //
-                    var byteRate = reader.ReadInt32();
-                    int fmtBlockAlign = reader.ReadInt16(); // 4
-                    int bitDepth = reader.ReadInt16(); //16
-
-                    if (fmtSize == 18) // not expected for .wav files
-                    {
-                        // Read any extra values
-                        int fmtExtraSize = reader.ReadInt16();
-                        reader.ReadBytes(fmtExtraSize);
-                    }
-
-                    var header = new byte[4];
-                    byte[] data = null;
-                    var dataBytes = 0;
-                    // WAMD_Data wamd_data = new WAMD_Data();
-
+                var type = bReader.ReadInt16(); // 01 00
+                var size = bReader.ReadInt32(); // 03 00 00 00
+                var bData = bReader.ReadBytes(size);
+                if (type > 0)
                     try
                     {
-                        metadata = null;
-
-
-                        do
-                        {
-                            try
-                            {
-                                header = reader.ReadBytes(4);
-                                if (header == null || header.Length != 4) break;
-                                var size = reader.ReadInt32();
-                                try
-                                {
-                                    data = reader.ReadBytes(size);
-
-                                }
-                                catch (Exception ex)
-                                {
-                                    Debug.WriteLine($"Tried to read to much data - {size}:-{ex}");
-                                }
-
-                                try
-                                {
-                                    if ((size & 0x0001) != 0 && reader.BaseStream.Position < reader.BaseStream.Length)
-                                        // we have an odd number of bytes for size, so read the xtra null byte of padding
-                                        reader.ReadByte();
-                                }
-                                catch (Exception) // just in case it overflows the data file
-                                {
-                                }
-
-                                var strHeader = Encoding.UTF8.GetString(header);
-                                if (strHeader == "data") dataBytes = size;
-                                if (strHeader == "wamd" && data != null)
-                                {
-                                    Debug.WriteLine("WAMD data:-" + header + "/" + size + "/" + data.Length);
-                                    metadata = data;
-                                    result = decode_wamd_data(metadata);
-                                }
-
-                                if (strHeader == "guan" && data != null)
-                                {
-                                    Debug.WriteLine("GUANO data:-" + header + "/" + size + "/" + data.Length);
-                                    metadata = data;
-                                    var metadataString = Encoding.UTF8.GetString(data);
-                                    result = DecodeGuanoData(metadataString);
-                                }
-                            }
-                            catch (Exception)
-                            {
-
-                                Debug.WriteLine("Overflowed the data file - " + reader.BaseStream.Position + "/" +
-                                                reader.BaseStream.Length);
-                                break;
-                            }
-                        } while (reader.BaseStream.Position < reader.BaseStream.Length);
+                        var data = Encoding.UTF8.GetString(bData);
+                        entries.Add(type, data);
                     }
-                    catch (IOException iox)
+                    catch (Exception ex)
                     {
-                        Tools.ErrorLog(iox.Message);
-                        Debug.WriteLine("Error reading wav file:- " + iox.Message);
+                        Tools.ErrorLog(ex.Message);
+                        Debug.WriteLine(ex);
                     }
-
-                    var durationInSecs = 0.0d;
-                    if (byteRate > 0 && channels > 0 && dataBytes > 0)
-                    {
-                        durationInSecs = (double)dataBytes / byteRate;
-                        m_Duration = TimeSpan.FromSeconds(durationInSecs);
-                        result = true;
-                    }
-                }
             }
-            catch (Exception ex)
+
+            foreach (var entry in entries)
+                switch (entry.Key)
+                {
+                    case 0x000A:
+                        m_Note = entry.Value;
+                        m_Note = m_Note.Replace(@"\n", "");
+                        result = true;
+                        break;
+
+                    case 0x0005:
+                        var dt = new DateTime();
+                        if (DateTime.TryParse(entry.Value, out dt))
+                        {
+                            m_MetaDate = dt;
+                            m_Start = m_Start != null ? dt < m_Start.Value && dt.Year > 1960 ? dt : m_Start : dt;
+
+                            if (m_Duration != null) m_End = m_Start + m_Duration;
+                            result = true;
+                        }
+
+                        break;
+
+                    case 0x000C:
+                        if (string.IsNullOrWhiteSpace(m_ManualID)) m_ManualID = "";
+                        if (!m_ManualID.Contains(entry.Value.Trim())) // no need to duplicate if this string already present
+                        {
+                            m_ManualID = (m_ManualID + " " + entry.Value).Trim();
+                        }
+                        result = true;
+                        break;
+
+                    case 0x000B:
+                        if (string.IsNullOrWhiteSpace(m_AutoID)) m_AutoID = "";
+                        if (!m_AutoID.Contains(entry.Value.Trim())) // no need to duplicate if this string already present
+                        {
+                            m_AutoID = "(" + (entry.Value + " " + m_AutoID).Trim() + ")";
+                        }
+                        result = true;
+                        break;
+
+                    case 0x000E: //AUTO_ID_STATS
+                        if (string.IsNullOrWhiteSpace(m_AutoID)) m_AutoID = "";
+                        if (m_AutoID.EndsWith(")")) m_AutoID = m_AutoID.Substring(0, m_AutoID.Length - 1);
+                        m_AutoID = m_AutoID + ": " + entry.Value + ")";
+                        result = true;
+                        break;
+
+                    case 0x0006: // GPS_FIRST
+                        if (m_Location == null || (m_Location.m_Latitude == 0.0d && m_Location.m_Longitude == 0.0d) ||
+                            Math.Abs(m_Location.m_Latitude) > 90.0d || Math.Abs(m_Location.m_Longitude) > 180.0d)
+                        {
+                            m_Location = new GPSLocation(entry.Value);
+                        }
+                        result = true;
+                        break;
+
+                    case 0x0001:
+                        m_Device = entry.Value;
+                        result = true;
+                        if (entries.ContainsKey(0x0002)) m_Device = m_Device + " " + entries[0x0002];
+                        if (entries.ContainsKey(0x0003)) m_Device = m_Device + " " + entries[0x0003];
+                        break;
+
+                    case 0x0012:
+                        m_Microphone = entry.Value;
+                        result = true;
+                        if (entries.ContainsKey(0x0013)) m_Microphone = m_Microphone + " " + entries[0x0013];
+                        break;
+
+                    case 0x0015: //TEMP_INT
+                        if (!string.IsNullOrWhiteSpace(m_Temperature)) m_Temperature = entry.Value;
+                        result = true;
+                        break;
+
+                    case 0x0016: //TEMP_EXT
+                        m_Temperature = entry.Value;
+                        result = true;
+                        break;
+
+                    case 0x0008: //SOFTWARE
+                        m_Software = entry.Value;
+                        result = true;
+                        break;
+                }
+
+            if (result)
             {
-                Tools.ErrorLog(ex.Message);
-                Debug.WriteLine(ex);
+                if (string.IsNullOrWhiteSpace(m_source))
+                    m_source = "WAMD";
+                else
+                    m_source += " and WAMD";
             }
 
             return result;
@@ -388,19 +376,23 @@ namespace BatRecordingManager
                             break;
 
                         case "Loc Position":
-                            var lat = 200.0f;
-                            var longit = 200.0f;
-                            var sections = entry.Value.Trim().Split(' ');
-                            if (sections.Length > 1)
+                            if (!GpxHandler.IsValidLocation(m_Location))
                             {
-                                float.TryParse(sections[0], out lat);
-                                float.TryParse(sections[1], out longit);
-                                if (lat < 200.0f && longit < 200.0f)
+                                var lat = 200.0f;
+                                var longit = 200.0f;
+                                var sections = entry.Value.Trim().Split(' ');
+                                if (sections.Length > 1)
                                 {
-                                    m_Location = new GPSLocation(lat, longit);
-                                    result = true;
+                                    float.TryParse(sections[0], out lat);
+                                    float.TryParse(sections[1], out longit);
+                                    if (lat < 200.0f && longit < 200.0f)
+                                    {
+                                        m_Location = new GPSLocation(lat, longit);
+                                        result = true;
+                                    }
                                 }
                             }
+                            else result = true;
 
                             break;
 
@@ -444,128 +436,180 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Given a 'chunk' of metadata from a wav file wamd chunk
-        ///     which is everything after the wamd header and size attribute,
-        ///     Returns true if any wamd data field is found and decoded
+        ///     Retrieves the metadata sections from a .wav file for either WAMD or GUANO formatted data.
+        ///     The file from which to extract the data is wavFilename and the metadata chunk itself is returned as
+        ///     a byte[] called metadata.  Formatted versions of the data are returned in the out parameters wamd_data
+        ///     and guano_data.  If not present in that format the classes will be returned empty.
+        ///     The function returns a string comprising the metadate note section followed by a ; followed by the manual
+        ///     species identification string and an optional auto-identification string in brackets.
+        ///     the data out parameters will be null if not found.
+        ///     Accepts both .wav and .zc files
         /// </summary>
+        /// <param name="wavFilename"></param>
         /// <param name="metadata"></param>
+        /// <param name="wamd_data"></param>
+        /// <param name="guano_data"></param>
         /// <returns></returns>
-        private bool decode_wamd_data(byte[] metadata)
+        private bool Read_MetaData(string wavFilename)
         {
             var result = false;
-            var entries = new Dictionary<short, string>();
+            metadata = null;
 
-            var bReader = new BinaryReader(new MemoryStream(metadata));
-
-            while (bReader.BaseStream.Position < bReader.BaseStream.Length)
+            if (string.IsNullOrWhiteSpace(wavFilename)) return result;
+            if (!wavFilename.Trim().EndsWith(".WAV", StringComparison.OrdinalIgnoreCase)) return (readZcMetadata(wavFilename));
+            if (!File.Exists(wavFilename) || (new FileInfo(wavFilename).Length <= 0L)) return result;
+            try
             {
-                var type = bReader.ReadInt16(); // 01 00
-                var size = bReader.ReadInt32(); // 03 00 00 00
-                var bData = bReader.ReadBytes(size);
-                if (type > 0)
+                using (var fs = File.Open(wavFilename, FileMode.Open))
+                {
+                    var reader = new BinaryReader(fs);
+
+                    // chunk 0
+                    var chunkID = reader.ReadInt32(); //RIFF
+                    var fileSize = reader.ReadInt32(); // 4 bytes of size
+                    var riffType = reader.ReadInt32(); //WAVE
+
+                    // chunk 1
+                    var fmtID = reader.ReadInt32(); //fmt_
+                    var fmtSize = reader.ReadInt32(); // bytes for this chunk typically 16
+                    int fmtCode = reader.ReadInt16(); // typically 1
+                    int channels = reader.ReadInt16(); // 1 or 2
+                    var sampleRate = reader.ReadInt32(); //
+                    var byteRate = reader.ReadInt32();
+                    int fmtBlockAlign = reader.ReadInt16(); // 4
+                    int bitDepth = reader.ReadInt16(); //16
+
+                    if (fmtSize == 18) // not expected for .wav files
+                    {
+                        // Read any extra values
+                        int fmtExtraSize = reader.ReadInt16();
+                        reader.ReadBytes(fmtExtraSize);
+                    }
+
+                    var header = new byte[4];
+                    byte[] data = null;
+                    var dataBytes = 0;
+                    // WAMD_Data wamd_data = new WAMD_Data();
+
                     try
                     {
-                        var data = Encoding.UTF8.GetString(bData);
-                        entries.Add(type, data);
+                        metadata = null;
+
+                        do
+                        {
+                            try
+                            {
+                                header = reader.ReadBytes(4);
+                                if (header == null || header.Length != 4) break;
+                                var size = reader.ReadInt32();
+                                try
+                                {
+                                    data = reader.ReadBytes(size);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Debug.WriteLine($"Tried to read to much data - {size}:-{ex}");
+                                }
+
+                                try
+                                {
+                                    if ((size & 0x0001) != 0 && reader.BaseStream.Position < reader.BaseStream.Length)
+                                        // we have an odd number of bytes for size, so read the xtra null byte of padding
+                                        reader.ReadByte();
+                                }
+                                catch (Exception) // just in case it overflows the data file
+                                {
+                                }
+
+                                var strHeader = Encoding.UTF8.GetString(header);
+                                if (strHeader == "data") dataBytes = size;
+                                if (strHeader == "wamd" && data != null)
+                                {
+                                    Debug.WriteLine("WAMD data:-" + header + "/" + size + "/" + data.Length);
+                                    metadata = data;
+                                    result = decode_wamd_data(metadata);
+                                }
+
+                                if (strHeader == "guan" && data != null)
+                                {
+                                    Debug.WriteLine("GUANO data:-" + header + "/" + size + "/" + data.Length);
+                                    metadata = data;
+                                    var metadataString = Encoding.UTF8.GetString(data);
+                                    result = DecodeGuanoData(metadataString);
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                Debug.WriteLine("Overflowed the data file - " + reader.BaseStream.Position + "/" +
+                                                reader.BaseStream.Length);
+                                break;
+                            }
+                        } while (reader.BaseStream.Position < reader.BaseStream.Length);
                     }
-                    catch (Exception ex)
+                    catch (IOException iox)
                     {
-                        Tools.ErrorLog(ex.Message);
-                        Debug.WriteLine(ex);
+                        Tools.ErrorLog(iox.Message);
+                        Debug.WriteLine("Error reading wav file:- " + iox.Message);
                     }
-            }
 
-
-            foreach (var entry in entries)
-                switch (entry.Key)
-                {
-                    case 0x000A:
-                        m_Note = entry.Value;
-                        m_Note = m_Note.Replace(@"\n", "");
+                    var durationInSecs = 0.0d;
+                    if (byteRate > 0 && channels > 0 && dataBytes > 0)
+                    {
+                        durationInSecs = (double)dataBytes / byteRate;
+                        m_Duration = TimeSpan.FromSeconds(durationInSecs);
                         result = true;
-                        break;
-
-                    case 0x0005:
-                        var dt = new DateTime();
-                        if (DateTime.TryParse(entry.Value, out dt))
-                        {
-                            m_MetaDate = dt;
-                            m_Start = m_Start != null ? dt < m_Start.Value && dt.Year > 1960 ? dt : m_Start : dt;
-
-                            if (m_Duration != null) m_End = m_Start + m_Duration;
-                            result = true;
-                        }
-
-                        break;
-
-                    case 0x000C:
-                        if (string.IsNullOrWhiteSpace(m_ManualID)) m_ManualID = "";
-                        if (!m_ManualID.Contains(entry.Value.Trim())) // no need to duplicate if this string already present
-                        {
-                            m_ManualID = (m_ManualID + " " + entry.Value).Trim();
-                        }
-                        result = true;
-                        break;
-
-                    case 0x000B:
-                        if (string.IsNullOrWhiteSpace(m_AutoID)) m_AutoID = "";
-                        if (!m_AutoID.Contains(entry.Value.Trim())) // no need to duplicate if this string already present
-                        {
-                            m_AutoID = "(" + (entry.Value + " " + m_AutoID).Trim() + ")";
-                        }
-                        result = true;
-                        break;
-
-                    case 0x000E: //AUTO_ID_STATS
-                        if (string.IsNullOrWhiteSpace(m_AutoID)) m_AutoID = "";
-                        if (m_AutoID.EndsWith(")")) m_AutoID = m_AutoID.Substring(0, m_AutoID.Length - 1);
-                        m_AutoID = m_AutoID + ": " + entry.Value + ")";
-                        result = true;
-                        break;
-
-                    case 0x0006: // GPS_FIRST
-                        m_Location = new GPSLocation(entry.Value);
-                        result = true;
-                        break;
-
-                    case 0x0001:
-                        m_Device = entry.Value;
-                        result = true;
-                        if (entries.ContainsKey(0x0002)) m_Device = m_Device + " " + entries[0x0002];
-                        if (entries.ContainsKey(0x0003)) m_Device = m_Device + " " + entries[0x0003];
-                        break;
-
-                    case 0x0012:
-                        m_Microphone = entry.Value;
-                        result = true;
-                        if (entries.ContainsKey(0x0013)) m_Microphone = m_Microphone + " " + entries[0x0013];
-                        break;
-
-                    case 0x0015: //TEMP_INT
-                        if (!string.IsNullOrWhiteSpace(m_Temperature)) m_Temperature = entry.Value;
-                        result = true;
-                        break;
-
-                    case 0x0016: //TEMP_EXT
-                        m_Temperature = entry.Value;
-                        result = true;
-                        break;
-
-                    case 0x0008: //SOFTWARE
-                        m_Software = entry.Value;
-                        result = true;
-                        break;
+                    }
                 }
-
-            if (result)
+            }
+            catch (Exception ex)
             {
-                if (string.IsNullOrWhiteSpace(m_source))
-                    m_source = "WAMD";
-                else
-                    m_source += " and WAMD";
+                Tools.ErrorLog(ex.Message);
+                Debug.WriteLine(ex);
             }
 
             return result;
+        }
+
+        private bool readZcMetadata(string fileName)
+        {
+            var result = false;
+            try
+            {
+                ZcMetadata zcMetadata = new ZcMetadata(fileName);
+
+                result = zcMetadata.ReadData();
+
+                m_FileName = fileName;
+                if (zcMetadata.hasGpsLocation)
+                {
+                    m_Location = new GPSLocation(zcMetadata.m_latitude, zcMetadata.m_longitude);
+                    m_Location.m_Name = zcMetadata.m_Location;
+                }
+
+                m_ManualID = zcMetadata.m_Species;
+                m_Device = zcMetadata.m_Tape + " " + zcMetadata.m_Spec;
+
+                m_Note = zcMetadata.m_Note + "\n" + zcMetadata.m_Note1;
+
+                if (!String.IsNullOrWhiteSpace(zcMetadata.m_GuanoData))
+                {
+                    DecodeGuanoData(zcMetadata.m_GuanoData);
+                }
+                metadata = new byte[10];
+                if (m_Start == null || DateTime.Now - m_Start.Value < new TimeSpan(0, 5, 0))
+                {
+                    m_Start = zcMetadata.m_startDateTime;
+                }
+                if (m_Duration == null) m_Duration = zcMetadata.m_duration;
+                result = true;
+            }
+            catch (Exception)
+            {
+                metadata = null;
+                result = false;
+            }
+
+            return (result);
         }
     }
 
@@ -619,6 +663,17 @@ namespace BatRecordingManager
         }
 
         /// <summary>
+        ///     The UK grid reference for the location if possible, calculated from the
+        ///     latitude and longitude fields
+        /// </summary>
+        public string m_GridRef { get; }
+
+        /// <summary>
+        ///     A three or four letter ID for the location.  May be null or empty
+        /// </summary>
+        public string m_ID { get; }
+
+        /// <summary>
         ///     GPS latitude as a double
         /// </summary>
         public double m_Latitude { get; }
@@ -629,48 +684,9 @@ namespace BatRecordingManager
         public double m_Longitude { get; }
 
         /// <summary>
-        ///     The UK grid reference for the location if possible, calculated from the
-        ///     latitude and longitude fields
-        /// </summary>
-        public string m_GridRef { get; }
-
-        /// <summary>
         ///     The common name for the location.  May be null or empty.
         /// </summary>
-        public string m_Name { get; }
-
-        /// <summary>
-        ///     A three or four letter ID for the location.  May be null or empty
-        /// </summary>
-        public string m_ID { get; }
-
-        /// <summary>
-        ///     Converts a string in the format "blah nn.nnnnn,N,mmm.mmmmm,W[,alt]
-        ///     into a latitude and longitude pair in the form of doubles
-        /// </summary>
-        /// <param name="wGS84AsciiLocation"></param>
-        /// <param name="latitude"></param>
-        /// <param name="longitude"></param>
-        /// <returns></returns>
-        private bool ConvertToLatLong(string WGS84AsciiLocation, out double latitude, out double longitude)
-        {
-            var result = false;
-            latitude = 200.0d;
-            longitude = 200.0d;
-            var pattern = @"WGS84,([0-9.-]*),([NS]),([0-9.-]*),([WE])"; // e.g. WGS84,51.74607,N,0.26183,W
-            var match = Regex.Match(WGS84AsciiLocation, pattern);
-            if (match.Success && match.Groups.Count >= 5)
-            {
-                if (double.TryParse(match.Groups[1].Value, out var dd)) latitude = dd;
-                dd = -1.0d;
-                if (double.TryParse(match.Groups[3].Value, out dd)) longitude = dd;
-                if (match.Groups[2].Value.Contains("S")) latitude = 0.0d - latitude;
-                if (match.Groups[4].Value.Contains("W")) longitude = 0.0d - longitude;
-            }
-
-            if (latitude < 200.0d && longitude < 200.0d) result = true;
-            return result;
-        }
+        public string m_Name { get; set; }
 
         /// <summary>
         ///     Converts a GPS position in the form of latitude and longitude into a UK grid reference.
@@ -692,7 +708,34 @@ namespace BatRecordingManager
                 if (nmea2OSG.Transform(latitude, longitude, 0.0d))
                     result = nmea2OSG.ngr;
 
+            return result;
+        }
 
+        /// <summary>
+        ///     Converts a string in the format "blah nn.nnnnn,N,mmm.mmmmm,W[,alt]
+        ///     into a latitude and longitude pair in the form of doubles
+        /// </summary>
+        /// <param name="wGS84AsciiLocation"></param>
+        /// <param name="latitude"></param>
+        /// <param name="longitude"></param>
+        /// <returns></returns>
+        private bool ConvertToLatLong(string WGS84AsciiLocation, out double latitude, out double longitude)
+        {
+            var result = false;
+            latitude = 200.0d;
+            longitude = 200.0d;
+            var pattern = @"WGS84,([0-9.-]*),?([NS]?),([0-9.-]*),?([WE]?)"; // e.g. WGS84,51.74607,N,0.26183,W
+            var match = Regex.Match(WGS84AsciiLocation, pattern);
+            if (match.Success && match.Groups.Count >= 5)
+            {
+                if (double.TryParse(match.Groups[1].Value, out var dd)) latitude = dd;
+                dd = -1.0d;
+                if (double.TryParse(match.Groups[3].Value, out dd)) longitude = dd;
+                if (match.Groups[2].Value.Contains("S")) latitude = 0.0d - latitude;
+                if (match.Groups[4].Value.Contains("W")) longitude = 0.0d - longitude;
+            }
+
+            if (latitude < 200.0d && longitude < 200.0d) result = true;
             return result;
         }
     }

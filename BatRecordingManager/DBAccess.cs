@@ -27,6 +27,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Dynamic;
 using System.Text.RegularExpressions;
+using System.Windows.Forms.VisualStyles;
 using System.Xml.Linq;
 
 namespace BatRecordingManager
@@ -208,53 +209,6 @@ namespace BatRecordingManager
                 }
 
             return result;
-        }
-
-        /// <summary>
-        ///     parses the recording filename to see if it contains sequences that correspond to a date
-        ///     and/or time and if so returns those dates and times combined in a single dateTime parameter.
-        ///     returns true if valid dates/times are established and false otherwise.
-        /// </summary>
-        /// <param name="fullyQualifiedFileName"></param>
-        /// <param name="date"></param>
-        /// <returns></returns>
-        public static bool GetDateTimeFromFilename(string fullyQualifiedFileName, out DateTime date)
-        {
-            date = new DateTime();
-            var pattern =
-                @"([12][09][0-9]{2})[-_]?([0-1][0-9])[-_]?([0-3][0-9])[-_\s]?([0-2][0-9])[-_:]?([0-5][0-9])[-_:]?([0-5][0-9])";
-            var match = Regex.Match(fullyQualifiedFileName, pattern);
-            if (match.Success)
-                if (match.Groups.Count >= 4)
-                {
-                    var year = match.Groups[1].Value.Trim();
-                    var month = match.Groups[2].Value.Trim();
-                    var day = match.Groups[3].Value.Trim();
-                    var hour = "00";
-                    var minute = "00";
-                    var second = "00";
-                    if (match.Groups.Count >= 7)
-                    {
-                        hour = match.Groups[4].Value.Trim();
-                        minute = match.Groups[5].Value.Trim();
-                        second = match.Groups[6].Value.Trim();
-                    }
-
-                    var result = new DateTime();
-                    var enGB = new CultureInfo("en-GB");
-                    var extractedString = year + "/" + month + "/" + day + " " + hour + ":" + minute + ":" + second;
-
-                    if (DateTime.TryParseExact(extractedString, "yyyy/MM/dd HH:mm:ss", null, DateTimeStyles.AssumeLocal,
-                        out result))
-                    {
-                        Debug.WriteLine("Found date time of " + result + " in " + fullyQualifiedFileName);
-                        date = result;
-                        return true;
-                    }
-                }
-
-            Debug.WriteLine("No datetime found in " + fullyQualifiedFileName);
-            return false;
         }
 
         /// <summary>
@@ -844,14 +798,16 @@ namespace BatRecordingManager
         {
             var result = "";
             if (string.IsNullOrWhiteSpace(recording.RecordingName))
-                return "Recording Name (.wav file name) is required";
-            if (!recording.RecordingName.ToUpper().EndsWith(".WAV")) return "Recording file must be of type .wav";
+                return "Recording Name (.wav/.zc file name) is required";
+            if (!(recording.RecordingName.EndsWith(".WAV", StringComparison.OrdinalIgnoreCase) ||
+                recording.RecordingName.EndsWith(".zc", StringComparison.OrdinalIgnoreCase))) return "Recording file must be of type .wav or .zc";
 
             return result;
         }
 
         /// <summary>
-        ///     Validates the call.
+        ///     Validates the call. true if call type is LC or if numerical parameters are null or reasonable,
+        ///     i.e. frequencies > 10 and variation >=0.0 and at least one parameter non-null (incl call type)
         /// </summary>
         /// <param name="newCall">
         ///     The new call.
@@ -861,6 +817,7 @@ namespace BatRecordingManager
         public static bool Validate(this Call newCall)
         {
             if (newCall == null) return false;
+            if (newCall.CallType == "LC") return (true);
             var result = true;
             if ((newCall.StartFrequency ?? 50.0) < 10.0)
             {
@@ -3604,7 +3561,7 @@ namespace BatRecordingManager
 
         /// <summary>
         ///     Updates the recording. Adds it to the database if not already present or modifies the
-        ///     existing entry to match if present. The measure of presence depends on the Name filed
+        ///     existing entry to match if present. The measure of presence depends on the Name field
         ///     which is the name of the wav file and should be unique in the database.  Includes a lists
         ///     of lists of images, one imagelist for each labelled segment.
         /// </summary>
@@ -3635,7 +3592,8 @@ namespace BatRecordingManager
                     IQueryable<Recording> existingRecordings = null;
                     if (recording.Id <= 0 && !string.IsNullOrWhiteSpace(recording.RecordingName))
                         existingRecordings = from rec in dc.Recordings
-                                             where rec.RecordingName == recording.RecordingName
+                                             where rec.RecordingName == recording.RecordingName &&
+                                                rec.RecordingSessionId == recording.RecordingSessionId
                                              select rec;
                     else if (recording.Id > 0)
                         existingRecordings = from rec in dc.Recordings
@@ -5180,7 +5138,7 @@ namespace BatRecordingManager
                 else
                 {
                     var date = new DateTime();
-                    if (GetDateTimeFromFilename(recording.RecordingName, out date))
+                    if (Tools.GetDateTimeFromFilename(recording.RecordingName, out date))
                     {
                         recording.RecordingDate = date.Date;
                         var duration = (recording.RecordingEndTime ?? new TimeSpan()) -

@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,33 +30,6 @@ namespace BatRecordingManager
     /// </summary>
     public partial class ImportControl : UserControl
     {
-        /// <summary>
-        ///     The file browser
-        /// </summary>
-        private FileBrowser _fileBrowser;
-
-        /// <summary>
-        ///     The file processor
-        /// </summary>
-        private FileProcessor _fileProcessor;
-
-        /// <summary>
-        ///     The GPX handler
-        /// </summary>
-        private GpxHandler _gpxHandler;
-
-        /// <summary>
-        ///     indicates if the selected folder is to be processed as a set of
-        ///     Audacity text files (false) or as a set of wav files with Kaleidoscope
-        ///     metadata (true).
-        /// </summary>
-        private bool _processWavFiles;
-
-        /// <summary>
-        ///     The session for folder
-        /// </summary>
-        private RecordingSession _sessionForFolder;
-
         /// <summary>
         ///     The current session identifier
         /// </summary>
@@ -117,7 +90,7 @@ namespace BatRecordingManager
             var result = false;
             TbkOutputText.Text = "[LOG]\n";
 
-            if (!_processWavFiles)
+            if (!_processWavFiles && !_processZcFiles)
             {
                 var totalBatsFound = new Dictionary<string, BatStats>();
 
@@ -187,7 +160,6 @@ namespace BatRecordingManager
             {
                 result = ProcessWavMetadata();
             }
-
 
             return result;
         }
@@ -344,7 +316,6 @@ namespace BatRecordingManager
                     _sessionForFolder = SessionManager.CreateSession(_fileBrowser.WorkingFolder,
                         SessionManager.GetSessionTag(_fileBrowser), _gpxHandler);
                     //sessionForFolder.OriginalFilePath = fileBrowser.WorkingFolder;
-
                 }
 
                 if (_sessionForFolder != null)
@@ -378,6 +349,40 @@ namespace BatRecordingManager
                 }
             }
         }
+
+        /// <summary>
+        ///     The file browser
+        /// </summary>
+        private FileBrowser _fileBrowser;
+
+        /// <summary>
+        ///     The file processor
+        /// </summary>
+        private FileProcessor _fileProcessor;
+
+        /// <summary>
+        ///     The GPX handler
+        /// </summary>
+        private GpxHandler _gpxHandler;
+
+        /// <summary>
+        ///     indicates if the selected folder is to be processed as a set of
+        ///     Audacity text files (false) or as a set of wav files with Kaleidoscope
+        ///     metadata (true).
+        /// </summary>
+        private bool _processWavFiles = false;
+
+        /// <summary>
+        /// indicates if the selected folder is to be processed as a set of
+        /// Audacity text files or as a set of .zc files with AnalookW header
+        /// data or Kalaeidoscope metadata.
+        /// </summary>
+        private bool _processZcFiles = false;
+
+        /// <summary>
+        ///     The session for folder
+        /// </summary>
+        private RecordingSession _sessionForFolder;
 
         /// <summary>
         ///     Batses the concatenate.
@@ -433,12 +438,11 @@ namespace BatRecordingManager
             UpdateRecordingButton.ToolTip = "Update a specific Recording by selecting a single .wav file";
             _processWavFiles = false;
             _fileBrowser = new FileBrowser();
-            _fileBrowser.SelectRootFolder();
+            _fileBrowser.SelectRootFolder(".txt");
 
             NextFolderButton.IsEnabled = true;
             TbkOutputText.Text = "";
             NextFolderButton_Click(sender, e);
-
         }
 
         /// <summary>
@@ -482,8 +486,7 @@ namespace BatRecordingManager
             OutputWindowScrollViewer.Visibility = Visibility.Visible;
             StackPanelScroller.Visibility = Visibility.Visible;
             _fileBrowser = new FileBrowser();
-            _fileBrowser.SelectRootFolder();
-
+            _fileBrowser.SelectRootFolder(".wav");
 
             NextFolderButton.IsEnabled = true;
             UpdateRecordingButton.ToolTip = "Update a specific Recording by selecting a single .wav file";
@@ -516,7 +519,54 @@ namespace BatRecordingManager
                 TbkOutputText.Text = "Ready To Process";
                 Debug.WriteLine("Process wav files");
             }
+        }
 
+        /// <summary>
+        /// Imports data using the metdata contined in a set of zc files which have been
+        ///     annotated using Kaleidoscope or AnalookW rather than Audacity.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ImportZcFilesButton_Click(object sender, RoutedEventArgs e)
+        {
+            Clear();
+            ImportPictureControl.Visibility = Visibility.Hidden;
+            OutputWindowScrollViewer.Visibility = Visibility.Visible;
+            StackPanelScroller.Visibility = Visibility.Visible;
+            _fileBrowser = new FileBrowser();
+            _fileBrowser.SelectRootFolder(".zc");
+
+            NextFolderButton.IsEnabled = true;
+            UpdateRecordingButton.ToolTip = "Update a specific Recording by selecting a single .wav file";
+
+            //NextFolderButton_Click(sender, e);
+            var fileList = Directory.EnumerateFiles(_fileBrowser.RootFolder, "*.zc");
+            DpMMultiWindowPanel.Children.Clear();
+            TextBox textBox = new TextBox();
+            textBox.Text = "Files:-\n";
+            foreach (var file in fileList)
+            {
+                textBox.Text += $"    {file}\n";
+            }
+            DpMMultiWindowPanel.Children.Add(textBox);
+            //var FILEList= Directory.EnumerateFiles(fileBrowser.rootFolder, "*.WAV");
+            //fileList = fileList.Concat<string>(FILEList);
+
+            var zcfiles = new List<string>(fileList);
+            if (zcfiles == null || zcfiles.Count == 0)
+            {
+                ProcessFilesButton.IsEnabled = false;
+                _processZcFiles = false;
+                Debug.WriteLine("No Zc files");
+                TbkOutputText.Text = "No Zc Files Found";
+            }
+            else
+            {
+                ProcessFilesButton.IsEnabled = true;
+                _processZcFiles = true;
+                TbkOutputText.Text = "Ready To Process";
+                Debug.WriteLine("ProcessZc files");
+            }
         }
 
         /// <summary>
@@ -579,7 +629,10 @@ namespace BatRecordingManager
                 }
 
                 var wavFiles = Directory.EnumerateFiles(_fileBrowser.WorkingFolder, "*.wav");
-
+                if (wavFiles == null || wavFiles.Count() <= 0)
+                {
+                    wavFiles = Directory.EnumerateFiles(_fileBrowser.WorkingFolder, "*.zc");
+                }
 
                 //var WAVFilesEnum = Directory.EnumerateFiles(fileBrowser.WorkingFolder, "*.WAV");
                 //var wavFiles = wavFilesEnum.Concat<string>(WAVFilesEnum).ToList<string>();
@@ -625,6 +678,10 @@ namespace BatRecordingManager
                             }
                     }
                 }
+                else
+                {
+                    MessageBox.Show($"No .wav or .zc files found in folder {_fileBrowser.WorkingFolder}", "No Files Found", MessageBoxButton.OK);
+                }
 
                 if (!string.IsNullOrWhiteSpace(TbkOutputText.Text))
                 {
@@ -635,7 +692,7 @@ namespace BatRecordingManager
             catch (Exception ex)
             {
                 Tools.ErrorLog(ex.Message);
-                Debug.WriteLine("Processing of .wav files failed:- " + ex.Message);
+                Debug.WriteLine("Processing of .wav/.zc files failed:- " + ex.Message);
                 result = false;
             }
 
@@ -700,7 +757,6 @@ namespace BatRecordingManager
                         if (!string.IsNullOrWhiteSpace(labelFileName))
 
                             FileProcessor.UpdateRecording(recording, labelFileName);
-
                     }
             }
             else

@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,22 +31,6 @@ namespace BatRecordingManager
     /// </summary>
     public class FileBrowser
     {
-        private bool _isProcessingFolder;
-
-        /// <summary>
-        ///     The output log file name
-        /// </summary>
-        private string _outputLogFileName = "";
-
-        /// <summary>
-        ///     The text file names
-        /// </summary>
-        //private BulkObservableCollection<String> TextFileNames = new BulkObservableCollection<String>();
-        /// <summary>
-        ///     The working folder
-        /// </summary>
-        private string _workingFolder = "";
-
         /// <summary>
         ///     The root folder
         /// </summary>
@@ -181,6 +165,38 @@ namespace BatRecordingManager
             return result;
         }
 
+        public static string SelectFolderByDialog(string dialogTitle, string ext = ".wav")
+        {
+            string folderPath = null;
+            using (var dialog = new OpenFileDialog())
+            {
+                dialog.DefaultExt = ext;
+                dialog.Filter = "Text files (*.txt)|*.txt|Wav files (*.wav)|*.wav|ZC Files (*.zc)|*.zc|All Files (*.*)|*.*";
+                switch (ext)
+                {
+                    case ".txt": dialog.FilterIndex = 1; break;
+                    case ".wav": dialog.FilterIndex = 2; break;
+                    case ".zc": dialog.FilterIndex = 3; break;
+                    default: dialog.FilterIndex = 4; break;
+                }
+
+                dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                dialog.Title = "Select Data Folder";
+                dialog.ValidateNames = false;
+                dialog.CheckFileExists = false;
+                dialog.CheckPathExists = true;
+                dialog.FileName = "Select Folder";
+
+                //dialog.Description = "Select the folder containing the .wav and descriptive text files";
+                //dialog.ShowNewFolderButton = true;
+                //dialog.RootFolder = Environment.SpecialFolder.MyComputer;
+
+                if (dialog.ShowDialog() == DialogResult.OK) folderPath = Tools.GetPath(dialog.FileName);
+            }
+
+            return folderPath;
+        }
+
         /// <summary>
         ///     Pops the wav folder. Returns the next wav file folder from the list and removes it
         ///     from the list.
@@ -283,7 +299,6 @@ namespace BatRecordingManager
         {
             var folderPath = Directory.GetCurrentDirectory();
 
-
             using (var dialog = new OpenFileDialog())
             {
                 dialog.DefaultExt = ".txt";
@@ -303,31 +318,6 @@ namespace BatRecordingManager
                     folderPath = Tools.GetPath(HeaderFileName);
                     ProcessFolder(folderPath);
                 }
-            }
-
-            return folderPath;
-        }
-
-        public static string SelectFolderByDialog(string dialogTitle)
-        {
-            string folderPath = null;
-            using (var dialog = new OpenFileDialog())
-            {
-                dialog.DefaultExt = ".txt";
-                dialog.Filter = "Text files (*.txt)|*.txt|Wav files (*.wav)|*.wav|All Files (*.*)|*.*";
-                dialog.FilterIndex = 2;
-                dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                dialog.Title = "Select Header text File";
-                dialog.ValidateNames = false;
-                dialog.CheckFileExists = false;
-                dialog.CheckPathExists = true;
-                dialog.FileName = "Select Folder";
-
-                //dialog.Description = "Select the folder containing the .wav and descriptive text files";
-                //dialog.ShowNewFolderButton = true;
-                //dialog.RootFolder = Environment.SpecialFolder.MyComputer;
-
-                if (dialog.ShowDialog() == DialogResult.OK) folderPath = Tools.GetPath(dialog.FileName);
             }
 
             return folderPath;
@@ -374,10 +364,9 @@ namespace BatRecordingManager
         /// </summary>
         /// <returns>
         /// </returns>
-        public string SelectRootFolder()
+        public string SelectRootFolder(string fileType = ".wav")
         {
             var folderPath = Directory.GetCurrentDirectory();
-
 
             /*using (System.Windows.Forms.OpenFileDialog dialog = new OpenFileDialog())
             {
@@ -398,7 +387,7 @@ namespace BatRecordingManager
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {*/
 
-            folderPath = SelectFolderByDialog("Select Folder of WAV/TXT Files");
+            folderPath = SelectFolderByDialog("Select Folder of WAV/TXT Files", fileType);
             //HeaderFileName = dialog.FileName;
             //folderPath = Path.GetDirectoryName(dialog.FileName);
             //folderPath = Tools.GetPath(dialog.FileName);
@@ -411,7 +400,6 @@ namespace BatRecordingManager
                  return (null);
                  }
              }*/
-
 
             return RootFolder;
         }
@@ -532,6 +520,22 @@ namespace BatRecordingManager
 
             return result;
         }
+
+        private bool _isProcessingFolder;
+
+        /// <summary>
+        ///     The output log file name
+        /// </summary>
+        private string _outputLogFileName = "";
+
+        /// <summary>
+        ///     The text file names
+        /// </summary>
+        //private BulkObservableCollection<String> TextFileNames = new BulkObservableCollection<String>();
+        /// <summary>
+        ///     The working folder
+        /// </summary>
+        private string _workingFolder = "";
 
         /// <summary>
         ///     Determines whether [contains wav and txt files] [the specified root folder].

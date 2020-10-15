@@ -37,7 +37,7 @@ namespace BatRecordingManager
                 template = AddHeaderText(session, template);
                 if (gpx.gpxFileExists)
                 {
-                    var trackPointList = gpx.getAllTrackPoints(session.SessionDate, session.SessionEndTime);
+                    var trackPointList = gpx.getAllTrackPoints(session.SessionStart, session.SessionEnd);
                     template = AddTrack(trackPointList, template);
                 }
 
@@ -45,7 +45,7 @@ namespace BatRecordingManager
 
                 template = AddClustering(template);
 
-                htmlFile = ExecuteTemplate(session.OriginalFilePath, template);
+                htmlFile = ExecuteTemplate(session, template);
             }
             return (htmlFile);
         }
@@ -56,12 +56,20 @@ namespace BatRecordingManager
             double longitude = double.NaN;
             if (session.Recordings != null && session.Recordings.Any())
             {
-                latitude = (from rec in session.Recordings
-                            where rec.HasGPS
-                            select rec.LatitudeAsDouble).Average();
-                longitude = (from rec in session.Recordings
-                             where rec.HasGPS
-                             select rec.LongitudeAsDouble).Average();
+                var latitudeList = (from rec in session.Recordings
+                                    where rec.HasGPS
+                                    select rec.LatitudeAsDouble);
+                if (!latitudeList.IsNullOrEmpty())
+                {
+                    latitude = latitudeList.Average();
+                }
+                var longitudeList = (from rec in session.Recordings
+                                     where rec.HasGPS
+                                     select rec.LongitudeAsDouble);
+                if (!longitudeList.IsNullOrEmpty())
+                {
+                    longitude = longitudeList.Average();
+                }
             }
             if (double.IsNaN(latitude) || double.IsNaN(longitude))
             {
@@ -203,12 +211,13 @@ namespace BatRecordingManager
             return (template);
         }
 
-        private string ExecuteTemplate(string folderPath, string template)
+        private string ExecuteTemplate(RecordingSession session, string template)
         {
+            string folderPath = session.OriginalFilePath;
             string fqFilename = "";
             if (Directory.Exists(folderPath))
             {
-                fqFilename = Path.Combine(folderPath, "bingMap.html");
+                fqFilename = Path.Combine(folderPath, $"{session.SessionTag}_Map.html");
                 if (File.Exists(fqFilename))
                 {
                     File.Delete(fqFilename);
@@ -219,6 +228,10 @@ namespace BatRecordingManager
                 proc.StartInfo.FileName = fqFilename;
                 proc.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
                 proc.Start();
+
+                //var webWindow = new WebPageWindow();
+                //webWindow.Fill(fqFilename);
+                //webWindow.Show();
             }
             return (fqFilename);
         }

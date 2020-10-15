@@ -20,6 +20,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq.Dynamic;
+using System.Windows.Forms.VisualStyles;
 
 namespace BatRecordingManager
 {
@@ -355,6 +357,22 @@ namespace BatRecordingManager
             }
         }
 
+        public bool isConfidenceLow
+        {
+            get
+            {
+                if (!SegmentCalls.IsNullOrEmpty())
+                {
+                    foreach (var scLink in SegmentCalls)
+                    {
+                        if (scLink.Call.CallType == "LC") return (true);
+                    }
+                }
+                if (Comment.Trim().EndsWith("L")) return (true);
+                return (false);
+            }
+        }
+
         public TimeSpan startTime
         {
             get
@@ -437,6 +455,17 @@ namespace BatRecordingManager
                 if (longit > 180.0m || longit < -180.0m) return (false);
                 if (latit == 0.0m && longit == 0.0m) return (false);
                 return (true);
+            }
+        }
+
+        /// <summary>
+        /// returns true if the recording file ends with .wav and false otherwise
+        /// </summary>
+        public bool isWavRecording
+        {
+            get
+            {
+                return (this.RecordingName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase));
             }
         }
 
@@ -738,6 +767,71 @@ namespace BatRecordingManager
             }
 
             set { _hasGPSLocation = null; }
+        }
+
+        public bool hasRecordings
+        {
+            get
+            {
+                return (Recordings != null && Recordings.Any());
+            }
+        }
+
+        /// <summary>
+        /// returns true if all the recordings are .wav files, false if all are .zc files and null
+        /// if there are no recordings or a mixture of .wav and zc
+        /// </summary>
+        public bool? isWavSession
+        {
+            get
+            {
+                if (!hasRecordings) return (null);
+                bool result = Recordings[0].isWavRecording;
+                foreach (var rec in Recordings)
+                {
+                    if (result != rec.isWavRecording) return (null);
+                }
+                return (result);
+            }
+        }
+
+        public DateTime SessionEnd
+        {
+            get
+            {
+                var ed = (EndDate ?? SessionDate).Date;
+                var et = SessionEndTime ?? new TimeSpan();
+                if (et.Ticks == 0)
+                {
+                    if (EndDate != null)
+                    {
+                        et = EndDate.Value.TimeOfDay;
+                    }
+                }
+                if (et.Ticks == 0)
+                {
+                    et = new TimeSpan(23, 59, 59);
+                }
+                if (ed == SessionDate.Date && et.Hours >= 12)
+                {
+                    ed.AddDays(1);
+                }
+                return (ed + et);
+            }
+        }
+
+        /// <summary>
+        /// Returns <see langword="abstract"/>sDateTime for the start of the session, combining startDate
+        /// and start time as necessary
+        /// </summary>
+        public DateTime SessionStart
+        {
+            get
+            {
+                var sd = SessionDate.Date;
+                var st = SessionStartTime ?? SessionDate.TimeOfDay;
+                return (sd + st);
+            }
         }
 
         private bool? _hasGPSLocation = null;

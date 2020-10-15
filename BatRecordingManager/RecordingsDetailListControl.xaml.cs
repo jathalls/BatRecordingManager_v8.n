@@ -15,11 +15,13 @@
 //         limitations under the License.
 
 using BatPassAnalysisFW;
+using DataVirtualizationLibrary;
 using Microsoft.Maps.MapControl.WPF;
 using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.Linq;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -84,7 +86,7 @@ namespace BatRecordingManager
     /// <summary>
     ///     Interaction logic for RecordingsDetailListControl.xaml
     /// </summary>
-    public partial class RecordingsDetailListControl : UserControl
+    public partial class RecordingsDetailListControl : UserControl, INotifyPropertyChanged
     {
         //-----------------------------------------------------------------------------------
         /// <summary>
@@ -92,11 +94,11 @@ namespace BatRecordingManager
         /// </summary>
         public RecordingsDetailListControl()
         {
-            recordingsList = new BulkObservableCollection<Recording>();
             selectedSession = null;
             InitializeComponent();
             DataContext = this;
-            RecordingsListView.ItemsSource = recordingsList;
+            RefreshData(5, 100);
+            //RecordingsListView.ItemsSource = recordingsList;
             CreateSearchDialog();
         }
 
@@ -146,13 +148,7 @@ namespace BatRecordingManager
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the recordings list.
-        /// </summary>
-        /// <value>
-        ///     The recordings list.
-        /// </value>
-        public BulkObservableCollection<Recording> recordingsList { get; } = new BulkObservableCollection<Recording>();
+        public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
         ///     Gets or sets the selected session.
@@ -187,9 +183,9 @@ namespace BatRecordingManager
                             }
                             else
                             {
-                                if (!recordingsList.IsNullOrEmpty())
+                                if (!value.Recordings.IsNullOrEmpty())
                                 {
-                                    var rec = recordingsList.First();
+                                    var rec = value.Recordings.First();
                                     if (!string.IsNullOrWhiteSpace(rec.RecordingGPSLatitude) &&
                                         !string.IsNullOrWhiteSpace(rec.RecordingGPSLongitude))
                                     {
@@ -214,8 +210,23 @@ namespace BatRecordingManager
                 {
                     Refresh();
                 }
+                RefreshData(5, 100);
+                NotifyPropertyChanged(nameof(virtualRecordingsList));
             }
         }
+
+        public bool selectionIsWavFile { get; set; } = true;
+        public AsyncVirtualizingCollection<Recording> virtualRecordingsList { get; set; } = new AsyncVirtualizingCollection<Recording>(new RecordingsDataProvider(null), 2, 100);
+        /// <summary>
+        ///     Gets or sets the recordings list.
+        /// </summary>
+        /// <value>
+        ///     The recordings list.
+        /// </value>
+        //public BulkObservableCollection<Recording> virtualRecordingsList { get; } = new BulkObservableCollection<Recording>();
+
+        internal void NotifyPropertyChanged(string propertyName) =>
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         /// <summary>
         ///     Called when [ListView item focused].
@@ -356,7 +367,7 @@ namespace BatRecordingManager
             PopulateRecordingsList();
             if (oldIndex > 0 && oldIndex < RecordingsListView.Items.Count) RecordingsListView.SelectedIndex = oldIndex;
 
-            SearchButton.IsEnabled = recordingsList.Count > 0;
+            SearchButton.IsEnabled = (selectedSession != null && _selectedSession.Recordings.Count > 0);
         }
 
         private void AddRecordingButton_Click(object sender, RoutedEventArgs e)
@@ -467,7 +478,7 @@ namespace BatRecordingManager
                 }
                 catch (Exception ex)
                 {
-                    AnalysisMainControl.ErrorLog($"AnalyseRecordingPulses: settinup recording {recording.GetFileName()}:-{ex.Message}");
+                    AnalysisMainControl.ErrorLog($"AnalyseRecordingPulses: settingup recording {recording.GetFileName()}:-{ex.Message}");
                 }
 
                 try
@@ -544,11 +555,12 @@ namespace BatRecordingManager
 
         private void CreateSearchDialog()
         {
+            if (_selectedSession == null || _selectedSession.Recordings.IsNullOrEmpty()) return;
             _searchDialog = new SearchDialog();
             _searchDialog.e_Searched += SearchDialog_Searched;
             _searchDialog.Closed += SearchDialog_Closed;
             _searchTargets.Clear();
-            foreach (var recording in recordingsList)
+            foreach (var recording in _selectedSession.Recordings)
             {
                 _searchTargets.Add(recording.Id, -1, recording.RecordingNotes);
                 _searchTargets.AddRange(recording.Id, GetSegmentComments(recording));
@@ -557,7 +569,7 @@ namespace BatRecordingManager
 
             if (SearchButton != null)
             {
-                SearchButton.IsEnabled = recordingsList.Count > 0;
+                SearchButton.IsEnabled = (selectedSession != null && selectedSession.Recordings.Count > 0);
             }
         }
 
@@ -578,7 +590,7 @@ namespace BatRecordingManager
                 DBAccess.DeleteRecording(RecordingsListView.SelectedItem as Recording);
             PopulateRecordingsList();
             if (oldIndex >= 0 && oldIndex < RecordingsListView.Items.Count) RecordingsListView.SelectedIndex = oldIndex;
-            SearchButton.IsEnabled = recordingsList.Count > 0;
+            SearchButton.IsEnabled = (selectedSession != null && selectedSession.Recordings.Count > 0);
             OnRecordingChanged(new EventArgs());
         }
 
@@ -593,7 +605,7 @@ namespace BatRecordingManager
             if (RecordingsListView.SelectedItem != null) recording = RecordingsListView.SelectedItem as Recording;
             AddEditRecording(recording);
             OnRecordingChanged(new EventArgs());
-            if (recordingsList.Count > 0)
+            if (selectedSession != null && selectedSession.Recordings.Count > 0)
                 SearchButton.IsEnabled = true;
             else
                 DisableSearchButton();
@@ -729,7 +741,7 @@ namespace BatRecordingManager
                     {
                         var call = seg.SegmentCalls[0].Call;
                         if (call != null) callControl.BatCall = call;
-                        (segTextBlock.Parent as StackPanel).Children.Add(callControl);
+                        ((segTextBlock.Parent as ContentControl).Parent as StackPanel).Children.Add(callControl);
                     }
                 }
         }
@@ -738,11 +750,12 @@ namespace BatRecordingManager
         {
             if (CallsToggleButton.IsChecked ?? false)
                 if (sender is TextBlock segTextBlock)
-                    for (var i = (segTextBlock.Parent as StackPanel).Children.Count - 1; i >= 0; i--)
+
+                    for (var i = ((segTextBlock.Parent as ContentControl).Parent as StackPanel).Children.Count - 1; i >= 0; i--)
                     {
-                        var child = (segTextBlock.Parent as StackPanel).Children[i];
+                        var child = ((segTextBlock.Parent as ContentControl).Parent as StackPanel).Children[i];
                         if (child.GetType() == typeof(BatCallControl))
-                            (segTextBlock.Parent as StackPanel).Children.RemoveAt(i);
+                            ((segTextBlock.Parent as ContentControl).Parent as StackPanel).Children.RemoveAt(i);
                     }
         }
 
@@ -919,16 +932,16 @@ namespace BatRecordingManager
 
             if (selectedSession != null)
             {
-                recordingsList.Clear();
+                //virtualRecordingsList.Clear();
                 //recordingsList.AddRange(DBAccess.GetRecordingsForSession(selectedSession));
-                recordingsList.AddRange(selectedSession.Recordings);
+                //virtualRecordingsList.AddRange(selectedSession.Recordings);
             }
             else
             {
-                recordingsList.Clear();
+                //virtualRecordingsList.Clear();
             }
 
-            SearchButton.IsEnabled = recordingsList.Count > 0;
+            SearchButton.IsEnabled = (_selectedSession != null && _selectedSession.Recordings.Count > 0);
         }
 
         private void RecordingNameContentControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -977,6 +990,15 @@ namespace BatRecordingManager
         {
             if (!e.Handled)
             {
+                if (RecordingsListView.SelectedItem != null)
+                {
+                    var selectedRecording = RecordingsListView.SelectedItem as Recording;
+                    selectionIsWavFile = selectedRecording?.isWavRecording ?? false;
+                }
+                else
+                {
+                    selectionIsWavFile = true;
+                }
                 _isSegmentSelected = false;
                 e.Handled = true;
                 if (e.AddedItems != null && e.AddedItems.Count > 0)
@@ -1026,9 +1048,9 @@ namespace BatRecordingManager
                 if (RecordingsListView != null) oldIndex = RecordingsListView.SelectedIndex;
                 if (selectedSession != null)
                 {
-                    recordingsList.Clear();
+                    //recordingsList.Clear();
                     //recordingsList.AddRange(DBAccess.GetRecordingsForSession(value));
-                    recordingsList.AddRange(selectedSession.Recordings);
+                    //recordingsList.AddRange(selectedSession.Recordings);
                     if (AddRecordingButton != null && DeleteRecordingButton != null && EditRecordingButton != null)
                     {
                         AddRecordingButton.IsEnabled = true;
@@ -1039,7 +1061,7 @@ namespace BatRecordingManager
                 }
                 else
                 {
-                    recordingsList.Clear();
+                    //virtualRecordingsList.Clear();
                     if (AddRecordingButton != null && DeleteRecordingButton != null && EditRecordingButton != null)
                     {
                         AddRecordingButton.IsEnabled = false;
@@ -1050,14 +1072,37 @@ namespace BatRecordingManager
 
                 if (RecordingsListView != null)
                 {
-                    RecordingsListView.SelectedIndex = oldIndex >= 0 && oldIndex < recordingsList.Count ? oldIndex : -1;
-                    RecordingsListView.ItemsSource = recordingsList;
-                    var view = CollectionViewSource.GetDefaultView(RecordingsListView.ItemsSource);
-                    view?.Refresh();
+                    RecordingsListView.SelectedIndex = oldIndex >= 0 && oldIndex < virtualRecordingsList.Count ? oldIndex : -1;
+                    //RecordingsListView.ItemsSource = recordingsList;
+                    //var view = CollectionViewSource.GetDefaultView(RecordingsListView.ItemsSource);
+                    //view?.Refresh();
                 }
-
+                RefreshData(5, 0);
+                NotifyPropertyChanged(nameof(virtualRecordingsList));
                 CreateSearchDialog();
             }
+        }
+
+        /// <summary>
+        /// Virtualizing paged refresh recordingslist data
+        /// </summary>
+        /// <param name="pageSize"></param>
+        /// <param name="topOfScreen"></param>
+        private void RefreshData(int pageSize, int topOfScreen)
+        {
+            if (RecordingsListView == null) return;
+            using (new WaitCursor("Recordings_RefreshData"))
+            {
+                var oldSelectionIndex = RecordingsListView.SelectedIndex;
+                virtualRecordingsList = new AsyncVirtualizingCollection<Recording>(new RecordingsDataProvider(selectedSession), pageSize, 100);
+                //virtualRecordingsList = new VirtualizingCollection<Recording>(new RecordingsProvider(selectedSession), pageSize, 100);
+                if (oldSelectionIndex >= 0 && oldSelectionIndex < virtualRecordingsList.Count)
+                {
+                    RecordingsListView.SelectedIndex = oldSelectionIndex;
+                }
+                NotifyPropertyChanged(nameof(virtualRecordingsList));
+            }
+            //RecordingsListView.SelectionChanged(this, null);
         }
 
         /// <summary>
@@ -1139,13 +1184,16 @@ namespace BatRecordingManager
                 var segmentIndex = foundItem.Item2;
 
                 Recording foundRecording = null;
-                var recordings = from rec in recordingsList
-                                 where rec.Id == recordingId
-                                 select rec;
-                if (!recordings.IsNullOrEmpty()) foundRecording = recordings.First();
-                RecordingsListView.Focus();
-                RecordingsListView.SelectedItem = foundRecording;
-                RecordingsListView.ScrollIntoView(foundRecording);
+                if (selectedSession != null)
+                {
+                    var recordings = from rec in selectedSession.Recordings
+                                     where rec.Id == recordingId
+                                     select rec;
+                    if (!recordings.IsNullOrEmpty()) foundRecording = recordings.First();
+                    RecordingsListView.Focus();
+                    RecordingsListView.SelectedItem = foundRecording;
+                    RecordingsListView.ScrollIntoView(foundRecording);
+                }
 
                 if (segmentIndex >= 0)
                 {

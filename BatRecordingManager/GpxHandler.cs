@@ -104,7 +104,7 @@ namespace BatRecordingManager
             }
         }
 
-        public List<ValueTuple<decimal, decimal>> getAllTrackPoints(DateTime start = new DateTime(), TimeSpan? endTime = null)
+        public List<ValueTuple<decimal, decimal>> getAllTrackPoints(DateTime start = new DateTime(), DateTime end = new DateTime())
         {
             List<ValueTuple<decimal, decimal>> trackPointList = new List<ValueTuple<decimal, decimal>>();
             if (_gpxFileExists && _gpxData != null)
@@ -124,11 +124,7 @@ namespace BatRecordingManager
                         DateTime trkptTime = GetTrackPointTime(trkpt);
                         if (start.Ticks > 0L) // check for correct date
                         {
-                            if (start.Date != trkptTime.Date) continue;
-
-                            // so we have a valid date - now do we have a valid time
-                            if (trkptTime.TimeOfDay < start.TimeOfDay) continue; // track point earlier in the day
-                            if (endTime != null && trkptTime.TimeOfDay > endTime) continue; // track point after the end of session
+                            if (trkptTime < start || trkptTime >= end) continue;
                         }
 
                         var coords = GetGpsCoordinates(trkpt);
@@ -196,6 +192,25 @@ namespace BatRecordingManager
             }
 
             return result;
+        }
+
+        internal static bool IsValidLocation(decimal Latitude, decimal Longitude)
+        {
+            return (IsValidLocation((double)Latitude, (double)Longitude));
+        }
+
+        internal static bool IsValidLocation(double Latitude, double Longitude)
+        {
+            if (Latitude == 0.0d && Longitude == 0.0d) return (false);
+            if (Math.Abs(Latitude) > 90.0d) return (false);
+            if (Math.Abs(Longitude) > 180.0d) return (false);
+            return (true);
+        }
+
+        internal static bool IsValidLocation(GPSLocation m_Location)
+        {
+            if (m_Location == null) return (false);
+            return (IsValidLocation(m_Location.m_Latitude, m_Location.m_Longitude));
         }
 
         /// <summary>
