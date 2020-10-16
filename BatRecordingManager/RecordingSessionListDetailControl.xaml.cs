@@ -84,6 +84,8 @@ namespace BatRecordingManager
             //RecordingsListView.ItemsSource = displayedRecordingControls;
         }
 
+        public BulkObservableCollection<string> sessionSummaryList { get; set; } = new BulkObservableCollection<string>();
+
         public bool GenerateReportSet(object sender, RoutedEventArgs e)
         {
             bool doFullExport = false;
@@ -455,6 +457,27 @@ Mouse.OverrideCursor = null;*/
             }
         }
 
+        private async void DisplaySessionSummary(RecordingSession session)
+        {
+            var sessionSummary = await DisplaySessionSummaryAsync(session);
+
+            SessionSummaryStackPanel.Dispatcher.Invoke(
+                DispatcherPriority.Background,
+                new Action(() =>
+                {
+                    foreach (var item in sessionSummary)
+                    {
+                        //var batPassSummary = new BatPassSummaryControl { Content = item };
+                        sessionSummaryList.Add(item);
+                    }
+                }));
+        }
+
+        private Task<List<string>> DisplaySessionSummaryAsync(RecordingSession session)
+        {
+            return Task.Run(() => Tools.GetSessionSummary(session));
+        }
+
         private void EditRecordingSessionButton_Click(object sender, RoutedEventArgs e)
         {
             using (new WaitCursor("Set Recording session form data"))
@@ -673,7 +696,7 @@ Mouse.OverrideCursor = null;*/
                 SegmentImageScroller.Clear();
                 if (RecordingSessionControl.recordingSession == null)
                 {
-                    SessionSummaryStackPanel.Children.Clear();
+                    sessionSummaryList.Clear();
                     RecordingsListControl.selectedSession = null;
                     //displayedRecordings.Clear();
                     RecordingsListControl.selectedSession = null;
@@ -687,19 +710,21 @@ Mouse.OverrideCursor = null;*/
                     //BulkObservableCollection<BatStats> statsForSession = recordingSessionControl.recordingSession.GetStats();
                     RecordingsListControl.selectedSession = RecordingSessionControl.recordingSession;
                     //statsForSession = CondenseStatsList(statsForSession);
-                    SessionSummaryStackPanel.Children.Clear();
+                    sessionSummaryList.Clear();
                     //foreach (var batstat in statsForSession)
                     //{
                     //    BatPassSummaryControl batPassSummary = new BatPassSummaryControl();
                     //    batPassSummary.Content = Tools.GetFormattedBatStats(batstat, false);
                     //    SessionSummaryStackPanel.Children.Add(batPassSummary);
                     //}
-                    var sessionSummary = Tools.GetSessionSummary(RecordingSessionControl.recordingSession);
-                    foreach (var item in sessionSummary)
-                    {
-                        var batPassSummary = new BatPassSummaryControl { Content = item };
-                        SessionSummaryStackPanel.Children.Add(batPassSummary);
-                    }
+                    // var sessionSummary = Tools.GetSessionSummary(RecordingSessionControl.recordingSession);
+                    //foreach (var item in sessionSummary)
+                    //{
+                    //    var batPassSummary = new BatPassSummaryControl { Content = item };
+                    //    SessionSummaryStackPanel.Children.Add(batPassSummary);
+                    //}
+
+                    DisplaySessionSummary(RecordingSessionControl.recordingSession);
 
                     //displayedRecordings.Clear();
                     //displayedRecordings.AddRange(recordingSessionControl.recordingSession.Recordings);

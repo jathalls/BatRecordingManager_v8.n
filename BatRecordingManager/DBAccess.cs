@@ -1858,7 +1858,7 @@ namespace BatRecordingManager
         }
 
         internal static BulkObservableCollection<Bat> GetDescribedBats(string description, out string moddedDescription,
-            BracketedText extent = BracketedText.EXCLUDE)
+                    BracketedText extent = BracketedText.EXCLUDE)
         {
             var matchingBats = new BulkObservableCollection<Bat>();
             var bracketed = "";
@@ -2085,6 +2085,18 @@ namespace BatRecordingManager
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Given a sessionId returns the corresponding session on a new datacontext
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        internal static RecordingSession getIndependantSession(int id)
+        {
+            BatReferenceDBLinqDataContext ndc = GetDataContext();
+            RecordingSession session = ndc.RecordingSessions.Where(sess => sess.Id == id).SingleOrDefault();
+            return (session);
         }
 
         /// <summary>

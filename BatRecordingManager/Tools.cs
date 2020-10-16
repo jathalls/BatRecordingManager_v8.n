@@ -1137,8 +1137,14 @@ namespace BatRecordingManager
         /// <returns></returns>
         internal static List<string> GetSessionSummary(RecordingSession session)
         {
+            BulkObservableCollection<BatStats> statsForSession = new BulkObservableCollection<BatStats>();
+            session = DBAccess.getIndependantSession(session.Id);
             var result = new List<string>();
-            var statsForSession = session.GetStats();
+            lock (session)
+            {
+                statsForSession = session.GetStats();
+            }
+
             statsForSession = CondenseStatsList(statsForSession);
             foreach (var batStat in statsForSession)
             {

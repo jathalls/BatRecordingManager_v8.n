@@ -253,7 +253,12 @@
                         x:Name="RecordingSessionControl" />
                     <!-- Recording session control shows the session details /-->
 
-                    <StackPanel x:Name="SessionSummaryStackPanel" Orientation="Vertical" />
+                    <ListView
+                        x:Name="SessionSummaryStackPanel"
+                        ItemsSource="{Binding Path=sessionSummaryList}"
+                        Style="{StaticResource SimpleListView}"
+                        VerticalAlignment="Stretch"
+                        HorizontalAlignment="Stretch" />
                     <!-- session summary is populated by code when the session selection changes /-->
                 </StackPanel>
             </ScrollViewer>
