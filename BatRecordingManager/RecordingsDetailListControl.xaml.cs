@@ -161,43 +161,48 @@ namespace BatRecordingManager
             get => _selectedSession;
             set
             {
-                _selectedSession = value;
-                if (OffsetsButton != null)
+                if (value?.Id != _selectedSession?.Id)
                 {
-                    OffsetsButton.IsEnabled = false;
-                    Refresh();
-                    if (_selectedSession != null)
+                    _selectedSession = value;
+                    virtualRecordingsList = new AsyncVirtualizingCollection<Recording>(new RecordingsDataProvider(_selectedSession), 10, 100);
+
+                    if (OffsetsButton != null)
                     {
-                        if (_selectedSession.Sunset != null)
+                        OffsetsButton.IsEnabled = false;
+                        Refresh();
+                        if (_selectedSession != null)
                         {
-                            OffsetsButton.IsEnabled = true;
-                        }
-                        else
-                        {
-                            var sunset = SessionManager.CalculateSunset(value.SessionDate, value.LocationGPSLatitude,
-                                value.LocationGPSLongitude);
-                            _selectedSession.Sunset = sunset;
-                            if (sunset != null)
+                            if (_selectedSession.Sunset != null)
                             {
                                 OffsetsButton.IsEnabled = true;
                             }
                             else
                             {
-                                if (!value.Recordings.IsNullOrEmpty())
+                                var sunset = SessionManager.CalculateSunset(value.SessionDate, value.LocationGPSLatitude,
+                                    value.LocationGPSLongitude);
+                                _selectedSession.Sunset = sunset;
+                                if (sunset != null)
                                 {
-                                    var rec = value.Recordings.First();
-                                    if (!string.IsNullOrWhiteSpace(rec.RecordingGPSLatitude) &&
-                                        !string.IsNullOrWhiteSpace(rec.RecordingGPSLongitude))
+                                    OffsetsButton.IsEnabled = true;
+                                }
+                                else
+                                {
+                                    if (!value.Recordings.IsNullOrEmpty())
                                     {
-                                        if (decimal.TryParse(rec.RecordingGPSLatitude, out decimal lat) &&
-                                            decimal.TryParse(rec.RecordingGPSLongitude, out decimal longit))
+                                        var rec = value.Recordings.First();
+                                        if (!string.IsNullOrWhiteSpace(rec.RecordingGPSLatitude) &&
+                                            !string.IsNullOrWhiteSpace(rec.RecordingGPSLongitude))
                                         {
-                                            sunset = SessionManager.CalculateSunset(value.SessionDate, lat,
-                                                 longit);
-                                            if (sunset != null)
+                                            if (decimal.TryParse(rec.RecordingGPSLatitude, out decimal lat) &&
+                                                decimal.TryParse(rec.RecordingGPSLongitude, out decimal longit))
                                             {
-                                                _selectedSession.Sunset = sunset;
-                                                OffsetsButton.IsEnabled = true;
+                                                sunset = SessionManager.CalculateSunset(value.SessionDate, lat,
+                                                     longit);
+                                                if (sunset != null)
+                                                {
+                                                    _selectedSession.Sunset = sunset;
+                                                    OffsetsButton.IsEnabled = true;
+                                                }
                                             }
                                         }
                                     }
@@ -205,12 +210,12 @@ namespace BatRecordingManager
                             }
                         }
                     }
+                    else
+                    {
+                        Refresh();
+                    }
                 }
-                else
-                {
-                    Refresh();
-                }
-                RefreshData(5, 100);
+                //RefreshData(5, 100);
                 NotifyPropertyChanged(nameof(virtualRecordingsList));
             }
         }
@@ -1048,9 +1053,6 @@ namespace BatRecordingManager
                 if (RecordingsListView != null) oldIndex = RecordingsListView.SelectedIndex;
                 if (selectedSession != null)
                 {
-                    //recordingsList.Clear();
-                    //recordingsList.AddRange(DBAccess.GetRecordingsForSession(value));
-                    //recordingsList.AddRange(selectedSession.Recordings);
                     if (AddRecordingButton != null && DeleteRecordingButton != null && EditRecordingButton != null)
                     {
                         AddRecordingButton.IsEnabled = true;
@@ -1070,14 +1072,7 @@ namespace BatRecordingManager
                     }
                 }
 
-                if (RecordingsListView != null)
-                {
-                    RecordingsListView.SelectedIndex = oldIndex >= 0 && oldIndex < virtualRecordingsList.Count ? oldIndex : -1;
-                    //RecordingsListView.ItemsSource = recordingsList;
-                    //var view = CollectionViewSource.GetDefaultView(RecordingsListView.ItemsSource);
-                    //view?.Refresh();
-                }
-                RefreshData(5, 0);
+                RefreshData(10, 100);
                 NotifyPropertyChanged(nameof(virtualRecordingsList));
                 CreateSearchDialog();
             }
@@ -1094,7 +1089,14 @@ namespace BatRecordingManager
             using (new WaitCursor("Recordings_RefreshData"))
             {
                 var oldSelectionIndex = RecordingsListView.SelectedIndex;
-                virtualRecordingsList = new AsyncVirtualizingCollection<Recording>(new RecordingsDataProvider(selectedSession), pageSize, 100);
+                if (virtualRecordingsList == null)
+                {
+                    virtualRecordingsList = new AsyncVirtualizingCollection<Recording>(new RecordingsDataProvider(selectedSession), pageSize, 100);
+                }
+                else
+                {
+                    virtualRecordingsList.Refresh();
+                }
                 //virtualRecordingsList = new VirtualizingCollection<Recording>(new RecordingsProvider(selectedSession), pageSize, 100);
                 if (oldSelectionIndex >= 0 && oldSelectionIndex < virtualRecordingsList.Count)
                 {

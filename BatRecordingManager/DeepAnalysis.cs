@@ -122,7 +122,7 @@ namespace BatRecordingManager
         /// analysis of the pulse train therein.  The results are written to a .txt file for the time being.
         /// </summary>
         /// <param name="sel"></param>
-        internal bool AnalyseSegment(LabelledSegment sel)
+        internal bool AnalyseSegment(LabelledSegment sel, bool byZeroCrossing = false)
         {
             if (sel == null) return false;
             string file = sel.Recording.GetFileName();
@@ -150,7 +150,7 @@ namespace BatRecordingManager
                     alldata[i] = filter.Transform(alldata[i]);
                 }
 
-                AnalyseData(alldata);
+                AnalyseData(alldata, byZeroCrossing);
             }
             return true;
         }
@@ -296,7 +296,7 @@ namespace BatRecordingManager
         /// and generates the report.
         /// </summary>
         /// <param name="data"></param>
-        private void AnalyseData(List<float> data)
+        private void AnalyseData(List<float> data, bool byZeroCrossing = false)
         {
             //List<Spectrum> spectra = new List<Spectrum>();
             //int FFTOrder = 10;
@@ -429,21 +429,6 @@ namespace BatRecordingManager
         private Color Scale(double val)
         {
             double dbRange = 48.0d;
-            //var s = Math.Abs(20 * Math.Log10(Math.Abs(val)));
-            //if (double.IsNaN(s)) s = 0;
-            /*
-            var s = val - MinimumValue;
-            var range = MaximumValue - MinimumValue;
-            var proportion = s / range;
-            if (proportion > 1) proportion = 1.0d;
-            if (proportion < 0) proportion = 0.0d;
-            var value = 255 - (int)Math.Floor(proportion * 255);
-
-            var dval = Math.Floor(20.0d * (proportion == 0.0d ? 0.0d : Math.Log10(proportion*255.0d)));
-            var maxlog = 20.0d * Math.Log10(255);
-            proportion = dval / maxlog;
-            var level = (int)Math.Floor(255 * proportion);
-            value = 255-((level<=255 && level>=0)?level:0);*/
 
             int value;
             if (double.IsNaN(val) || double.IsInfinity(val))

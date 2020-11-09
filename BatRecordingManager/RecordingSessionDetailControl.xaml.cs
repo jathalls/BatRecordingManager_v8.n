@@ -36,6 +36,8 @@ namespace BatRecordingManager
             DataContext = this;
         }
 
+        public bool IsReadOnly { get; set; } = true;
+
         private void GPSLatitudeTextBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             GPSMapButton_Click(sender, new RoutedEventArgs());
@@ -51,6 +53,7 @@ namespace BatRecordingManager
 
             var mapWindow = new MapWindow(false) { MapControl = { coordinates = coordinates } };
             mapWindow.Show();
+            mapWindow.MapControl.AddPushPin(coordinates, recordingSession.SessionStartTime?.ToHMString() ?? "", 0);
             if (recordingSession?.Recordings != null && recordingSession.Recordings.Count > 0)
             {
                 var i = 0;
@@ -63,7 +66,7 @@ namespace BatRecordingManager
                                 if (rec.BatRecordingLinks != null && rec.BatRecordingLinks.Count > 0)
                                 {
                                     string batNames = rec.GetBatTags6();
-                                    mapWindow.MapControl.AddPushPin(new Location(latitude, longitude), batNames);
+                                    mapWindow.MapControl.AddPushPin(new Location(latitude, longitude), batNames, i);
                                 }
                 }
             }

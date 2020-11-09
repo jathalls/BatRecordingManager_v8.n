@@ -1,0 +1,17 @@
+﻿Class Weather
+	Weather()
+	getWeatherAsync
+		await {darksky}client.GetTimeMachineWeatherAsync(...)
+		return""
+
+	GetWeatherHistory(...)
+		GetWeatherHistoryAsync(...)
+		return""
+
+	GetWeatherHistoryAsync(...)
+		client=new DarkSkyService()
+		await client.GetTimeMachineWeatherAsync(...)
+		result=formatted forecst
+		OnWeatherReceived(result)
+		return""
+

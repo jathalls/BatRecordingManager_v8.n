@@ -58,7 +58,7 @@
                 <tk:DateTimePicker
                     x:Name="SessionStartDateTime"
                     Background="{StaticResource WindowBackgroundBrushLight}"
-                    
+
                     MinWidth="200"
                     IsReadOnly="False"
                     MinimumDate="01/01/1950 01:01:00" />
@@ -70,10 +70,9 @@
                     x:Name="SessionEndDateTime"
                     MinWidth="200"
                     Background="{StaticResource WindowBackgroundBrushLight}"
-                    
+
                     IsReadOnly="False"
                     MinimumDate="01/01/1950 01:01:00" />
-
             </StackPanel>
 
             <Label
@@ -140,7 +139,7 @@
 
                 Background="{StaticResource WindowBackgroundBrushLight}"
                 Grid.Row="6" Grid.Column="1" IsEditable="True"
-                ToolTip="Select a known location from the list or type in a new name for this site" />
+                ToolTip="Select a known location from the list or type in a new name for this site" SelectionChanged="LocationComboBox_SelectionChanged" />
 
             <Label
                 Style="{StaticResource SimpleLabel}"
@@ -173,18 +172,20 @@
                 Grid.Row="8" Grid.Column="0" Content="Weather" Style="{StaticResource SimpleLabel}" />
             <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal">
                 <TextBox
-                    
+
                     IsReadOnly="False"
                     Style="{StaticResource SimpleTextBox}"
                     HorizontalAlignment="Stretch"
-                    Width="{Binding ElementName=LocationComboBox, Path=ActualWidth, Converter={StaticResource AddValueConverter}, ConverterParameter = -55}"
+                     Width="{Binding ElementName=LocationComboBox, Path=ActualWidth, Converter={StaticResource AddValueConverter}, ConverterParameter = -55}"
+
                     x:Name="WeatherTextBox" ScrollViewer.CanContentScroll="True" />
+                <!-- -->
                 <Button
                     x:Name="WeatherButton"
                     Style="{StaticResource SimpleButton}"
                     Width="50"
-                    ToolTip="Gets weather history from DarkSky. SHIFT-Click to append Dark-Sky weather summary"
-                    Content="Get" Click="WeatherButton_Click"  />
+                    ToolTip="Gets weather history from DarkSky for mid-session. SHIFT-Click to append Dark-Sky weather summary"
+                    Content="Get" Click="WeatherButton_Click" />
             </StackPanel>
             <Label
                 Grid.Row="9" Grid.Column="0" Content="Temperature:-" Style="{StaticResource SimpleLabel}" />

@@ -6,30 +6,23 @@ using System.Threading.Tasks;
 
 namespace BatRecordingManager
 {
-    class Weather
+    public class weatherEventArgs : EventArgs
+    {
+        public readonly string summary;
+
+        public weatherEventArgs(string summary)
+        {
+            this.summary = summary;
+        }
+    }
+
+    internal class Weather
     {
         public Weather()
         {
-
         }
 
-
-        public static async Task<string> getWeatherAsync()
-        {
-
-            //var it = GetWeatherHistoryAsync(51, -.1, DateTime.Now);
-
-            string result = "";
-            string key = APIKeys.DarkSkyApiKey;
-            var client = new DarkSkyService(key);
-
-            Forecast fr =
-                await client.GetTimeMachineWeatherAsync(51.899066d, -0.178946d, new DateTime(2015, 8, 15, 20, 30, 00),
-                    Unit.UK2);
-            float temp = fr.Currently.Temperature;
-            Debug.WriteLine(temp);
-            return (result);
-        }
+        public event EventHandler<weatherEventArgs> weatherReceived;
 
         public string GetWeatherHistory(double lat, double longit, DateTime when)
         {
@@ -43,13 +36,10 @@ namespace BatRecordingManager
             }
 
             return ("");
-
         }
 
-
-        public async Task<string> GetWeatherHistoryAsync(double Latitude, double Longitude, DateTime when)
+        public async void GetWeatherHistoryAsync(double Latitude, double Longitude, DateTime when)
         {
-            string result = "";
             string key = APIKeys.DarkSkyApiKey;
             if (!string.IsNullOrWhiteSpace(key))
             {
@@ -60,7 +50,7 @@ namespace BatRecordingManager
                 }
                 catch (Exception)
                 {
-                    return (result);
+                    return;
                 }
 
                 if (client != null)
@@ -71,26 +61,20 @@ namespace BatRecordingManager
                             await client.GetTimeMachineWeatherAsync(Latitude, Longitude, when, Unit.UK2);
                         if (forecast != null)
                         {
-
-                            result =
-                                $"Provided By DarkSky:- {forecast.Currently.Summary}, t={forecast.Currently.Temperature}C, Cloud={forecast.Currently.CloudCover}, Wind={forecast.Currently.WindSpeed} mph";
+                            var result =
+                                $"Provided By DarkSky:- {forecast.Currently.Summary}, t={forecast.Currently.Temperature}C, Cloud={forecast.Currently.CloudCover}, Wind={forecast.Currently.WindSpeed} mph at {when.TimeOfDay.ToString()} on {when.Date.ToShortDateString()}";
                             OnWeatherReceived(new weatherEventArgs(result));
                         }
                     }
                     catch (Exception)
                     {
-
-                        return result;
+                        return;
                     }
-
                 }
             }
 
-
-            return (result);
+            return;
         }
-
-        public event EventHandler<weatherEventArgs> weatherReceived;
 
         protected virtual void OnWeatherReceived(weatherEventArgs e)
         {
@@ -99,21 +83,5 @@ namespace BatRecordingManager
                 weatherReceived(this, e);
             }
         }
-
-
     }
-
-    public class weatherEventArgs : EventArgs
-    {
-        public readonly string summary;
-
-        public weatherEventArgs(string summary)
-        {
-            this.summary = summary;
-        }
-    }
-
 }
-
-
-

@@ -693,13 +693,12 @@ Mouse.OverrideCursor = null;*/
                 //RecordingsListControl.Refresh();
                 var id = (RecordingSessionListView.SelectedItems[0] as RecordingSessionData).Id;
                 RecordingSessionControl.recordingSession = DBAccess.GetRecordingSession(id);
+                RecordingsListControl.selectedSession = RecordingSessionControl.recordingSession;
+                //statsForSession = CondenseStatsList(statsForSession);
+                sessionSummaryList.Clear();
                 SegmentImageScroller.Clear();
                 if (RecordingSessionControl.recordingSession == null)
                 {
-                    sessionSummaryList.Clear();
-                    RecordingsListControl.selectedSession = null;
-                    //displayedRecordings.Clear();
-                    RecordingsListControl.selectedSession = null;
                     ExportSessionDataButton.IsEnabled = false;
                     EditRecordingSessionButton.IsEnabled = false;
                     DeleteRecordingSessionButton.IsEnabled = false;
@@ -708,9 +707,7 @@ Mouse.OverrideCursor = null;*/
                 else
                 {
                     //BulkObservableCollection<BatStats> statsForSession = recordingSessionControl.recordingSession.GetStats();
-                    RecordingsListControl.selectedSession = RecordingSessionControl.recordingSession;
-                    //statsForSession = CondenseStatsList(statsForSession);
-                    sessionSummaryList.Clear();
+
                     //foreach (var batstat in statsForSession)
                     //{
                     //    BatPassSummaryControl batPassSummary = new BatPassSummaryControl();
@@ -724,7 +721,7 @@ Mouse.OverrideCursor = null;*/
                     //    SessionSummaryStackPanel.Children.Add(batPassSummary);
                     //}
 
-                    DisplaySessionSummary(RecordingSessionControl.recordingSession);
+                    DisplaySessionSummary(RecordingSessionControl.recordingSession); // runs asynchronously
 
                     //displayedRecordings.Clear();
                     //displayedRecordings.AddRange(recordingSessionControl.recordingSession.Recordings);

@@ -712,6 +712,25 @@ namespace BatRecordingManager
         }
 
         /// <summary>
+        /// Given a pair of decimal? checks to see if these represent a valid GPS location
+        /// which is not 0,0
+        /// </summary>
+        /// <param name="locationGPSLatitude"></param>
+        /// <param name="locationGPSLongitude"></param>
+        /// <returns></returns>
+        internal static bool IsValidLocation(decimal? locationGPSLatitude, decimal? locationGPSLongitude)
+        {
+            if (locationGPSLatitude == null || locationGPSLongitude == null) return false;
+
+            if (Math.Abs(locationGPSLatitude.Value) > 90.0m) return false;
+            if (Math.Abs(locationGPSLongitude.Value) > 180.0m) return false;
+
+            if (locationGPSLatitude.Value == 0.0m && locationGPSLongitude.Value == 0.0m) return false;
+
+            return (true);
+        }
+
+        /// <summary>
         ///     Converts a string in the format "blah nn.nnnnn,N,mmm.mmmmm,W[,alt]
         ///     into a latitude and longitude pair in the form of doubles
         /// </summary>

@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:BatRecordingManager"
              xmlns:tk="clr-namespace:UniversalToolkit;assembly=UniversalToolkit"
              mc:Ignorable="d"
-             Width="800" Height="500">
+             Width="800" Height="400">
 
     <Grid Background="{StaticResource WindowBackgroundBrush}">
 
@@ -23,17 +23,17 @@
                 <ColumnDefinition Width="119*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="25" />
-                <RowDefinition Height="25" />
-                <RowDefinition Height="25" />
-                <RowDefinition Height="25" />
-                <RowDefinition Height="25" />
-                <RowDefinition Height="25" />
-                <RowDefinition Height="25" />
-                <RowDefinition Height="25" />
-                <RowDefinition Height="25" />
-                <RowDefinition Height="25" />
-                <RowDefinition Height="25*" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="20*" />
             </Grid.RowDefinitions>
             <Label
                 Style="{StaticResource SimpleLabel}"
@@ -57,9 +57,7 @@
                     Background="{StaticResource WindowBackgroundBrushLight}"
                     MinWidth="200"
                     IsReadOnly="True"
-                    IsEnabled="true"
-                    
-                     />
+                    IsEnabled="true" />
                 <Label
                     Content="End:-  "
                     Margin="10,0,0,0"
@@ -70,7 +68,6 @@
                     Background="{StaticResource WindowBackgroundBrushLight}"
                     IsReadOnly="True"
                     MinimumDate="01/01/1950 01:01:00" />
-
             </StackPanel>
 
             <Label
@@ -92,9 +89,7 @@
 
                     HorizontalAlignment="Stretch"
                     IsReadOnly="True"
-                    Text="{Binding Path=recordingSession.OriginalFilePath}" MinWidth="200" >
-                    
-                    
+                    Text="{Binding Path=recordingSession.OriginalFilePath}" MinWidth="200">
                 </TextBox>
                 <!--<TextBox Foreground="{Binding Text, ElementName=FolderTextBox,  Converter={StaticResource FilePathBrushConverter}}"></TextBox>-->
             </StackPanel>

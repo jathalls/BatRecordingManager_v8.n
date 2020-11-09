@@ -3125,9 +3125,16 @@ namespace BatRecordingManager
         {
             try
             {
-                // Here's where you put the code do handle the value conversion.
+                double? dValue = value as double?;
+                // Here's where you put the code to handle the value conversion.
                 double.TryParse(parameter as string, out var factor);
-                return (double)value + factor;
+                if (double.IsNaN(dValue ?? double.NaN) || (dValue ?? 0.0d) < 0.0d)
+                {
+                    dValue = 0.0d;
+                }
+                var result = (double)(dValue ?? 0.0d) + factor;
+                if (result < 0.0d) result = 0.0d;
+                return (result);
             }
             catch
             {

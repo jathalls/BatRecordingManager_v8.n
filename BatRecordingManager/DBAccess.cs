@@ -1858,7 +1858,7 @@ namespace BatRecordingManager
         }
 
         internal static BulkObservableCollection<Bat> GetDescribedBats(string description, out string moddedDescription,
-                    BracketedText extent = BracketedText.EXCLUDE)
+                            BracketedText extent = BracketedText.EXCLUDE)
         {
             var matchingBats = new BulkObservableCollection<Bat>();
             var bracketed = "";
@@ -1928,6 +1928,32 @@ namespace BatRecordingManager
         {
             if (_persistentbatReferenceDataContext != null) return _persistentbatReferenceDataContext;
             return GetDataContext();
+        }
+
+        /// <summary>
+        /// Given a location string, looks for the first session using that location string and returns its GPS location
+        /// skips any sessions that have the same string but no GPS
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        internal static GPSLocation GetGPSForLocation(string text)
+        {
+            GPSLocation result = null;
+            BatReferenceDBLinqDataContext dc = GetFastDataContext();
+            var sessionsAtLocation = from sess in dc.RecordingSessions
+                                     where sess.Location == text
+                                     select sess;
+            if (!sessionsAtLocation.IsNullOrEmpty())
+            {
+                foreach (var sess in sessionsAtLocation)
+                {
+                    if (sess.hasGPSLocation)
+                    {
+                        result = new GPSLocation((double)(sess.LocationGPSLatitude ?? 200), (double)(sess.LocationGPSLongitude ?? 200));
+                    }
+                }
+            }
+            return (result);
         }
 
         internal static StoredImage GetImage(StoredImage existingImage)

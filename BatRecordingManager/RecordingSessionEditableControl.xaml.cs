@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,11 +29,6 @@ namespace BatRecordingManager
     /// </summary>
     public partial class RecordingSessionEditableControl : UserControl
     {
-        private readonly BulkObservableCollection<string> _equipmentList = new BulkObservableCollection<string>();
-        private readonly BulkObservableCollection<string> _locationList = new BulkObservableCollection<string>();
-        private readonly BulkObservableCollection<string> _microphoneList = new BulkObservableCollection<string>();
-        private readonly BulkObservableCollection<string> _operatorList = new BulkObservableCollection<string>();
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="RecordingSessionEditableControl" /> class.
         /// </summary>
@@ -81,11 +76,60 @@ namespace BatRecordingManager
             return result;
         }
 
+        private readonly BulkObservableCollection<string> _equipmentList = new BulkObservableCollection<string>();
+        private readonly BulkObservableCollection<string> _locationList = new BulkObservableCollection<string>();
+        private readonly BulkObservableCollection<string> _microphoneList = new BulkObservableCollection<string>();
+        private readonly BulkObservableCollection<string> _operatorList = new BulkObservableCollection<string>();
+        private bool appendWeather = false;
+
         private void FolderBrowseButton_Click(object sender, RoutedEventArgs e)
         {
             var fileBrowser = new FileBrowser();
             fileBrowser.SelectHeaderTextFile();
             FolderTextBox.Text = fileBrowser.WorkingFolder;
+        }
+
+        /// <summary>
+        /// finds a time for the weather forecast, on the first day of the session and half way between the start
+        /// and end times if a single day session, or halfway between the start time and midnight if a multiday
+        /// session.  uses 21:00 if there is insufficient date aand time information in the session.
+        /// </summary>
+        /// <param name="recordingSession"></param>
+        /// <returns></returns>
+        private TimeSpan getMidSessionTime(RecordingSession session)
+        {
+            TimeSpan result = new TimeSpan(21, 0, 0); // default value if all else fails.
+            var startDate = session.SessionDate.Date;
+            var startTime = session.SessionStartTime ?? session.SessionDate.TimeOfDay;
+            if (startTime.Hours < 12)
+            {
+                // we dont have a valid start time, so try to guess at something reasonable
+                if (session.Sunset == null)
+                {
+                    SunsetCalcButton_Click(this, new RoutedEventArgs());
+                }
+                if (session.Sunset != null && session.Sunset.Value.Hours > 12)
+                {
+                    startTime = session.Sunset.Value; // first guess is to use sunset
+                }
+                else
+                {
+                    startTime = new TimeSpan(18, 0, 0); // second guess is to use 18:00 hours
+                }
+            }
+
+            var endDate = session.SessionEnd.Date;
+            TimeSpan endTime = TimeSpan.FromMinutes(1440);
+            if (endDate <= startDate)
+            {// we have a single day session
+                if (session.SessionEndTime != null && session.SessionEndTime.Value > startTime)
+                {
+                    endTime = session.SessionEndTime.Value;
+                }
+            }
+
+            TimeSpan weatherTime = TimeSpan.FromMinutes((startTime.TotalMinutes + endTime.TotalMinutes) / 2);
+            return weatherTime;
         }
 
         private void GPSLatitudeTextBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -137,7 +181,6 @@ namespace BatRecordingManager
 
                     mapWindow.MapControl.ThisMap.Center = oldLocation;
                     mapWindow.MapControl.AddPushPin(oldLocation);
-
                 }
             }
 
@@ -151,6 +194,38 @@ namespace BatRecordingManager
                     recordingSession.LocationGPSLongitude = (decimal)lastSelectedLocation.Longitude;
                     //GpsLatitudeTextBox.Text = lastSelectedLocation.Latitude.ToString();
                     //GpsLongitudeTextBox.Text = lastSelectedLocation.Longitude.ToString();
+                }
+            }
+        }
+
+        private void LocationComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(LocationComboBox.Text))
+            {
+                string newloc = "";
+                if (e.AddedItems.Count > 0) newloc = (string)e.AddedItems[0];
+                string oldloc = "";
+                if (e.RemovedItems.Count > 0) oldloc = (string)e.RemovedItems[0];
+                if (string.IsNullOrWhiteSpace(newloc) || newloc == oldloc)
+                {
+                    return;
+                }
+
+                if (!string.IsNullOrWhiteSpace(GpsLatitudeTextBox.Text) && GpsLatitudeTextBox.Text != "0" &&
+                    !string.IsNullOrWhiteSpace(GpsLongitudeTextBox.Text) && GpsLongitudeTextBox.Text != "0")
+                {
+                    // we already have a valid GPS location defined
+                    return;
+                }
+
+                if (_locationList.Contains(newloc))
+                {
+                    GPSLocation gpsLocation = DBAccess.GetGPSForLocation(newloc);
+                    if (gpsLocation != null)
+                    {
+                        GpsLatitudeTextBox.Text = gpsLocation.m_Latitude.ToString();
+                        GpsLongitudeTextBox.Text = gpsLocation.m_Longitude.ToString();
+                    }
                 }
             }
         }
@@ -267,7 +342,9 @@ namespace BatRecordingManager
                         MicrophoneComboBox.Text = value.Microphone;
                         MicrophoneComboBox.SelectedItem = value.Microphone;
 
-                        LocationComboBox.ItemsSource = DBAccess.GetLocationList();
+                        _locationList.Clear();
+                        _locationList.AddRange(DBAccess.GetLocationList());
+                        LocationComboBox.ItemsSource = _locationList;
                         LocationComboBox.Text = value.Location;
                         LocationComboBox.SelectedItem = value.Location;
 
@@ -277,6 +354,18 @@ namespace BatRecordingManager
 
                         GpsLatitudeTextBox.Text = (value.LocationGPSLatitude ?? 0.0m).ToString();
                         GpsLongitudeTextBox.Text = (value.LocationGPSLongitude ?? 0.0m).ToString();
+
+                        if (string.IsNullOrWhiteSpace(GpsLatitudeTextBox.Text) || string.IsNullOrWhiteSpace(GpsLongitudeTextBox.Text) || !GPSLocation.IsValidLocation(value.LocationGPSLatitude, value.LocationGPSLongitude))
+                        {
+                            if (!string.IsNullOrWhiteSpace(value.Location) && _locationList.Contains(value.Location))
+                            {
+                                var gpsLocation = DBAccess.GetGPSForLocation(value.Location);
+                                value.LocationGPSLatitude = (decimal)gpsLocation.m_Latitude;
+                                value.LocationGPSLongitude = (decimal)gpsLocation.m_Longitude;
+                                GpsLatitudeTextBox.Text = value.LocationGPSLatitude.ToString();
+                                GpsLongitudeTextBox.Text = value.LocationGPSLongitude.ToString();
+                            }
+                        }
 
                         SessionNotesRichtextBox.Text = value.SessionNotes;
 
@@ -372,8 +461,6 @@ namespace BatRecordingManager
 
         #endregion selectedFolder
 
-        private bool appendWeather = false;
-
         private void WeatherButton_Click(object sender, RoutedEventArgs e)
         {
             if (!recordingSession.hasGPSLocation) return;
@@ -388,11 +475,12 @@ namespace BatRecordingManager
 
             Weather weather = new Weather();
             weather.weatherReceived += Weather_weatherReceived;
+            TimeSpan weatherTime = getMidSessionTime(recordingSession);
+
+            DateTime weatherDateTime = recordingSession.SessionDate.Date + weatherTime;
 
             var res = weather.GetWeatherHistory((double)recordingSession.LocationGPSLatitude,
-                (double)recordingSession.LocationGPSLongitude, recordingSession.SessionDate.Date + (recordingSession.SessionStartTime ?? new TimeSpan(20, 0, 0)));
-
-
+                (double)recordingSession.LocationGPSLongitude, weatherDateTime);
         }
     }
 }

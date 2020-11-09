@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Dynamic;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,367 +18,24 @@ namespace BatRecordingManager
     /// </summary>
     public partial class AppFilter : UserControl
     {
-        private IEnumerable<string> _parentFileList;
-
-        private List<string> _filteredFileList;
-
-        private List<string> _errors = new List<string>();
-
-        /// <summary>
-        /// Name of the parent folder holding files to be filtered
-        /// </summary>
-        #region _parentFolderPath
-
-        /// <summary>
-        /// _parentFolderPath Dependency Property
-        /// </summary>
-        public static readonly DependencyProperty _parentFolderPathProperty =
-            DependencyProperty.Register("_parentFolderPath", typeof(string), typeof(AppFilter),
-                new FrameworkPropertyMetadata(""));
-
-        /// <summary>
-        /// Gets or sets the _parentFolderPath property.  This dependency property 
-        /// indicates ....
-        /// </summary>
-        public string _parentFolderPath
-        {
-            get { return (string)GetValue(_parentFolderPathProperty); }
-            set { SetValue(_parentFolderPathProperty, value); }
-        }
-
-        #endregion
-
-
-        //public String _parentFolderPath { get; set; } = "";
-
-        public string _defaultSubFolderName { get; set; }
-
-        /// <summary>
-        /// cumulative status string which is bound to statusTextBlock.text
-        /// </summary>
-        //public string statusText { get; set; } = "";
-        #region statusText
-
-        /// <summary>
-        /// statusText Dependency Property
-        /// </summary>
-        public static readonly DependencyProperty statusTextProperty =
-            DependencyProperty.Register("statusText", typeof(string), typeof(AppFilter),
-                new FrameworkPropertyMetadata(""));
-
-        /// <summary>
-        /// Gets or sets the statusText property.  This dependency property 
-        /// indicates ....
-        /// </summary>
-        public string statusText
-        {
-            get { return (string)GetValue(statusTextProperty); }
-            set { SetValue(statusTextProperty, value); }
-        }
-
-        #endregion
-
-
-
         public AppFilter()
         {
             InitializeComponent();
             DataContext = this;
+            keywordList.Add("Unknown");
+            keywordList.Add("Unsure");
+            keywordList.Add("Uncertain");
+            keywordList.Add("Not Known");
+            keywordList.Add("Query");
+            keywordList.Add("???");
+            keywordList.Add("<EMPTY>");
         }
 
-        public void SetDefaultFolderPath(string folderPath)
-        {
+        ///OKClicked eventhandler
+        public event EventHandler<CloseClickedEventArgs> CloseClicked;
 
-            if (!string.IsNullOrWhiteSpace(folderPath))
-            {
-                if (!folderPath.EndsWith(@"\"))
-                {
-                    folderPath += @"\";
-                }
-                if (Directory.Exists(folderPath))
-                {
-                    _parentFolderPath = folderPath;
-                    _defaultSubFolderName = _parentFolderPath + @"Filtered\";
-                    _parentFileList = Directory.EnumerateFiles(_parentFolderPath, "*.wav");
-                }
-                else
-                {
-                    _parentFolderPath = "";
-                    _defaultSubFolderName = "";
-                    _parentFileList = (new List<string>()).AsEnumerable();
-                }
-            }
-            else
-            {
-                _parentFolderPath = "";
-                _defaultSubFolderName = "";
-                _parentFileList = (new List<string>()).AsEnumerable();
-            }
-            _filteredFileList = new List<string>();
-            statusText += $"Set parent folder to {_parentFolderPath}\n";
-        }
-
-        private void AppFilterSelectFolderButton_Click(object sender, RoutedEventArgs e)
-        {
-            string FolderPath = Tools.SelectWavFileFolder("");
-            if (string.IsNullOrWhiteSpace(FolderPath) || !Directory.Exists(FolderPath))
-            {
-                _ = MessageBox.Show($"Directory not found, unable to search", "Directory not found", MessageBoxButton.OK);
-                return;
-            }
-            SetDefaultFolderPath(FolderPath);
-            //_parentFileList = Directory.EnumerateFiles(_parentFolderPath, "*.wav");
-            //AppFilterFolderText.Text = _parentFolderPath;
-
-
-        }
-
-        private void ApplyButton_Click(object sender, RoutedEventArgs e)
-        {
-            _errors = new List<string>();
-            string destination = _defaultSubFolderName;
-            Debug.WriteLine("Extract...");
-            if (string.IsNullOrWhiteSpace(_parentFolderPath))
-            {
-                statusText += $"Extract Failed - parent folder is <{_parentFolderPath}>\n";
-                return;       // no folder selected for filtering yet
-            }
-            if (!Directory.Exists(_parentFolderPath))
-            {
-                statusText += $"Extract Failed - parent folder {_parentFolderPath} does not exist\n";
-                return;               // selected folder doesn't exist
-            }
-
-            if (_parentFileList == null || !_parentFileList.Any())
-            {
-                statusText += $"Extract Failed - No files in the parent folder {_parentFolderPath}\n";
-                return;  // no .wav files in the selected folder
-            }
-            if (!_parentFolderPath.EndsWith(@"\")) _parentFolderPath += @"\";
-
-
-
-            _defaultSubFolderName = _parentFolderPath + @"Filtered\";
-            if (!Directory.Exists(_defaultSubFolderName))
-            {
-                Debug.WriteLine("no default so transfer all to " + _defaultSubFolderName);
-                //TransferFilteredFiles(); // will create _defaultSubFolderName
-                //return;
-            }
-
-            else if (!Directory.EnumerateFiles(_defaultSubFolderName).Any())
-            {
-                Debug.WriteLine("default empty so transfer all to " + _defaultSubFolderName);
-                //TransferFilteredFiles(); // no existing files to deal with
-                //return;
-            }
-            // if here, the sub-folder exists and has files in it
-            else if (AppFilterNewFolder.IsChecked ?? false)
-            {
-
-                // new folder box ticked, so ignore existing folder or folders and create a new one to take the new files
-                string newSubFolderName = CreateNewSubFolder();
-                Debug.WriteLine($"make a new folder <{newSubFolderName}>");
-                if (string.IsNullOrWhiteSpace(newSubFolderName))
-                {
-                    return;
-                }
-                destination = newSubFolderName;
-                Debug.WriteLine("... and transfer files to " + newSubFolderName);
-                //TransferFilteredFiles(newSubFolderName);
-                //return;
-
-            }
-            else
-            {
-                // if here there is an existing sub-folder and the new files are to be merged with it after re-merging existing files to the database
-                Debug.WriteLine("Restore first, then transfer files");
-                int NumberOfFilesRestored = RestoreFilteredFiles(_defaultSubFolderName);
-                statusText += $"Restored {NumberOfFilesRestored} from {_defaultSubFolderName} Prior to extraction\n";
-            }
-            if (Directory.Exists(_parentFolderPath)) _parentFileList = Directory.EnumerateFiles(_parentFolderPath, "*.wav");
-            _filteredFileList = ApplyFilter(_parentFileList);                                                  // run the filter
-            if (_filteredFileList == null || !_filteredFileList.Any())
-            {
-                statusText += $"No files extracted - No files matched the filter\n";
-                return; // no files returned by the filter
-            }
-
-            int numberOfFiles = TransferFilteredFiles(destination);
-            statusText += $"Extracted {numberOfFiles} files to {destination}\n";
-
-
-
-        }
-
-        /// <summary>
-        /// Locates any files in the designated folder which no longer contain any of the keywords
-        /// and remerge them into the original folder, updating the database at the same time
-        /// </summary>
-        private int RestoreFilteredFiles(string filteredFileFolderName)
-        {
-            _errors = new List<string>();
-            List<string> filesToRestore = unFilterFiles(filteredFileFolderName);
-            foreach (string file in filesToRestore ?? new List<string>())
-            {
-                RestoreFile(file);
-            }
-            return (filesToRestore.Count);
-        }
-
-        /// <summary>
-        /// moves the specified file back to the parent folder along with any associated .txt sidecar file,
-        /// and either enters it into the database or updates the database with the revised notations
-        /// </summary>
-        /// <param name="file"></param>
-        private void RestoreFile(string file)
-        {
-            TransferFile(file, _parentFolderPath, true);
-            string txtFileName = ChangeExtensionToTxt(file);
-            if (File.Exists(txtFileName))
-            {
-                TransferFile(txtFileName, _parentFolderPath, true);
-            }
-
-            UpdateDatabase(_parentFolderPath + Tools.ExtractWavFilename(file));
-        }
-
-        /// <summary>
-        /// Given the fully qualified path and name of a .wav file, (which may contain embedded
-        /// WAMD/GUIANO data or have an associated .txt sidecar file), updates the database to
-        /// include that file.  If the database already contains a record for the file then that
-        /// record is updated.  If not, then the file data is added to a session which uses the same
-        /// folder path.  If that cannot be found then a new session form is presented.
-        /// </summary>
-        /// <param name="v"></param>
-        private void UpdateDatabase(string wavFile)
-        {
-            RecordingSession existingSession = null;
-            if (string.IsNullOrWhiteSpace(wavFile)) return;
-            if (!File.Exists(wavFile)) return;
-            Recording existingRecording = DBAccess.GetRecordingForWavFile(wavFile);
-            if (existingRecording == null)
-            {
-
-                existingSession = DBAccess.GetRecordingSessionForWavFile(wavFile);
-            }
-            else
-            {
-                existingSession = existingRecording.RecordingSession;
-            }
-
-            if (existingSession == null)
-            {
-
-                existingSession = SessionManager.CreateSession(Tools.GetPath(wavFile));// creates a session with a new tag, opens for edit and saves it
-            }
-            existingSession.ImportWavFile(wavFile);
-        }
-
-        /// <summary>
-        /// Identifies a list of all files in the specified folder which do not contain
-        /// any of the keywords
-        /// </summary>
-        /// <param name="filteredFileFolderName"></param>
-        /// <returns></returns>
-        private List<string> unFilterFiles(string filteredFileFolderName)
-        {
-            List<string> selectedFiles = new List<string>();
-            var filesInFolder = Directory.EnumerateFiles(filteredFileFolderName, "*.wav");
-            var filteredFiles = ApplyFilter(filesInFolder.AsEnumerable());
-            foreach (var file in filesInFolder)
-            {
-                if (!filteredFiles.Contains(file))
-                {
-                    selectedFiles.Add(file);
-                }
-            }
-
-            return (selectedFiles);
-        }
-
-        /// <summary>
-        /// Creates a new filtered sub-folder with a unique name derived from Filtered
-        /// </summary>
-        /// <returns></returns>
-        private string CreateNewSubFolder()
-        {
-            string folderName = _defaultSubFolderName;
-            int suffix = 1;
-            while (Directory.Exists(folderName))
-            {
-                if (_defaultSubFolderName.EndsWith(@"\"))
-                {
-                    _defaultSubFolderName = _defaultSubFolderName.Substring(0, _defaultSubFolderName.Length - 1);
-                }
-                folderName = _defaultSubFolderName + suffix.ToString() + @"\";
-                suffix++;
-                if (suffix > 100)
-                {
-                    var response =
-                        MessageBox.Show(
-                            "Over 100 filtered sub-folders is getting a bit silly. Do you wish to continue?",
-                            "Excessive Sub-Folders", MessageBoxButton.YesNo);
-                    if (response == MessageBoxResult.No)
-                    {
-                        return ("");
-                    }
-                }
-            }
-
-            return (folderName);
-        }
-
-        /// <summary>
-        /// Copies or Moves (depending on the checkbox state) all the fles in the filtered file list
-        /// from the parent folder to the sub-folder
-        /// </summary>
-        private int TransferFilteredFiles(string newSubFolderName)
-        {
-
-            bool move = AppFilterMoveFiles.IsChecked ?? false;
-            if (!Directory.Exists(newSubFolderName))
-            {
-                Directory.CreateDirectory(newSubFolderName);
-            }
-            renameExistingFilesToBak(newSubFolderName);
-            deleteWavFiles(newSubFolderName);
-            int filesTransferred = 0;
-            foreach (string file in _filteredFileList)
-            {
-                TransferFile(file, newSubFolderName, move);
-                string txtFileName = ChangeExtensionToTxt(file);
-                if (File.Exists(txtFileName))
-                {
-                    TransferFile(txtFileName, newSubFolderName, move);
-
-                }
-                filesTransferred++;
-            }
-            return (filesTransferred);
-        }
-
-        private void deleteWavFiles(string newSubFolderName)
-        {
-            var files = Directory.EnumerateFiles(newSubFolderName, "*.wav");
-            foreach (var file in files)
-            {
-                File.Delete(file);
-            }
-        }
-
-        private void renameExistingFilesToBak(string newSubFolderName)
-        {
-            var files = Directory.EnumerateFiles(newSubFolderName, "*.wav");
-            foreach (var file in files)
-            {
-                if (File.Exists(file + ".bak"))
-                {
-                    File.Delete(file + ".bak");
-                }
-                File.Move(file, file + ".bak");
-            }
-        }
+        public string _defaultSubFolderName { get; set; }
+        public ObservableCollection<string> keywordList { get; set; } = new ObservableCollection<string>();
 
         /// <summary>
         /// Copies or moves, depending on move flag, the specified file to the specified folder
@@ -400,7 +59,6 @@ namespace BatRecordingManager
             }
             if (move)
             {
-
                 File.Move(file, destination);
             }
             else
@@ -409,15 +67,6 @@ namespace BatRecordingManager
             }
             File.SetCreationTime(destination, created);
             File.SetLastWriteTime(destination, written);
-        }
-
-        /// <summary>
-        /// Copies or Moves (depending on the checkbox state) all the fles in the filtered file list
-        /// from the parent folder to the sub-folder
-        /// </summary>
-        private int TransferFilteredFiles()
-        {
-            return (TransferFilteredFiles(_defaultSubFolderName));
         }
 
         /// <summary>
@@ -435,8 +84,6 @@ namespace BatRecordingManager
             string parentFolderPath = Tools.GetPath(parentFileList.First());
             using (new WaitCursor())
             {
-
-
                 foreach (var fileName in parentFileList)
                 {
                     if (!File.Exists(fileName)) continue;
@@ -444,7 +91,7 @@ namespace BatRecordingManager
                     if (comments == null) continue;
                     if (ContainsKeywords(comments))
                     {
-                        Debug.WriteLine($"<{comments}> contains a keyword fomr fileName");
+                        Debug.WriteLine($"<{comments}> in {fileName} contains a keyword");
                         filteredFileList.Add(fileName);
                     }
                     else
@@ -479,34 +126,14 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        /// Searches the supplied text for any of the keywords listed in the combobox and returns true if any
-        /// of them are present taking into account the flags in the check boxes
+        /// for a fully qualified or short file name changes the last four
+        /// characters to .txt
         /// </summary>
-        /// <param name="comments"></param>
+        /// <param name="fileName"></param>
         /// <returns></returns>
-        public bool ContainsKeywords(string comments)
+        public string ChangeExtensionToTxt(string fileName)
         {
-            bool matchCase = AppFilterMatchCase.IsChecked ?? false;
-            bool bracketed = AppFilterBrackets.IsChecked ?? false;
-            var keywords = AppFilterComboBox.Items;
-            List<string> keywordList = new List<string>();
-            foreach (var item in keywords)
-            {
-                keywordList.Add(item as string);
-            }
-
-            if (keywordList.IsNullOrEmpty()) return (true); // if no keywords, all files are selected
-            foreach (string key in keywordList)
-            {
-                if (ContainsKeyword(comments, key, matchCase, bracketed))
-                {
-                    return (true);
-                }
-            }
-
-            return (false);
-
-
+            return (fileName.Substring(0, fileName.Length - 4)) + ".txt";
         }
 
         /// <summary>
@@ -545,6 +172,35 @@ namespace BatRecordingManager
         }
 
         /// <summary>
+        /// Searches the supplied text for any of the keywords listed in the combobox and returns true if any
+        /// of them are present taking into account the flags in the check boxes
+        /// </summary>
+        /// <param name="comments"></param>
+        /// <returns></returns>
+        public bool ContainsKeywords(string comments)
+        {
+            bool matchCase = AppFilterMatchCase.IsChecked ?? false;
+            bool bracketed = AppFilterBrackets.IsChecked ?? false;
+            /*var keywords = AppFilterComboBox.Items;
+            List<string> keywordList = new List<string>();
+            foreach (var item in keywords)
+            {
+                keywordList.Add(item as string);
+            }*/
+
+            if (keywordList.IsNullOrEmpty()) return (true); // if no keywords, all files are selected
+            foreach (string key in keywordList)
+            {
+                if (ContainsKeyword(comments, key, matchCase, bracketed))
+                {
+                    return (true);
+                }
+            }
+
+            return (false);
+        }
+
+        /// <summary>
         /// Extracts comments from .wav file metadata in GUANO or WAMD format and concatenates it
         /// into a single string which is returned.
         /// </summary>
@@ -555,14 +211,12 @@ namespace BatRecordingManager
             string result = "";
             if (!fileName.ToUpper().EndsWith(".WAV")) return (result);
             var wavFileMetadata = new WavFileMetaData(fileName);
-            if (!wavFileMetadata.success)
+            if (wavFileMetadata.success)
             {
-                _errors.Add(fileName);
-                return (null);
+                if (AppFilterSearchNotes.IsChecked ?? false) result += wavFileMetadata.m_Note;
+                if (AppFilterSearchManualID.IsChecked ?? true) result += " " + wavFileMetadata.m_ManualID;
+                if (AppFilterSearchAutoId.IsChecked ?? false) result += " " + wavFileMetadata.m_AutoID;
             }
-            if (AppFilterSearchNotes.IsChecked ?? false) result += wavFileMetadata.m_Note;
-            if (AppFilterSearchManualID.IsChecked ?? true) result += " " + wavFileMetadata.m_ManualID;
-            if (AppFilterSearchAutoId.IsChecked ?? false) result += " " + wavFileMetadata.m_AutoID;
             result = result.Trim();
 
             fileName = ChangeExtensionToTxt(fileName);
@@ -574,44 +228,290 @@ namespace BatRecordingManager
             return (result);
         }
 
-        /// <summary>
-        /// for a fully qualified or short file name changes the last four
-        /// characters to .txt
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        public string ChangeExtensionToTxt(string fileName)
+        public void SetDefaultFolderPath(string folderPath)
         {
-            return (fileName.Substring(0, fileName.Length - 4)) + ".txt";
+            if (!string.IsNullOrWhiteSpace(folderPath))
+            {
+                if (!folderPath.EndsWith(@"\"))
+                {
+                    folderPath += @"\";
+                }
+                if (Directory.Exists(folderPath))
+                {
+                    _parentFolderPath = folderPath;
+                    _defaultSubFolderName = _parentFolderPath + @"Filtered\";
+                    _parentFileList = Directory.EnumerateFiles(_parentFolderPath, "*.wav");
+                }
+                else
+                {
+                    _parentFolderPath = "";
+                    _defaultSubFolderName = "";
+                    _parentFileList = (new List<string>()).AsEnumerable();
+                }
+            }
+            else
+            {
+                _parentFolderPath = "";
+                _defaultSubFolderName = "";
+                _parentFileList = (new List<string>()).AsEnumerable();
+            }
+            _filteredFileList = new List<string>();
+            statusText += $"Set parent folder to {_parentFolderPath}\n";
         }
-
-
 
         ///event handle arguments for OKClicked
         public class CloseClickedEventArgs : EventArgs
         {
             /// parameter for event args
             public readonly decimal value;
+
             /// constructor for event args
             public CloseClickedEventArgs(decimal value)
             {
                 this.value = value;
             }
-
         }
-        ///OKClicked eventhandler
-        public event EventHandler<CloseClickedEventArgs> CloseClicked;
+
         ///OKClicked event invoker
         protected virtual void OnCloseClicked(CloseClickedEventArgs e) => CloseClicked?.Invoke(this, e);
 
+        private List<string> _errors = new List<string>();
+        private List<string> _filteredFileList;
+        private IEnumerable<string> _parentFileList;
+        /// <summary>
+        /// Name of the parent folder holding files to be filtered
+        /// </summary>
 
+        #region _parentFolderPath
 
+        /// <summary>
+        /// _parentFolderPath Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty _parentFolderPathProperty =
+            DependencyProperty.Register("_parentFolderPath", typeof(string), typeof(AppFilter),
+                new FrameworkPropertyMetadata(""));
 
+        /// <summary>
+        /// Gets or sets the _parentFolderPath property.  This dependency property
+        /// indicates ....
+        /// </summary>
+        public string _parentFolderPath
+        {
+            get { return (string)GetValue(_parentFolderPathProperty); }
+            set { SetValue(_parentFolderPathProperty, value); }
+        }
 
+        #endregion _parentFolderPath
+
+        //public String _parentFolderPath { get; set; } = "";
+        /// <summary>
+        /// cumulative status string which is bound to statusTextBlock.text
+        /// </summary>
+        //public string statusText { get; set; } = "";
+
+        #region statusText
+
+        /// <summary>
+        /// statusText Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty statusTextProperty =
+            DependencyProperty.Register("statusText", typeof(string), typeof(AppFilter),
+                new FrameworkPropertyMetadata(""));
+
+        /// <summary>
+        /// Gets or sets the statusText property.  This dependency property
+        /// indicates ....
+        /// </summary>
+        public string statusText
+        {
+            get { return (string)GetValue(statusTextProperty); }
+            set { SetValue(statusTextProperty, value); }
+        }
+
+        #endregion statusText
+
+        private void AppFilterComboAdd_Click(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(AppFilterComboBox.Text))
+            {
+                if (!keywordList.Contains(AppFilterComboBox.Text))
+                {
+                    keywordList.Add(AppFilterComboBox.Text);
+                }
+            }
+            AppFilterComboBox.Text = "";
+        }
+
+        private void AppFilterComboClear_Click(object sender, RoutedEventArgs e)
+        {
+            keywordList.Clear();
+        }
+
+        private void AppFilterComboDel_Click(object sender, RoutedEventArgs e)
+        {
+            if (KeywordListBox.SelectedItems != null && KeywordListBox.SelectedItems.Any())
+            {
+                foreach (var item in KeywordListBox.SelectedItems)
+                {
+                    keywordList.Remove((string)item);
+                }
+            }
+        }
+
+        private void AppFilterSelectFolderButton_Click(object sender, RoutedEventArgs e)
+        {
+            string FolderPath = Tools.SelectWavFileFolder("");
+            if (string.IsNullOrWhiteSpace(FolderPath) || !Directory.Exists(FolderPath))
+            {
+                _ = MessageBox.Show($"Directory not found, unable to search", "Directory not found", MessageBoxButton.OK);
+                return;
+            }
+            SetDefaultFolderPath(FolderPath);
+            //_parentFileList = Directory.EnumerateFiles(_parentFolderPath, "*.wav");
+            //AppFilterFolderText.Text = _parentFolderPath;
+        }
+
+        private void ApplyButton_Click(object sender, RoutedEventArgs e)
+        {
+            _errors = new List<string>();
+
+            AppFilterComboAdd_Click(sender, e);
+
+            string destination = _defaultSubFolderName;
+            Debug.WriteLine("Extract...");
+            if (string.IsNullOrWhiteSpace(_parentFolderPath))
+            {
+                statusText += $"Extract Failed - parent folder is <{_parentFolderPath}>\n";
+                return;       // no folder selected for filtering yet
+            }
+            if (!Directory.Exists(_parentFolderPath))
+            {
+                statusText += $"Extract Failed - parent folder {_parentFolderPath} does not exist\n";
+                return;               // selected folder doesn't exist
+            }
+
+            if (_parentFileList == null || !_parentFileList.Any())
+            {
+                statusText += $"Extract Failed - No files in the parent folder {_parentFolderPath}\n";
+                return;  // no .wav files in the selected folder
+            }
+            if (!_parentFolderPath.EndsWith(@"\")) _parentFolderPath += @"\";
+
+            _defaultSubFolderName = _parentFolderPath + @"Filtered\";
+            if (!Directory.Exists(_defaultSubFolderName))
+            {
+                Debug.WriteLine("no default so transfer all to " + _defaultSubFolderName);
+                //TransferFilteredFiles(); // will create _defaultSubFolderName
+                //return;
+            }
+            else if (!Directory.EnumerateFiles(_defaultSubFolderName).Any())
+            {
+                Debug.WriteLine("default empty so transfer all to " + _defaultSubFolderName);
+                //TransferFilteredFiles(); // no existing files to deal with
+                //return;
+            }
+            // if here, the sub-folder exists and has files in it
+            else if (AppFilterNewFolder.IsChecked ?? false)
+            {
+                // new folder box ticked, so ignore existing folder or folders and create a new one to take the new files
+                string newSubFolderName = CreateNewSubFolder();
+                Debug.WriteLine($"make a new folder <{newSubFolderName}>");
+                if (string.IsNullOrWhiteSpace(newSubFolderName))
+                {
+                    return;
+                }
+                destination = newSubFolderName;
+                Debug.WriteLine("... and transfer files to " + newSubFolderName);
+                //TransferFilteredFiles(newSubFolderName);
+                //return;
+            }
+            else
+            {
+                // if here there is an existing sub-folder and the new files are to be merged with it after re-merging existing files to the database
+                Debug.WriteLine("Restore first, then transfer files");
+                int NumberOfFilesRestored = RestoreFilteredFiles(_defaultSubFolderName);
+                statusText += $"Restored {NumberOfFilesRestored} from {_defaultSubFolderName} Prior to extraction\n";
+            }
+            if (Directory.Exists(_parentFolderPath))
+            {
+                _parentFileList = Directory.EnumerateFiles(_parentFolderPath, "*.wav");
+                if (_parentFileList == null || !_parentFileList.Any())
+                {
+                    Debug.WriteLine("No wav files in the selected folder");
+                    return;
+                }
+            }
+
+            _filteredFileList = ApplyFilter(_parentFileList);
+            // run the filter
+
+            if (_filteredFileList == null || !_filteredFileList.Any())
+            {
+                statusText += $"No files extracted - No files matched the filter\n";
+                return; // no files returned by the filter
+            }
+
+            int numberOfFiles = TransferFilteredFiles(destination);
+            statusText += $"Extracted {numberOfFiles} files to {destination}\n";
+        }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             OnCloseClicked(new CloseClickedEventArgs(0.0m));
+        }
+
+        /// <summary>
+        /// Creates a new filtered sub-folder with a unique name derived from Filtered
+        /// </summary>
+        /// <returns></returns>
+        private string CreateNewSubFolder()
+        {
+            string folderName = _defaultSubFolderName;
+            int suffix = 1;
+            while (Directory.Exists(folderName))
+            {
+                if (_defaultSubFolderName.EndsWith(@"\"))
+                {
+                    _defaultSubFolderName = _defaultSubFolderName.Substring(0, _defaultSubFolderName.Length - 1);
+                }
+                folderName = _defaultSubFolderName + suffix.ToString() + @"\";
+                suffix++;
+                if (suffix > 100)
+                {
+                    var response =
+                        MessageBox.Show(
+                            "Over 100 filtered sub-folders is getting a bit silly. Do you wish to continue?",
+                            "Excessive Sub-Folders", MessageBoxButton.YesNo);
+                    if (response == MessageBoxResult.No)
+                    {
+                        return ("");
+                    }
+                }
+            }
+
+            return (folderName);
+        }
+
+        private void deleteWavFiles(string newSubFolderName)
+        {
+            var files = Directory.EnumerateFiles(newSubFolderName, "*.wav");
+            foreach (var file in files)
+            {
+                File.Delete(file);
+            }
+        }
+
+        private void renameExistingFilesToBak(string newSubFolderName)
+        {
+            var files = Directory.EnumerateFiles(newSubFolderName, "*.wav");
+            foreach (var file in files)
+            {
+                if (File.Exists(file + ".bak"))
+                {
+                    File.Delete(file + ".bak");
+                }
+                File.Move(file, file + ".bak");
+            }
         }
 
         /// <summary>
@@ -647,7 +547,6 @@ namespace BatRecordingManager
                 source = validSubFolders.First();
             }
 
-
             if (Directory.Exists(source))
             {
                 int numberOfRestoredfiles = RestoreFilteredFiles(source);
@@ -655,7 +554,7 @@ namespace BatRecordingManager
             }
             else
             {
-                MessageBox.Show(@"You have not selected a folder to restore from. Pick a folder in the 
+                MessageBox.Show(@"You have not selected a folder to restore from. Pick a folder in the
 Text box, or select a session inn the View by Sessions window before
 selecting the filter App", "Invalid Folder selected", MessageBoxButton.OK);
                 statusText += $"Restore failed - no source folder selected\n";
@@ -663,23 +562,36 @@ selecting the filter App", "Invalid Folder selected", MessageBoxButton.OK);
             StatusRefresh();
         }
 
-        private void StatusRefresh()
+        /// <summary>
+        /// moves the specified file back to the parent folder along with any associated .txt sidecar file,
+        /// and either enters it into the database or updates the database with the revised notations
+        /// </summary>
+        /// <param name="file"></param>
+        private void RestoreFile(string file)
         {
-            if (StatusTextBlock != null)
+            TransferFile(file, _parentFolderPath, true);
+            string txtFileName = ChangeExtensionToTxt(file);
+            if (File.Exists(txtFileName))
             {
-
-                if (StatusTextBlock.Dispatcher.CheckAccess())
-                {
-                    StatusTextBlock.InvalidateVisual();
-                }
-                else
-                {
-                    StatusTextBlock.Dispatcher.Invoke(DispatcherPriority.Background,
-                        new Action(() => { StatusTextBlock.InvalidateVisual(); }));
-                }
-
-
+                TransferFile(txtFileName, _parentFolderPath, true);
             }
+
+            UpdateDatabase(_parentFolderPath + Tools.ExtractWavFilename(file));
+        }
+
+        /// <summary>
+        /// Locates any files in the designated folder which no longer contain any of the keywords
+        /// and remerge them into the original folder, updating the database at the same time
+        /// </summary>
+        private int RestoreFilteredFiles(string filteredFileFolderName)
+        {
+            _errors = new List<string>();
+            List<string> filesToRestore = unFilterFiles(filteredFileFolderName);
+            foreach (string file in filesToRestore ?? new List<string>())
+            {
+                RestoreFile(file);
+            }
+            return (filesToRestore.Count);
         }
 
         /// <summary>
@@ -700,60 +612,112 @@ selecting the filter App", "Invalid Folder selected", MessageBoxButton.OK);
                 {
                     result = dialog.GetSelectedItem();
                 }
-
             }
             return result;
         }
 
-        private void AppFilterComboBox_LostFocus(object sender, RoutedEventArgs e)
+        private void StatusRefresh()
         {
-            AppFilterComboBox.IsDropDownOpen = true;
-        }
-
-        private void AppFilterComboAdd_Click(object sender, RoutedEventArgs e)
-        {
-            if (!string.IsNullOrWhiteSpace(AppFilterComboBox.Text))
+            if (StatusTextBlock != null)
             {
-                if (!AppFilterComboBox.Items.Contains(AppFilterComboBox.Text))
+                if (StatusTextBlock.Dispatcher.CheckAccess())
                 {
-                    AppFilterComboBox.Items.Add(AppFilterComboBox.Text);
+                    StatusTextBlock.InvalidateVisual();
+                }
+                else
+                {
+                    StatusTextBlock.Dispatcher.Invoke(DispatcherPriority.Background,
+                        new Action(() => { StatusTextBlock.InvalidateVisual(); }));
                 }
             }
-            AppFilterComboBox.IsDropDownOpen = true;
         }
 
-        private void AppFilterComboDel_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Copies or Moves (depending on the checkbox state) all the fles in the filtered file list
+        /// from the parent folder to the sub-folder
+        /// </summary>
+        private int TransferFilteredFiles(string newSubFolderName)
         {
-            if (AppFilterComboBox.SelectedIndex >= 0)
+            bool move = AppFilterMoveFiles.IsChecked ?? false;
+            if (!Directory.Exists(newSubFolderName))
             {
-                AppFilterComboBox.Items.RemoveAt(AppFilterComboBox.SelectedIndex);
+                Directory.CreateDirectory(newSubFolderName);
             }
-            AppFilterComboBox.IsDropDownOpen = true;
+            renameExistingFilesToBak(newSubFolderName);
+            deleteWavFiles(newSubFolderName);
+            int filesTransferred = 0;
+            foreach (string file in _filteredFileList)
+            {
+                TransferFile(file, newSubFolderName, move);
+                string txtFileName = ChangeExtensionToTxt(file);
+                if (File.Exists(txtFileName))
+                {
+                    TransferFile(txtFileName, newSubFolderName, move);
+                }
+                filesTransferred++;
+            }
+            return (filesTransferred);
         }
 
-        private void AppFilterComboBox_GotFocus(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Copies or Moves (depending on the checkbox state) all the fles in the filtered file list
+        /// from the parent folder to the sub-folder
+        /// </summary>
+        private int TransferFilteredFiles()
         {
-            AppFilterComboBox.IsDropDownOpen = true;
+            return (TransferFilteredFiles(_defaultSubFolderName));
         }
 
-        private void AppFilterComboBox_IsKeyboardFocusedChanged(object sender, DependencyPropertyChangedEventArgs e)
+        /// <summary>
+        /// Identifies a list of all files in the specified folder which do not contain
+        /// any of the keywords
+        /// </summary>
+        /// <param name="filteredFileFolderName"></param>
+        /// <returns></returns>
+        private List<string> unFilterFiles(string filteredFileFolderName)
         {
-            AppFilterComboBox.IsDropDownOpen = true;
+            List<string> selectedFiles = new List<string>();
+            var filesInFolder = Directory.EnumerateFiles(filteredFileFolderName, "*.wav");
+            var filteredFiles = ApplyFilter(filesInFolder.AsEnumerable());
+            foreach (var file in filesInFolder)
+            {
+                if (!filteredFiles.Contains(file))
+                {
+                    selectedFiles.Add(file);
+                }
+            }
+
+            return (selectedFiles);
         }
 
-        private void AppFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        /// <summary>
+        /// Given the fully qualified path and name of a .wav file, (which may contain embedded
+        /// WAMD/GUIANO data or have an associated .txt sidecar file), updates the database to
+        /// include that file.  If the database already contains a record for the file then that
+        /// record is updated.  If not, then the file data is added to a session which uses the same
+        /// folder path.  If that cannot be found then a new session form is presented.
+        /// </summary>
+        /// <param name="v"></param>
+        private void UpdateDatabase(string wavFile)
         {
-            AppFilterComboBox.IsDropDownOpen = true;
-        }
+            RecordingSession existingSession = null;
+            if (string.IsNullOrWhiteSpace(wavFile)) return;
+            if (!File.Exists(wavFile)) return;
+            Recording existingRecording = DBAccess.GetRecordingForWavFile(wavFile);
+            if (existingRecording == null)
+            {
+                existingSession = DBAccess.GetRecordingSessionForWavFile(wavFile);
+            }
+            else
+            {
+                existingSession = existingRecording.RecordingSession;
+            }
 
-        private void AppFilterComboBox_TextInput(object sender, TextCompositionEventArgs e)
-        {
-            AppFilterComboBox.IsDropDownOpen = true;
-        }
-
-        private void AppFilterComboBox_MouseEnter(object sender, MouseEventArgs e)
-        {
-            AppFilterComboBox.IsDropDownOpen = true;
+            if (existingSession == null)
+            {
+                existingSession = SessionManager.CreateSession(Tools.GetPath(wavFile));// creates a session with a new tag, opens for edit and saves it
+            }
+            existingSession.ImportWavFile(wavFile);
         }
     }
 }

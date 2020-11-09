@@ -181,15 +181,19 @@
 
                         ItemsSource="{Binding recordingSessionDataList,IsAsync=true}"
                         AutoGenerateColumns="False"
-
+                        EnableRowVirtualization="True"
+                        ScrollViewer.CanContentScroll="True"
                         HeadersVisibility="Column"
                         AreRowDetailsFrozen="True"
                         CanUserAddRows="False"
-                        CanUserResizeRows="False" IsReadOnly="True" IsTextSearchEnabled="True" Grid.ColumnSpan="4">
+                        CanUserResizeRows="False"
+                        IsReadOnly="True"
+                        IsTextSearchEnabled="True"
+                        Grid.ColumnSpan="4">
 
                         <DataGrid.Columns>
                             <DataGridTextColumn x:Name="TagColumn" Binding="{Binding SessionTag}" Header="Tag"
-                                                SortDirection="Ascending" Width="80*" />
+                                                SortDirection="Ascending" Width="100*" />
                             <DataGridTextColumn x:Name="LocationColumn" Binding="{Binding Location}" Header="Location"
                                                 SortDirection="Ascending" Width="200*" />
                             <DataGridTextColumn x:Name="DateColumn"
@@ -204,9 +208,9 @@
                                 Header="Images"
                                 CanUserSort="True"
                                 SortDirection="Ascending"
-                                Width="50*" />
+                                Width="40*" />
                             <DataGridTextColumn x:Name="RecordingsColumn" Binding="{Binding NumberOfRecordings}"
-                                                Header="Recordings" SortDirection="Ascending" Width="55*" />
+                                                Header="Recordings" SortDirection="Ascending" Width="50*" />
                         </DataGrid.Columns>
                         <!--
                         <DataGrid.Columns>

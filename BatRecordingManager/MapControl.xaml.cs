@@ -67,9 +67,17 @@ namespace BatRecordingManager
         /// <param name="text">
         ///     The text.
         /// </param>
-        public void AddPushPin(Location pinCoordinates, string text)
+        public void AddPushPin(Location pinCoordinates, string text, int ordinate = -1)
         {
-            var pin = new Pushpin { Location = pinCoordinates, Content = text, PositionOrigin = PositionOrigin.BottomCenter };
+            var pin = new Pushpin
+            {
+                Location = pinCoordinates,
+                Content = ordinate >= 0 ? ordinate.ToString() : "",
+                PositionOrigin = PositionOrigin.BottomCenter
+            };
+            ToolTip tip = new ToolTip();
+            tip.Content = text;
+            pin.ToolTip = tip;
 
             ThisMap.Children.Add(pin);
         }
