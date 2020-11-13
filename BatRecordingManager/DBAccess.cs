@@ -3893,12 +3893,16 @@ namespace BatRecordingManager
         /// <summary>
         ///     dbVersionDec is the decimal format version of the currently expected database
         ///     This is the database version, not the program version.
+        ///
         ///     v5.31 Original base format
+        ///
         ///     v6.0 :-
         ///     @"ALTER TABLE [dbo].[RecordingSession] ADD[EndDate] DATETIME NULL;"
         ///     @"ALTER TABLE [dbo].[Recording] ADD[RecordingDate] DATETIME NULL;"
+        ///
         ///     v6.1 :-
         ///     @"ALTER TABLE [dbo].[BinaryData] ALTER COLUMN [Description] NVARCHAR(MAX) NULL;"
+        ///
         ///     v6.2 :- add two new link tables and update the existing data
         ///     @"CREATE TABLE [dbo].[BatSession]  (
         ///     [Id] INT NOT NULL PRIMARY KEY,     [SessionID] INT NOT NULL DEFAULT -1,    [BatID] INT NOT NULL DEFAULT -1
@@ -3909,8 +3913,9 @@ namespace BatRecordingManager
         ///     [Id] INT NOT NULL PRIMARY KEY,     [BatID] INT NOT NULL DEFAULT -1,    [RecordingID] INT NOT NULL DEFAULT -1,
         ///     CONSTRAINT[Bat_BatRecording] FOREIGN KEY([BatID]) REFERENCES[dbo].[Bat] ([Id]),
         ///     CONSTRAINT[Recording_BatRecording] FOREIGN KEY([RecordingID]) REFERENCES[dbo].[Recording] ([Id])"
+        ///
         /// </summary>
-        private static readonly decimal DbVersionDec = 6.2m;
+        private static readonly decimal DbVersionDec = 6.2m; // needs to be updated
 
         private static BatReferenceDBLinqDataContext __persistentbatReferenceDataContext;
 
@@ -6042,7 +6047,7 @@ namespace BatRecordingManager
                     Tools.ErrorLog("Updating Database to v6.1:- " + ex.Message);
                 }
 
-            if (version < 6.2m)
+            if (version < 6.2m) // Add code for db version 6.3
             {
                 try
                 {

@@ -488,3 +488,9 @@ Speeds up the actual loading of data fields but there is still a long inital del
 9.1.7593 has support for .zc files analysed with either kaleidoscope or AnalookW using the standard tags.  In the session view, recordings list, segments have their backgrounds coloured according to a confidence code.  Comments ending H, M, or L for low, medium or high confidence, or low confidence recordings may include ? or the phrase 'Confidence L'.  Virtualization of the recordings list is now coupled with virtualizationPanel commands to provide smooth pixel based scrolling and full width display.
 
 9.1.7594 uses an async call to get the session summary information, and this is now displayed in a listView rather than a stack panel.  The inner call to get the summary stats now uses a special copy of the session retrieved with a new dataContext to prevent access issues when using the existing session on a datacontext created in a different thread.  Much improved on sessions of 184 recordings, still quite slow (1-2m) on a 936 recording session.
+9.1.7618 clarifies the structure of the Filter form, replacing the combo=box with a separate text box and always open ListBox.
+
+This file is now CLOSED development continues with version 10.
+=========================================================================================================================================
+=========================================================================================================================================
+=========================================================================================================================================

@@ -8,7 +8,10 @@
     <BatTag>Common Pip</BatTag>
     <BatTag>P45</BatTag>
     <BatTag>Common pipistrelle</BatTag>
+    <BatTag>CPip</BatTag>
     <BatTag>CP</BatTag>
+    <BatTag>PIPI</BatTag>
+    <BatTag>PIPPIP</BatTag>
     <Call>
       <fStart>50.8-95.2</fStart>
       <fEnd>41.2-50.6</fEnd>
@@ -28,7 +31,10 @@
     <BatTag>P55</BatTag>
     <BatTag>Soprano pipistrelle</BatTag>
     <BatTag>Soprano</BatTag>
+    <BatTag>SPip</BatTag>
     <BatTag>SP</BatTag>
+    <BatTag>PIPY</BatTag>
+    <BatTag>PIPPYG</BatTag>
     <Call>
       <fStart>63.8-108.6</fStart>
       <fEnd>53.2-60.6</fEnd>
@@ -46,6 +52,9 @@
     <BatCommonName>Noctule</BatCommonName>
     <BatTag>Noctule</BatTag>
     <BatTag>NN</BatTag>
+    <BatTag>NNoc</BatTag>
+    <BatTag>NYNO</BatTag>
+    <BatTag>NYCNOC</BatTag>
     <Call>
       <fStart>23.8-52.2</fStart>
       <fEnd>21.4-32.2</fEnd>
@@ -72,7 +81,10 @@
     <BatCommonName>Leisler's</BatCommonName>
     <BatTag>Leislers</BatTag>
     <BatTag>Leisler's</BatTag>
+    <BatTag>NLei</BatTag>
     <BatTag>NL</BatTag>
+    <BatTag>NYLE</BatTag>
+    <batTag>NYCLEI</batTag>
 
     <Call>
       <fStart>29.8-61.7</fStart>
@@ -101,7 +113,10 @@
     <BatTag>Daubentons</BatTag>
     <BatTag>Daubenton</BatTag>
     <BatTag>Daub</BatTag>
+    <BatTag>MDau</BatTag>
     <BatTag>MD</BatTag>
+    <BatTag>MYDA</BatTag>
+    <BatTag>MYODAU</BatTag>
     <Call>
       <fStart>50.3-109.7</fStart>
       <fEnd>22.4-38.6</fEnd>
@@ -120,7 +135,10 @@
     <BatTag>Natterers</BatTag>
     <BatTag>Natterer's</BatTag>
     <BatTag>Natt</BatTag>
+    <BatTag>MNat</BatTag>
     <BatTag>MN</BatTag>
+    <BatTag>MYNA</BatTag>
+    <BatTag>MYONAT</BatTag>
     <Call>
       <fStart>72.1-145.3</fStart>
       <fEnd>14.9-29.0</fEnd>
@@ -155,6 +173,9 @@
     <BatCommonName>Brown Longeared Bat</BatCommonName>
     <BatTag>BLE</BatTag>
     <BatTag>Brown Longear</BatTag>
+    <BatTag>PAur</BatTag>
+    <BatTag>PLAUR</BatTag>
+    <BatTag>PLEAUR</BatTag>
     <Call>
       <fStart>31.9-63.8</fStart>
       <fEnd>19.1-30.9</fEnd>
@@ -172,6 +193,9 @@
     <BatCommonName>Grey Longeared Bat</BatCommonName>
     <BatTag>GLE</BatTag>
     <BatTag>Grey Longear</BatTag>
+    <BatTag>PAus</BatTag>
+    <BatTag>PLAUS</BatTag>
+    <BatTag>PLEAUS</BatTag>
     <Call>
       <fStart>35.4-55.9</fStart>
       <fEnd>17.0-31.7</fEnd>
@@ -191,6 +215,9 @@
     <BatTag>Long Eared</BatTag>
     <BatTag>Long Ear</BatTag>
     <BatTag>LE</BatTag>
+    <BatTag>Plecotus sp.</BatTag>
+    <BatTag>PLsp</BatTag>
+    <BatTag>PLEsp</BatTag>
     <Call>
       <fStart>31-64</fStart>
       <fEnd>17-32</fEnd>
@@ -209,6 +236,9 @@
     <BatTab>Barbastelle</BatTab>
     <BatTag>Barb</BatTag>
     <BatTag>BB</BatTag>
+    <BatTag>BBar</BatTag>
+    <BatTag>BABA</BatTag>
+    <BatTag>BARBAR</BatTag>
     <Call>
       <fStart>36.8-47.3</fStart>
       <fEnd>25.4-31.9</fEnd>
@@ -237,7 +267,10 @@
     <BatTag>Myotis sp.</BatTag>
     <BatTag>Myotis sp</BatTag>
     <BatTag>Myotis ?</BatTag>
-  <Label>MYOSP</Label>
+    <BatTag>MYsp</BatTag>
+    <BatTag>MYOsp</BatTag>
+    <BatTag>WAB</BatTag>
+    <Label>MYOSP</Label>
   </Bat>
   <Bat Name="P50">
     <BatGenus>Pipistrellus</BatGenus>
@@ -246,6 +279,13 @@
     <BatTag>P50</BatTag>
     <BatTag>Pip?</BatTag>
     <BatTag>Pip ?</BatTag>
+    <BatTag>PI50</BatTag>
+    <BatTag>PIP50</BatTag>
+    <BatTag>P40</BatTag>
+    <BatTag>PI40</BatTag>
+    <BatTag>PIP40</BatTag>
+    <BatTag>Pip sp.</BatTag>
+    <BatTag>Pipistrellus sp</BatTag>
     <Label>PIP50</Label>
   </Bat>
   <Bat Name="Nathusius">
@@ -256,7 +296,11 @@
     <BatTag>Nathusius'</BatTag>
     <BatTag>Nath</BatTag>
     <BatTag>Naths</BatTag>
+    <BatTag>PNat</BatTag>
     <BatTag>NP</BatTag>
+    <BatTag>PN</BatTag>
+    <BatTag>PINA</BatTag>
+    <BatTag>PIPNAT</BatTag>
     <Call>
       <fStart>40.0-66.8</fStart>
       <fEnd>35.2-38.9</fEnd>
@@ -273,6 +317,8 @@
     <BatSpecies>savii</BatSpecies>
     <BatCommonName>Savi's</BatCommonName>
     <BatTag>Savis</BatTag>
+    <BatTag>HYSA</BatTag>
+    <BatTag>HYPSAV</BatTag>
     <Label>HYPSAV</Label>
   </Bat>
   <Bat Name="GHS">
@@ -285,6 +331,10 @@
     <BatTag>Greater Horseshoe</BatTag>
     <BatTag>Rh Fe</BatTag>
     <BatTag>rhfe</BatTag>
+    <BatTag>RhFer</BatTag>
+    <BatTag>RF</BatTag>
+    <BatTag>RHFE</BatTag>
+    <BatTag>RHIFER</BatTag>
     <Call>
       <fStart>62.2-78.5</fStart>
       <fEnd>58.1-80.9</fEnd>
@@ -305,6 +355,9 @@
     <BatTag>Lesser HS</BatTag>
     <BatTag>Lesser Horseshoe</BatTag>
     <BatTag>Rh hippo</BatTag>
+    <BatTag>RhHip</BatTag>
+    <BatTag>RHHI</BatTag>
+    <BatTag>RHIHIP</BatTag>
     <Call>
       <fStart>92.3-107.8</fStart>
       <fEnd>83.4-110.3</fEnd>
@@ -322,7 +375,10 @@
     <BatCommonName>Brandt's Bat</BatCommonName>
     <BatTag>Brandts</BatTag>
     <BatTag>Brandts</BatTag>
+    <BatTag>MBra</BatTag>
     <BatTag>MB</BatTag>
+    <BatTag>MYBR</BatTag>
+    <BatTag>MYOBRA</BatTag>
     <Call>
       <fStart>59.0-121.9</fStart>
       <fEnd>25.8-41.8</fEnd>
@@ -341,7 +397,10 @@
     <BatTag>Whiskered</BatTag>
     <BatTag>mystacinus</BatTag>
     <BatTag>myst</BatTag>
+    <BatTag>MMys</BatTag>
     <BatTag>WB</BatTag>
+    <BatTag>MYMYS</BatTag>
+    <BatTag>MYOMYS</BatTag>
     <Call>
       <fStart>69.9-101.8</fStart>
       <fEnd>25.6-43.3</fEnd>
@@ -358,7 +417,10 @@
     <BatSpecies>alcathoe</BatSpecies>
     <BatCommonName>Alcathoe Bat</BatCommonName>
     <BatTag>alcathoe</BatTag>
+    <BatTag>MAlc</BatTag>
     <BatTag>MA</BatTag>
+    <BatTag>MYAL</BatTag>
+    <BatTag>MYOALC</BatTag>
     <Call>
       <fStart>111.0-120.0</fStart>
       <fEnd>40.0-50.0</fEnd>
@@ -376,7 +438,10 @@
     <BatCommonName>Bechstein's Bat</BatCommonName>
     <BatTag>Bechsteins</BatTag>
     <BatTag>Bechstein's</BatTag>
+    <BatTag>MBec</BatTag>
     <BatTag>MB</BatTag>
+    <BatTag>MYBE</BatTag>
+    <BatTag>MYOBEC</BatTag>
     <Call>
       <fStart>65.0-130.9</fStart>
       <fEnd>28.0-40.4</fEnd>
@@ -393,7 +458,10 @@
     <BatSpecies>myotis</BatSpecies>
     <BatCommonName>Greater Mouse-eared bat</BatCommonName>
     <BatTag>Myotis myotis</BatTag>
+    <BatTag>MMyo</BatTag>
     <BatTag>GME</BatTag>
+    <BatTag>MYMY</BatTag>
+    <BatTag>MYOMYO</BatTag>
     <Call>
       <fStart>52.2-104.5</fStart>
       <fEnd>24.1-37.0</fEnd>

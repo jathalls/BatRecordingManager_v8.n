@@ -1,0 +1,43 @@
+﻿/*
+ *  Copyright 2020 Justin A T Halls
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+ */
+
+
+Worksheet 10
+
+This is the to do and done record for Bat recording Manager 10.x.x.x
+
+Proposal:-
+To incorporate the ability to hand AUTO-ID metadata, from whatever source, and store it along side the normal ManualID.  Also
+to incorporate information about auto ID's in reports alongside the definitive manualID data.
+
+Additionally to forcibly incorporate a number of standard bat ID Tags in addition to those already in use, in particular 
+2/3, 4 and 6 character capitalised Tags - e.g. CP, PIPI, PIPPIP, BLE, PLAU, PLEAUR, GLE,PLAUS,PLEAUS.
+
+The main database structure will be changed by adding fields to the Bat/Segment, Bat/Recording and Bat/RecordingSession tables
+to indicate that the link relates to an AutoID and not to a manual or default ID.
+
+1) add new tag definitions to BatReferenceXMLFile.xaml  //done
+2)Add fields to reference database
+    
+3)Capture database modification strings
+4)Add code to update any database to new version number, including current version number constant
+    backup existing database before modification
+5) modify get metadata to extract and separate autoID frommanual ID
+6) modify DBAccess.getdescribedbats to deal with auto and manual ids
+7) modify reports to incorporate manual and auto-id data
+8) modify recordingsdetailcontrol to display manual and autoid data
+
