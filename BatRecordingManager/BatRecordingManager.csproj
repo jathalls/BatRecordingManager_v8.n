@@ -404,6 +404,7 @@
     <Compile Include="BatEditor.xaml.cs">
       <DependentUpon>BatEditor.xaml</DependentUpon>
     </Compile>
+    <Compile Include="BatList.cs" />
     <Compile Include="BatListControl.xaml.cs">
       <DependentUpon>BatListControl.xaml</DependentUpon>
     </Compile>
@@ -482,6 +483,9 @@
     <Compile Include="MapHTML.cs" />
     <Compile Include="MapWindow.xaml.cs">
       <DependentUpon>MapWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MetaDataDialog.xaml.cs">
+      <DependentUpon>MetaDataDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="NaudoWrapper.cs" />
     <Compile Include="NMEA2OSG.cs" />
@@ -679,6 +683,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="MasterStyleDictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MetaDataDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -881,6 +889,9 @@
     <Content Include="BatReferenceDBv5.31.mdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <AdditionalFiles Include="BatReferenceXMLFileUpdate.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AdditionalFiles>
     <Content Include="bing.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

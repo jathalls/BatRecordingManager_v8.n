@@ -35,7 +35,9 @@ namespace BatRecordingManager
         /// <summary>
         ///     The List of Bats present during the segment
         /// </summary>
-        public BulkObservableCollection<Bat> BatList = new BulkObservableCollection<Bat>();
+        public BatList batList = new BatList();
+
+        public bool ByAutoID = false;
 
         /// <summary>
         ///     The Labelled Segment
@@ -52,8 +54,9 @@ namespace BatRecordingManager
         public SegmentAndBatList()
         {
             Segment = new LabelledSegment();
-            BatList = new BulkObservableCollection<Bat>();
+            batList = new BatList();
             Updated = false;
+            ByAutoID = false;
         }
 
         /// <summary>
@@ -76,7 +79,7 @@ namespace BatRecordingManager
         /// </returns>
         /// <exception cref="System.NotImplementedException">
         /// </exception>
-        public static SegmentAndBatList ProcessLabelledSegment(string processedLine, BulkObservableCollection<Bat> bats)
+        public static SegmentAndBatList ProcessLabelledSegment(string processedLine, BatList bats, string autoID)
         {
             var segment = new LabelledSegment();
             var result = new SegmentAndBatList();
@@ -94,8 +97,10 @@ namespace BatRecordingManager
                     segment.EndOffset = ts;
                     ts = Tools.TimeParse(match.Groups[1].Value);
                     segment.StartOffset = ts;
+                    segment.AutoID = autoID;
                     result.Segment = segment;
-                    result.BatList = bats;
+                    result.batList = bats;
+
                     //ts = TimeParse(match.Groups[3].Value);
                     //passes = new BatStats(ts).passes;
                 }
@@ -116,7 +121,7 @@ namespace BatRecordingManager
             var segBatList = new SegmentAndBatList
             {
                 Segment = segment,
-                BatList = DBAccess.GetDescribedBats(segment.Comment)
+                batList = DBAccess.GetDescribedBats(segment.Comment, out string modded, DBAccess.BracketedText.EXCLUDE)
             };
 
             //DBAccess.InsertParamsFromComment(segment.Comment, null);
@@ -155,7 +160,7 @@ namespace BatRecordingManager
         //private string _outputString = "";
 
         /// <summary>
-        ///     Adds to bat summary.
+        ///     Adds described, non-auto bats to the bat summary
         /// </summary>
         /// <param name="line">
         ///     The line.
@@ -163,18 +168,18 @@ namespace BatRecordingManager
         /// <param name="newDuration">
         ///     The new duration.
         /// </param>
-        public static BulkObservableCollection<Bat> AddToBatSummary(string line, TimeSpan newDuration,
+        public static BatList AddToBatSummary(string line, TimeSpan newDuration,
             ref Dictionary<string, BatStats> batsFound)
         {
-            var bats = DBAccess.GetDescribedBats(line);
-            if (!bats.IsNullOrEmpty())
-                foreach (var bat in bats)
+            var bats = DBAccess.GetDescribedBats(line, out string _);
+            if (!bats.bats.IsNullOrEmpty())
+                foreach (var bat in bats.bats)
                 {
                     var batname = bat.Name;
                     if (!string.IsNullOrWhiteSpace(batname))
                     {
                         if (batsFound.ContainsKey(batname))
-                            batsFound[batname].Add(newDuration);
+                            batsFound[batname].Add(newDuration, "");
                         else
                             batsFound.Add(batname, new BatStats(newDuration));
                     }
@@ -301,11 +306,11 @@ namespace BatRecordingManager
         /// </param>
         /// <returns>
         /// </returns>
-        public static string ProcessManualFileLine(Match match, out BulkObservableCollection<Bat> bats,
+        public static string ProcessManualFileLine(Match match, out BatList bats,
             ref Dictionary<string, BatStats> batsFound)
         {
             var comment = "";
-            bats = new BulkObservableCollection<Bat>();
+            bats = new BatList();
 
             if (match.Groups.Count >= 5)
             {
@@ -516,10 +521,10 @@ namespace BatRecordingManager
         /// <returns>
         /// </returns>
         private static string ProcessLabelFileLine(string line, string startStr, string endStr, string comment,
-            out BulkObservableCollection<Bat> bats, ref Dictionary<string, BatStats> batsFound)
+            out BatList bats, ref Dictionary<string, BatStats> batsFound)
         {
             var result = "";
-            bats = new BulkObservableCollection<Bat>();
+            bats = new BatList();
 
             if (!string.IsNullOrWhiteSpace(line) && char.IsDigit(line[0]))
             {
@@ -666,6 +671,18 @@ namespace BatRecordingManager
                     if (File.Exists(wavfile) && (new FileInfo(wavfile).Length > 0L))
                     {
                         wfmd = new WavFileMetaData(wavfile);
+                        if (!wfmd.metaData.IsNullOrEmpty())
+                        {
+                            if (recording.Metas.IsNullOrEmpty())
+                            {
+                                recording.Metas = new System.Data.Linq.EntitySet<Meta>();
+                            }
+                            else
+                            {
+                                recording.Metas.Clear();
+                            }
+                            recording.Metas.AddRange(wfmd.metaData);
+                        }
                         //Guano GuanoData=new Guano(Guano.GetGuanoData(CurrentRecordingSessionId, wavfile));
                         if (wfmd?.m_Duration != null)
                         {
@@ -749,7 +766,7 @@ namespace BatRecordingManager
                     {
                         var comment = ProcessWavFile(fileName, duration, ref listOfsegmentAndBatLists, mode,
                             ref batsFound, wfmd);
-                        recording.RecordingNotes = recording.RecordingNotes + " " + comment;
+                        //recording.RecordingNotes = recording.RecordingNotes + " " + comment;
                         outputString = outputString + comment;
                     }
                 }
@@ -780,7 +797,7 @@ namespace BatRecordingManager
 
         private static string ProcessText(string[] allLines, TimeSpan duration,
             ref BulkObservableCollection<SegmentAndBatList> listOfsegmentAndBatLists, Mode mode,
-            ref Dictionary<string, BatStats> batsFound)
+            ref Dictionary<string, BatStats> batsFound, string autoID)
         {
             var outputString = "";
             var linesToMerge = new BulkObservableCollection<string>();
@@ -845,7 +862,7 @@ namespace BatRecordingManager
                         var modline = Regex.Replace(line, @"[Ss][Tt][Aa][Rr][Tt]", "0.0");
                         modline = Regex.Replace(modline, @"[Ee][Nn][Dd]", ((decimal)duration.TotalSeconds).ToString());
                         var processedLine = "";
-                        var bats = new BulkObservableCollection<Bat>();
+                        var bats = new BatList();
                         if (IsLabelFileLine(modline, out string startStr, out var endStr, out var comment))
                             processedLine = ProcessLabelFileLine(modline, startStr, endStr, comment, out bats,
                                 ref batsFound);
@@ -853,7 +870,7 @@ namespace BatRecordingManager
                             processedLine = ProcessManualFileLine(match, out bats, ref batsFound);
                         else
                             processedLine = line + "\n";
-                        listOfsegmentAndBatLists.Add(SegmentAndBatList.ProcessLabelledSegment(processedLine, bats) ??
+                        listOfsegmentAndBatLists.Add(SegmentAndBatList.ProcessLabelledSegment(processedLine, bats, autoID) ??
                                                      new SegmentAndBatList());
                         // one added for each line that is processed as a segment label
                         outputString = outputString + processedLine;
@@ -886,7 +903,7 @@ namespace BatRecordingManager
                 allLines = new[] { "Start - End \t No Bats" };
             }
 
-            outputString = ProcessText(allLines, duration, ref listOfsegmentAndBatLists, mode, ref batsFound);
+            outputString = ProcessText(allLines, duration, ref listOfsegmentAndBatLists, mode, ref batsFound, "");
             return outputString;
         }
 
@@ -928,7 +945,7 @@ namespace BatRecordingManager
                     }
 
                     if (!string.IsNullOrWhiteSpace(wfmd.m_ManualID)) line += " " + wfmd.m_ManualID;
-                    if (!string.IsNullOrWhiteSpace(wfmd.m_AutoID)) line += ", " + wfmd.m_AutoID;
+                    if (!string.IsNullOrWhiteSpace(wfmd.m_AutoID)) line += ", (Auto=" + wfmd.m_AutoID + ")";
                     if (!string.IsNullOrWhiteSpace(wfmd.m_Note)) line += ", " + wfmd.m_Note;
                 }
 
@@ -940,7 +957,7 @@ namespace BatRecordingManager
                 Debug.WriteLine(ex);
             }
 
-            outputString = ProcessText(allLines, duration, ref listOfsegmentAndBatLists, mode, ref batsFound);
+            outputString = ProcessText(allLines, duration, ref listOfsegmentAndBatLists, mode, ref batsFound, wfmd.m_AutoID);
             return outputString;
         }
 

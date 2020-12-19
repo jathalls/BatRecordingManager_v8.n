@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,14 +27,6 @@ namespace BatRecordingManager
     /// </summary>
     internal class TagMatcher
     {
-        /// <summary>
-        ///     The tag list of all tags in the database and their accompanying bats Derived from
-        ///     the BatTags table and converted to a simple List of Bat.
-        /// </summary>
-        private readonly List<BatTag> _tagList;
-
-        private string _moddedDescription = "";
-
         public TagMatcher(List<BatTag> tagList)
         {
             _tagList = tagList;
@@ -75,7 +67,6 @@ namespace BatRecordingManager
                             {
                                 description = description.Remove(position[0],
                                 Math.Min(tag.BatTag1.Length, description.Length));
-
                             }
 
                             var mPosition = MatchTag(_moddedDescription, tag.BatTag1);
@@ -86,8 +77,7 @@ namespace BatRecordingManager
                                 _moddedDescription = _moddedDescription.Trim();
                             }
 
-
-
+                            tag.Bat.ByAutoID = false;
                             batList.Add(tag.Bat);
                             if (string.IsNullOrWhiteSpace(description))
                                 // nothing more in the description to match
@@ -117,6 +107,14 @@ namespace BatRecordingManager
 
             return description;
         }
+
+        /// <summary>
+        ///     The tag list of all tags in the database and their accompanying bats Derived from
+        ///     the BatTags table and converted to a simple List of Bat.
+        /// </summary>
+        private readonly List<BatTag> _tagList;
+
+        private string _moddedDescription = "";
 
         /// <summary>
         ///     Gets all tags which are contained within the String description, regardless of case
@@ -173,7 +171,6 @@ namespace BatRecordingManager
                 /*
                 if (description.Contains(batTag1))
                 {
-                    
                     position = description.IndexOf(batTag1);
                 }*/
             }

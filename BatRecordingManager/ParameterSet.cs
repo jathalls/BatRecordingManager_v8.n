@@ -159,10 +159,13 @@ namespace BatRecordingManager
                 {
                     if (call == null)
                     {
-                        call = new Call();
-                        call.CallNotes = "";
+                        call = new Call() { CallType = "LC", CallNotes = "" };
                     }
-                    call.CallType = "LC";
+                    else
+                    {
+                        call.CallType = (call.CallType + " LC").Trim();
+                        HasCallParameters = true;
+                    }
                 }
             }
         }

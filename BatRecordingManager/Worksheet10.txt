@@ -31,13 +31,35 @@ The main database structure will be changed by adding fields to the Bat/Segment,
 to indicate that the link relates to an AutoID and not to a manual or default ID.
 
 1) add new tag definitions to BatReferenceXMLFile.xaml  //done
-2)Add fields to reference database
+
+2)Add fields to reference database // done - reference database is in the source file folder
     
-3)Capture database modification strings
-4)Add code to update any database to new version number, including current version number constant
-    backup existing database before modification
+3)Capture database modification strings // copied to notepad++
+
+4)Add code to update any database to new version number, including current version number constant //done
+    backup existing database before modification // not possible at this time
+
 5) modify get metadata to extract and separate autoID frommanual ID
-6) modify DBAccess.getdescribedbats to deal with auto and manual ids
+    WavFileMetadata already extracts AtoID separately from ManualID
+    In generating a comment ManualID is in plain text, AutoID is in brackets with leader Auto= e.g. (Auto=PIPPIP)
+    GetDescribed bats can therefore distinguish between auto and manual ID fields
+    Should return all bats in the list BUT add a field to Bat to indicate that this bat is AutoID'd
+    Modify GetDescribedBats to distinguish between manual and autoid and tag as byAutoID those bats
+
+
+
+6) modify DBAccess.getdescribedbats to deal with auto and manual ids // done including batrecording and batsession links
+
+ERRORS:-
+null references in new call(); and in references to call when going to vies a bat reference
+Comment line gets formatted to e.g. Soprano Pipistrelle,)(Auto=(PIPPYG)
+
+6b) copied backup version of debug database to the main debug database.
+    Createda new table 'Metas' which is many:one to recordings.  Each contains a single
+    metadata item with a type (guan, wamd) a Label and a Value.
+    wamd metadata includes all wamd fields that are stored in WavFileMetaData
+    guan data includes those fields and also all other fields using their guano types for the Label.
+
 7) modify reports to incorporate manual and auto-id data
 8) modify recordingsdetailcontrol to display manual and autoid data
 

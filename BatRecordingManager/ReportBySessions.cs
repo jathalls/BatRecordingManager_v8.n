@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -97,6 +97,14 @@ namespace BatRecordingManager
                                                 if (!isHeaderWritten)
                                                 {
                                                     reportData.sessionHeader = SetHeaderText(session);
+                                                    if (!recording.Metas.IsNullOrEmpty())
+                                                    {
+                                                        reportData.sessionHeader = (reportData.sessionHeader ?? "") + "\nMetaData:-\n";
+                                                        foreach (var meta in recording.Metas)
+                                                        {
+                                                            reportData.sessionHeader += $"{meta.Label}: {meta.Value.Replace(",", ";")}\n";
+                                                        }
+                                                    }
                                                     isHeaderWritten = true;
                                                 }
 
@@ -144,6 +152,8 @@ namespace BatRecordingManager
                 "ShortTime_Converter");
             ReportDataGrid.Columns.Add(column);
             column = CreateColumn("Bat", "bat.Name", Visibility.Visible, "");
+            ReportDataGrid.Columns.Add(column);
+            column = CreateColumn("AutoID", "recordingStats.batAutoID", Visibility.Visible, "");
             ReportDataGrid.Columns.Add(column);
             column = CreateColumn("Recording", "recording.RecordingName", Visibility.Visible, "");
             ReportDataGrid.Columns.Add(column);

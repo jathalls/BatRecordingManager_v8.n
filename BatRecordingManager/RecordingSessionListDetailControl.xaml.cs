@@ -168,6 +168,7 @@ namespace BatRecordingManager
                         var bstat = new BatStatistics(DBAccess.GetNamedBat(bs.batCommonName));
                         reportBatStatsList.Add(bstat);
                         var recordingsToreport = (from brLink in bstat.bat.BatRecordingLinks
+                                                  where !(brLink.ByAutoID ?? false)
                                                   join sess in reportSessionList on brLink.Recording.RecordingSessionId equals sess.Id
                                                   select brLink.Recording).Distinct();
 
@@ -465,6 +466,7 @@ Mouse.OverrideCursor = null;*/
                 DispatcherPriority.Background,
                 new Action(() =>
                 {
+                    sessionSummaryList.Clear();
                     foreach (var item in sessionSummary)
                     {
                         //var batPassSummary = new BatPassSummaryControl { Content = item };

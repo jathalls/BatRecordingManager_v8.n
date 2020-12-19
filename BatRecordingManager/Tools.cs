@@ -88,6 +88,39 @@ namespace BatRecordingManager
         private static extern bool DeleteObject(IntPtr hObject);
     }
 
+    public static class StringHelper
+    {
+        /// <summary>
+        /// Extension method on string to split the string on the first occurence of the specified character
+        /// returning a two string array the first contining everything up to the splitter and the second
+        /// everything after the splitter.  The splitter is not in either.  string[1] may be empty.
+        /// if c is not in the string the full string is returned in string[0].
+        /// if the splitter is the first character string[0] will be empty and string[1] will be the original
+        /// without the splitter.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="c"></param>
+        /// <returns></returns>
+        public static string[] SplitOnFirst(this string s, char c)
+        {
+            string[] result = new string[2];
+            result[0] = s;
+            result[1] = "";
+            if (s.Contains(c))
+            {
+                int index = s.IndexOf(c);
+                if (index >= 0)
+                {
+                    result[0] = s.Substring(0, index);
+                    result[1] = s.Substring(index) + " "; // in case the string ends with c, add some spaces to make it longer than 1 char
+                    result[1] = result[1].Substring(1).Trim(); // still contains the c, so remove it and trim the space padding away - may leave an empty string
+                }
+            }
+
+            return (result);
+        }
+    }
+
     /// <summary>
     ///     Class of miscellaneous, multi access functions - all static for ease of re-use
     /// </summary>
@@ -945,13 +978,23 @@ namespace BatRecordingManager
                 var matchingStats = from s in result
                                     where s.batCommonName == stat.batCommonName
                                     select s;
-                if (matchingStats != null && matchingStats.Any())
+
+                if (matchingStats != null && matchingStats.Any()) // list of all stats in result for thisbat - should be just one
+                                                                  // since we add the new data to it each time rather than creating a new
+                                                                  // entry in result
                 {
-                    var existingStat = matchingStats.First();
-                    existingStat.Add(stat);
+                    BatStats existingStat = matchingStats.First();
+                    existingStat.Add(stat);                         // merge the new stat with the existing one
                 }
                 else
-                {
+                {                                               // but if this bat is not in result yet, we simply add it
+                    if (!string.IsNullOrEmpty(stat.batAutoID))
+                    {
+                        if (stat.batAutoID.StartsWith(";"))
+                        {
+                            stat.batAutoID = stat.batAutoID.Substring(1).Trim() + ";";
+                        }
+                    }
                     result.Add(stat);
                 }
             }
@@ -1044,32 +1087,50 @@ namespace BatRecordingManager
                          FormattedTimeSpan(end) + " = " +
                          FormattedTimeSpan(segment.EndOffset - segment.StartOffset) + "; " +
                          segment.Comment;
-            var calls = DBAccess.GetCallParametersForSegment(segment);
-            if (calls != null && calls.Count > 0)
-                foreach (var call in calls)
-                {
-                    result = result + "\n    " + "sf=" +
-                             FormattedValuePair(call.StartFrequency, call.StartFrequencyVariation) +
-                             ", ef=" + FormattedValuePair(call.EndFrequency, call.EndFrequencyVariation) +
-                             ", pf=" + FormattedValuePair(call.PeakFrequency, call.PeakFrequencyVariation) +
-                             ", durn=" + FormattedValuePair(call.PulseDuration, call.PulseDurationVariation) +
-                             ", int=" + FormattedValuePair(call.PulseInterval, call.PulseIntervalVariation);
-                    if (!string.IsNullOrWhiteSpace(call.CallType)) result = result + ", type=" + call.CallType;
-                    if (!string.IsNullOrWhiteSpace(call.CallFunction)) result = result + ", fnctn=" + call.CallFunction;
-                    if (!string.IsNullOrWhiteSpace(call.CallNotes)) result = result + "\n    " + call.CallNotes;
-                }
+
+            //var calls = DBAccess.GetCallParametersForSegment(segment);
+            //if (calls != null && calls.Count > 0)
+            //    foreach (Call call in calls)
+            //    {
+            //        result = result + call.GetFormattedString();
+            //    }
 
             return result;
         }
 
-        internal static string FormattedValuePair(double? value, double? variation)
+        internal static string FormattedValuePair(string header, double? value, double? variation)
         {
-            var result = "";
+            var result = header;
+
             if (value == null || value <= 0.0d) return "";
-            result = $"{value:##0.0}";
+            result = (header ?? "") + $"{value:##0.0}";
             if (variation != null && variation >= 0.0) result = result + "+/-" + $"{variation:##0.0}";
 
             return result;
+        }
+
+        /// <summary>
+        /// checks to see if the passed comment contains a bracketed string containing an Auto ID
+        /// and if so returns the AutoID
+        /// </summary>
+        /// <param name="comment"></param>
+        /// <returns></returns>
+        internal static string getAutoIdFromComment(string comment)
+        {
+            string autoID = null;
+            if (comment.Contains("("))
+            {
+                string pattern = @"\(Auto=([^\)]+)";
+                var match = Regex.Match(comment, pattern);
+                if (match.Success)
+                {
+                    if (match.Groups != null && match.Groups.Count >= 2)
+                    {
+                        autoID = match.Groups[1].Value;
+                    }
+                }
+            }
+            return (autoID);
         }
 
         /// <summary>
@@ -1118,14 +1179,15 @@ namespace BatRecordingManager
                          "Min=" + FormattedTimeSpan(value.minDuration) +
                          ", Max=" + FormattedTimeSpan(value.maxDuration) +
                          ", Mean=" + FormattedTimeSpan(value.meanDuration) + " )" +
-                         "Total duration=" + FormattedTimeSpan(value.totalDuration);
+                         "Total duration=" + FormattedTimeSpan(value.totalDuration) +
+                         (string.IsNullOrWhiteSpace(value.batAutoID) ? "" : $" AutoID={value.batAutoID}");
             return result;
         }
 
         internal static int GetNumberOfPassesForSegment(LabelledSegment segment)
         {
             var stat = new BatStats();
-            stat.Add(segment.EndOffset - segment.StartOffset);
+            stat.Add(segment.EndOffset - segment.StartOffset, segment.AutoID);
             return stat.passes;
         }
 
@@ -1229,6 +1291,14 @@ namespace BatRecordingManager
 
                 using (var stream = new StreamWriter(errorFile, true))
                 {
+                    if (isFirstError)
+                    {
+                        stream.WriteLine(@"
+==========================================================================================================
+
+");
+                        isFirstError = false;
+                    }
                     stream.WriteLine(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + ":-" +
                                      error);
                 }
@@ -1549,6 +1619,7 @@ namespace BatRecordingManager
         }
 
         private static readonly bool HasErred = false;
+        private static bool isFirstError = true;
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         /*
@@ -2011,7 +2082,10 @@ namespace BatRecordingManager
 
             return result;
         }*/
-    }
+    } // end of Class Tools
+
+    //########################################################################################################################
+    //########################################################################################################################
 
     #region DoubleStringConverter (ValueConverter)
 
@@ -3744,7 +3818,7 @@ namespace BatRecordingManager
                 numberOfImages = (from rec in recordings.AsParallel()
                                   from seg in rec.LabelledSegments.AsParallel()
                                   from link in seg.BatSegmentLinks.AsParallel()
-                                  where link.BatID == bat.Id
+                                  where !(link.ByAutoID ?? false) && link.BatID == bat.Id
                                   select seg.SegmentDatas.Count).Sum();
 
                 /*
@@ -4167,19 +4241,7 @@ namespace BatRecordingManager
         public string source { get; }
         public string timestamp { get; private set; }
         public string version { get; private set; }
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
         public double? versionAsDouble { get; internal set; }
     }
 

@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,6 +16,7 @@
 
 using Microsoft.VisualStudio.Language.Intellisense;
 using Mm.ExportableDataGrid;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -28,16 +29,6 @@ namespace BatRecordingManager
     /// </summary>
     public abstract partial class ReportMaster : UserControl
     {
-        /// <summary>
-        ///     default constructor
-        /// </summary>
-        protected ReportMaster()
-        {
-            InitializeComponent();
-            ReportDataGrid.EnableColumnVirtualization = true;
-            ReportDataGrid.EnableRowVirtualization = true;
-        }
-
         /// <summary>
         ///     abstract generic list for the specific type of report data
         /// </summary>
@@ -56,6 +47,16 @@ namespace BatRecordingManager
         internal void Export(CsvExporter exporter, string fileName)
         {
             ReportDataGrid.ExportUsingRefection(exporter, fileName);
+        }
+
+        /// <summary>
+        ///     default constructor
+        /// </summary>
+        protected ReportMaster()
+        {
+            InitializeComponent();
+            ReportDataGrid.EnableColumnVirtualization = true;
+            ReportDataGrid.EnableRowVirtualization = true;
         }
 
         /// <summary>
@@ -78,29 +79,34 @@ namespace BatRecordingManager
                     case "ShortTime_Converter":
                         bind.Converter = new ShortTimeConverter();
                         break;
+
                     case "ShortDate_Converter":
                         bind.Converter = new ShortDateConverter();
                         break;
+
                     case "GPSConverter":
                         bind.Converter = new GPSConverter();
                         break;
+
                     case "MapRefConverter":
                         bind.Converter = new MapRefConverter();
                         break;
+
                     case "SessionStartDateTimeConverter":
                         bind.Converter = new SessionStartDateTimeConverter();
                         break;
+
                     case "SessionEndDateTimeConverter":
                         bind.Converter = new SessionEndDateTimeConverter();
                         break;
+
                     case "BSPassesConverter":
                         bind.Converter = new BSPassesConverter();
                         break;
+
                     default:
                         break;
                 }
-
-
             }
 
             column.Binding = bind;
@@ -123,7 +129,10 @@ namespace BatRecordingManager
 
             var summary = Tools.GetSessionSummary(session);
             foreach (var item in summary) result += item.Replace(',', ';') + "\n";
-            HeaderTextBox.Text += result + footnote + "***************************************\n";
+            var metaData = session.Recordings.First()?.getFormattedMetadata();
+            if (string.IsNullOrWhiteSpace(metaData)) metaData = "";
+            metaData = metaData.Replace(',', ';');
+            HeaderTextBox.Text += result + footnote + "***************************************\n" + metaData + "\n";
 
             return result;
         }

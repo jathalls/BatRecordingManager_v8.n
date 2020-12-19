@@ -52,6 +52,8 @@
                                                         Header="Analyse calls"
                                                         ToolTip="Opens a window to display an analysis of each pulse in the recordings"
                                                         Click="cmiRecordingNameAnalyse_Click" />
+                                                <MenuItem x:Name="miRecDisplayMetaData" Header="MetaData" IsEnabled="{Binding Path=hasMetadata}"
+                                                        ToolTip="Displays wamd/guano metadata for this recording" Click="miDisplayMetaData_Click" />
                                             </ContextMenu>
                                         </TextBlock.ContextMenu>
                                     </TextBlock>
@@ -128,11 +130,13 @@
                                                                     <MenuItem x:Name="miAddImage" Header="Add Image" Click="miAddImage_Click"
                                                                                   ToolTip="Open the Import Image Dialog with caption set to this comment" />
                                                                     <MenuItem x:Name="miPlaySegment" Header="Play" Click="miPlaySegment_Click"
-                                                                              IsEnabled="{Binding Path=selectionIsWavFile}"
+                                                                              IsEnabled="{Binding Path=IsWavFile}"
                                                                                   ToolTip="Play this segment at reduced spped or heterodyned" />
                                                                     <MenuItem x:Name="miAnalyseSegment" Header="Analyse"
-                                                                              IsEnabled="{Binding Path=selectionIsWavFile}"
+                                                                              IsEnabled="{Binding Path=IsWavFile}"
                                                                                   ToolTip="Perform a deep analysis of this segment" Click="miAnalyseSegment_Click" />
+                                                                    <MenuItem x:Name="miDisplayMetaData" Header="MetaData" IsEnabled="{Binding Path=Recording.hasMetadata}"
+                                                                              ToolTip="Displays wamd/guano metadata for this recording" Click="miDisplayMetaData_Click" />
                                                                 </ContextMenu>
                                                             </TextBlock.ContextMenu>
 
@@ -272,6 +276,7 @@
                     MinWidth="10"
                     CellTemplate="{StaticResource RecordingDataTemplate}" />
             </DataGrid.Columns>
+
             <!-- <DataGrid.ItemTemplate>
             </DataGrid.ItemTemplate>-->
         </DataGrid>

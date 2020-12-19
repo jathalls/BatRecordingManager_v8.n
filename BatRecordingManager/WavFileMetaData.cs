@@ -63,7 +63,7 @@ namespace BatRecordingManager
                     }
 
                 Read_MetaData(filename);
-                if (metadata != null) success = true;
+                if (rawMetadata != null) success = true;
 
                 if (m_Start != null && m_Duration != null && m_End == null) m_End = m_Start + m_Duration;
             }
@@ -75,6 +75,8 @@ namespace BatRecordingManager
                 success = false;
             }
         }
+
+        public enum JsonState { INKEY, INBAREVALUE, INBRACKETEDSTRINGVALUE, ENDOFLINE };
 
         /// <summary>
         ///     The results of any Auto-identification as a string
@@ -139,6 +141,7 @@ namespace BatRecordingManager
         /// </summary>
         public string m_Temperature { get; private set; }
 
+        public List<Meta> metaData { get; private set; } = new List<Meta>();
         public bool success { get; set; } = false;
 
         internal string FormattedText()
@@ -182,7 +185,7 @@ namespace BatRecordingManager
         private DateTime? m_MetaDate { get; set; }
         private string m_Notes { get; set; } = "";
         private string m_source { get; set; }
-        private byte[] metadata { get; set; }
+        private byte[] rawMetadata { get; set; }
 
         /// <summary>
         ///     Given a 'chunk' of metadata from a wav file wamd chunk
@@ -222,6 +225,8 @@ namespace BatRecordingManager
                     case 0x000A:
                         m_Note = entry.Value;
                         m_Note = m_Note.Replace(@"\n", "");
+                        var meta = new Meta() { Id = -1, RecordingId = -1, Type = "wamd", Label = "Note", Value = m_Note };
+                        metaData.Add(meta);
                         result = true;
                         break;
 
@@ -233,6 +238,8 @@ namespace BatRecordingManager
                             m_Start = m_Start != null ? dt < m_Start.Value && dt.Year > 1960 ? dt : m_Start : dt;
 
                             if (m_Duration != null) m_End = m_Start + m_Duration;
+                            meta = new Meta() { Id = -1, RecordingId = -1, Type = "wamd", Label = "StartDate", Value = m_Start.ToString() };
+                            metaData.Add(meta);
                             result = true;
                         }
 
@@ -244,6 +251,8 @@ namespace BatRecordingManager
                         {
                             m_ManualID = (m_ManualID + " " + entry.Value).Trim();
                         }
+                        meta = new Meta() { Id = -1, RecordingId = -1, Type = "wamd", Label = "ManualID", Value = entry.Value.Trim() };
+                        metaData.Add(meta);
                         result = true;
                         break;
 
@@ -251,15 +260,19 @@ namespace BatRecordingManager
                         if (string.IsNullOrWhiteSpace(m_AutoID)) m_AutoID = "";
                         if (!m_AutoID.Contains(entry.Value.Trim())) // no need to duplicate if this string already present
                         {
-                            m_AutoID = "(" + (entry.Value + " " + m_AutoID).Trim() + ")";
+                            m_AutoID = (entry.Value.Trim() + " " + m_AutoID).Trim();
                         }
+                        meta = new Meta() { Id = -1, RecordingId = -1, Type = "wamd", Label = "AutoID", Value = entry.Value.Trim() };
+                        metaData.Add(meta);
                         result = true;
                         break;
 
                     case 0x000E: //AUTO_ID_STATS
                         if (string.IsNullOrWhiteSpace(m_AutoID)) m_AutoID = "";
-                        if (m_AutoID.EndsWith(")")) m_AutoID = m_AutoID.Substring(0, m_AutoID.Length - 1);
-                        m_AutoID = m_AutoID + ": " + entry.Value + ")";
+
+                        m_AutoID = m_AutoID + ": " + entry.Value.Trim();
+                        meta = new Meta() { Id = -1, RecordingId = -1, Type = "wamd", Label = "AutoIDStats", Value = entry.Value.Trim() };
+                        metaData.Add(meta);
                         result = true;
                         break;
 
@@ -269,6 +282,8 @@ namespace BatRecordingManager
                         {
                             m_Location = new GPSLocation(entry.Value);
                         }
+                        meta = new Meta() { Id = -1, RecordingId = -1, Type = "wamd", Label = "GPSLocation", Value = $"{m_Location.m_Latitude},{m_Location.m_Longitude}" };
+                        metaData.Add(meta);
                         result = true;
                         break;
 
@@ -277,26 +292,36 @@ namespace BatRecordingManager
                         result = true;
                         if (entries.ContainsKey(0x0002)) m_Device = m_Device + " " + entries[0x0002];
                         if (entries.ContainsKey(0x0003)) m_Device = m_Device + " " + entries[0x0003];
+                        meta = new Meta() { Id = -1, RecordingId = -1, Type = "wamd", Label = "Device", Value = m_Device };
+                        metaData.Add(meta);
                         break;
 
                     case 0x0012:
                         m_Microphone = entry.Value;
                         result = true;
                         if (entries.ContainsKey(0x0013)) m_Microphone = m_Microphone + " " + entries[0x0013];
+                        meta = new Meta() { Id = -1, RecordingId = -1, Type = "wamd", Label = "Microphone", Value = m_Microphone };
+                        metaData.Add(meta);
                         break;
 
                     case 0x0015: //TEMP_INT
                         if (!string.IsNullOrWhiteSpace(m_Temperature)) m_Temperature = entry.Value;
+                        meta = new Meta() { Id = -1, RecordingId = -1, Type = "wamd", Label = "InternalTemp", Value = entry.Value };
+                        metaData.Add(meta);
                         result = true;
                         break;
 
                     case 0x0016: //TEMP_EXT
                         m_Temperature = entry.Value;
+                        meta = new Meta() { Id = -1, RecordingId = -1, Type = "wamd", Label = "ExternalTemp", Value = entry.Value };
+                        metaData.Add(meta);
                         result = true;
                         break;
 
                     case 0x0008: //SOFTWARE
                         m_Software = entry.Value;
+                        meta = new Meta() { Id = -1, RecordingId = -1, Type = "wamd", Label = "Software", Value = entry.Value };
+                        metaData.Add(meta);
                         result = true;
                         break;
                 }
@@ -328,8 +353,14 @@ namespace BatRecordingManager
                 var lines = metadataString.Split('\n');
                 foreach (var line in lines)
                 {
-                    var parts = line.Split(':');
-                    if (parts.Length > 1) entries.Add(parts[0], parts[1]);
+                    if (!string.IsNullOrWhiteSpace(line))
+                    {
+                        var splitted = line.SplitOnFirst(':');
+                        if (!string.IsNullOrWhiteSpace(splitted[0]) && !string.IsNullOrWhiteSpace(splitted[1]))
+                        {
+                            entries.Add(splitted[0], splitted[1]);
+                        }
+                    }
                 }
 
                 //
@@ -341,6 +372,7 @@ namespace BatRecordingManager
                         case "Note":
                             m_Note = entry.Value;
                             m_Note = m_Note.Replace(@"\n", "");
+                            metaData.Add(new Meta() { Type = "guan", Label = "Note", Value = m_Note });
                             result = true;
                             break;
 
@@ -351,6 +383,7 @@ namespace BatRecordingManager
                                 m_Start = m_Start != null ? dt < m_Start.Value && dt.Year > 1960 ? dt : m_Start : dt;
 
                                 if (m_Duration != null) m_End = m_Start + m_Duration;
+                                metaData.Add(new Meta() { Type = "guan", Label = "StartDate", Value = m_Start.ToString() });
                                 result = true;
                             }
 
@@ -362,7 +395,7 @@ namespace BatRecordingManager
                             {
                                 m_ManualID = (m_ManualID + " " + entry.Value).Trim();
                             }
-
+                            metaData.Add(new Meta() { Type = "guan", Label = "ManualID", Value = entry.Value.Trim() });
                             result = true;
                             break;
 
@@ -370,8 +403,9 @@ namespace BatRecordingManager
                             if (string.IsNullOrWhiteSpace(m_AutoID)) m_AutoID = "";
                             if (!m_AutoID.Contains(entry.Value.Trim())) // no need to duplicate if this string already present
                             {
-                                m_AutoID = "(" + (m_AutoID + " " + entry.Value).Trim() + ")";
+                                m_AutoID = (m_AutoID + " " + entry.Value).Trim();
                             }
+                            metaData.Add(new Meta() { Type = "guan", Label = "AutoID", Value = entry.Value.Trim() });
                             result = true;
                             break;
 
@@ -389,6 +423,7 @@ namespace BatRecordingManager
                                     {
                                         m_Location = new GPSLocation(lat, longit);
                                         result = true;
+                                        metaData.Add(new Meta() { Type = "guan", Label = "GPSLocation", Value = $"{m_Location.m_Latitude},{m_Location.m_Longitude}" });
                                     }
                                 }
                             }
@@ -399,26 +434,43 @@ namespace BatRecordingManager
                         case "Make":
                             m_Device = entry.Value;
                             if (entries.ContainsKey("Model")) m_Device = m_Device + " " + entries["Model"];
+                            metaData.Add(new Meta() { Type = "guan", Label = "Device", Value = m_Device });
                             result = true;
                             break;
 
                         case "Original Filename":
                             m_FileName = entry.Value;
+                            metaData.Add(new Meta() { Type = "guan", Label = "FileName", Value = entry.Value.Trim() });
                             result = true;
                             break;
 
                         case "Temperature Ext":
                             m_Temperature = entry.Value;
+                            metaData.Add(new Meta() { Type = "guan", Label = "ExternalTemp", Value = entry.Value });
                             result = true;
                             break;
 
                         case "Temperature Int":
                             if (string.IsNullOrWhiteSpace(m_Temperature)) m_Temperature = entry.Value;
+                            metaData.Add(new Meta() { Type = "guan", Label = "InternalTemp", Value = entry.Value });
                             result = true;
                             break;
 
                         case "WA|Kaleidoscope|Version":
                             m_Software = "Kaleidoscope v" + entry.Value;
+                            metaData.Add(new Meta() { Type = "guan", Label = "Software", Value = m_Software });
+                            result = true;
+                            break;
+
+                        default:
+                            if (entry.Value.StartsWith("{"))
+                            {
+                                metaData.AddRange(parseJSONMetadata(entry));
+                            }
+                            else
+                            {
+                                metaData.Add(new Meta() { Type = "guan", Label = entry.Key, Value = entry.Value });
+                            }
                             result = true;
                             break;
                     }
@@ -433,6 +485,99 @@ namespace BatRecordingManager
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// given anKeyvaluePair in which the Value is a string enclosed in {} which is JSON encoded metadata from a WA metadata item,
+        /// parses the sub-items into key:value pairs, comma separated, and returns them as a
+        /// list of Metas.  The key for each is the original key | and the secondary key.
+        /// </summary>
+        /// <param name="entry"></param>
+        /// <returns></returns>
+        private List<Meta> parseJSONMetadata(KeyValuePair<string, string> entry)
+        {
+            List<Meta> result = new List<Meta>();
+
+            Debug.WriteLine("Parse JSON " + entry.Value);
+
+            string json = entry.Value.Replace(@"{", "").Replace(@"}", "").Trim();
+            if (!json.Contains(":"))
+            {
+                // we have a complex string as a single value
+                result.Add(new Meta() { Type = "guan", Label = entry.Key, Value = json });
+                Debug.WriteLine($"\t{entry.Key}:{json}");
+            }
+            else
+            {
+                string key = entry.Key + "|";
+                string value = "";
+                JsonState state = JsonState.INKEY;
+                int pos = 0;
+                char underCursor = json[pos];
+                while (state != JsonState.ENDOFLINE)
+                {
+                    switch (state)
+                    {
+                        case JsonState.INKEY:
+                            if (underCursor == ':')
+                            {
+                                state = JsonState.INBAREVALUE;
+                            }
+                            else
+                            {
+                                key += underCursor;
+                            }
+                            if (++pos >= json.Length) state = JsonState.ENDOFLINE;
+                            else underCursor = json[pos];
+                            break;
+
+                        case JsonState.INBAREVALUE:
+                            if (underCursor == '[')// start of a bracketed string section
+                            {
+                                state = JsonState.INBRACKETEDSTRINGVALUE;
+                            }
+                            else if (underCursor == ',')// end of the value field
+                            {
+                                state = JsonState.INKEY;
+                                result.Add(new Meta() { Type = "guan", Label = key, Value = value });
+                                Debug.WriteLine($"\t{key}:{value}");
+                                key = entry.Key + "|";
+                                value = "";
+                            }
+                            else
+                            {
+                                value += underCursor;
+                            }
+                            if (++pos >= json.Length) state = JsonState.ENDOFLINE;
+                            else underCursor = json[pos];
+                            break;
+
+                        case JsonState.INBRACKETEDSTRINGVALUE:
+                            if (underCursor == ']')
+                            {
+                                state = JsonState.INBAREVALUE;
+                            }
+                            else
+                            {
+                                value += underCursor;
+                            }
+                            if (++pos >= json.Length) state = JsonState.ENDOFLINE;
+                            else underCursor = json[pos];
+                            break;
+
+                        default:
+
+                            break;
+                    }
+                }// end while
+                if (!key.EndsWith("|") && !string.IsNullOrWhiteSpace(value))
+                {
+                    result.Add(new Meta() { Type = "guan", Label = key, Value = value });
+                    Debug.WriteLine($"\t{key}:{value} <EOL>");
+                }
+            }
+
+            return (result);
         }
 
         /// <summary>
@@ -453,7 +598,7 @@ namespace BatRecordingManager
         private bool Read_MetaData(string wavFilename)
         {
             var result = false;
-            metadata = null;
+            rawMetadata = null;
 
             if (string.IsNullOrWhiteSpace(wavFilename)) return result;
             if (!wavFilename.Trim().EndsWith(".WAV", StringComparison.OrdinalIgnoreCase)) return (readZcMetadata(wavFilename));
@@ -493,7 +638,7 @@ namespace BatRecordingManager
 
                     try
                     {
-                        metadata = null;
+                        rawMetadata = null;
 
                         do
                         {
@@ -526,14 +671,14 @@ namespace BatRecordingManager
                                 if (strHeader == "wamd" && data != null)
                                 {
                                     Debug.WriteLine("WAMD data:-" + header + "/" + size + "/" + data.Length);
-                                    metadata = data;
-                                    result = decode_wamd_data(metadata);
+                                    rawMetadata = data;
+                                    result = decode_wamd_data(rawMetadata);
                                 }
 
                                 if (strHeader == "guan" && data != null)
                                 {
                                     Debug.WriteLine("GUANO data:-" + header + "/" + size + "/" + data.Length);
-                                    metadata = data;
+                                    rawMetadata = data;
                                     var metadataString = Encoding.UTF8.GetString(data);
                                     result = DecodeGuanoData(metadataString);
                                 }
@@ -595,7 +740,7 @@ namespace BatRecordingManager
                 {
                     DecodeGuanoData(zcMetadata.m_GuanoData);
                 }
-                metadata = new byte[10];
+                rawMetadata = new byte[10];
                 if (m_Start == null || DateTime.Now - m_Start.Value < new TimeSpan(0, 5, 0))
                 {
                     m_Start = zcMetadata.m_startDateTime;
@@ -605,7 +750,7 @@ namespace BatRecordingManager
             }
             catch (Exception)
             {
-                metadata = null;
+                rawMetadata = null;
                 result = false;
             }
 
@@ -700,8 +845,10 @@ namespace BatRecordingManager
         {
             var result = "";
 
+            if (latitude == 0.0d && longitude == 0.0d) return (result); // not valid for this location
+
             var nmea2OSG = new NMEA2OSG();
-            if (latitude >= -90.0d && latitude <= 90.0d && longitude >= -180.0d && longitude <= 180.0d)
+            if (latitude >= -48.0d && latitude <= 63.0d && longitude >= -12.0d && longitude <= 3.0d) // generous limits for UK and Ireland
                 // we have valid latitudes and longitudes
                 // for now just assume they are in the OS grid ref acceptable area
 
@@ -709,6 +856,14 @@ namespace BatRecordingManager
                     result = nmea2OSG.ngr;
 
             return result;
+        }
+
+        internal bool isValidLocation
+        {
+            get
+            {
+                return (GPSLocation.IsValidLocation((decimal?)m_Latitude, (decimal?)m_Longitude));
+            }
         }
 
         /// <summary>

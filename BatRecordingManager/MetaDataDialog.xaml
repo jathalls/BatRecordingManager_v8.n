@@ -1,0 +1,36 @@
+﻿<Window x:Class="BatRecordingManager.MetaDataDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BatRecordingManager"
+        mc:Ignorable="d"
+        Title="MetaDataDialog" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="30" />
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal"  Grid.Row="1" HorizontalAlignment="Right">
+            <Button
+                x:Name="CloseButton"
+                Content="Close"
+                Style="{StaticResource SimpleButton}"
+                Margin="5,5,5,5" Click="CloseButton_Click" />
+        </StackPanel>
+
+        <DataGrid
+            x:Name="MetaDataGrid"
+            Grid.Row="0"
+            ItemsSource="{Binding Path=Metas}"
+            AutoGenerateColumns="false">
+            <DataGrid.Columns>
+                <DataGridTextColumn x:Name="TypeColumn" Binding="{Binding Type}" Header="Type"
+                                                 Width="50" />
+                <DataGridTextColumn x:Name="LabelColumn" Binding="{Binding Label}" Header="Label"
+                                                 Width="200" />
+                <DataGridTextColumn x:Name="ValueColumn" Binding="{Binding Value}" Header="Value" Width="100*" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

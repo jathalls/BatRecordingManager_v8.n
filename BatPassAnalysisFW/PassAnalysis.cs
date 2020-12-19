@@ -9,12 +9,13 @@ using System.Drawing.Imaging;
 using System.Linq;
 
 /* Notes
- * 
+ *
  * As at 16:50 on April 1 2020 there is a tendency to include some echoes in the pulse width making the duration estimate overlong.
  * There is typically (in this recording) a 3ms gap between pulse and echo so the leadout period should set to about 1ms while making sure that
  * the interval excludes the treatment of the echo as a a separate pulse.
  * The pulse interval is better given as start to start as the starts are better defined than the ends if some echo gets included.
  * */
+
 namespace BatPassAnalysisFW
 {
     /// <summary>
@@ -34,13 +35,203 @@ namespace BatPassAnalysisFW
         /// the name of the file to be processed
         /// </summary>
 
-
-
-
-
-
-
         public enum peakState { NOTINPEAK, INPEAKLEADIN, INPEAK, INPEAKLEADOUT };
+
+        /// <summary>
+        /// Returns a bitmap of a graph of the supplied data with the width of the size of the data array
+        /// </summary>
+        /// <param name="shortData">The data to be graphed</param>
+        /// <param name="peakList">optional list of Peak of the detected peaks in the graph</param>
+        /// <param name="LengthFactor">ratio of pass width in samples to the size of the smoothed datablock plotted</param>
+        /// <param name="blockSize"></param>
+        /// <returns></returns>
+        public static Bitmap GetBitmap(ref List<float> shortData, ref ObservableList<Peak> peakList, double PassLengthInSamples = 0.0d, int blockSize = 1)
+
+        {
+            shortData = (from d in shortData select (float)Math.Abs(d)).ToList<float>();
+            if (PassLengthInSamples <= 0.0d) PassLengthInSamples = shortData.Count;
+
+            int widthFactor = 1;
+            int dataSize = shortData.Count();
+            while (dataSize * widthFactor < 1500) widthFactor++;
+            int imageHeight = (int)(0.56f * dataSize * widthFactor);
+            int imageWidth = dataSize * widthFactor;
+            var bmp = new Bitmap(imageWidth, imageHeight, PixelFormat.Format32bppArgb);
+            //var bmp = new Bitmap(dataSize , imageHeight, PixelFormat.Format32bppArgb);
+
+            Debug.WriteLine($"Image is {dataSize * widthFactor}x{imageHeight}");
+            float AbsoluteThreshold = 0.0f;
+            int sampleRate = 0;
+            int HzPerSample = 0;
+            if (peakList != null && peakList.Any())
+            {
+                if (peakList.First() is SpectralPeak sp)
+                {
+                    sampleRate = 0;
+                    HzPerSample = sp.GetHzPerSample();
+                    AbsoluteThreshold = sp.AbsoluteThreshold;
+                }
+                else
+                {
+                    sampleRate = peakList.First().GetSampleRatePerSecond();
+                    HzPerSample = 0;
+                    AbsoluteThreshold = peakList.First().AbsoluteThreshold;
+                }
+            }
+
+            Debug.WriteLine($"AbsThreshold={AbsoluteThreshold}");
+
+            int dataOffset = 50;
+            if (peakList == null || peakList.Count() <= 0) dataOffset = 0;
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                //int[] normalData = new float[data.Length];
+                int plotHeight = imageHeight - dataOffset;
+                var max = shortData.Max();
+                var min = shortData.Min();
+                var range = max;
+                var mean = shortData.Average();
+                var scaleFactor = plotHeight / max;
+                Debug.WriteLine($"ScaleFactor={scaleFactor} Min={min}, Range={range}");
+                var scaledData = shortData.Select(val => (int)(val * scaleFactor)).ToList();
+                //draw the graph of the data
+                //Debug.WriteLine($"shortData:- Max={max}, Min={min}, Range={range} peak value={(int)(((max - min) / range) * (height - 1))}, mean={mean}");
+                int i = 0;
+                Pen blackPen = new Pen(new SolidBrush(Color.Black));
+                Pen redPen = new Pen(new SolidBrush(Color.Red));
+                var first = scaledData[0];
+                int scaledThreshold = (int)((AbsoluteThreshold) * scaleFactor);
+                Point last = new Point(0, plotHeight - first);
+                Debug.WriteLine($"ScaledThreshold={scaledThreshold} ImageHt={imageHeight} plotHt={plotHeight} offset={dataOffset}");
+
+                for (int k = 1; k < scaledData.Count(); k++)
+                {
+                    var val = scaledData[k];
+                    Pen pen = blackPen;
+                    if (val > scaledThreshold)
+                    {
+                        pen = redPen;
+                    }
+                    else
+                    {
+                        pen = blackPen;
+                    }
+
+                    Point pt = new Point(i += widthFactor, plotHeight - (val));
+
+                    g.DrawLine(pen, last, pt);
+                    last = pt;
+                }
+
+                //draw the baseline and threshold line
+                //float threshold = mean*(float)Factor;
+                //int ptMean= (int)((mean ) *scaleFactor);
+                //int ptThresold = (int)(((threshold - min) / range) * (height - 1));
+                //int ptThreshold = (int)(ptMean * Factor);
+                //int baseline = imageHeight - (ptMean+dataOffset );
+                //Debug.WriteLine($"mean={mean} threshold={threshold} for factor {Factor} giving pos {ptMean}");
+                //g.DrawLine(redPen, new Point(0, baseline), new Point((dataSize*widthFactor)-1, baseline));
+
+                g.DrawLine(new Pen(new SolidBrush(Color.Green)), new Point(0, plotHeight - scaledThreshold), new Point((dataSize * widthFactor) - 1, plotHeight - scaledThreshold));
+                Debug.WriteLine($"Draw threshold at {plotHeight - scaledThreshold}");
+
+                if (sampleRate == 0)
+                {// assume we are plotting a spectrum and include a frequency scale
+                    int fsdHz = shortData.Count * HzPerSample;
+                    for (int j = 0, k = 0; j < fsdHz; j += 1000, k++)
+                    {
+                        int ht = 10;
+                        if (k % 10 == 0) ht = 20;
+                        int xpos = widthFactor * (int)(j / (float)HzPerSample);
+                        g.DrawLine(blackPen, new Point(xpos, plotHeight + 1), new Point(xpos, plotHeight + ht + 1));
+                    }
+                }
+                else
+                {// assume we are plotting envelopes and have a time scale
+                    int ms = sampleRate / 1000;
+                    int fullSize = shortData.Count;
+                    Debug.WriteLine($"Bitmap:- SR={sampleRate} step={ms} size={fullSize} ");
+
+                    for (int j = 0, k = 0; j < fullSize; j += ms, k++)
+                    {
+                        int xpos = j;
+                        int ht = 5;
+                        if ((k % 10) == 0) ht = 10;
+                        if ((k % 100) == 0) ht = 15;
+                        if ((k % 1000) == 0) ht = 20;
+                        g.DrawLine(blackPen, new Point(xpos, plotHeight + 1), new Point(xpos, plotHeight + ht + 1));
+                    }
+                }
+
+                if (peakList != null && peakList.Count > 0)
+                {
+                    foreach (var peak in peakList)
+                    {
+                        //Debug.WriteLine($"{peak.pulse_Number} at {peak.GetStartAsSampleInSeg() / blocksize},{height/2} to {(int)((peak.GetStartAsSampleInSeg() + peak.getPeakWidthSamples()) / blocksize)}" +
+                        //   $"mean={mean} ptmean={ptMean} line at {ptMean+dataOffset}");
+                        int peakStartPos = (int)Math.Ceiling(imageWidth * (peak.getStartAsSampleInPass() / PassLengthInSamples));
+
+                        g.DrawString(peak.peak_Number.ToString(), new Font(FontFamily.GenericMonospace, 8), new SolidBrush(Color.Blue), new PointF(peakStartPos, dataOffset / 2));
+
+                        Rectangle rect = new Rectangle();
+                        double widthScale = peak.getPeakWidthSamples() / PassLengthInSamples;
+                        rect.Width = (int)Math.Ceiling(imageWidth * widthScale);
+                        if (rect.Width < 4) rect.Width = 4;
+                        rect.Height = 4;
+                        rect.X = peakStartPos;
+                        if (rect.X < 0) rect.X = 0;
+                        rect.Y = plotHeight / 2;
+                        float scaledThresholdLine = peak.AbsoluteThreshold * scaleFactor;
+                        var p = (int)(scaledThresholdLine);
+                        rect.Y = plotHeight - (p);
+
+                        g.DrawRectangle(new Pen(new SolidBrush(Color.Red)), rect);
+                        Debug.WriteLine("");
+                        Debug.WriteLine($"Image {imageWidth} x {imageHeight}");
+                        Debug.WriteLine($"Peak start at {peak.getStartAsSampleInPass()} in {PassLengthInSamples} of width {peak.getPeakWidthSamples()}");
+                        Debug.WriteLine($"Rect is {rect.Width}x{rect.Height} at {rect.X},{rect.Y}");
+
+                        Debug.WriteLine($"At peak {peak.peak_Number} Threshold={peak.AbsoluteThreshold}={scaledThreshold} plotted at {dataOffset}+{p}={dataOffset + p} width={peak.peakWidthMs:#0.##}");
+                        Debug.WriteLine($"start={peak.getStartAsSampleInPass()},smooth=20,blockSize={blockSize},widthFactor={widthFactor}");
+                        Debug.WriteLine($"x={rect.X} y={rect.Y} w={rect.Width} h={rect.Height}");
+                    }
+                }
+                Debug.WriteLine($"Draw zero-line and scale at imageheight-{dataOffset}={plotHeight}");
+                g.DrawLine(new Pen(new SolidBrush(Color.LightGray)), new Point(0, plotHeight + 1), new Point((dataSize * widthFactor) - 1, plotHeight + 1));
+            }
+            return (bmp);
+        }
+
+        /// <summary>
+        /// returns an envelope graph for the selected pass
+        /// Length factor is a number <1 is the reduction in length from pass to envelope
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="peakList"></param>
+        /// <param name="PasslengthInSamples"></param>
+        /// <returns></returns>
+        public static Bitmap GetGraph(ref float[] data, ref ObservableList<Peak> peakList, double PasslengthInSamples)
+        {
+            if (data == null || data.Length <= 1900) return (null);
+            List<float> shortData = new List<float>();
+            int blocksize = (int)Math.Ceiling(data.Length / 1900.0d);
+
+            if (data.Length > blocksize && blocksize > 1)
+            {
+                for (int s = 0; s < data.Length - blocksize; s += blocksize)
+                {
+                    var segment = data.Skip(s).Take(blocksize).Average();
+                    shortData.Add(segment);
+                }
+            }
+            else
+            {
+                foreach (var val in data) shortData.Add(val);
+            }
+
+            Bitmap bmp = GetBitmap(ref shortData, ref peakList, PasslengthInSamples, blocksize);
+            return (bmp);
+        }
 
         /// <summary>
         /// scans a data array looking for peaks that are above tha background noise level, and for each peak creates
@@ -155,6 +346,7 @@ namespace BatPassAnalysisFW
                             leadArea = dataInPass[sampleInPass];
                         }
                         break;
+
                     case peakState.INPEAKLEADIN:
                         if (dataInPass[sampleInPass] > limit)
                         {
@@ -182,6 +374,7 @@ namespace BatPassAnalysisFW
                             //Debug.WriteLine($"lead in failed with count={leadInCount}");
                         }
                         break;
+
                     case peakState.INPEAK:
                         if (dataInPass[sampleInPass] > limit)
                         {
@@ -199,6 +392,7 @@ namespace BatPassAnalysisFW
                             leadArea = dataInPass[sampleInPass];
                         }
                         break;
+
                     case peakState.INPEAKLEADOUT:
                         //Debug.WriteLine("\nleadout");
                         if (dataInPass[sampleInPass] > limit)
@@ -266,7 +460,6 @@ namespace BatPassAnalysisFW
                                         lastStart = peakStartInPass;
                                         //}
                                     }
-
                                 }
                                 maxValue = float.MinValue;
                             }
@@ -284,207 +477,6 @@ namespace BatPassAnalysisFW
             return ($"found {peakList.Count} peaks");
         }
 
-
-
-        /// <summary>
-        /// returns an envelope graph for the selected pass
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="peakList"></param>
-        /// <param name="Factor"></param>
-        /// <returns></returns>
-        public static Bitmap GetGraph(ref float[] data, ref ObservableList<Peak> peakList, double Factor)
-        {
-
-
-            if (data == null || data.Length <= 1900) return (null);
-            List<float> shortData = new List<float>();
-            int blocksize = data.Length / 1900;
-
-
-
-            if (data.Length > blocksize && blocksize > 1)
-            {
-                for (int s = 0; s < data.Length - blocksize; s += blocksize)
-                {
-                    var segment = data.Skip(s).Take(blocksize).Average();
-                    shortData.Add(segment);
-
-                }
-            }
-            else
-            {
-                foreach (var val in data) shortData.Add(val);
-            }
-
-            Bitmap bmp = GetBitmap(ref shortData, ref peakList, Factor, blocksize);
-            return (bmp);
-        }
-
-        /// <summary>
-        /// Returns a bitmap of a graph of the supplied data with the width of the size of the data array
-        /// </summary>
-        /// <param name="shortData">The data to be graphed</param>
-        /// <param name="peakList">optional list of Peak of the detected peaks in the graph</param>
-        /// <param name="Factor">ratio of pass width in samples to the size of the smoothed datablock plotted</param>
-        /// <param name="blockSize"></param>
-        /// <returns></returns>
-        public static Bitmap GetBitmap(ref List<float> shortData, ref ObservableList<Peak> peakList, double Factor = 1.0, int blockSize = 1)
-
-        {
-            shortData = (from d in shortData select (float)Math.Abs(d)).ToList<float>();
-
-            int widthFactor = 1;
-            int dataSize = shortData.Count();
-            while (dataSize * widthFactor < 1500) widthFactor++;
-            int imageHeight = (int)(0.56f * dataSize * widthFactor);
-            var bmp = new Bitmap(dataSize * widthFactor, imageHeight, PixelFormat.Format32bppArgb);
-            //var bmp = new Bitmap(dataSize , imageHeight, PixelFormat.Format32bppArgb);
-
-
-            Debug.WriteLine($"Image is {dataSize * widthFactor}x{imageHeight}");
-            float AbsoluteThreshold = 0.0f;
-            int sampleRate = 0;
-            int HzPerSample = 0;
-            if (peakList != null && peakList.Any())
-            {
-                if (peakList.First() is SpectralPeak sp)
-                {
-                    sampleRate = 0;
-                    HzPerSample = sp.GetHzPerSample();
-                    AbsoluteThreshold = sp.AbsoluteThreshold;
-
-                }
-                else
-                {
-                    sampleRate = peakList.First().GetSampleRatePerSecond();
-                    HzPerSample = 0;
-                    AbsoluteThreshold = peakList.First().AbsoluteThreshold;
-                }
-            }
-
-            Debug.WriteLine($"AbsThreshold={AbsoluteThreshold}");
-
-            int dataOffset = 50;
-            if (peakList == null || peakList.Count() <= 0) dataOffset = 0;
-            using (Graphics g = Graphics.FromImage(bmp))
-            {
-                //int[] normalData = new float[data.Length];
-                int plotHeight = imageHeight - dataOffset;
-                var max = shortData.Max();
-                var min = shortData.Min();
-                var range = max;
-                var mean = shortData.Average();
-                var scaleFactor = plotHeight / max;
-                Debug.WriteLine($"ScaleFactor={scaleFactor} Min={min}, Range={range}");
-                var scaledData = shortData.Select(val => (int)(val * scaleFactor)).ToList();
-                //draw the graph of the data
-                //Debug.WriteLine($"shortData:- Max={max}, Min={min}, Range={range} peak value={(int)(((max - min) / range) * (height - 1))}, mean={mean}");
-                int i = 0;
-                Pen blackPen = new Pen(new SolidBrush(Color.Black));
-                Pen redPen = new Pen(new SolidBrush(Color.Red));
-                var first = scaledData[0];
-                int scaledThreshold = (int)((AbsoluteThreshold) * scaleFactor);
-                Point last = new Point(0, plotHeight - first);
-                Debug.WriteLine($"ScaledThreshold={scaledThreshold} ImageHt={imageHeight} plotHt={plotHeight} offset={dataOffset}");
-
-                for (int k = 1; k < scaledData.Count(); k++)
-                {
-                    var val = scaledData[k];
-                    Pen pen = blackPen;
-                    if (val > scaledThreshold)
-                    {
-                        pen = redPen;
-                    }
-                    else
-                    {
-                        pen = blackPen;
-                    }
-
-                    Point pt = new Point(i += widthFactor, plotHeight - (val));
-
-                    g.DrawLine(pen, last, pt);
-                    last = pt;
-                }
-
-                //draw the baseline and threshold line
-                //float threshold = mean*(float)Factor;
-                //int ptMean= (int)((mean ) *scaleFactor);
-                //int ptThresold = (int)(((threshold - min) / range) * (height - 1));
-                //int ptThreshold = (int)(ptMean * Factor);
-                //int baseline = imageHeight - (ptMean+dataOffset );
-                //Debug.WriteLine($"mean={mean} threshold={threshold} for factor {Factor} giving pos {ptMean}");
-                //g.DrawLine(redPen, new Point(0, baseline), new Point((dataSize*widthFactor)-1, baseline));
-
-
-                g.DrawLine(new Pen(new SolidBrush(Color.Green)), new Point(0, plotHeight - scaledThreshold), new Point((dataSize * widthFactor) - 1, plotHeight - scaledThreshold));
-                Debug.WriteLine($"Draw threshold at {plotHeight - scaledThreshold}");
-
-
-
-                if (sampleRate == 0)
-                {// assume we are plotting a spectrum and include a frequency scale
-                    int fsdHz = shortData.Count * HzPerSample;
-                    for (int j = 0, k = 0; j < fsdHz; j += 1000, k++)
-                    {
-                        int ht = 10;
-                        if (k % 10 == 0) ht = 20;
-                        int xpos = widthFactor * (int)(j / (float)HzPerSample);
-                        g.DrawLine(blackPen, new Point(xpos, plotHeight + 1), new Point(xpos, plotHeight + ht + 1));
-                    }
-                }
-                else
-                {// assume we are plotting envelopes and have a time scale
-                    int ms = sampleRate / 1000;
-                    int fullSize = shortData.Count;
-                    Debug.WriteLine($"Bitmap:- SR={sampleRate} step={ms} size={fullSize} ");
-
-                    for (int j = 0, k = 0; j < fullSize; j += ms, k++)
-                    {
-                        int xpos = j;
-                        int ht = 5;
-                        if ((k % 10) == 0) ht = 10;
-                        if ((k % 100) == 0) ht = 15;
-                        if ((k % 1000) == 0) ht = 20;
-                        g.DrawLine(blackPen, new Point(xpos, plotHeight + 1), new Point(xpos, plotHeight + ht + 1));
-                    }
-
-
-                }
-
-                if (peakList != null && peakList.Count > 0)
-                {
-                    foreach (var peak in peakList)
-                    {
-                        //Debug.WriteLine($"{peak.pulse_Number} at {peak.GetStartAsSampleInSeg() / blocksize},{height/2} to {(int)((peak.GetStartAsSampleInSeg() + peak.getPeakWidthSamples()) / blocksize)}" +
-                        //   $"mean={mean} ptmean={ptMean} line at {ptMean+dataOffset}");
-                        g.DrawString(peak.peak_Number.ToString(), new Font(FontFamily.GenericMonospace, 8), new SolidBrush(Color.Blue), new PointF((peak.getStartAsSampleInPass() / blockSize) / widthFactor, dataOffset / 2));
-
-
-
-                        Rectangle rect = new Rectangle();
-                        rect.Width = (int)((((peak.getPeakWidthSamples() * Factor) / blockSize) / widthFactor)) + 10;
-                        rect.Height = 4;
-                        rect.X = (int)(((((peak.getStartAsSampleInPass() * Factor) / blockSize) / widthFactor))) - 5;
-                        if (rect.X < 0) rect.X = 0;
-                        rect.Y = plotHeight / 2;
-                        float scaledThresholdLine = peak.AbsoluteThreshold * scaleFactor;
-                        var p = (int)(scaledThresholdLine);
-                        rect.Y = plotHeight - (p);
-
-                        g.DrawRectangle(new Pen(new SolidBrush(Color.Red)), rect);
-                        Debug.WriteLine($"At peak {peak.peak_Number} Threshold={peak.AbsoluteThreshold}={scaledThreshold} plotted at {dataOffset}+{p}={dataOffset + p} width={peak.peakWidthMs:#0.##}");
-                        Debug.WriteLine($"start={peak.getStartAsSampleInPass()},smooth=20,blockSize={blockSize},widthFactor={widthFactor}");
-                        Debug.WriteLine($"x={rect.X} y={rect.Y} w={rect.Width} h={rect.Height}");
-                    }
-                }
-                Debug.WriteLine($"Draw zero-line and scale at imageheight-{dataOffset}={plotHeight}");
-                g.DrawLine(new Pen(new SolidBrush(Color.LightGray)), new Point(0, plotHeight + 1), new Point((dataSize * widthFactor) - 1, plotHeight + 1));
-            }
-            return (bmp);
-
-        }
-
         /*
         /// <summary>
         /// Provides arguments for an event.
@@ -495,17 +487,17 @@ namespace BatPassAnalysisFW
             public new static readonly AnalysisResultEventArgs Empty = new AnalysisResultEventArgs("");
 
             #region Public Properties
+
             /// <summary>
             /// The text containing statistical details of the analysis so far
             /// to be inserted as is into a TextBox.text field
             /// </summary>
             public string text = "";
-            #endregion
 
-            #region Private / Protected
-            #endregion
+            #endregion Public Properties
 
             #region Constructors
+
             /// <summary>
             /// Constructs a new instance of the <see cref="CustomEventArgs" /> class.
             /// </summary>
@@ -513,7 +505,8 @@ namespace BatPassAnalysisFW
             {
                 this.text = text;
             }
-            #endregion
+
+            #endregion Constructors
         }
 
         public event EventHandler<AnalysisResultEventArgs> ResultProduced;
@@ -521,5 +514,4 @@ namespace BatPassAnalysisFW
         protected virtual void OnResultProduced(AnalysisResultEventArgs e) => ResultProduced?.Invoke(this, e);
         */
     }
-
 }

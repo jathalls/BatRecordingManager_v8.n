@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -95,8 +95,6 @@ namespace BatRecordingManager
     /// </summary>
     public partial class RecordingForm : Window
     {
-        private BulkObservableCollection<bool> _modifiedFlag = new BulkObservableCollection<bool>();
-
         /// <summary>
         ///     list with an element for each labelled segment.  Each segment has a list of
         ///     images which may (and often will) be empty
@@ -165,6 +163,8 @@ namespace BatRecordingManager
 
             this.recording = recording;
         }
+
+        private BulkObservableCollection<bool> _modifiedFlag = new BulkObservableCollection<bool>();
 
         /// <summary>
         ///     Adds a new segment. Editing is not done here but is done in place.
@@ -427,10 +427,10 @@ namespace BatRecordingManager
                     {
                         var segment = seg;
 
-                        var bats = DBAccess.GetDescribedBats(segment.Comment);
-
+                        var bats = DBAccess.GetDescribedBats(segment.Comment, out string _);
+                        string autoID = Tools.getAutoIdFromComment(segment.Comment);
                         var segmentLine = Tools.FormattedSegmentLine(segment);
-                        var thisProcessedSegment = SegmentAndBatList.ProcessLabelledSegment(segmentLine, bats);
+                        var thisProcessedSegment = SegmentAndBatList.ProcessLabelledSegment(segmentLine, bats, autoID);
                         thisProcessedSegment.Segment = segment;
                         processedSegments.Add(thisProcessedSegment);
                     }

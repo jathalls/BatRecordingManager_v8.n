@@ -127,12 +127,12 @@ namespace BatRecordingManager
                         var sdLink = new SegmentData { SegmentId = segmentZero.Id, BinaryDataId = imageData.Id };
                         dc.SegmentDatas.InsertOnSubmit(sdLink);
                         dc.SubmitChanges();
-                        var referredToBats = GetDescribedBats(imageData.Description, BracketedText.INCLUDE);
-                        foreach (var bat in referredToBats)
+                        var referredToBats = GetDescribedBats(imageData.Description, out string _, BracketedText.INCLUDE);
+                        foreach (var bat in referredToBats.bats)
                         {
-                            var bsl = new BatSegmentLink { BatID = bat.Id, LabelledSegmentID = segmentZero.Id };
+                            var bsl = new BatSegmentLink { BatID = bat.Id, LabelledSegmentID = segmentZero.Id, ByAutoID = false };
                             var existingLinks = (from lnk in dc.BatSegmentLinks
-                                                 where lnk.BatID == bat.Id && lnk.LabelledSegmentID == segmentZero.Id
+                                                 where lnk.BatID == bat.Id && lnk.LabelledSegmentID == segmentZero.Id && !(lnk.ByAutoID ?? false)
                                                  select lnk).Any();
                             if (!existingLinks)
                                 // there is no existing link identical to the one we are about to add
@@ -198,6 +198,11 @@ namespace BatRecordingManager
                                              where rec.Id == recording.Id
                                              select rec).SingleOrDefault();
                     DeleteAllSegmentsInRecording(recordingToDelete, dc);
+                    if (recordingToDelete.Metas != null)
+                    {
+                        dc.Metas.DeleteAllOnSubmit(recordingToDelete.Metas);
+                        dc.SubmitChanges();
+                    }
 
                     dc.Recordings.DeleteOnSubmit(recordingToDelete);
                     dc.SubmitChanges();
@@ -248,7 +253,7 @@ namespace BatRecordingManager
                     //  Stopwatch watch2 = Stopwatch.StartNew();
                     var segmentsWithBat = from seg in recording.LabelledSegments
                                           from bsLink in seg.BatSegmentLinks
-                                          where bsLink.BatID == bat.Id
+                                          where bsLink.BatID == bat.Id && !(bsLink.ByAutoID ?? false)
                                           select bsLink.LabelledSegment;
 
                     if (!segmentsWithBat.IsNullOrEmpty())
@@ -364,7 +369,7 @@ namespace BatRecordingManager
                 //       from sdLink in seg.SegmentDatas
                 //       select sdLink.BinaryData;
                 imgs = from bsLnk in bat.BatSegmentLinks
-                       where bsLnk.LabelledSegment.RecordingID == recording.Id
+                       where bsLnk.LabelledSegment.RecordingID == recording.Id && !(bsLnk.ByAutoID ?? false)
                        from segData in bsLnk.LabelledSegment.SegmentDatas
                        select segData.BinaryData;
             else
@@ -483,10 +488,11 @@ namespace BatRecordingManager
             if (bat != null)
             {
                 var segments = (from link in bat.BatSegmentLinks
+                                where !(link.ByAutoID ?? false)
                                 select link.LabelledSegment).Distinct();
                 if (!segments.IsNullOrEmpty())
                     foreach (var seg in segments)
-                        stats.Add(seg.EndOffset - seg.StartOffset);
+                        stats.Add(seg.EndOffset - seg.StartOffset, seg.AutoID);
             }
 
             return stats;
@@ -520,7 +526,8 @@ namespace BatRecordingManager
                     StartOffset = new TimeSpan(0L),
                     EndOffset = new TimeSpan(0L),
                     Comment = "Recording Images:-",
-                    RecordingID = recording.Id
+                    RecordingID = recording.Id,
+                    AutoID = ""
                 };
                 dc.LabelledSegments.InsertOnSubmit(segmentZero);
                 dc.SubmitChanges();
@@ -535,10 +542,10 @@ namespace BatRecordingManager
         /// <returns>
         /// </returns>
         [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
-        public static BulkObservableCollection<Bat> GetSortedBatList()
+        public static List<Bat> GetSortedBatList()
         {
             var dc = GetFastDataContext();
-            var result = new BulkObservableCollection<Bat>();
+            var result = new List<Bat>();
             result.AddRange(dc.Bats.OrderBy(bat => bat.SortIndex));
             /* from bat in dc.Bats
                        orderby bat.SortIndex
@@ -678,7 +685,8 @@ namespace BatRecordingManager
                         RecordingID = recordingId,
                         StartOffset = segmentAndBatList.Segment.StartOffset,
                         EndOffset = segmentAndBatList.Segment.EndOffset,
-                        Comment = segmentAndBatList.Segment.Comment
+                        Comment = segmentAndBatList.Segment.Comment,
+                        AutoID = segmentAndBatList.Segment.AutoID
                     };
 
                     commentIsChanged = true;
@@ -695,6 +703,7 @@ namespace BatRecordingManager
                         commentIsChanged = true;
                         existingSegment.Comment = segmentAndBatList.Segment.Comment;
                     }
+                    existingSegment.AutoID = segmentAndBatList.Segment.AutoID;
                 }
 
                 dc.SubmitChanges();
@@ -706,6 +715,15 @@ namespace BatRecordingManager
             }
 
             UpdateBatSegmentLinks(segmentAndBatList, existingSegment, dc);
+            /*
+            if (!string.IsNullOrWhiteSpace(existingSegment.AutoID))
+            {
+                var autoBats = GetDescribedBats(existingSegment.AutoID);
+                var segBatList = new SegmentAndBatList();
+                segBatList.ByAutoID = true;
+                segBatList.BatList = autoBats;
+                UpdateBatSegmentLinks(segBatList, existingSegment, dc);
+            }*/ // should no longer be necessary
             // Use the batList to establish all the relevant bat/segment links
             // If the comment is unchanged the batList must be unchange
 
@@ -750,13 +768,22 @@ namespace BatRecordingManager
             }
             else
             {
+                string autoID = null;
+                if (recording.Metas != null)
+                {
+                    autoID = (from meta in recording.Metas
+                              where meta.Label.ToLower().Contains("auto")
+                              select meta.Value).FirstOrDefault();
+                }
+
                 // we do have some segments to update
-                var bats = GetSortedBatList();
+                var batList = new BatList();
+                batList.bats = GetSortedBatList();
                 for (var i = 0; i < recording.LabelledSegments.Count; i++)
                 {
                     var segBatList =
                         SegmentAndBatList.ProcessLabelledSegment(
-                            Tools.FormattedSegmentLine(recording.LabelledSegments[i]), bats);
+                            Tools.FormattedSegmentLine(recording.LabelledSegments[i]), batList, autoID);
                     UpdateLabelledSegment(segBatList, recording.Id, listOfSegmentImageLists[i], dc);
                 }
             }
@@ -872,6 +899,7 @@ namespace BatRecordingManager
             if (newCall.StartFrequency == null && newCall.EndFrequency == null && newCall.PeakFrequency == null &&
                 newCall.PulseDuration == null && newCall.PulseInterval == null &&
                 string.IsNullOrWhiteSpace(newCall.CallType) &&
+                string.IsNullOrWhiteSpace(newCall.CallNotes) &&
                 string.IsNullOrWhiteSpace(newCall.CallFunction))
                 result = false;
 
@@ -1054,6 +1082,7 @@ namespace BatRecordingManager
                                    where bc.BatID == selectedBat.Id
                                    select bc;
 
+                    // deletes all links autoid or manualid
                     var batSegments = from bsl in dc.BatSegmentLinks
                                       where bsl.BatID == selectedBat.Id
                                       select bsl;
@@ -1226,6 +1255,8 @@ namespace BatRecordingManager
                         dc.RecordingSessions.DeleteOnSubmit(sessionsToDelete);
                         dc.SubmitChanges();
                     }
+
+                    CleanCallTable();
                 }
         }
 
@@ -1294,7 +1325,7 @@ namespace BatRecordingManager
                 if (bat.BatSegmentLinks != null)
                 {
                     var segmentsForBat = from link in bat.BatSegmentLinks
-                                         where link.LabelledSegment.SegmentDatas.Count > 0
+                                         where link.LabelledSegment.SegmentDatas.Count > 0 && !(link.ByAutoID ?? false)
                                          select link.LabelledSegment;
                     if (!segmentsForBat.IsNullOrEmpty())
                         foreach (var seg in segmentsForBat)
@@ -1388,7 +1419,7 @@ namespace BatRecordingManager
             var result = Enumerable.Empty<BatSessionData>();
 
             result = from bsLink in dc.BatSessionLinks
-                     where bsLink.BatID == batID
+                     where !(bsLink.ByAutoID ?? false) && bsLink.BatID == batID
                      select new BatSessionData(
                          bsLink.SessionID,
                          bsLink.RecordingSession.SessionTag,
@@ -1397,7 +1428,7 @@ namespace BatRecordingManager
                          bsLink.RecordingSession.SessionStartTime,
                          bsLink.BatID,
                          bsLink.Bat.Name,
-                         (from bsLnk in dc.BatSegmentLinks.Where(lnk => lnk.BatID == batID)
+                         (from bsLnk in dc.BatSegmentLinks.Where(lnk => lnk.BatID == batID && !(lnk.ByAutoID ?? false))
                           join sdLnk in dc.SegmentDatas.Where(sd =>
                          sd.LabelledSegment.Recording.RecordingSessionId == bsLink.SessionID) on bsLnk
                          .LabelledSegmentID equals sdLnk.SegmentId
@@ -1407,13 +1438,13 @@ namespace BatRecordingManager
                          (from sdLnk in dc.SegmentDatas.Where(lnk =>
                                  lnk.LabelledSegment.Recording.RecordingSessionId == bsLink.SessionID)
                           where sdLnk.LabelledSegment.StartOffset == sdLnk.LabelledSegment.EndOffset
-                          join brLnk in dc.BatRecordingLinks.Where(brl => brl.BatID == batID) on sdLnk.LabelledSegment
+                          join brLnk in dc.BatRecordingLinks.Where(brl => !(brl.ByAutoID ?? false) && brl.BatID == batID) on sdLnk.LabelledSegment
                          .RecordingID equals brLnk.RecordingID
                           select sdLnk).Count(),
 
                          //dc.SegmentDatas.Where(sdLnk => sdLnk.LabelledSegment.Recording.RecordingSession.Id == bsLink.SessionID).Count(),
-                         dc.BatRecordingLinks.Count(brLink =>
-                             brLink.Recording.RecordingSessionId == bsLink.SessionID && brLink.BatID == batID)
+                         dc.BatRecordingLinks.Where(brl => !(brl.ByAutoID ?? false)).Count(brLink =>
+                                 brLink.Recording.RecordingSessionId == bsLink.SessionID && brLink.BatID == batID)
                      );
 
             return result;
@@ -1425,7 +1456,7 @@ namespace BatRecordingManager
             try
             {
                 var result = (from brLink in dc.BatRecordingLinks
-                              where batIdList.Contains(brLink.BatID) &&
+                              where !(brLink.ByAutoID ?? false) && batIdList.Contains(brLink.BatID) &&
                                     sessionIdList.Contains(brLink.Recording.RecordingSessionId ?? -1)
                               select brLink).Count();
                 return result;
@@ -1451,6 +1482,7 @@ namespace BatRecordingManager
             if (!reportSessionList.IsNullOrEmpty())
                 bats = (from sess in reportSessionList
                         join bsl in dc.BatSegmentLinks on sess.Id equals bsl.LabelledSegment.Recording.RecordingSessionId
+                        where !(bsl.ByAutoID ?? false)
                         select bsl.Bat).Distinct();
 
             result.AddRange(bats);
@@ -1474,7 +1506,7 @@ namespace BatRecordingManager
             //var allBats = DBAccess.GetSortedBatList();
 
             foreach (var bat in dc.Bats)
-                if (!bat.BatSegmentLinks.IsNullOrEmpty())
+                if (!bat.BatSegmentLinks.Where(lnk => !(lnk.ByAutoID ?? false)).IsNullOrEmpty())
                 {
                     var thisBatStats = new BatStatistics(bat);
                     //thisBatStats = DBAccess.GetBatStatisticsForBat(bat);
@@ -1621,10 +1653,12 @@ namespace BatRecordingManager
         internal static BatReferenceDBLinqDataContext GetDataContext(bool? deferred)
         {
             BatReferenceDBLinqDataContext batReferenceDataContext = null;
-            // DONT do this - persistence makes changes to entities happen on the next SubmitChanges()
+
+            // DONT do the following - persistence makes changes to entities happen on the next SubmitChanges()
             // which causes conflicts because they may not happen in the right order and may not need to
             // be reflected in the database at all.
             //if (PersistentbatReferenceDataContext != null) return (PersistentbatReferenceDataContext);
+
             var workingDatabaseLocation = GetWorkingDatabaseLocation();
             var workingDatabaseFilename = GetWorkingDatabaseName(workingDatabaseLocation);
             List<string> tables = new List<string>();
@@ -1816,63 +1850,33 @@ namespace BatRecordingManager
         ///     Removes everything following the first { to eliminate call
         ///     parameters and the associated comments, and then uses the
         ///     tagMatcher class to identify bat tags in the remaining string.
+        ///     Does NOT include AutoID information in a trailing bracketd group
+        ///     starting (Auto=
         /// </summary>
         /// <param name="description">
         ///     The description.
         /// </param>
         /// <returns>
         /// </returns>
-        internal static BulkObservableCollection<Bat> GetDescribedBats(string description,
-            BracketedText extent = BracketedText.EXCLUDE)
-        {
-            var matchingBats = new BulkObservableCollection<Bat>();
-            if (string.IsNullOrWhiteSpace(description))
-            {
-                var nobat = GetBlankBat();
-                matchingBats.Add(nobat);
-                return matchingBats;
-            }
-
-            var dc = GetFastDataContext();
-
-            if (dc == null) return null;
-            var tagList = dc.BatTags.ToList(); // get a list of all known tags
-            foreach (var bat in dc.Bats)
-            {
-                var tag = new BatTag { Bat = bat, BatTag1 = bat.Name };
-                tagList.Add(tag); // add a tag for the name of each known bat
-            }
-
-            if (extent == BracketedText.EXCLUDE)
-            {
-                var len = description.IndexOf('{');
-                if (len >= 0)
-                    description = description.Substring(0, len); // get the working part of the comment to scan
-            }
-
-            var tagMatcher = new TagMatcher(tagList); // find matches for the tags
-            matchingBats.Clear();
-            matchingBats.AddRange(tagMatcher.Match(description));
-
-            return matchingBats;
-        }
-
-        internal static BulkObservableCollection<Bat> GetDescribedBats(string description, out string moddedDescription,
+        internal static BatList GetDescribedBats(string description, out string moddedDescription,
                             BracketedText extent = BracketedText.EXCLUDE)
         {
-            var matchingBats = new BulkObservableCollection<Bat>();
+            var matchingBats = new List<Bat>();
             var bracketed = "";
+            var result = new BatList();
             moddedDescription = description;
             if (string.IsNullOrWhiteSpace(description))
             {
                 var nobat = GetBlankBat();
+                nobat.ByAutoID = false;
                 matchingBats.Add(nobat);
-                return matchingBats;
+                result.bats = matchingBats;
+                return result;
             }
 
             var dc = GetFastDataContext();
 
-            if (dc == null) return null;
+            if (dc == null) return result;
             var tagList = dc.BatTags.ToList();
             foreach (var bat in dc.Bats)
             {
@@ -1890,13 +1894,35 @@ namespace BatRecordingManager
                 }
             }
 
+            tagList = dc.BatTags.ToList();
+            foreach (var bat in dc.Bats)
+            {
+                var tag = new BatTag { Bat = bat, BatTag1 = bat.Name };
+                tagList.Add(tag);
+            }
+
+            if (extent == BracketedText.EXCLUDE)
+            {
+                var len = description.IndexOf('{');
+                if (len >= 0)
+                {
+                    bracketed = description.Substring(len).Trim();
+                    description = description.Substring(0, len);
+                }
+            }
             var tagMatcher = new TagMatcher(tagList);
             matchingBats.Clear();
-            matchingBats.AddRange(tagMatcher.Match(description));
-            moddedDescription = tagMatcher.Substitute(description);
+
+            Tuple<string, string> manualAndAuto = separateManualAndAuto(description);
+
+            result.bats.AddRange(tagMatcher.Match(manualAndAuto.Item1));
+            moddedDescription = tagMatcher.Substitute(description) + $" {manualAndAuto.Item2}";
             moddedDescription = moddedDescription.Trim() + " " + bracketed;
 
-            return matchingBats;
+            tagMatcher = new TagMatcher(tagList);
+            result.autoBats.AddRange(tagMatcher.Match(manualAndAuto.Item2));
+
+            return result;
         }
 
         /// <summary>
@@ -2163,38 +2189,18 @@ namespace BatRecordingManager
             return result;
         }
 
-        /// <summary>
-        ///     Returns the number of recordings that relate to this bat
-        /// </summary>
-        /// <param name="bat"></param>
-        /// <returns></returns>
-        internal static int GetNumberOfRecordingsForBat(Bat bat)
-        {
-            //int result = (from lnk in bat.BatSegmentLinks
-            //              select lnk.LabelledSegment.Recording).Distinct().Count();
-            var result = bat.BatRecordingLinks.Count;
-            return result;
-        }
-
-        internal static int GetNumberOfSessionsForBat(Bat bat)
-        {
-            if (bat == null) return 0;
-            //int result = bat.GetSessions().Count;
-            var result = bat.BatSessionLinks.Count;
-            return result;
-        }
-
         internal static int GetNumRecordingImagesForBat(int id)
         {
             var dc = GetFastDataContext();
             var result = (from bsLnk in dc.BatSegmentLinks
+                          where !(bsLnk.ByAutoID ?? false)
                           join sdLnk in dc.SegmentDatas on bsLnk.LabelledSegmentID equals sdLnk.SegmentId
                           where bsLnk.BatID == id && bsLnk.LabelledSegment.StartOffset != bsLnk.LabelledSegment.EndOffset
                           select sdLnk.LabelledSegment).Count();
 
             var fullRecordImages = (from sdLnk in dc.SegmentDatas
                                     where sdLnk.LabelledSegment.StartOffset == sdLnk.LabelledSegment.EndOffset
-                                    join brLnk in dc.BatRecordingLinks.Where(brl => brl.BatID == id) on sdLnk.LabelledSegment.RecordingID
+                                    join brLnk in dc.BatRecordingLinks.Where(brl => !(brl.ByAutoID ?? false) && brl.BatID == id) on sdLnk.LabelledSegment.RecordingID
                                         equals brLnk.RecordingID
                                     select sdLnk).Count();
 
@@ -2247,7 +2253,8 @@ namespace BatRecordingManager
 
             var segs = from seg in dc.LabelledSegments
                        from link in seg.BatSegmentLinks
-                       where seg.Recording.RecordingSessionId == session.Id &&
+                       where !(link.ByAutoID ?? false) &&
+                             seg.Recording.RecordingSessionId == session.Id &&
                              link.BatID == bat.Id && seg.Recording.RecordingStartTime != null &&
                              seg.Recording.RecordingEndTime != null &&
                              !(seg.Recording.RecordingStartTime.Value > sampleEnd) &&
@@ -2358,7 +2365,7 @@ namespace BatRecordingManager
 
             foreach (var sid in sessionIdList)
                 linkList = linkList.Concat(from brLink in dc.BatRecordingLinks
-                                           where brLink.Recording.RecordingSessionId == sid
+                                           where !(brLink.ByAutoID ?? false) && brLink.Recording.RecordingSessionId == sid
                                            select brLink);
 
             var linkList2 = Enumerable.Empty<BatRecordingLink>();
@@ -2380,12 +2387,13 @@ namespace BatRecordingManager
                          rec.RecordingDate,
                          rec.RecordingStartTime,
                          (from bsl in dc.BatSegmentLinks
+                          where !(bsl.ByAutoID ?? false)
                           from seg in dc.LabelledSegments.Where(ls => ls.Id == bsl.LabelledSegmentID).DefaultIfEmpty()
                           where seg.RecordingID == brLink.RecordingID && bsl.BatID == brLink.BatID
                           select bsl).Count(),
                          (from seg in dc.LabelledSegments.Where(ls => ls.RecordingID == brLink.RecordingID).DefaultIfEmpty()
                           join bsl in dc.BatSegmentLinks on seg.Id equals bsl.LabelledSegmentID
-                          where bsl.BatID == brLink.BatID
+                          where !(bsl.ByAutoID ?? false) && bsl.BatID == brLink.BatID
                           join sdl in dc.SegmentDatas on seg.Id equals sdl.SegmentId
                           where seg.Id == bsl.LabelledSegmentID ||
                            seg.StartOffset == seg.EndOffset
@@ -2442,7 +2450,7 @@ namespace BatRecordingManager
         }
 
         internal static IQueryable<RecordingSession> GetPagedRecordingSessionList(int pageSize, int topOfScreen,
-            string field)
+                    string field)
         {
             var dc = GetFastDataContext();
             return GetPagedRecordingSessionList(pageSize, topOfScreen, field, dc);
@@ -2587,7 +2595,7 @@ namespace BatRecordingManager
             var result = Enumerable.Empty<BatSessionRecordingData>();
 
             result = from brLink in dc.BatRecordingLinks
-                     where brLink.BatID == batId && brLink.Recording.RecordingSessionId == SessionId
+                     where !(brLink.ByAutoID ?? false) && brLink.BatID == batId && brLink.Recording.RecordingSessionId == SessionId
                      select new BatSessionRecordingData(
                          brLink.Recording.RecordingSessionId,
                          brLink.RecordingID,
@@ -2595,9 +2603,10 @@ namespace BatRecordingManager
                          brLink.Recording.RecordingName,
                          brLink.Recording.RecordingDate,
                          brLink.Recording.RecordingStartTime,
-                         dc.BatSegmentLinks.Count(lnk =>
+                         dc.BatSegmentLinks.Count(lnk => !(lnk.ByAutoID ?? false) &&
                              lnk.LabelledSegment.RecordingID == brLink.RecordingID && lnk.BatID == batId),
                          (from bsLnk in dc.BatSegmentLinks
+                          where !(bsLnk.ByAutoID ?? false)
                           join sdLink in dc.SegmentDatas.Where(sdl =>
                              sdl.LabelledSegment.RecordingID == brLink.RecordingID) on
                          bsLnk.LabelledSegmentID equals sdLink.SegmentId
@@ -2606,7 +2615,7 @@ namespace BatRecordingManager
                           select sdLink.LabelledSegment).Count() +
                          (from sdLnk in dc.SegmentDatas.Where(sdl => sdl.LabelledSegment.RecordingID == brLink.RecordingID)
                           where sdLnk.LabelledSegment.StartOffset == sdLnk.LabelledSegment.EndOffset
-                          join brLnk in dc.BatRecordingLinks.Where(brl => brl.BatID == batId) on sdLnk.LabelledSegment
+                          join brLnk in dc.BatRecordingLinks.Where(brl => !(brl.ByAutoID ?? false) && brl.BatID == batId) on sdLnk.LabelledSegment
                          .RecordingID equals brLnk.RecordingID
                           select sdLnk).Count()
                      );
@@ -2709,7 +2718,7 @@ namespace BatRecordingManager
             var result = new BulkObservableCollection<StoredImage>();
 
             var segImages = from sdLnk in dc.SegmentDatas
-                            join bsLnk in dc.BatSegmentLinks.Where(bsl => bsl.BatID == batId) on sdLnk.SegmentId equals bsLnk
+                            join bsLnk in dc.BatSegmentLinks.Where(bsl => !(bsl.ByAutoID ?? false) && bsl.BatID == batId) on sdLnk.SegmentId equals bsLnk
                                 .LabelledSegmentID
                             where bsLnk.LabelledSegment.RecordingID == recordingId &&
                                   bsLnk.LabelledSegment.StartOffset != bsLnk.LabelledSegment.EndOffset
@@ -2991,6 +3000,7 @@ namespace BatRecordingManager
             if (bat?.BatSegmentLinks != null)
             {
                 var sessions = (from link in bat.BatSegmentLinks
+                                where !(link.ByAutoID ?? false)
                                 select link.LabelledSegment.Recording.RecordingSession).Distinct();
 
                 if (sessions != null) result.AddRange(sessions);
@@ -3041,6 +3051,7 @@ namespace BatRecordingManager
 
             var listOfBatsAndSegments = from seg in recording.LabelledSegments
                                         from lnk in seg.BatSegmentLinks
+                                        where !(lnk.ByAutoID ?? false)
                                         select new { bat = lnk.Bat, segment = lnk.LabelledSegment };
 
             foreach (var bat in listOfBatsAndSegments.Select(item => item.bat).Distinct())
@@ -3050,7 +3061,7 @@ namespace BatRecordingManager
                                          where item.bat.Id == bat.Id
                                          select item.segment;
 
-                foreach (var seg in segmentsForThisBat) stat.Add(seg.EndOffset - seg.StartOffset);
+                foreach (var seg in segmentsForThisBat) stat.Add(seg.EndOffset - seg.StartOffset, seg.AutoID);
                 result.Add(stat);
             }
 
@@ -3078,7 +3089,10 @@ namespace BatRecordingManager
             {
                 var batSegmentsinSession = from rec in recordingSession.Recordings
                                            from seg in rec.LabelledSegments
+
                                            from pass in seg.BatSegmentLinks
+                                           where !(pass.ByAutoID ?? false)
+
                                            select pass;
 
                 if (!batSegmentsinSession.IsNullOrEmpty())
@@ -3086,7 +3100,7 @@ namespace BatRecordingManager
                     {
                         var stat = new BatStats { batCommonName = pass.Bat.Name };
 
-                        stat.Add(pass.LabelledSegment.EndOffset - pass.LabelledSegment.StartOffset);
+                        stat.Add(pass.LabelledSegment.EndOffset - pass.LabelledSegment.StartOffset, pass.LabelledSegment.AutoID);
                         result.Add(stat);
                     }
             }
@@ -3230,6 +3244,16 @@ namespace BatRecordingManager
                 else
                 {
                     UpdateReferenceData(workingDatabaseLocation);
+                }
+
+                if (File.Exists(@".\BatReferenceXMLFileUpdate.xml"))
+                {
+                    CopyXmlDataToDatabase(@".\BatReferenceXMLFileUpdate.xml");
+                    if (File.Exists(@".\BatReferenceXMLFileLatest.xml"))
+                    {
+                        File.Delete(@".\BatReferenceXMLFileLatest.xml");
+                    }
+                    File.Move(@".\BatReferenceXMLFileUpdate.xml", @".\BatReferenceXMLFileLatest.xml");
                 }
 
                 //DBAccess.ResequenceBats();
@@ -3644,19 +3668,29 @@ namespace BatRecordingManager
                     if (existingRecording == null)
                     {
                         recording.RecordingSessionId = session.Id;
-                        existingRecording = recording;
+
+                        // if (existingRecording.Metas != null)
+                        // {
+                        //     existingRecording.Metas.Clear(); // we will add these back in later
+                        // }
+
                         dc.Recordings.InsertOnSubmit(recording);
+                        existingRecording = recording;
                     }
                     else
                     {
                         existingRecording.RecordingDate = recording.RecordingDate;
-                        existingRecording.RecordingEndTime = recording.RecordingEndTime;
+                        existingRecording.RecordingEndTime = recording.RecordingEndTime.HasValue ?
+                            (TimeSpan?)((new DateTime() + recording.RecordingEndTime.Value).TimeOfDay) :
+                            null;
                         existingRecording.RecordingGPSLatitude = recording.RecordingGPSLatitude;
                         existingRecording.RecordingGPSLongitude = recording.RecordingGPSLongitude;
                         existingRecording.RecordingName = recording.RecordingName;
                         existingRecording.RecordingNotes = recording.RecordingNotes;
                         existingRecording.RecordingSessionId = session.Id;
-                        existingRecording.RecordingStartTime = recording.RecordingStartTime;
+                        existingRecording.RecordingStartTime = recording.RecordingStartTime.HasValue ?
+                            (TimeSpan?)((new DateTime() + recording.RecordingStartTime.Value).TimeOfDay) :
+                            null;
                         //existingRecording.LabelledSegments.Clear();
                     }
 
@@ -3682,6 +3716,16 @@ namespace BatRecordingManager
                         }
                     }
                     dc.SubmitChanges();
+
+                    //if (!recording.Metas.IsNullOrEmpty())
+                    //{
+                    //    foreach (var meta in recording.Metas)
+                    //     {
+                    //         meta.RecordingId = existingRecording.Id;
+                    //         dc.Metas.InsertOnSubmit(meta);
+                    //     }
+                    //     dc.SubmitChanges();
+                    //}
 
                     // now we have a stored updated recording, update the labelled segments and their images
                     if (listOfSegmentAndBatLists != null)
@@ -3885,8 +3929,8 @@ namespace BatRecordingManager
         private static readonly string DBFileName = "BatReferenceDBv5.31.mdf";
 
         private static readonly string DBLocation = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    @"Echolocation\WinBLP\");
+                            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                            @"Echolocation\WinBLP\");
 
         private static readonly string DbVersion = "v5.31";
 
@@ -3915,10 +3959,11 @@ namespace BatRecordingManager
         ///     CONSTRAINT[Recording_BatRecording] FOREIGN KEY([RecordingID]) REFERENCES[dbo].[Recording] ([Id])"
         ///
         /// </summary>
-        private static readonly decimal DbVersionDec = 6.2m; // needs to be updated
+        private static readonly decimal DbVersionDec = 6.3m;
 
         private static BatReferenceDBLinqDataContext __persistentbatReferenceDataContext;
 
+        // updated Nov 2020
         private static bool _isDataContextUpToDate;
 
         private static BatReferenceDBLinqDataContext _persistentbatReferenceDataContext
@@ -3945,6 +3990,7 @@ namespace BatRecordingManager
     [Id]     INT IDENTITY (1, 1) NOT NULL,
     [BatID]       INT DEFAULT ((-1)) NOT NULL,
     [RecordingID] INT DEFAULT ((-1)) NOT NULL,
+    [ByAutoID]  BIT DEFAULT NULL NULL,
     CONSTRAINT [Bat_BatRecordingLink] FOREIGN KEY ([BatID]) REFERENCES [dbo].[Bat] ([Id]),
     CONSTRAINT [Recording_BatRecordingLink] FOREIGN KEY ([RecordingID]) REFERENCES [dbo].[Recording] ([Id]),
     CONSTRAINT [PK_BatRecordingLink] PRIMARY KEY ([Id])
@@ -3968,7 +4014,7 @@ namespace BatRecordingManager
     [Id]     INT IDENTITY (1, 1) NOT NULL,
     [SessionID] INT DEFAULT ((-1)) NOT NULL,
     [BatID]     INT DEFAULT ((-1)) NOT NULL,
-
+    [ByAutoID]    BIT DEFAULT NULL NULL,
     CONSTRAINT [Bat_BatSessionLink] FOREIGN KEY ([BatID]) REFERENCES [dbo].[Bat] ([Id]),
     CONSTRAINT [RecordingSession_BatSessionLink] FOREIGN KEY ([SessionID]) REFERENCES [dbo].[RecordingSession] ([Id]),
     CONSTRAINT [PK_BatSessionLink] PRIMARY KEY ([Id])
@@ -4180,17 +4226,46 @@ namespace BatRecordingManager
 
         private static void DeleteAllCallsForSegment(LabelledSegment existingSegment)
         {
-            if (existingSegment == null || existingSegment.Id < 0) return;
+            if (existingSegment == null || existingSegment.Id <= 0) return;
 
             var dc = GetDataContext();
             var links = from lnk in dc.SegmentCalls
-                        where lnk.LabelledSegmentID == existingSegment.Id
+                        where lnk.LabelledSegmentID == existingSegment.Id || lnk.LabelledSegment == null
                         select lnk;
             if (!links.IsNullOrEmpty())
             {
                 dc.SegmentCalls.DeleteAllOnSubmit(links);
                 dc.SubmitChanges();
                 CleanCallTable();
+            }
+        }
+
+        /// <summary>
+        /// deletes all metas in this recording, and incidentally all orphaned Metas in the database
+        /// </summary>
+        /// <param name="recordingsToDelete"></param>
+        /// <param name="dc"></param>
+        private static void DeleteAllMetasInRecording(IQueryable<Recording> recordingsToDelete, BatReferenceDBLinqDataContext dc)
+        {
+            if (!recordingsToDelete.IsNullOrEmpty())
+            {
+                var metasToDelete = from meta in dc.Metas
+                                    from rec in recordingsToDelete
+                                    where meta.RecordingId == rec.Id
+                                    select meta;
+                if (!metasToDelete.IsNullOrEmpty())
+                {
+                    dc.Metas.DeleteAllOnSubmit(metasToDelete);
+                    dc.SubmitChanges();
+                }
+            }
+            var orphanMets = from meta in dc.Metas
+                             where meta.Recording == null
+                             select meta;
+            if (!orphanMets.IsNullOrEmpty())
+            {
+                dc.Metas.DeleteAllOnSubmit(orphanMets);
+                dc.SubmitChanges();
             }
         }
 
@@ -4215,6 +4290,7 @@ namespace BatRecordingManager
             {
                 DeleteBatRecordingLinks(recordingsToDelete, dc);
                 DeleteAllSegmentsInRecording(recordingsToDelete, dc);
+                DeleteAllMetasInRecording(recordingsToDelete, dc);
                 dc.Recordings.DeleteAllOnSubmit(recordingsToDelete);
                 dc.SubmitChanges();
             }
@@ -4249,7 +4325,7 @@ namespace BatRecordingManager
         }
 
         private static void DeleteAllSegmentsInRecording(IQueryable<Recording> recordings,
-                            BatReferenceDBLinqDataContext dc)
+                                    BatReferenceDBLinqDataContext dc)
         {
             if (!recordings.IsNullOrEmpty())
             {
@@ -4303,6 +4379,7 @@ namespace BatRecordingManager
             if (!recordings.IsNullOrEmpty()) recording = recordings.First();
             if (recording != null)
             {
+                // includes both AutoID and ManualID links
                 var otherBsLs = from batseglink in dc.BatSegmentLinks
                                 where batseglink.BatID == batId && batseglink.LabelledSegment.Recording.RecordingSession.Id ==
                                       recording.RecordingSessionId
@@ -4324,25 +4401,10 @@ namespace BatRecordingManager
                 {
                     var link = brlToRemove.First();
                     Debug.WriteLine("Deleting BRL " + link.Bat.Name + "--" + link.Recording.RecordingName);
-                    dc.BatRecordingLinks.DeleteOnSubmit(brlToRemove.First());
+                    dc.BatRecordingLinks.DeleteAllOnSubmit(brlToRemove);
                 }
 
                 dc.SubmitChanges();
-            }
-        }
-
-        private static void DeleteBatRecordingLinks(Recording recording, BatReferenceDBLinqDataContext dc)
-        {
-            if (recording != null && recording.Id >= 0)
-            {
-                var linksToDelete = from lnk in dc.BatRecordingLinks
-                                    where lnk.RecordingID == recording.Id
-                                    select lnk;
-                if (!linksToDelete.IsNullOrEmpty())
-                {
-                    dc.BatRecordingLinks.DeleteAllOnSubmit(linksToDelete);
-                    dc.SubmitChanges();
-                }
             }
         }
 
@@ -4357,21 +4419,6 @@ namespace BatRecordingManager
                 if (!linksTodelete.IsNullOrEmpty())
                 {
                     dc.BatRecordingLinks.DeleteAllOnSubmit(linksTodelete);
-                    dc.SubmitChanges();
-                }
-            }
-        }
-
-        private static void DeleteBatSegmentLinks(RecordingSession sessionsToDelete, BatReferenceDBLinqDataContext dc)
-        {
-            if (sessionsToDelete != null && sessionsToDelete.Id >= 0)
-            {
-                var linksToDelete = from lnk in dc.BatSessionLinks
-                                    where lnk.SessionID == sessionsToDelete.Id
-                                    select lnk;
-                if (!linksToDelete.IsNullOrEmpty())
-                {
-                    dc.BatSessionLinks.DeleteAllOnSubmit(linksToDelete);
                     dc.SubmitChanges();
                 }
             }
@@ -4475,6 +4522,8 @@ namespace BatRecordingManager
             if (segment != null)
             {
                 if (dc == null) dc = GetDataContext();
+
+                // includes both AutoID and ManualID links
                 var linksToDelete = from lnk in dc.BatSegmentLinks
                                     where lnk.LabelledSegmentID == id
                                     select lnk;
@@ -4644,8 +4693,8 @@ namespace BatRecordingManager
 
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         private static List<LabelledSegment> GetLabelledSegmentsToDelete(
-                    BulkObservableCollection<SegmentAndBatList> listOfSegmentAndBatList, int id,
-                    BatReferenceDBLinqDataContext dc)
+                            BulkObservableCollection<SegmentAndBatList> listOfSegmentAndBatList, int id,
+                            BatReferenceDBLinqDataContext dc)
         {
             var result = new List<LabelledSegment>();
             var labelledSegmentsForThisRecording = (from rec in dc.Recordings
@@ -4887,6 +4936,7 @@ namespace BatRecordingManager
             if (bat?.BatSegmentLinks != null)
             {
                 var recordings = (from link in bat.BatSegmentLinks
+                                  where !(link.ByAutoID ?? false)
                                   select link.LabelledSegment.Recording).Distinct();
 
                 if (recordings != null) result.AddRange(recordings);
@@ -5042,10 +5092,8 @@ namespace BatRecordingManager
         private static void LinkBatsToSegmentZeros(BatReferenceDBLinqDataContext dc)
         {
             //remove all duplicate batsegment links
-            var duplicateBsLs = dc.BatSegmentLinks.Where(bsl => dc.BatSegmentLinks.Count(
-                                                                    bsl2 => bsl.BatID == bsl2.BatID &&
-                                                                            bsl.LabelledSegmentID ==
-                                                                            bsl2.LabelledSegmentID) > 1).Distinct();
+            var duplicateBsLs = dc.BatSegmentLinks.Where(bsl => dc.BatSegmentLinks.Count(bsl2 =>
+                                                                            bsl.BatID == bsl2.BatID && bsl.LabelledSegmentID == bsl2.LabelledSegmentID) > 1).Distinct();
             if (!duplicateBsLs.IsNullOrEmpty())
             {
                 dc.BatSegmentLinks.DeleteAllOnSubmit(duplicateBsLs);
@@ -5062,15 +5110,15 @@ namespace BatRecordingManager
                 // this includes segmentZeros but also any other labelled segment with no associated bat
                 foreach (var seg in eligibleSegments)
                 {
-                    var referredToBats = GetDescribedBats(seg.Comment, BracketedText.INCLUDE);
+                    var referredToBats = GetDescribedBats(seg.Comment, out string _, BracketedText.INCLUDE);
 
-                    foreach (var bat in referredToBats)
+                    foreach (var bat in referredToBats.bats)
                     {
                         var existingLinks =
-                            dc.BatSegmentLinks.Any(lnk => lnk.BatID == bat.Id && lnk.LabelledSegmentID == seg.Id);
+                            dc.BatSegmentLinks.Any(lnk => !(lnk.ByAutoID ?? false) && lnk.BatID == bat.Id && lnk.LabelledSegmentID == seg.Id);
                         if (!existingLinks)
                         {
-                            var bsl = new BatSegmentLink { BatID = bat.Id, LabelledSegmentID = seg.Id };
+                            var bsl = new BatSegmentLink { BatID = bat.Id, LabelledSegmentID = seg.Id, ByAutoID = false };
                             dc.BatSegmentLinks.InsertOnSubmit(bsl);
                         }
                     }
@@ -5275,6 +5323,15 @@ namespace BatRecordingManager
             recording.RecordingStartTime = recordStart.TimeOfDay;
             recording.RecordingEndTime = recordEnd - recordStart;
 
+            if (recording.RecordingStartTime != null)
+            {
+                while (recording.RecordingStartTime >= new TimeSpan(24, 0, 0)) recording.RecordingStartTime -= new TimeSpan(24, 0, 0);
+            }
+            if (recording.RecordingEndTime != null)
+            {
+                while (recording.RecordingEndTime >= new TimeSpan(24, 0, 0)) recording.RecordingEndTime -= new TimeSpan(24, 0, 0);
+            }
+
             return recording;
         }
 
@@ -5308,7 +5365,7 @@ namespace BatRecordingManager
             {
                 var links = (from bat in batReferenceDataContext.Bats
                              from bsLnk in bat.BatSegmentLinks
-                             select new { batLink = bat, recLink = bsLnk.LabelledSegment.Recording }).Distinct();
+                             select new { batLink = bat, recLink = bsLnk.LabelledSegment.Recording, byAutoID = bsLnk.ByAutoID ?? false }).Distinct();
                 if (!links.IsNullOrEmpty())
                 {
                     foreach (var link in links)
@@ -5317,7 +5374,8 @@ namespace BatRecordingManager
                         {
                             Id = -1,
                             BatID = link.batLink.Id,
-                            RecordingID = link.recLink.Id
+                            RecordingID = link.recLink.Id,
+                            ByAutoID = link.byAutoID
                         };
                         batReferenceDataContext.BatRecordingLinks.InsertOnSubmit(batRecordingLink);
                     }
@@ -5337,7 +5395,7 @@ namespace BatRecordingManager
             {
                 var links = (from bat in batReferenceDataContext.Bats
                              from bsLnk in bat.BatSegmentLinks
-                             select new { batLink = bat.Id, sessLink = bsLnk.LabelledSegment.Recording.RecordingSession.Id })
+                             select new { batLink = bat.Id, sessLink = bsLnk.LabelledSegment.Recording.RecordingSession.Id, byAutoID = bsLnk.ByAutoID ?? false })
                     .Distinct();
                 if (!links.IsNullOrEmpty())
                 {
@@ -5347,7 +5405,8 @@ namespace BatRecordingManager
                         {
                             Id = -1,
                             BatID = link.batLink,
-                            SessionID = link.sessLink
+                            SessionID = link.sessLink,
+                            ByAutoID = link.byAutoID
                         };
                         batReferenceDataContext.BatSessionLinks.InsertOnSubmit(batSessionLink);
                         batReferenceDataContext.SubmitChanges();
@@ -5384,7 +5443,7 @@ namespace BatRecordingManager
                 var links = (from bat in dc.Bats
                              from bsLnk in bat.BatSegmentLinks
                              where bsLnk.LabelledSegment.Recording.RecordingSessionId == session.Id
-                             select new { batLink = bat.Id, sessLink = bsLnk.LabelledSegment.Recording.RecordingSession.Id })
+                             select new { batLink = bat.Id, sessLink = bsLnk.LabelledSegment.Recording.RecordingSession.Id, byAutoID = bsLnk.ByAutoID ?? false })
                     .Distinct();
                 if (!links.IsNullOrEmpty())
                 {
@@ -5394,7 +5453,8 @@ namespace BatRecordingManager
                         {
                             Id = -1,
                             BatID = link.batLink,
-                            SessionID = link.sessLink
+                            SessionID = link.sessLink,
+                            ByAutoID = link.byAutoID
                         };
                         dc.BatSessionLinks.InsertOnSubmit(batSessionLink);
                         dc.SubmitChanges();
@@ -5442,6 +5502,7 @@ namespace BatRecordingManager
         /// <summary>
         ///     Checks that all links in the BatSessionsLink and BatRecordingLink tables are still valid
         ///     and removes any that are invalid - but does not check that segments still mention the bat.
+        ///     All performed without regard to ByAutoID
         /// </summary>
         private static void ResolveBatAndRecLinks(BatReferenceDBLinqDataContext dc)
         {
@@ -5522,9 +5583,37 @@ namespace BatRecordingManager
             }
             else
             {
-                var batList = GetDescribedBats(si.caption, BracketedText.INCLUDE);
-                if (!batList.IsNullOrEmpty()) batList[0].AddImage(orphan);
+                var bats = GetDescribedBats(si.caption, out string _, BracketedText.INCLUDE).bats;
+                if (!bats.IsNullOrEmpty()) bats[0].AddImage(orphan);
             }
+        }
+
+        /// <summary>
+        /// Given a comment or description incorporating a section in round brackets starting
+        /// with Auto= then returns a tuple with the bracketed section removed and returned as
+        /// Item2 of the tuple and the rest of the string as Item1.  If there is no bracketed section
+        /// Item2 returns as an empty string.
+        /// </summary>
+        /// <param name="description"></param>
+        /// <returns></returns>
+        private static Tuple<string, string> separateManualAndAuto(string description)
+        {
+            Tuple<string, string> result = new Tuple<string, string>("", "");
+            string manual = description;
+            string auto = "";
+            if (!string.IsNullOrWhiteSpace(description))
+            {
+                int fbIndex = description.IndexOf('(');
+                int lbIndex = description.IndexOf(')');
+                if (lbIndex < 0) lbIndex = description.Length - 1;
+                if (fbIndex >= 0 && lbIndex > fbIndex)
+                {
+                    manual = description.Remove(fbIndex, lbIndex - fbIndex + 1);
+                    auto = description.Substring(fbIndex, lbIndex - fbIndex + 1);
+                }
+            }
+            result = new Tuple<string, string>(manual, auto);
+            return (result);
         }
 
         /*
@@ -5644,24 +5733,25 @@ namespace BatRecordingManager
             }
         }
 
-        private static void UpdateBatRecAndSessLinks(Bat bat, LabelledSegment segment, BatReferenceDBLinqDataContext dc)
+        private static void UpdateBatRecAndSessLinks(Bat bat, LabelledSegment segment, bool byAutoID, BatReferenceDBLinqDataContext dc)
         {
             var existingRecLink = from lnk in dc.BatRecordingLinks
-                                  where lnk.BatID == bat.Id && lnk.RecordingID == segment.RecordingID
+                                  where lnk.BatID == bat.Id && lnk.RecordingID == segment.RecordingID && lnk.ByAutoID == byAutoID
                                   select lnk;
             if (existingRecLink.IsNullOrEmpty())
             {
-                var blnk = new BatRecordingLink { BatID = bat.Id, RecordingID = segment.RecordingID };
+                var blnk = new BatRecordingLink { BatID = bat.Id, RecordingID = segment.RecordingID, ByAutoID = byAutoID };
                 dc.BatRecordingLinks.InsertOnSubmit(blnk);
                 var existingSessionLink = from lnk in dc.BatSessionLinks
-                                          where lnk.BatID == bat.Id && lnk.SessionID == segment.Recording.RecordingSessionId
+                                          where lnk.BatID == bat.Id && lnk.SessionID == segment.Recording.RecordingSessionId && lnk.ByAutoID == byAutoID
                                           select lnk;
                 if (segment.Recording.RecordingSessionId != null && existingSessionLink.IsNullOrEmpty())
                 {
                     var bsesslnk = new BatSessionLink
                     {
                         BatID = bat.Id,
-                        SessionID = segment.Recording.RecordingSessionId.Value
+                        SessionID = segment.Recording.RecordingSessionId.Value,
+                        ByAutoID = byAutoID
                     };
                     dc.BatSessionLinks.InsertOnSubmit(bsesslnk);
                 }
@@ -5671,67 +5761,11 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Updates the extended bat pass, or inserts it if it does not already exist in the database
-        /// </summary>
-        /// <param name="bat">
-        ///     The bat.
-        /// </param>
-        /// <param name="segment">
-        ///     the parent LabelledSegment that this pass belongs to
-        /// </param>
-        /// <param name="dc">
-        ///     The dc.
-        /// </param>
-        /// <exception cref="System.NotImplementedException">
-        /// </exception>
-        private static void UpdateBatSegmentLinks(Bat bat, LabelledSegment segment, BatReferenceDBLinqDataContext dc)
-        {
-            BatSegmentLink batSegmentLink = null;
-            if (bat != null && segment != null)
-            {
-                var matchingPasses = from p in dc.BatSegmentLinks
-                                     where p.BatID == bat.Id && p.LabelledSegmentID == segment.Id
-                                     select p;
-                if (!matchingPasses.IsNullOrEmpty())
-                {
-                    batSegmentLink = matchingPasses.First();
-
-                    batSegmentLink.NumberOfPasses = Tools.GetNumberOfPassesForSegment(segment);
-                }
-                else
-                {
-                    batSegmentLink = new BatSegmentLink
-                    {
-                        LabelledSegmentID = segment.Id,
-                        BatID = bat.Id,
-                        NumberOfPasses = Tools.GetNumberOfPassesForSegment(segment)
-                    };
-                    dc.BatSegmentLinks.InsertOnSubmit(batSegmentLink);
-                }
-
-                try
-                {
-                    dc.SubmitChanges();
-                }
-                catch (Exception ex)
-                {
-                    Tools.ErrorLog(ex.Message);
-                    Debug.WriteLine("UpdatedExtendedBatPAss - " + ex.Message);
-                }
-
-                UpdateBatRecAndSessLinks(bat, segment, dc);
-            }
-            else
-            {
-                Debug.WriteLine("+++ UpdateBatSegmentLinks - null data supplied");
-            }
-        }
-
-        /// <summary>
         ///     Uses a SegmentAndBatList (contains a single Segment and a list of referredToBats) and a
         ///     corresponding ExistingSegment and a dataContext from which the ExistingSegment was derived.
         ///     Updates the links between the bats and the Existing segment, deleting unused links and
         ///     adding new links, and retaining exisiting correct links.
+        ///
         /// </summary>
         /// <param name="segmentAndBatList"></param>
         /// <param name="existingSegment"></param>
@@ -5756,17 +5790,20 @@ namespace BatRecordingManager
                 */
 
                 // 1 - create an enumerable list of new bslinks
-                if (segmentAndBatList?.BatList == null || existingSegment == null)
+                if (segmentAndBatList?.batList == null || existingSegment == null)
                     return; // can't do anything in this case
 
-                var newLinkList = (from bat in segmentAndBatList.BatList
+                var newLinkList = (from bat in segmentAndBatList.batList.bats
                                    select new BatSegmentLink
-                                   { BatID = bat.Id, LabelledSegmentID = existingSegment.Id }) ??
+                                   { BatID = bat.Id, LabelledSegmentID = existingSegment.Id, ByAutoID = false }) ??
+                                  Enumerable.Empty<BatSegmentLink>();
+                // 2 - get existingBatSegment links
+                var autoLinkList = (from bat in segmentAndBatList.batList.autoBats
+                                    select new BatSegmentLink
+                                    { BatID = bat.Id, LabelledSegmentID = existingSegment.Id, ByAutoID = true }) ??
                                   Enumerable.Empty<BatSegmentLink>();
 
-                // 2 - get existingBatSegment links
-
-                var existingLinks = existingSegment.BatSegmentLinks.Select(lnk => lnk) ??
+                var existingLinks = existingSegment.BatSegmentLinks.Where(lnk => !(lnk.ByAutoID ?? false)) ??
                                     Enumerable.Empty<BatSegmentLink>();
 
                 // 3 - delete existing links not in new links
@@ -5776,14 +5813,27 @@ namespace BatRecordingManager
                     if (!linksTodelete.IsNullOrEmpty()) dc.BatSegmentLinks.DeleteAllOnSubmit(linksTodelete);
                 }
 
+                var autoExistingLinks = existingSegment.BatSegmentLinks.Where(lnk => (lnk.ByAutoID ?? false)) ?? Enumerable.Empty<BatSegmentLink>();
+                if (!autoExistingLinks.IsNullOrEmpty())
+                {
+                    var linksTodelete = autoExistingLinks.Except(autoLinkList);
+                    if (!linksTodelete.IsNullOrEmpty()) dc.BatSegmentLinks.DeleteAllOnSubmit(linksTodelete);
+                }
+
                 dc.SubmitChanges();
 
                 // 4 - insert new links not present in the existing segment
                 var linksToInsert = newLinkList.Except(existingLinks);
+
                 if (!linksToInsert.IsNullOrEmpty()) dc.BatSegmentLinks.InsertAllOnSubmit(linksToInsert);
                 dc.SubmitChanges();
 
-                foreach (var bat in segmentAndBatList.BatList) UpdateBatRecAndSessLinks(bat, existingSegment, dc);
+                linksToInsert = autoLinkList.Except(autoExistingLinks);
+                if (!linksToInsert.IsNullOrEmpty()) dc.BatSegmentLinks.InsertAllOnSubmit(linksToInsert);
+                dc.SubmitChanges();
+
+                foreach (var bat in segmentAndBatList.batList.bats) UpdateBatRecAndSessLinks(bat: bat, segment: existingSegment, byAutoID: false, dc);
+                foreach (var bat in segmentAndBatList.batList.autoBats) UpdateBatRecAndSessLinks(bat, existingSegment, byAutoID: true, dc);
             }
             catch (Exception ex)
             {
@@ -5997,7 +6047,8 @@ namespace BatRecordingManager
             try
             {
                 var versionSet = batReferenceDataContext.Versions;
-                if (versionSet.Any()) version = versionSet.First().Version1;
+                if (versionSet.Any()) version = (from ver in batReferenceDataContext.Versions
+                                                 select ver.Version1).Max();
             }
             catch (Exception ex)
             {
@@ -6005,6 +6056,8 @@ namespace BatRecordingManager
                 Tools.ErrorLog("Unable to read version when updating the database" + ex.Message);
                 return;
             }
+
+            if (version == DbVersionDec) return; // version number is up to date, no need to do anything
 
             if (version < 6.0m)
             {
@@ -6033,9 +6086,11 @@ namespace BatRecordingManager
                 {
                     Tools.ErrorLog("Updating Database:- " + ex.Message);
                 }
+                Tools.InfoLog("### Update to 6.0");
             }
 
             if (version < 6.1m)
+            {
                 try
                 {
                     batReferenceDataContext.ExecuteCommand(
@@ -6046,6 +6101,8 @@ namespace BatRecordingManager
                 {
                     Tools.ErrorLog("Updating Database to v6.1:- " + ex.Message);
                 }
+                Tools.InfoLog("### Update to 6.1");
+            }
 
             if (version < 6.2m) // Add code for db version 6.3
             {
@@ -6066,6 +6123,94 @@ namespace BatRecordingManager
                 {
                     Tools.ErrorLog("Error Updating Database to v6.2 when adding BatRecordingTable:- " + ex.Message);
                 }
+                Tools.InfoLog("### Updated to 6.2 level including AutoID in link tables");
+            }
+            string dbLoc = GetWorkingDatabaseLocation();
+            string dbName = GetWorkingDatabaseName(dbLoc);
+
+            if (version < 6.3m) // Updates added Nov 2020
+            {
+                try
+                {
+                    batReferenceDataContext.ExecuteCommand(
+                        @"ALTER TABLE [dbo].[LabelledSegment]
+ADD [AutoID] NVARCHAR (50) NULL;"
+                        );
+                    Tools.InfoLog("Updated LabelledSegment Table");
+                }
+                catch (Exception ex)
+                {
+                    Tools.ErrorLog("Updating LbelledSegment Table to v 6.3:- " + ex.Message);
+                }
+
+                try
+                {
+                    batReferenceDataContext.ExecuteCommand(
+                        @"ALTER TABLE [dbo].[BatSegmentLink]
+    ADD [ByAutoID] BIT DEFAULT NULL NULL;");
+                    Tools.InfoLog("UpdateDataBase BatSegmentLink table");
+                }
+                catch (Exception ex)
+                {
+                    Tools.ErrorLog("Updating BatsegmentLink table:- " + ex.Message);
+                }
+
+                if (version == 6.2m) // if the updates to 6.2 hav happened in this run, then version must be <6.2
+                                     // The changes performed here are now done in the 6.2 update from earlier versions
+                                     // and should not be repeated.  But the revised 6.2 updates have not yet caused the
+                                     //version to change and must therefore have been triggered by a version<6.2
+                {
+                    Tools.InfoLog("Updating from a DB which is already 6.2 without these additions");
+
+                    try
+                    {
+                        batReferenceDataContext.ExecuteCommand(
+                            @"ALTER TABLE [dbo].[BatRecordingLink]
+    ADD [ByAutoID] BIT DEFAULT NULL NULL;");
+                        Tools.InfoLog("Updated BatRecordingLink table");
+                    }
+                    catch (Exception ex)
+                    {
+                        Tools.ErrorLog("Updating BatRecordingLink table:- " + ex.Message);
+                    }
+
+                    try
+                    {
+                        batReferenceDataContext.ExecuteCommand(
+                            @"ALTER TABLE [dbo].[BatSessionLink]
+    ADD [ByAutoID] BIT DEFAULT NULL NULL;");
+                        Tools.InfoLog("Updated BatSessionLink table");
+                    }
+                    catch (Exception ex)
+                    {
+                        Tools.ErrorLog("Updating BatSessionLink table:- " + ex.Message);
+                    }
+
+                    try
+                    {
+                        batReferenceDataContext.ExecuteCommand(
+                            @"CREATE TABLE [dbo].[Meta]
+(
+	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
+    [Label] NVARCHAR(MAX) NOT NULL DEFAULT '',
+    [Value] NVARCHAR(MAX) NOT NULL DEFAULT '',
+    [Type] NCHAR(4) NULL DEFAULT 'none',
+    [RecordingId] INT NULL,
+    CONSTRAINT [FK_Recording_ToMeta] FOREIGN KEY ([RecordingId]) REFERENCES [Recording]([Id])
+);");
+                        Tools.InfoLog("Inserted Meta Table linked to Recording");
+                    }
+                    catch (Exception ex)
+                    {
+                        Tools.ErrorLog("Inserting Meta table linked to Recording:- " + ex.Message);
+                    }
+                }
+                else
+                {
+                    Tools.InfoLog("BatRecordingLink and BatSessionLink done in 6.2 upgrade");
+                }
+
+                Tools.InfoLog($"### Fully updated datbase \"{dbLoc} {dbName}\" to version 6.3 ");
             }
         }
 
@@ -6174,6 +6319,7 @@ namespace BatRecordingManager
                         existingCall.PulseIntervalVariation = newCall.PulseIntervalVariation;
                         existingCall.StartFrequency = newCall.StartFrequency;
                         existingCall.StartFrequencyVariation = newCall.StartFrequencyVariation;
+                        existingSegment.SegmentCalls[0].Call = existingCall;
                         dc.SubmitChanges();
                     }
                     else

@@ -209,13 +209,16 @@ namespace BatRecordingManager
         public string GetCommentsForFile(string fileName)
         {
             string result = "";
-            if (!fileName.ToUpper().EndsWith(".WAV")) return (result);
-            var wavFileMetadata = new WavFileMetaData(fileName);
-            if (wavFileMetadata.success)
+            if (!(fileName.ToUpper().EndsWith(".WAV") || fileName.EndsWith(".zc", StringComparison.OrdinalIgnoreCase))) return (result);
+            if (File.Exists(fileName))
             {
-                if (AppFilterSearchNotes.IsChecked ?? false) result += wavFileMetadata.m_Note;
-                if (AppFilterSearchManualID.IsChecked ?? true) result += " " + wavFileMetadata.m_ManualID;
-                if (AppFilterSearchAutoId.IsChecked ?? false) result += " " + wavFileMetadata.m_AutoID;
+                var wavFileMetadata = new WavFileMetaData(fileName);
+                if (wavFileMetadata.success)
+                {
+                    if (AppFilterSearchNotes.IsChecked ?? false) result += wavFileMetadata.m_Note;
+                    if (AppFilterSearchManualID.IsChecked ?? true) result += " " + wavFileMetadata.m_ManualID;
+                    if (AppFilterSearchAutoId.IsChecked ?? false) result += " (Auto=" + wavFileMetadata.m_AutoID + ")";
+                }
             }
             result = result.Trim();
 

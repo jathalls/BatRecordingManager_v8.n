@@ -221,7 +221,12 @@ namespace BatRecordingManager
         }
 
         public bool selectionIsWavFile { get; set; } = true;
+
         public AsyncVirtualizingCollection<Recording> virtualRecordingsList { get; set; } = new AsyncVirtualizingCollection<Recording>(new RecordingsDataProvider(null), 2, 100);
+
+        internal void NotifyPropertyChanged(string propertyName) =>
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
         /// <summary>
         ///     Gets or sets the recordings list.
         /// </summary>
@@ -229,10 +234,6 @@ namespace BatRecordingManager
         ///     The recordings list.
         /// </value>
         //public BulkObservableCollection<Recording> virtualRecordingsList { get; } = new BulkObservableCollection<Recording>();
-
-        internal void NotifyPropertyChanged(string propertyName) =>
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
         /// <summary>
         ///     Called when [ListView item focused].
         /// </summary>
@@ -286,12 +287,12 @@ namespace BatRecordingManager
         }
 
         private readonly object _recordingChangedEventLock = new object();
-
         private readonly SearchableCollection _searchTargets = new SearchableCollection();
-
         private readonly object _segmentSelectionChangedEventLock = new object();
 
+        //private bool _hasMetadata = false;
         private bool _isSegmentSelected;
+
         private EventHandler<EventArgs> _recordingChangedEvent;
         private SearchDialog _searchDialog;
         private EventHandler<EventArgs> _segmentSelectionChangedEvent;
@@ -437,9 +438,10 @@ namespace BatRecordingManager
             {
                 var segment = seg;
 
-                var bats = DBAccess.GetDescribedBats(segment.Comment);
+                var bats = DBAccess.GetDescribedBats(segment.Comment, out string _);
                 var segmentLine = Tools.FormattedSegmentLine(segment);
-                var thisProcessedSegment = SegmentAndBatList.ProcessLabelledSegment(segmentLine, bats);
+                string autoID = Tools.getAutoIdFromComment(segment.Comment);
+                var thisProcessedSegment = SegmentAndBatList.ProcessLabelledSegment(segmentLine, bats, autoID);
                 thisProcessedSegment.Segment = segment;
                 processedSegments.Add(thisProcessedSegment);
                 var segmentImageList = segment.GetImageList();
@@ -820,9 +822,10 @@ namespace BatRecordingManager
             {
                 var segment = seg;
 
-                var bats = DBAccess.GetDescribedBats(segment.Comment);
+                var bats = DBAccess.GetDescribedBats(segment.Comment, out string _);
                 var segmentLine = Tools.FormattedSegmentLine(segment);
-                var thisProcessedSegment = SegmentAndBatList.ProcessLabelledSegment(segmentLine, bats);
+                string autoID = Tools.getAutoIdFromComment(segment.Comment);
+                var thisProcessedSegment = SegmentAndBatList.ProcessLabelledSegment(segmentLine, bats, autoID);
                 thisProcessedSegment.Segment = segment;
                 processedSegments.Add(thisProcessedSegment);
                 var segmentImageList = segment.GetImageList();
@@ -873,6 +876,14 @@ namespace BatRecordingManager
                     }
                 }
             }
+        }
+
+        private void miDisplayMetaData_Click(object sender, RoutedEventArgs e)
+        {
+            Recording recording = _selectedSegment?.Recording;
+            MetaDataDialog metadataDialog = new MetaDataDialog();
+            metadataDialog.recording = recording;
+            metadataDialog.ShowDialog();
         }
 
         /// <summary>
@@ -1168,11 +1179,65 @@ namespace BatRecordingManager
                 var seArgs = e as SearchedEventArgs;
                 //Debug.WriteLine("Found:- " + seArgs.searchPattern + " in " + seArgs.foundItem + " @ " + seArgs.indexOfFoundItem);
                 //Debug.WriteLine("Resolves to:- " + searchTargets.searchableCollection[seArgs.indexOfFoundItem].ToString());
+
+                //ReWritten Dec2020 for revised Control structure with DataGrid
+
+                var itemFound = _searchTargets.ItemAt(seArgs.IndexOfFoundItem);
+                if (itemFound != null)
+                {
+                    Recording foundRecording = null;
+                    int recordingId = itemFound.Item1;
+                    int segmentIndex = itemFound.Item2;
+                    if (selectedSession != null)
+                    {
+                        var recordings = from rec in selectedSession.Recordings
+                                         where rec.Id == recordingId
+                                         select rec;
+                        if (!recordings.IsNullOrEmpty()) foundRecording = recordings.First();
+                        RecordingsListView.Focus();
+                        RecordingsListView.SelectedItem = foundRecording;
+                        RecordingsListView.ScrollIntoView(foundRecording);
+                    }
+
+                    if (selectedSession != null)
+                    {
+                        var recordings = from rec in selectedSession.Recordings
+                                         where rec.Id == recordingId
+                                         select rec;
+                        if (!recordings.IsNullOrEmpty()) foundRecording = recordings.First();
+                        RecordingsListView.Focus();
+                        RecordingsListView.ScrollIntoView(foundRecording);
+                        RecordingsListView.SelectedItem = foundRecording;
+                    }
+
+                    if (segmentIndex >= 0)
+                    {
+                        var foundSegment = foundRecording.LabelledSegments[segmentIndex];
+                        if (foundSegment != null)
+                        {
+                            var currentSelectedListBoxItem =
+                                RecordingsListView.ItemContainerGenerator.ContainerFromIndex(RecordingsListView
+                                    .SelectedIndex) as ListViewItem;
+                            var lsegListView = Tools.FindDescendant<ListView>(currentSelectedListBoxItem);
+                            if (lsegListView != null)
+                            {
+                                lsegListView.UnselectAll();
+                                lsegListView.SelectedItem = foundSegment;
+                                //lsegListView.ScrollIntoView(foundSegment);
+                                var lvi = (ListViewItem)lsegListView.ItemContainerGenerator.ContainerFromItem(lsegListView
+                                    .SelectedItem);
+                                OnListViewItemFocused(lvi, new RoutedEventArgs());
+                            }
+                        }
+                    }
+                }
+
+                /*
                 if (RecordingsListView.SelectedIndex >= 0)
                 {
                     var currentSelectedListBoxItem =
-                        RecordingsListView.ItemContainerGenerator.ContainerFromIndex(RecordingsListView.SelectedIndex)
-                            as ListViewItem;
+                        RecordingsListView.ItemContainerGenerator.ContainerFromIndex(RecordingsListView.SelectedIndex);
+                    //as ListViewItem;
                     var lsegListView = Tools.FindDescendant<ListView>(currentSelectedListBoxItem);
                     lsegListView?.UnselectAll();
                     RecordingsListView.UnselectAll();
@@ -1216,7 +1281,7 @@ namespace BatRecordingManager
                             OnListViewItemFocused(lvi, new RoutedEventArgs());
                         }
                     }
-                }
+                }*/
             }
             catch (Exception ex)
             {

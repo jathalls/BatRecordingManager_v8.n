@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,16 +28,8 @@ namespace BatRecordingManager
     /// </summary>
     public partial class BatCallControl : UserControl
     {
-        private readonly object _showImageButtonPressedEventLock = new object();
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public readonly BulkObservableCollection<StoredImage> CallImageList =
             new BulkObservableCollection<StoredImage>();
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-
-        private Brush _mDefaultBrush = Brushes.Cornsilk;
-        private EventHandler<EventArgs> _showImageButtonPressedEvent;
-
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
         public BatCallControl()
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
@@ -59,65 +51,6 @@ namespace BatRecordingManager
             InitializeComponent();
             DataContext = BatCall;
             SetReadOnly(isReadOnly);
-        }
-
-        /// <summary>
-        ///     Sets the read only.
-        /// </summary>
-        /// <param name="isReadOnly">
-        ///     if set to <c>true</c> [is read only].
-        /// </param>
-        public void SetReadOnly(bool isReadOnly)
-        {
-
-            StartFreqUpDown.IsEnabled = isReadOnly;
-            StartFreqVariationTextBox.IsEnabled = isReadOnly;
-            EndFreqTextBox.IsEnabled = isReadOnly;
-            EndFreqVariationTextBox.IsEnabled = isReadOnly;
-            PeakFreqTextBox.IsEnabled = isReadOnly;
-            PeakFreqVariationTextBox.IsEnabled = isReadOnly;
-            PulseDurationTextBox.IsEnabled = isReadOnly;
-            PulseDurationVariationTextBox.IsEnabled = isReadOnly;
-            PulseIntervalTextBox.IsEnabled = isReadOnly;
-            PulseIntervalVariationTextBox.IsEnabled = isReadOnly;
-            CallTypeTextBox.IsReadOnly = isReadOnly;
-            CallFunctionTextBox.IsReadOnly = isReadOnly;
-            CallTypeNotesBox.IsReadOnly = isReadOnly;
-        }
-
-        private void ShowImageButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (!(sender is Button)) return;
-            var button = sender as Button;
-            if (button.Background != Brushes.Coral)
-            {
-                _mDefaultBrush = button.Background;
-                button.Background = Brushes.Coral;
-            }
-            else
-            {
-                button.Background = _mDefaultBrush;
-            }
-
-            OnShowImageButtonPressed(new EventArgs());
-        }
-
-        /// <summary>
-        ///     toggles the state of the showimage button
-        /// </summary>
-        internal void Reset()
-        {
-            if (ShowImageButton.Background == Brushes.Coral)
-                ShowImageButton_Click(ShowImageButton, new RoutedEventArgs());
-        }
-
-        private void StartFrequencySeparatorLabel_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (!(sender is Label)) return;
-            var call = BatCall;
-            var sl = sender as Label;
-            sl.Content = sl.Content as string == "+/-" ? " - " : "+/-";
-            BatCall = call;
         }
 
         /// <summary>
@@ -143,6 +76,38 @@ namespace BatRecordingManager
         }
 
         /// <summary>
+        ///     Sets the read only.
+        /// </summary>
+        /// <param name="isReadOnly">
+        ///     if set to <c>true</c> [is read only].
+        /// </param>
+        public void SetReadOnly(bool isReadOnly)
+        {
+            StartFreqUpDown.IsEnabled = isReadOnly;
+            StartFreqVariationTextBox.IsEnabled = isReadOnly;
+            EndFreqTextBox.IsEnabled = isReadOnly;
+            EndFreqVariationTextBox.IsEnabled = isReadOnly;
+            PeakFreqTextBox.IsEnabled = isReadOnly;
+            PeakFreqVariationTextBox.IsEnabled = isReadOnly;
+            PulseDurationTextBox.IsEnabled = isReadOnly;
+            PulseDurationVariationTextBox.IsEnabled = isReadOnly;
+            PulseIntervalTextBox.IsEnabled = isReadOnly;
+            PulseIntervalVariationTextBox.IsEnabled = isReadOnly;
+            CallTypeTextBox.IsReadOnly = isReadOnly;
+            CallFunctionTextBox.IsReadOnly = isReadOnly;
+            CallTypeNotesBox.IsReadOnly = isReadOnly;
+        }
+
+        /// <summary>
+        ///     toggles the state of the showimage button
+        /// </summary>
+        internal void Reset()
+        {
+            if (ShowImageButton.Background == Brushes.Coral)
+                ShowImageButton_Click(ShowImageButton, new RoutedEventArgs());
+        }
+
+        /// <summary>
         ///     Raises the <see cref="e_ShowImageButtonPressed" /> event.
         /// </summary>
         /// <param name="e"><see cref="EventArgs" /> object that provides the arguments for the event.</param>
@@ -159,6 +124,41 @@ namespace BatRecordingManager
             }
 
             handler(this, e);
+        }
+
+        private readonly object _showImageButtonPressedEventLock = new object();
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+
+        private Brush _mDefaultBrush = Brushes.Cornsilk;
+        private EventHandler<EventArgs> _showImageButtonPressedEvent;
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+        private void ShowImageButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!(sender is Button)) return;
+            var button = sender as Button;
+            if (button.Background != Brushes.Coral)
+            {
+                _mDefaultBrush = button.Background;
+                button.Background = Brushes.Coral;
+            }
+            else
+            {
+                button.Background = _mDefaultBrush;
+            }
+
+            OnShowImageButtonPressed(new EventArgs());
+        }
+
+        private void StartFrequencySeparatorLabel_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (!(sender is Label)) return;
+            var call = BatCall;
+            var sl = sender as Label;
+            sl.Content = sl.Content as string == "+/-" ? " - " : "+/-";
+            BatCall = call;
         }
 
         #region BatCall
@@ -283,8 +283,8 @@ namespace BatRecordingManager
 
                     if (StartFrequencySeparatorLabel.Content as string == "+/-")
                     {
-                        StartFreqUpDown.Value = (decimal)value.StartFrequency;
-                        StartFreqVariationTextBox.Value = (decimal)value.StartFrequencyVariation;
+                        StartFreqUpDown.Value = (decimal)(value.StartFrequency ?? 0.0d);
+                        StartFreqVariationTextBox.Value = (decimal)(value.StartFrequencyVariation ?? 0.0d);
                     }
                     else
                     {
@@ -296,8 +296,8 @@ namespace BatRecordingManager
 
                     if (EndFrequencySeparatorLabel.Content as string == "+/-")
                     {
-                        EndFreqTextBox.Value = (decimal)value.EndFrequency;
-                        EndFreqVariationTextBox.Value = (decimal)value.EndFrequencyVariation;
+                        EndFreqTextBox.Value = (decimal)(value.EndFrequency ?? 0.0d);
+                        EndFreqVariationTextBox.Value = (decimal)(value.EndFrequencyVariation ?? 0.0d);
                     }
                     else
                     {
@@ -309,8 +309,8 @@ namespace BatRecordingManager
 
                     if (PeakFrequencySeparatorLabel.Content as string == "+/-")
                     {
-                        PeakFreqTextBox.Value = (decimal)value.PeakFrequency;
-                        PeakFreqVariationTextBox.Value = (decimal)value.PeakFrequencyVariation;
+                        PeakFreqTextBox.Value = (decimal)(value.PeakFrequency ?? 0.0d);
+                        PeakFreqVariationTextBox.Value = (decimal)(value.PeakFrequencyVariation ?? 0.0d);
                     }
                     else
                     {
@@ -322,8 +322,8 @@ namespace BatRecordingManager
 
                     if (DurationSeparatorLabel.Content as string == "+/-")
                     {
-                        PulseDurationTextBox.Value = (decimal)value.PulseDuration;
-                        PulseDurationVariationTextBox.Value = (decimal)value.PulseDurationVariation;
+                        PulseDurationTextBox.Value = (decimal)(value.PulseDuration ?? 0.0d);
+                        PulseDurationVariationTextBox.Value = (decimal)(value.PulseDurationVariation ?? 0.0d);
                     }
                     else
                     {
@@ -335,8 +335,8 @@ namespace BatRecordingManager
 
                     if (IntervalSeparatorLabel.Content as string == "+/-")
                     {
-                        PulseIntervalTextBox.Value = (decimal)value.PulseInterval;
-                        PulseIntervalVariationTextBox.Value = (decimal)value.PulseIntervalVariation;
+                        PulseIntervalTextBox.Value = (decimal)(value.PulseInterval ?? 0.0d);
+                        PulseIntervalVariationTextBox.Value = (decimal)(value.PulseIntervalVariation ?? 0.0d);
                     }
                     else
                     {
@@ -346,9 +346,9 @@ namespace BatRecordingManager
                         PulseIntervalVariationTextBox.Value = mid - var;
                     }
 
-                    CallTypeNotesBox.Text = value.CallNotes;
-                    CallTypeTextBox.Text = value.CallType;
-                    CallFunctionTextBox.Text = value.CallFunction;
+                    CallTypeNotesBox.Text = value.CallNotes ?? "";
+                    CallTypeTextBox.Text = value.CallType ?? "";
+                    CallFunctionTextBox.Text = value.CallFunction ?? "";
                 }
                 else
                 {

@@ -66,6 +66,9 @@ namespace BatRecordingManager
     partial void InsertLabelledSegment(LabelledSegment instance);
     partial void UpdateLabelledSegment(LabelledSegment instance);
     partial void DeleteLabelledSegment(LabelledSegment instance);
+    partial void InsertMeta(Meta instance);
+    partial void UpdateMeta(Meta instance);
+    partial void DeleteMeta(Meta instance);
     partial void InsertRecording(Recording instance);
     partial void UpdateRecording(Recording instance);
     partial void DeleteRecording(Recording instance);
@@ -81,7 +84,7 @@ namespace BatRecordingManager
     #endregion
 		
 		public BatReferenceDBLinqDataContext() : 
-				base(global::BatRecordingManager.Properties.Settings.Default.BatReferenceDBv5_31ConnectionString2, mappingSource)
+				base(global::BatRecordingManager.Properties.Settings.Default.BatReferenceDBv5_31ConnectionString, mappingSource)
 		{
 			OnCreated();
 		}
@@ -203,6 +206,14 @@ namespace BatRecordingManager
 			get
 			{
 				return this.GetTable<LabelledSegment>();
+			}
+		}
+		
+		public System.Data.Linq.Table<Meta> Metas
+		{
+			get
+			{
+				return this.GetTable<Meta>();
 			}
 		}
 		
@@ -1071,6 +1082,8 @@ namespace BatRecordingManager
 		
 		private int _RecordingID;
 		
+		private System.Nullable<bool> _ByAutoID;
+		
 		private EntityRef<Bat> _Bat;
 		
 		private EntityRef<Recording> _Recording;
@@ -1085,6 +1098,8 @@ namespace BatRecordingManager
     partial void OnBatIDChanged();
     partial void OnRecordingIDChanging(int value);
     partial void OnRecordingIDChanged();
+    partial void OnByAutoIDChanging(System.Nullable<bool> value);
+    partial void OnByAutoIDChanged();
     #endregion
 		
 		public BatRecordingLink()
@@ -1158,6 +1173,26 @@ namespace BatRecordingManager
 					this._RecordingID = value;
 					this.SendPropertyChanged("RecordingID");
 					this.OnRecordingIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ByAutoID", DbType="Bit")]
+		public System.Nullable<bool> ByAutoID
+		{
+			get
+			{
+				return this._ByAutoID;
+			}
+			set
+			{
+				if ((this._ByAutoID != value))
+				{
+					this.OnByAutoIDChanging(value);
+					this.SendPropertyChanging();
+					this._ByAutoID = value;
+					this.SendPropertyChanged("ByAutoID");
+					this.OnByAutoIDChanged();
 				}
 			}
 		}
@@ -1265,6 +1300,8 @@ namespace BatRecordingManager
 		
 		private int _NumberOfPasses;
 		
+		private System.Nullable<bool> _ByAutoID;
+		
 		private EntityRef<Bat> _Bat;
 		
 		private EntityRef<LabelledSegment> _LabelledSegment;
@@ -1281,6 +1318,8 @@ namespace BatRecordingManager
     partial void OnBatIDChanged();
     partial void OnNumberOfPassesChanging(int value);
     partial void OnNumberOfPassesChanged();
+    partial void OnByAutoIDChanging(System.Nullable<bool> value);
+    partial void OnByAutoIDChanged();
     #endregion
 		
 		public BatSegmentLink()
@@ -1374,6 +1413,26 @@ namespace BatRecordingManager
 					this._NumberOfPasses = value;
 					this.SendPropertyChanged("NumberOfPasses");
 					this.OnNumberOfPassesChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ByAutoID", DbType="Bit")]
+		public System.Nullable<bool> ByAutoID
+		{
+			get
+			{
+				return this._ByAutoID;
+			}
+			set
+			{
+				if ((this._ByAutoID != value))
+				{
+					this.OnByAutoIDChanging(value);
+					this.SendPropertyChanging();
+					this._ByAutoID = value;
+					this.SendPropertyChanged("ByAutoID");
+					this.OnByAutoIDChanged();
 				}
 			}
 		}
@@ -1479,6 +1538,8 @@ namespace BatRecordingManager
 		
 		private int _BatID;
 		
+		private System.Nullable<bool> _ByAutoID;
+		
 		private EntityRef<Bat> _Bat;
 		
 		private EntityRef<RecordingSession> _RecordingSession;
@@ -1493,6 +1554,8 @@ namespace BatRecordingManager
     partial void OnSessionIDChanged();
     partial void OnBatIDChanging(int value);
     partial void OnBatIDChanged();
+    partial void OnByAutoIDChanging(System.Nullable<bool> value);
+    partial void OnByAutoIDChanged();
     #endregion
 		
 		public BatSessionLink()
@@ -1566,6 +1629,26 @@ namespace BatRecordingManager
 					this._BatID = value;
 					this.SendPropertyChanged("BatID");
 					this.OnBatIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ByAutoID", DbType="Bit")]
+		public System.Nullable<bool> ByAutoID
+		{
+			get
+			{
+				return this._ByAutoID;
+			}
+			set
+			{
+				if ((this._ByAutoID != value))
+				{
+					this.OnByAutoIDChanging(value);
+					this.SendPropertyChanging();
+					this._ByAutoID = value;
+					this.SendPropertyChanged("ByAutoID");
+					this.OnByAutoIDChanged();
 				}
 			}
 		}
@@ -2718,6 +2801,8 @@ namespace BatRecordingManager
 		
 		private int _RecordingID;
 		
+		private string _AutoID;
+		
 		private EntitySet<BatSegmentLink> _BatSegmentLinks;
 		
 		private EntitySet<SegmentCall> _SegmentCalls;
@@ -2740,6 +2825,8 @@ namespace BatRecordingManager
     partial void OnCommentChanged();
     partial void OnRecordingIDChanging(int value);
     partial void OnRecordingIDChanged();
+    partial void OnAutoIDChanging(string value);
+    partial void OnAutoIDChanged();
     #endregion
 		
 		public LabelledSegment()
@@ -2851,6 +2938,26 @@ namespace BatRecordingManager
 					this._RecordingID = value;
 					this.SendPropertyChanged("RecordingID");
 					this.OnRecordingIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_AutoID", DbType="NVarChar(50)")]
+		public string AutoID
+		{
+			get
+			{
+				return this._AutoID;
+			}
+			set
+			{
+				if ((this._AutoID != value))
+				{
+					this.OnAutoIDChanging(value);
+					this.SendPropertyChanging();
+					this._AutoID = value;
+					this.SendPropertyChanged("AutoID");
+					this.OnAutoIDChanged();
 				}
 			}
 		}
@@ -2985,6 +3092,205 @@ namespace BatRecordingManager
 		}
 	}
 	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Meta")]
+	public partial class Meta : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _Id;
+		
+		private string _Label;
+		
+		private string _Value;
+		
+		private string _Type;
+		
+		private System.Nullable<int> _RecordingId;
+		
+		private EntityRef<Recording> _Recording;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnIdChanging(int value);
+    partial void OnIdChanged();
+    partial void OnLabelChanging(string value);
+    partial void OnLabelChanged();
+    partial void OnValueChanging(string value);
+    partial void OnValueChanged();
+    partial void OnTypeChanging(string value);
+    partial void OnTypeChanged();
+    partial void OnRecordingIdChanging(System.Nullable<int> value);
+    partial void OnRecordingIdChanged();
+    #endregion
+		
+		public Meta()
+		{
+			this._Recording = default(EntityRef<Recording>);
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Id", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int Id
+		{
+			get
+			{
+				return this._Id;
+			}
+			set
+			{
+				if ((this._Id != value))
+				{
+					this.OnIdChanging(value);
+					this.SendPropertyChanging();
+					this._Id = value;
+					this.SendPropertyChanged("Id");
+					this.OnIdChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Label", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
+		public string Label
+		{
+			get
+			{
+				return this._Label;
+			}
+			set
+			{
+				if ((this._Label != value))
+				{
+					this.OnLabelChanging(value);
+					this.SendPropertyChanging();
+					this._Label = value;
+					this.SendPropertyChanged("Label");
+					this.OnLabelChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Value", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
+		public string Value
+		{
+			get
+			{
+				return this._Value;
+			}
+			set
+			{
+				if ((this._Value != value))
+				{
+					this.OnValueChanging(value);
+					this.SendPropertyChanging();
+					this._Value = value;
+					this.SendPropertyChanged("Value");
+					this.OnValueChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Type", DbType="NChar(4)")]
+		public string Type
+		{
+			get
+			{
+				return this._Type;
+			}
+			set
+			{
+				if ((this._Type != value))
+				{
+					this.OnTypeChanging(value);
+					this.SendPropertyChanging();
+					this._Type = value;
+					this.SendPropertyChanged("Type");
+					this.OnTypeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RecordingId", DbType="Int")]
+		public System.Nullable<int> RecordingId
+		{
+			get
+			{
+				return this._RecordingId;
+			}
+			set
+			{
+				if ((this._RecordingId != value))
+				{
+					if (this._Recording.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnRecordingIdChanging(value);
+					this.SendPropertyChanging();
+					this._RecordingId = value;
+					this.SendPropertyChanged("RecordingId");
+					this.OnRecordingIdChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Recording_Meta", Storage="_Recording", ThisKey="RecordingId", OtherKey="Id", IsForeignKey=true)]
+		public Recording Recording
+		{
+			get
+			{
+				return this._Recording.Entity;
+			}
+			set
+			{
+				Recording previousValue = this._Recording.Entity;
+				if (((previousValue != value) 
+							|| (this._Recording.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._Recording.Entity = null;
+						previousValue.Metas.Remove(this);
+					}
+					this._Recording.Entity = value;
+					if ((value != null))
+					{
+						value.Metas.Add(this);
+						this._RecordingId = value.Id;
+					}
+					else
+					{
+						this._RecordingId = default(Nullable<int>);
+					}
+					this.SendPropertyChanged("Recording");
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
 	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Recording")]
 	public partial class Recording : INotifyPropertyChanging, INotifyPropertyChanged
 	{
@@ -3012,6 +3318,8 @@ namespace BatRecordingManager
 		private EntitySet<BatRecordingLink> _BatRecordingLinks;
 		
 		private EntitySet<LabelledSegment> _LabelledSegments;
+		
+		private EntitySet<Meta> _Metas;
 		
 		private EntityRef<RecordingSession> _RecordingSession;
 		
@@ -3043,6 +3351,7 @@ namespace BatRecordingManager
 		{
 			this._BatRecordingLinks = new EntitySet<BatRecordingLink>(new Action<BatRecordingLink>(this.attach_BatRecordingLinks), new Action<BatRecordingLink>(this.detach_BatRecordingLinks));
 			this._LabelledSegments = new EntitySet<LabelledSegment>(new Action<LabelledSegment>(this.attach_LabelledSegments), new Action<LabelledSegment>(this.detach_LabelledSegments));
+			this._Metas = new EntitySet<Meta>(new Action<Meta>(this.attach_Metas), new Action<Meta>(this.detach_Metas));
 			this._RecordingSession = default(EntityRef<RecordingSession>);
 			OnCreated();
 		}
@@ -3257,6 +3566,19 @@ namespace BatRecordingManager
 			}
 		}
 		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Recording_Meta", Storage="_Metas", ThisKey="Id", OtherKey="RecordingId")]
+		public EntitySet<Meta> Metas
+		{
+			get
+			{
+				return this._Metas;
+			}
+			set
+			{
+				this._Metas.Assign(value);
+			}
+		}
+		
 		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="RecordingSession_Recording", Storage="_RecordingSession", ThisKey="RecordingSessionId", OtherKey="Id", IsForeignKey=true)]
 		public RecordingSession RecordingSession
 		{
@@ -3330,6 +3652,18 @@ namespace BatRecordingManager
 		}
 		
 		private void detach_LabelledSegments(LabelledSegment entity)
+		{
+			this.SendPropertyChanging();
+			entity.Recording = null;
+		}
+		
+		private void attach_Metas(Meta entity)
+		{
+			this.SendPropertyChanging();
+			entity.Recording = this;
+		}
+		
+		private void detach_Metas(Meta entity)
 		{
 			this.SendPropertyChanging();
 			entity.Recording = null;

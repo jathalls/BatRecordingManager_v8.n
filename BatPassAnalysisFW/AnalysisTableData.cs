@@ -9,281 +9,10 @@ using System.IO;
 using System.Linq;
 using System.Windows.Media.Imaging;
 
-
 namespace BatPassAnalysisFW
 {
     public class AnalysisTableData : INotifyPropertyChanged
     {
-        private string _version = "Version";
-        public string Version
-        {
-            get { return _version; }
-            set { _version = value; NotifyPropertyChanged(nameof(Version)); }
-        }
-
-        public ObservableList<bpaPass> combinedPassList { get; set; } = new ObservableList<bpaPass>();
-
-        public ObservableList<Pulse> combinedPulseList { get; set; } = new ObservableList<Pulse>();
-
-        public ObservableList<SpectralPeak> combinedSpectrumList { get; set; } = new ObservableList<SpectralPeak>();
-
-        public ObservableList<bpaRecording> combinedRecordingList { get; set; } = new ObservableList<bpaRecording>();
-
-        public ObservableList<bpaSegment> combinedSegmentList { get; set; } = new ObservableList<bpaSegment>();
-
-
-        private decimal _thresholdFactor = 1.0m;
-        public decimal thresholdFactor
-        {
-            get
-            {
-                return (_thresholdFactor);
-            }
-            set
-            {
-                _thresholdFactor = Math.Floor(value * 100) / 100.0m;
-                NotifyPropertyChanged(nameof(thresholdFactor));
-            }
-        }
-
-        private decimal _spectrumFactor = 1.0m;
-        public decimal spectrumFactor
-        {
-            get
-            {
-                return (_spectrumFactor);
-            }
-            set
-            {
-                _spectrumFactor = Math.Floor(value * 100) / 100.0m;
-                NotifyPropertyChanged(nameof(spectrumFactor));
-            }
-        }
-
-        private bool _enableFilter = false;
-
-        public bool EnableFilter
-        {
-            get
-            {
-                return (_enableFilter);
-            }
-            set
-            {
-                _enableFilter = value;
-                NotifyPropertyChanged(nameof(EnableFilter));
-            }
-        }
-
-        /*#region headerText
-
-        /// <summary>
-        /// headerText Dependency Property
-        /// </summary>
-        public static readonly DependencyProperty headerTextProperty =
-            DependencyProperty.Register("headerText", typeof(string), typeof(AnalysisTableData),
-                new FrameworkPropertyMetadata((string)"file"));
-
-        /// <summary>
-        /// Gets or sets the headerText property.  This dependency property 
-        /// indicates ....
-        /// </summary>
-        public string headerText
-        {
-            get { return (string)GetValue(headerTextProperty); }
-            set { SetValue(headerTextProperty, value); }
-        }
-
-        #endregion*/
-
-        private string _headerText;
-        public string headerText
-        {
-            get
-            {
-                return _headerText;
-            }
-            set
-            {
-                _headerText = value;
-                NotifyPropertyChanged(nameof(headerText));
-            }
-        }
-
-
-        private BitmapImage _envelopeImage;
-        public BitmapImage EnvelopeImage
-        {
-            get
-            {
-                return _envelopeImage;
-            }
-            set
-            {
-                _envelopeImage = value;
-                NotifyPropertyChanged(nameof(EnvelopeImage));
-            }
-        }
-
-        private bool _envelopeEnabled = false;
-        public bool EnvelopeEnabled
-        {
-            get { return _envelopeEnabled; }
-            set
-            {
-                _envelopeEnabled = value;
-                NotifyPropertyChanged(nameof(EnvelopeEnabled));
-            }
-        }
-
-        private BitmapImage _spectrumImage;
-        public BitmapImage SpectrumImage
-        {
-            get
-            {
-                return _spectrumImage;
-            }
-            set
-            {
-                _spectrumImage = value;
-                NotifyPropertyChanged(nameof(SpectrumImage));
-            }
-        }
-
-        internal void ReProcessFile(string file, decimal thresholdFactor, decimal spectrumFactor)
-        {
-            bpaRecording recording = combinedRecordingList.Where(rec => rec.FQfilename == file)?.FirstOrDefault();
-            if (recording != null && recording.recNumber > 0)
-            {
-                recording.CreateSegments(thresholdFactor, spectrumFactor);
-            }
-            recordingsDataGrid_SelectionChanged(null);
-        }
-
-        private bool _spectrumEnabled = false;
-        public bool SpectrumEnabled
-        {
-            get { return _spectrumEnabled; }
-            set
-            {
-                _spectrumEnabled = value;
-                NotifyPropertyChanged(nameof(SpectrumEnabled));
-            }
-        }
-
-        private BitmapImage _correlationImage;
-        public BitmapImage CorrelationImage
-        {
-            get
-            {
-                return _correlationImage;
-            }
-            set
-            {
-                _correlationImage = value;
-                NotifyPropertyChanged(nameof(CorrelationImage));
-            }
-        }
-
-        private bool _autoCorEnabled = false;
-        public bool AutoCorEnabled
-        {
-            get { return _autoCorEnabled; }
-            set
-            {
-                _autoCorEnabled = value;
-                NotifyPropertyChanged(nameof(AutoCorEnabled));
-            }
-        }
-
-        private BitmapImage _tdCorrelationImage;
-        public BitmapImage TDCorrelationImage
-        {
-            get
-            {
-                return _tdCorrelationImage;
-            }
-            set
-            {
-                _tdCorrelationImage = value;
-                NotifyPropertyChanged(nameof(TDCorrelationImage));
-            }
-        }
-
-        private int SampleRate { get; set; } = 384000;
-
-
-
-        internal void Clear()
-        {
-            SpectrumImage = null;
-            EnvelopeImage = null;
-            CorrelationImage = null;
-            headerText = "Loading...";
-            combinedPassList.Clear();
-            combinedPulseList.Clear();
-            combinedRecordingList.Clear();
-            combinedSegmentList.Clear();
-            combinedSpectrumList.Clear();
-
-        }
-
-        private BitmapImage _frequencyHeader;
-
-        public BitmapImage FrequencyHeader
-        {
-            get { return (_frequencyHeader); }
-            set
-            {
-                _frequencyHeader = value;
-                NotifyPropertyChanged(nameof(FrequencyHeader));
-                System.Diagnostics.Debug.WriteLine("FrequencyHeaderChanged");
-            }
-        }
-
-        private bool _PulseEnvelopEnabled = false;
-        public bool PulseEnvelopeEnabled
-        {
-            get { return (_PulseEnvelopEnabled); }
-            internal set
-            {
-                _PulseEnvelopEnabled = value;
-                NotifyPropertyChanged(nameof(PulseEnvelopeEnabled));
-            }
-        }
-
-        private BitmapImage _pulseImageBmp;
-        public BitmapImage pulseImageBmp
-        {
-            get
-            {
-                return (_pulseImageBmp);
-            }
-            private set
-            {
-                _pulseImageBmp = value;
-                NotifyPropertyChanged(nameof(pulseImageBmp));
-                if (value != null)
-                {
-                    PulseEnvelopeEnabled = true;
-                }
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        internal void NotifyPropertyChanged(string propertyName) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-
-        //public string headerTextBlock { get; set; } = "file or folder";
-
-        //public Visibility recordingsDataGridVisibility { get; set; } = Visibility.Visible;
-
-        //public Visibility segmentDataGridVisibility { get; set; } = Visibility.Hidden;
-
-
-
         public AnalysisTableData()
         {
             try
@@ -301,8 +30,193 @@ namespace BatPassAnalysisFW
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
 
+        public bool AutoCorEnabled
+        {
+            get { return _autoCorEnabled; }
+            set
+            {
+                _autoCorEnabled = value;
+                NotifyPropertyChanged(nameof(AutoCorEnabled));
+            }
+        }
 
+        public ObservableList<bpaPass> combinedPassList { get; set; } = new ObservableList<bpaPass>();
+        public ObservableList<Pulse> combinedPulseList { get; set; } = new ObservableList<Pulse>();
+        public ObservableList<bpaRecording> combinedRecordingList { get; set; } = new ObservableList<bpaRecording>();
+        public ObservableList<bpaSegment> combinedSegmentList { get; set; } = new ObservableList<bpaSegment>();
+        public ObservableList<SpectralPeak> combinedSpectrumList { get; set; } = new ObservableList<SpectralPeak>();
+
+        public BitmapImage CorrelationImage
+        {
+            get
+            {
+                return _correlationImage;
+            }
+            set
+            {
+                _correlationImage = value;
+                NotifyPropertyChanged(nameof(CorrelationImage));
+            }
+        }
+
+        public bool EnableFilter
+        {
+            get
+            {
+                return (_enableFilter);
+            }
+            set
+            {
+                _enableFilter = value;
+                NotifyPropertyChanged(nameof(EnableFilter));
+            }
+        }
+
+        public bool EnvelopeEnabled
+        {
+            get { return _envelopeEnabled; }
+            set
+            {
+                _envelopeEnabled = value;
+                NotifyPropertyChanged(nameof(EnvelopeEnabled));
+            }
+        }
+
+        public BitmapImage EnvelopeImage
+        {
+            get
+            {
+                return _envelopeImage;
+            }
+            set
+            {
+                _envelopeImage = value;
+                NotifyPropertyChanged(nameof(EnvelopeImage));
+            }
+        }
+
+        public BitmapImage FrequencyHeader
+        {
+            get { return (_frequencyHeader); }
+            set
+            {
+                _frequencyHeader = value;
+                NotifyPropertyChanged(nameof(FrequencyHeader));
+                System.Diagnostics.Debug.WriteLine("FrequencyHeaderChanged");
+            }
+        }
+
+        public string headerText
+        {
+            get
+            {
+                return _headerText;
+            }
+            set
+            {
+                _headerText = value;
+                NotifyPropertyChanged(nameof(headerText));
+            }
+        }
+
+        public bool PulseEnvelopeEnabled
+        {
+            get { return (_PulseEnvelopEnabled); }
+            internal set
+            {
+                _PulseEnvelopEnabled = value;
+                NotifyPropertyChanged(nameof(PulseEnvelopeEnabled));
+            }
+        }
+
+        public BitmapImage pulseImageBmp
+        {
+            get
+            {
+                return (_pulseImageBmp);
+            }
+            private set
+            {
+                _pulseImageBmp = value;
+                NotifyPropertyChanged(nameof(pulseImageBmp));
+                if (value != null)
+                {
+                    PulseEnvelopeEnabled = true;
+                }
+            }
+        }
+
+        public bool SpectrumEnabled
+        {
+            get { return _spectrumEnabled; }
+            set
+            {
+                _spectrumEnabled = value;
+                NotifyPropertyChanged(nameof(SpectrumEnabled));
+            }
+        }
+
+        public decimal spectrumFactor
+        {
+            get
+            {
+                return (_spectrumFactor);
+            }
+            set
+            {
+                _spectrumFactor = Math.Floor(value * 100) / 100.0m;
+                NotifyPropertyChanged(nameof(spectrumFactor));
+            }
+        }
+
+        public BitmapImage SpectrumImage
+        {
+            get
+            {
+                return _spectrumImage;
+            }
+            set
+            {
+                _spectrumImage = value;
+                NotifyPropertyChanged(nameof(SpectrumImage));
+            }
+        }
+
+        public BitmapImage TDCorrelationImage
+        {
+            get
+            {
+                return _tdCorrelationImage;
+            }
+            set
+            {
+                _tdCorrelationImage = value;
+                NotifyPropertyChanged(nameof(TDCorrelationImage));
+            }
+        }
+
+        public decimal thresholdFactor
+        {
+            get
+            {
+                return (_thresholdFactor);
+            }
+            set
+            {
+                _thresholdFactor = Math.Floor(value * 100) / 100.0m;
+                NotifyPropertyChanged(nameof(thresholdFactor));
+            }
+        }
+
+        public string Version
+        {
+            get { return _version; }
+            set { _version = value; NotifyPropertyChanged(nameof(Version)); }
+        }
+
+        //public Visibility segmentDataGridVisibility { get; set; } = Visibility.Hidden;
         public BitmapImage createFrequencyHeaderBitmap(int width = 384)
         {
             //int width = 384;
@@ -313,7 +227,7 @@ namespace BatPassAnalysisFW
             System.Drawing.Pen pen = new System.Drawing.Pen(new SolidBrush(System.Drawing.Color.Red));
             using (Graphics g = Graphics.FromImage(bmp))
             {
-                for (int f = 20; f < 70; f += 10)
+                for (int f = 20; f < 140; f += 10)
                 {
                     if (f * 2 < width)
                     {
@@ -323,34 +237,110 @@ namespace BatPassAnalysisFW
                 }
 
                 g.DrawString("kHz", new Font(FontFamily.GenericSansSerif, 8), new SolidBrush(Color.Black), new System.Drawing.Point(5, 0));
-
             }
 
             return (bpaPass.loadBitmap(bmp));
         }
 
-        internal void RefreshFrequencyheader()
+        /// <summary>
+        /// if the pass datagrid selection has changed update the pulse datagrid to hold
+        /// the pulses for the selected passes
+        /// </summary>
+        /// <param name="selectedItems"></param>
+        public void passDataGrid_SelectionChanged(IList selectedItems)
         {
-            int? sampleRate = 384000;
-            if (combinedPassList != null && combinedPassList.Any())
-            {
-                sampleRate = combinedPassList?.First().SampleRate;
-            }
-            if (sampleRate == null)
-            {
-                sampleRate = 384000;
-            }
-            FrequencyHeader = createFrequencyHeaderBitmap((int)(sampleRate.Value / 1000.0f));
+            List<bpaPass> selectedPasses = new List<bpaPass>();
+            selectedPasses.AddRange(combinedPassList);
+            combinedPulseList.Clear();
 
+            if (selectedItems != null && selectedItems.Count > 0)
+            {
+                selectedPasses = new List<bpaPass>();
+                foreach (var item in selectedItems) selectedPasses.Add(item as bpaPass);
+            }
+
+            foreach (var pass in selectedPasses)
+            {
+                if (selectedPasses.Count == 1)
+                {
+                    //DisplayEnvelope(pass);
+                }
+                foreach (var pulse in pass.getPulseList())
+                {
+                    combinedPulseList.Add(pulse);
+                }
+
+                //combinedPulseList.AddRange(pass.getPulseList());
+            }
+
+            EnvelopeEnabled = false;
+
+            pulseDataGrid_SelectionChange(combinedPulseList);
         }
 
-        internal void SaveToDatabase()
+        /// <summary>
+        /// if the pulse datagrid selection has changed update the spectral preak datagrid
+        /// with the spectrs for the selected pulses
+        /// </summary>
+        /// <param name="selectedItems"></param>
+        public void pulseDataGrid_SelectionChange(IList selectedItems)
         {
-            foreach (var rec in combinedRecordingList)
+            combinedSpectrumList.Clear();
+            if (selectedItems != null && selectedItems.Count > 0)
             {
-
-                PTA_DBAccess.SaveRecording(rec);
+                foreach (var item in selectedItems)
+                {
+                    if (item is Pulse)
+                    {
+                        Pulse pulse = item as Pulse;
+                        int index = combinedPulseList.IndexOf(pulse);
+                        foreach (var peak in pulse.GetSpectrumDetails().spectralPeakList)
+                        {
+                            SpectralPeak sp = peak as SpectralPeak;
+                            sp.parentPulseIndex = index;
+                            combinedSpectrumList.Add(sp);
+                        }
+                    }
+                }
             }
+            spectralPeakDataGrid_SelectionChanged(combinedSpectrumList);
+        }
+
+        /// <summary>
+        /// if the recordings datagrid selection has changed, update the sgement datagrid
+        /// to hold the segments for the selected recordings
+        /// </summary>
+        /// <param name="selectedItems"></param>
+        public void recordingsDataGrid_SelectionChanged(IList selectedItems)
+        {
+            List<bpaRecording> recList = new List<bpaRecording>();
+            combinedSegmentList.Clear();
+            if (selectedItems != null && selectedItems.Count > 0)
+            {
+                combinedPassList.Clear();
+                foreach (var item in selectedItems)
+                {
+                    if (item is bpaRecording)
+                    {
+                        bpaRecording recording = item as bpaRecording;
+
+                        recList.Add(recording);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var rec in combinedRecordingList) recList.Add(rec);
+            }
+
+            foreach (var recording in recList)
+            {
+                foreach (var seg in recording.getSegmentList())
+                {
+                    combinedSegmentList.Add(seg);
+                }
+            }
+            segmentDataGrid_SelectionChanged(combinedSegmentList);
         }
 
         /// <summary>
@@ -379,46 +369,6 @@ namespace BatPassAnalysisFW
             recordingsDataGrid_SelectionChanged(combinedRecordingList);
 
             //headerText = recording.File_Name;
-
-
-        }
-
-        internal void segmentDataGrid_SelectionChanged(IList selectedItems)
-        {
-            combinedPassList.Clear();
-
-            if (selectedItems != null && selectedItems.Count > 0)
-            {
-
-                foreach (var item in selectedItems)
-                {
-                    if (item is bpaSegment)
-                    {
-                        bpaSegment segment = item as bpaSegment;
-                        foreach (var pass in segment.getPassList())
-                        {
-                            combinedPassList.Add(pass);
-                        }
-
-                        //combinedPassList.AddRange(segment.getPassList());
-                    }
-                }
-
-
-            }
-            else
-            {
-                foreach (var seg in combinedSegmentList)
-                {
-                    foreach (var pass in seg.getPassList())
-                    {
-                        combinedPassList.Add(pass);
-
-                    }
-                }
-            }
-            passDataGrid_SelectionChanged(combinedPassList);
-
         }
 
         /// <summary>
@@ -427,8 +377,6 @@ namespace BatPassAnalysisFW
         /// <param name="bpaRecordingList"></param>
         public void SetRecordings(List<bpaRecording> bpaRecordingList)
         {
-
-
             combinedRecordingList.Clear();
             combinedSegmentList.Clear();
             if (bpaRecordingList == null || bpaRecordingList.Count <= 0) return;
@@ -444,38 +392,10 @@ namespace BatPassAnalysisFW
                 {
                     combinedSegmentList.Add(seg);
                 }
-
             }
             //segmentDataGridVisibility = Visibility.Hidden;
             //recordingsDataGridVisibility = Visibility.Visible;
             segmentDataGrid_SelectionChanged(combinedSegmentList);
-
-        }
-
-        /// <summary>
-        /// recalculates the peaks in the specified pass
-        /// </summary>
-        /// <param name="pass"></param>
-        internal void UpdatePass(bpaPass pass)
-        {
-            List<bpaPass> selection = new List<bpaPass>();
-            selection.Add(pass);
-            bpaRecording rec = combinedRecordingList.Where(r => r.recNumber == pass.recordingNumber).SingleOrDefault();
-            bpaSegment seg = rec.getSegmentList().Where(s => s.No == pass.segmentNumber).SingleOrDefault();
-            bpaPass actualPass = seg.getPassList().Where(p => p.Pass_Number == pass.Pass_Number).SingleOrDefault();
-            actualPass.CreatePass(thresholdFactor, spectrumFactor);
-
-            BitmapImage bmpi = pass.GetSegmentBitmap();
-            //OnBmpiCreated(new BmpiEventArgs(bmpi,BmpiEventArgs.ImageType.ENVELOPE));
-
-
-            seg.ReplacePass(actualPass);
-            recordingsDataGrid_SelectionChanged(combinedRecordingList);
-            //passDataGrid_SelectionChanged(selection);
-
-            EnvelopeImage = bmpi;
-            EnvelopeEnabled = true;
-
         }
 
         /// <summary>
@@ -508,7 +428,6 @@ namespace BatPassAnalysisFW
 
                         //ObservableList<Peak> peakList = new ObservableList<Peak>();
 
-
                         var bmp = PassAnalysis.GetBitmap(ref fftData, ref peakList, (double)spectrumFactor);
                         var bmpi = bpaPass.loadBitmap(bmp);
                         SpectrumImage = bmpi;
@@ -526,137 +445,51 @@ namespace BatPassAnalysisFW
                         //bmp = PassAnalysis.GetBitmap(ref TDCorrData, ref emptyList, 0.0m);
                         //TDCorrelationImage = bpaPass.loadBitmap(bmp);
                     }
-
                 }
             }
         }
 
-        /// <summary>
-        /// if the recordings datagrid selection has changed, update the sgement datagrid
-        /// to hold the segments for the selected recordings
-        /// </summary>
-        /// <param name="selectedItems"></param>
-        public void recordingsDataGrid_SelectionChanged(IList selectedItems)
+        internal void AutoDeleteBlankPasses()
         {
-            List<bpaRecording> recList = new List<bpaRecording>();
-            combinedSegmentList.Clear();
-            if (selectedItems != null && selectedItems.Count > 0)
+            Debug.WriteLine($"\n\nAutoDeleting ");
+            for (int i = 0; i < combinedRecordingList.Count(); i++)
             {
-                combinedPassList.Clear();
-                foreach (var item in selectedItems)
+                var passesToBeRemoved = (from seg in combinedRecordingList[i].getSegmentList()
+                                         from pass in seg.getPassList()
+                                         where pass.getPulseList().Count < 3
+                                         select pass)?.ToList();
+                if (passesToBeRemoved != null)
                 {
-                    if (item is bpaRecording)
+                    foreach (var pass in passesToBeRemoved)
                     {
-                        bpaRecording recording = item as bpaRecording;
-
-                        recList.Add(recording);
-
-
-                    }
-                }
-            }
-            else
-            {
-                foreach (var rec in combinedRecordingList) recList.Add(rec);
-            }
-
-            foreach (var recording in recList)
-            {
-                foreach (var seg in recording.getSegmentList())
-                {
-                    combinedSegmentList.Add(seg);
-                }
-            }
-            segmentDataGrid_SelectionChanged(combinedSegmentList);
-
-        }
-
-        /// <summary>
-        /// if the pulse datagrid selection has changed update the spectral preak datagrid
-        /// with the spectrs for the selected pulses
-        /// </summary>
-        /// <param name="selectedItems"></param>
-        public void pulseDataGrid_SelectionChange(IList selectedItems)
-        {
-            combinedSpectrumList.Clear();
-            if (selectedItems != null && selectedItems.Count > 0)
-            {
-
-                foreach (var item in selectedItems)
-                {
-                    if (item is Pulse)
-                    {
-                        Pulse pulse = item as Pulse;
-                        int index = combinedPulseList.IndexOf(pulse);
-                        foreach (var peak in pulse.GetSpectrumDetails().spectralPeakList)
+                        combinedRecordingList[i].DeletePass(pass);
+                        if (combinedPassList.Contains(pass))
                         {
-                            SpectralPeak sp = peak as SpectralPeak;
-                            sp.parentPulseIndex = index;
-                            combinedSpectrumList.Add(sp);
+                            combinedPassList.Remove(pass);
                         }
                     }
                 }
+                Debug.WriteLine($"Deleted {passesToBeRemoved.Count()} passes from rec number {combinedRecordingList[i].recNumber}");
             }
-            spectralPeakDataGrid_SelectionChanged(combinedSpectrumList);
 
+            recordingsDataGrid_SelectionChanged(null);
         }
 
         /// <summary>
-        /// if the pass datagrid selection has changed update the pulse datagrid to hold
-        /// the pulses for the selected passes
+        /// Delete any pulses where the peak, start or end frequency is more than 2SD away from the pass mean
         /// </summary>
-        /// <param name="selectedItems"></param>
-        public void passDataGrid_SelectionChanged(IList selectedItems)
+        internal void AutoDeleteExtremePulses()
         {
-            List<bpaPass> selectedPasses = new List<bpaPass>();
-            selectedPasses.AddRange(combinedPassList);
-            combinedPulseList.Clear();
-
-
-            if (selectedItems != null && selectedItems.Count > 0)
+            foreach (var rec in combinedRecordingList)
             {
-                selectedPasses = new List<bpaPass>();
-                foreach (var item in selectedItems) selectedPasses.Add(item as bpaPass);
-            }
-
-            foreach (var pass in selectedPasses)
-            {
-
-
-                if (selectedPasses.Count == 1)
+                foreach (var seg in rec.getSegmentList())
                 {
-                    //DisplayEnvelope(pass);
+                    foreach (var pass in seg.getPassList())
+                    {
+                        pass.DeleteExtremePulses();
+                    }
                 }
-                foreach (var pulse in pass.getPulseList())
-                {
-                    combinedPulseList.Add(pulse);
-                }
-
-
-                //combinedPulseList.AddRange(pass.getPulseList());
-
             }
-
-            EnvelopeEnabled = false;
-
-            pulseDataGrid_SelectionChange(combinedPulseList);
-
-
-        }
-
-
-
-        /// <summary>
-        /// Given a pass, extracts the envelope and displays that in a bitmapImage.
-        /// The BitmapImage is passed through an event handler to a window which can display it.
-        /// </summary>
-        /// <param name="pass"></param>
-        internal void DisplayEnvelope(bpaPass pass)
-        {
-            BitmapImage bmpi = pass.GetEnvelopeBitmap();
-            //OnBmpiCreated(new BmpiEventArgs(bmpi,BmpiEventArgs.ImageType.ENVELOPE));
-            EnvelopeImage = bmpi;
-            EnvelopeEnabled = true;
         }
 
         /// <summary>
@@ -669,9 +502,6 @@ namespace BatPassAnalysisFW
             {
                 foreach (var seg in rec.getSegmentList())
                 {
-
-
-
                     Debug.WriteLine($"\n{seg.getPassList().Count()} passes in segment {seg.No}");
                     var passList = seg.getPassList();
                     //var passesToBeProcessed = (from pass in passList
@@ -697,7 +527,6 @@ namespace BatPassAnalysisFW
                             passList = seg.DeletePulses(pulsesToBeRemoved);
                         }
 
-
                         passesToBeProcessed = passList.Where(p => (double)p.GetPeakFrequencykHzSD() > 10.0d);
                         if (passesToBeProcessed == null || passesToBeProcessed.Count() <= 0) break;
                         Debug.WriteLine($"{passesToBeProcessed?.Count()} passes need to be reprocessed\n");
@@ -714,12 +543,34 @@ namespace BatPassAnalysisFW
                     //}
 
                     Debug.WriteLine($"RemovedOutliers from {passesToBeProcessed.Count()} passes in seg{seg.No} of rec {rec.recNumber}");
-
                 }
             }
+        }
 
+        internal void Clear()
+        {
+            SpectrumImage = null;
+            EnvelopeImage = null;
+            CorrelationImage = null;
+            headerText = "Loading...";
+            combinedPassList.Clear();
+            combinedPulseList.Clear();
+            combinedRecordingList.Clear();
+            combinedSegmentList.Clear();
+            combinedSpectrumList.Clear();
+        }
 
-
+        /// <summary>
+        /// Given a pass, extracts the envelope and displays that in a bitmapImage.
+        /// The BitmapImage is passed through an event handler to a window which can display it.
+        /// </summary>
+        /// <param name="pass"></param>
+        internal void DisplayEnvelope(bpaPass pass)
+        {
+            BitmapImage bmpi = pass.GetEnvelopeBitmap();
+            //OnBmpiCreated(new BmpiEventArgs(bmpi,BmpiEventArgs.ImageType.ENVELOPE));
+            EnvelopeImage = bmpi;
+            EnvelopeEnabled = true;
         }
 
         /// <summary>
@@ -742,59 +593,135 @@ namespace BatPassAnalysisFW
             }
         }
 
+        internal void NotifyPropertyChanged(string propertyName) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
+        //public Visibility recordingsDataGridVisibility { get; set; } = Visibility.Visible;
+        internal void RefreshFrequencyheader()
+        {
+            int? sampleRate = 384000;
+            if (combinedPassList != null && combinedPassList.Any())
+            {
+                sampleRate = combinedPassList?.First().SampleRate;
+            }
+            if (sampleRate == null)
+            {
+                sampleRate = 384000;
+            }
+            FrequencyHeader = createFrequencyHeaderBitmap((int)(sampleRate.Value / 1000.0f));
+        }
 
+        internal void ReProcessFile(string file, decimal thresholdFactor, decimal spectrumFactor)
+        {
+            bpaRecording recording = combinedRecordingList.Where(rec => rec.FQfilename == file)?.FirstOrDefault();
+            if (recording != null && recording.recNumber > 0)
+            {
+                recording.CreateSegments(thresholdFactor, spectrumFactor);
+            }
+            recordingsDataGrid_SelectionChanged(null);
+        }
 
-        /// <summary>
-        /// Delete any pulses where the peak, start or end frequency is more than 2SD away from the pass mean
-        /// </summary>
-        internal void AutoDeleteExtremePulses()
+        //public string headerTextBlock { get; set; } = "file or folder";
+        internal void SaveToDatabase()
         {
             foreach (var rec in combinedRecordingList)
             {
-                foreach (var seg in rec.getSegmentList())
+                PTA_DBAccess.SaveRecording(rec);
+            }
+        }
+
+        internal void segmentDataGrid_SelectionChanged(IList selectedItems)
+        {
+            combinedPassList.Clear();
+
+            if (selectedItems != null && selectedItems.Count > 0)
+            {
+                foreach (var item in selectedItems)
+                {
+                    if (item is bpaSegment)
+                    {
+                        bpaSegment segment = item as bpaSegment;
+                        foreach (var pass in segment.getPassList())
+                        {
+                            combinedPassList.Add(pass);
+                        }
+
+                        //combinedPassList.AddRange(segment.getPassList());
+                    }
+                }
+            }
+            else
+            {
+                foreach (var seg in combinedSegmentList)
                 {
                     foreach (var pass in seg.getPassList())
                     {
-                        pass.DeleteExtremePulses();
+                        combinedPassList.Add(pass);
                     }
                 }
             }
-
-
+            passDataGrid_SelectionChanged(combinedPassList);
         }
 
-        internal void AutoDeleteBlankPasses()
+        /// <summary>
+        /// recalculates the peaks in the specified pass
+        /// </summary>
+        /// <param name="pass"></param>
+        internal void UpdatePass(bpaPass pass)
         {
+            List<bpaPass> selection = new List<bpaPass>();
+            selection.Add(pass);
+            bpaRecording rec = combinedRecordingList.Where(r => r.recNumber == pass.recordingNumber).FirstOrDefault();
+            bpaSegment seg = rec.getSegmentList().Where(s => s.No == pass.segmentNumber).FirstOrDefault();
+            bpaPass actualPass = seg.getPassList().Where(p => p.Pass_Number == pass.Pass_Number).FirstOrDefault();
+            actualPass.CreatePass(thresholdFactor, spectrumFactor);
 
-            Debug.WriteLine($"\n\nAutoDeleting ");
-            for (int i = 0; i < combinedRecordingList.Count(); i++)
-            {
-                var passesToBeRemoved = (from seg in combinedRecordingList[i].getSegmentList()
-                                         from pass in seg.getPassList()
-                                         where pass.getPulseList().Count < 3
-                                         select pass)?.ToList();
-                if (passesToBeRemoved != null)
-                {
-                    foreach (var pass in passesToBeRemoved)
-                    {
-                        combinedRecordingList[i].DeletePass(pass);
-                        if (combinedPassList.Contains(pass))
-                        {
-                            combinedPassList.Remove(pass);
-                        }
-                    }
-                }
-                Debug.WriteLine($"Deleted {passesToBeRemoved.Count()} passes from rec number {combinedRecordingList[i].recNumber}");
-            }
+            BitmapImage bmpi = pass.GetSegmentBitmap();
+            //OnBmpiCreated(new BmpiEventArgs(bmpi,BmpiEventArgs.ImageType.ENVELOPE));
 
+            seg.ReplacePass(actualPass);
+            recordingsDataGrid_SelectionChanged(combinedRecordingList);
+            //passDataGrid_SelectionChanged(selection);
 
-
-
-
-
-
-            recordingsDataGrid_SelectionChanged(null);
+            EnvelopeImage = bmpi;
+            EnvelopeEnabled = true;
         }
+
+        private bool _autoCorEnabled = false;
+        private BitmapImage _correlationImage;
+        private bool _enableFilter = false;
+        private bool _envelopeEnabled = false;
+        private BitmapImage _envelopeImage;
+        private BitmapImage _frequencyHeader;
+        private string _headerText;
+        private bool _PulseEnvelopEnabled = false;
+        private BitmapImage _pulseImageBmp;
+        private bool _spectrumEnabled = false;
+        private decimal _spectrumFactor = 1.0m;
+        private BitmapImage _spectrumImage;
+        private BitmapImage _tdCorrelationImage;
+        private decimal _thresholdFactor = 1.0m;
+        private string _version = "Version";
+        /*#region headerText
+
+        /// <summary>
+        /// headerText Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty headerTextProperty =
+            DependencyProperty.Register("headerText", typeof(string), typeof(AnalysisTableData),
+                new FrameworkPropertyMetadata((string)"file"));
+
+        /// <summary>
+        /// Gets or sets the headerText property.  This dependency property
+        /// indicates ....
+        /// </summary>
+        public string headerText
+        {
+            get { return (string)GetValue(headerTextProperty); }
+            set { SetValue(headerTextProperty, value); }
+        }
+
+        #endregion*/
+        private int SampleRate { get; set; } = 384000;
     }
 }

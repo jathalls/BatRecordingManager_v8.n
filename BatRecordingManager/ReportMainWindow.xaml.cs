@@ -154,8 +154,8 @@ namespace BatRecordingManager
                     recording.GetGpSasDouble(out var latitude, out var longitude);
                     if (latitude > 90.0d || latitude < -90.0d || longitude > 180.0d || longitude < -180.0d || (latitude == 0.0d && longitude == 0.0d))
                     {
-                        gridRef = GPSLocation.ConvertGPStoGridRef((double)session.LocationGPSLatitude,
-                        (double)session.LocationGPSLongitude);
+                        gridRef = GPSLocation.ConvertGPStoGridRef((double)(session.LocationGPSLatitude ?? 0.0m),
+                        (double)(session.LocationGPSLongitude ?? 0.0m));
                         if (string.IsNullOrWhiteSpace(gridRef))
                             Debug.WriteLine("No grid ref found for session " + session.SessionTag);
                         else
@@ -169,8 +169,8 @@ namespace BatRecordingManager
 
                 if (string.IsNullOrWhiteSpace(gridRef))
                 {
-                    gridRef = GPSLocation.ConvertGPStoGridRef((double)session.LocationGPSLatitude,
-                        (double)session.LocationGPSLongitude);
+                    gridRef = GPSLocation.ConvertGPStoGridRef((double)(session.LocationGPSLatitude ?? 0.0m),
+                        (double)(session.LocationGPSLongitude ?? 0.0m));
                     if (string.IsNullOrWhiteSpace(gridRef))
                         Debug.WriteLine("No grid ref found for session " + session.SessionTag);
                     else

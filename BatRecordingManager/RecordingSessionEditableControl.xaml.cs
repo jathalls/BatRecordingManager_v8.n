@@ -360,10 +360,13 @@ namespace BatRecordingManager
                             if (!string.IsNullOrWhiteSpace(value.Location) && _locationList.Contains(value.Location))
                             {
                                 var gpsLocation = DBAccess.GetGPSForLocation(value.Location);
-                                value.LocationGPSLatitude = (decimal)gpsLocation.m_Latitude;
-                                value.LocationGPSLongitude = (decimal)gpsLocation.m_Longitude;
-                                GpsLatitudeTextBox.Text = value.LocationGPSLatitude.ToString();
-                                GpsLongitudeTextBox.Text = value.LocationGPSLongitude.ToString();
+                                if (gpsLocation != null && gpsLocation.isValidLocation)
+                                {
+                                    value.LocationGPSLatitude = (decimal)gpsLocation.m_Latitude;
+                                    value.LocationGPSLongitude = (decimal)gpsLocation.m_Longitude;
+                                    GpsLatitudeTextBox.Text = value.LocationGPSLatitude.ToString();
+                                    GpsLongitudeTextBox.Text = value.LocationGPSLongitude.ToString();
+                                }
                             }
                         }
 

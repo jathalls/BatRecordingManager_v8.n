@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -208,8 +208,6 @@ namespace BatRecordingManager
                 //ComparisonHost.Instance.AddImageRange(images);
             }
         }
-
-
     }
 
     #endregion BatRecordingListDetailControl
@@ -224,12 +222,6 @@ namespace BatRecordingManager
     /// </summary>
     public class BatStatistics
     {
-        private Bat _bat;
-        private int _numRecordingImages = -1;
-        private int _numRecordings = -1;
-        private int _numSessions = -1;
-        private int _passes = -1;
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="BatStatistics" /> class.
         /// </summary>
@@ -315,7 +307,7 @@ namespace BatRecordingManager
         {
             get
             {
-                if (_numRecordings < 0) _numRecordings = bat.BatRecordingLinks.Count;
+                if (_numRecordings < 0) _numRecordings = bat.BatRecordingLinks.Where(brl => !(brl.ByAutoID ?? false)).Count();
                 return _numRecordings;
             }
         }
@@ -324,7 +316,7 @@ namespace BatRecordingManager
         {
             get
             {
-                if (_numSessions < 0) _numSessions = bat.BatSessionLinks.Count;
+                if (_numSessions < 0) _numSessions = bat.BatSessionLinks.Where(bsl => !(bsl.ByAutoID ?? false)).Count();
                 return _numSessions;
             }
         }
@@ -333,7 +325,7 @@ namespace BatRecordingManager
         {
             get
             {
-                if (_passes < 0) _passes = bat.BatSegmentLinks.Sum(lnk => lnk.NumberOfPasses);
+                if (_passes < 0) _passes = bat.BatSegmentLinks.Where(lnk => !(lnk.ByAutoID ?? false)).Sum(lnk => lnk.NumberOfPasses);
                 return _passes;
             }
         }
@@ -343,31 +335,15 @@ namespace BatRecordingManager
         /// </summary>
         public string Species => bat != null ? bat.BatSpecies : "";
 
-        private void Clear()
-        {
-            _passes = -1;
-            _bat = null;
-            _numRecordingImages = -1;
-            //_numRecordings = -1;
-            _numSessions = -1;
-        }
-
         public class Displayable : INotifyPropertyChanged
 
         {
-            private int _batImages;
-            private string _genus;
-            private string _name;
-            private int _passes;
-            private int _recImages;
-            private int _recordings;
-            private int _sessions;
-            private string _species;
-
             public Displayable()
             {
                 Clear();
             }
+
+            public event PropertyChangedEventHandler PropertyChanged;
 
             public int BatImages
             {
@@ -449,8 +425,6 @@ namespace BatRecordingManager
                 }
             }
 
-            public event PropertyChangedEventHandler PropertyChanged;
-
             public void Clear()
             {
                 Name = "";
@@ -463,10 +437,34 @@ namespace BatRecordingManager
                 RecImages = 0;
             }
 
+            private int _batImages;
+            private string _genus;
+            private string _name;
+            private int _passes;
+            private int _recImages;
+            private int _recordings;
+            private int _sessions;
+            private string _species;
+
             private void Pc(string item)
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(item));
             }
+        }
+
+        private Bat _bat;
+        private int _numRecordingImages = -1;
+        private int _numRecordings = -1;
+        private int _numSessions = -1;
+        private int _passes = -1;
+
+        private void Clear()
+        {
+            _passes = -1;
+            _bat = null;
+            _numRecordingImages = -1;
+            //_numRecordings = -1;
+            _numSessions = -1;
         }
     }
 

@@ -44,7 +44,7 @@ namespace BatRecordingManager
         }
 
         public static Recording CreateRecording(string file, DateTime date, TimeSpan startTime, TimeSpan duration,
-                    Tuple<double, double> location, string notes)
+                    Tuple<double, double> location, string notes, List<Meta> metaData)
         {
             var result = new Recording
             {
@@ -61,6 +61,12 @@ namespace BatRecordingManager
 
             result.RecordingNotes = notes;
             result.RecordingName = Tools.StripPath(file);
+
+            if (!metaData.IsNullOrEmpty())
+            {
+                result.Metas = new System.Data.Linq.EntitySet<Meta>();
+                result.Metas.AddRange(metaData);
+            }
 
             return result;
         }
@@ -196,6 +202,11 @@ namespace BatRecordingManager
             var existingRecording = DBAccess.GetRecordingForWavFile(file);
 
             var fileMetaData = new WavFileMetaData(file);
+            if (!fileMetaData.metaData.IsNullOrEmpty())
+            {
+                existingRecording.Metas.Clear();
+                existingRecording.Metas.AddRange(fileMetaData.metaData);
+            }
 
             var recordingDate = File.GetCreationTime(file).Date;
             var recordingTime = File.GetCreationTime(file).TimeOfDay;
@@ -206,7 +217,7 @@ namespace BatRecordingManager
                         ? new Tuple<double, double>(fileMetaData.m_Location.m_Latitude,
                             fileMetaData.m_Location.m_Longitude)
                         : null,
-                    fileMetaData.FormattedText());
+                    fileMetaData.FormattedText(), fileMetaData.metaData);
             existingRecording.RecordingSessionId = session.Id;
             var listOfSegmentAndBatList = new BulkObservableCollection<SegmentAndBatList>();
             var segmentAndBatList = new SegmentAndBatList();
@@ -226,9 +237,13 @@ namespace BatRecordingManager
                 !string.IsNullOrWhiteSpace(fileMetaData.m_AutoID))
                 // we have both auto and manual ID fields
                 moddedIdentification = fileMetaData.m_ManualID.Trim() + " (Auto=" + fileMetaData.m_AutoID.Trim() + ")";
-            segmentAndBatList.BatList =
+            segmentAndBatList.batList =
                 DBAccess.GetDescribedBats(moddedIdentification.Trim(), out moddedIdentification);
             segment.Comment = moddedIdentification;
+            if (!string.IsNullOrWhiteSpace(fileMetaData.m_AutoID))
+            {
+                segment.AutoID = fileMetaData.m_AutoID;
+            }
             if (string.IsNullOrWhiteSpace(segment.Comment)) segment.Comment = "";
             var note = fileMetaData.m_Note;
             if (!string.IsNullOrWhiteSpace(note))
@@ -339,6 +354,30 @@ namespace BatRecordingManager
 
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
+    public partial class Bat
+    {
+        public bool? ByAutoID { get; set; } = null;
+    }
+
+    //###########################################################################################################
+    public partial class Call
+    {
+        public string GetFormattedString()
+        {
+            string result = "";
+            if (StartFrequency != null && StartFrequency.Value != 0.0d) result += $"sf={StartFrequency}+/-{StartFrequencyVariation ?? 0.0d}";
+            if (EndFrequency != null && EndFrequency.Value != 0.0d) result += $", ef={EndFrequency}+/-{EndFrequencyVariation ?? 0.0d}";
+            if (PeakFrequency != null && PeakFrequency.Value != 0.0d) result += $", pf={PeakFrequency}+/-{PeakFrequencyVariation ?? 0.0d}";
+            if (PulseDuration != null && PulseDuration.Value != 0.0d) result += $", dur={PulseDuration}+/-{PulseDurationVariation ?? 0.0d}";
+            if (PulseInterval != null && PulseInterval.Value != 0.0d) result += $",int={PulseInterval}+/-{PulseIntervalVariation ?? 0.0d}";
+            if (!string.IsNullOrWhiteSpace(CallType)) result += $", Type={CallType}";
+            if (!string.IsNullOrWhiteSpace(CallFunction)) result += $", Func={CallFunction}";
+            if (!string.IsNullOrWhiteSpace(CallNotes)) result += $", Notes='{CallNotes}'";
+            if (result.StartsWith(",")) result = result.Substring(1).Trim();
+            return (result);
+        }
+    }
+
     public partial class LabelledSegment
     {
         public TimeSpan endTime
@@ -370,6 +409,14 @@ namespace BatRecordingManager
                 }
                 if (Comment.Trim().EndsWith("L")) return (true);
                 return (false);
+            }
+        }
+
+        public bool IsWavFile
+        {
+            get
+            {
+                return (Recording.isWavRecording);
             }
         }
 
@@ -456,6 +503,11 @@ namespace BatRecordingManager
                 if (latit == 0.0m && longit == 0.0m) return (false);
                 return (true);
             }
+        }
+
+        public bool hasMetadata
+        {
+            get { return (!Metas.IsNullOrEmpty()); }
         }
 
         /// <summary>
@@ -640,6 +692,7 @@ namespace BatRecordingManager
             List<string> result = new List<string>();
             foreach (var lnk in this.BatRecordingLinks)
             {
+                if (lnk.ByAutoID ?? false) continue;
                 Bat bat = lnk.Bat;
                 if (!(bat.Name == "No Bats"))
                 {
@@ -669,6 +722,7 @@ namespace BatRecordingManager
                             if (bat.BatSpecies.ToLower().StartsWith("sp")) species = "sp";
                             else if (bat.BatSpecies.Length > 2) species = bat.BatSpecies.Substring(0, 2).ToUpper();
                             else species = bat.BatSpecies.ToUpper();
+                            if (species == "AU") species = bat.BatSpecies.Substring(0, 3).ToUpper();
                         }
                         result.Add(genus + species);
                     }
@@ -711,6 +765,7 @@ namespace BatRecordingManager
             List<string> result = new List<string>();
             foreach (var lnk in this.BatRecordingLinks)
             {
+                if (lnk.ByAutoID ?? false) continue;
                 Bat bat = lnk.Bat;
                 if (!(bat.Name == "No Bats"))
                 {
@@ -727,6 +782,31 @@ namespace BatRecordingManager
                 }
             }
             return (result.ToArray());
+        }
+
+        /// <summary>
+        /// extracts the matadata as a single formatted multi-line string
+        /// </summary>
+        /// <returns></returns>
+        public string getFormattedMetadata()
+        {
+            if (hasMetadata)
+            {
+                string result = "";
+                if (!Metas.IsNullOrEmpty())
+                {
+                    foreach (var meta in Metas)
+                    {
+                        result += $"{meta.Label}:\t{meta.Value}\n";
+                    }
+                }
+
+                return (result);
+            }
+            else
+            {
+                return "";
+            }
         }
 
         private TimeSpan? _endAfterSunset = null;

@@ -12,22 +12,6 @@ namespace BatPassAnalysisFW
         //public AudioFileReader audioFileReader { get; set; }
 
         /// <summary>
-        /// Fully qualified file name containing the data
-        /// </summary>
-        public string FQfileName { get; set; }
-
-        /// <summary>
-        /// start location in the file of the data block
-        /// </summary>
-        public long BlockStartInFileInSamples { get; set; }
-
-        /// <summary>
-        /// size of the datablock
-        /// </summary>
-        public long Length { get; set; }
-
-
-        /// <summary>
         /// Creates a new data access block for a specified file, a specified start point within the file and a specified length
         /// </summary>
         /// <param name="FQfilename"></param>
@@ -44,8 +28,22 @@ namespace BatPassAnalysisFW
             FQfileName = FQfilename;
             BlockStartInFileInSamples = StartPosInFileInSamples;
             this.Length = length;
-
         }
+
+        /// <summary>
+        /// start location in the file of the data block
+        /// </summary>
+        public long BlockStartInFileInSamples { get; set; }
+
+        /// <summary>
+        /// Fully qualified file name containing the data
+        /// </summary>
+        public string FQfileName { get; set; }
+
+        /// <summary>
+        /// size of the datablock
+        /// </summary>
+        public long Length { get; set; }
 
         /// <summary>
         /// Returns data read from the file from the block's startpoint for the block's length
@@ -63,12 +61,15 @@ namespace BatPassAnalysisFW
             float[] data = new float[Length];
             using (AudioFileReader audioFileReader = new AudioFileReader(FQfileName))
             {
-
                 audioFileReader.Position = BlockStartInFileInSamples * 4; // to convert the start location in floats to location in bytes
                 audioFileReader.Read(data, 0, data.Length);
             }
-            return (data);
 
+            //using (WaveFileReader wfr = new WaveFileReader(FQfileName))
+            //{
+            //    wfr.ToSampleProvider().Read(data, 0, data.Length);
+            //}
+            return (data);
         }
 
         /// <summary>
@@ -79,16 +80,22 @@ namespace BatPassAnalysisFW
         /// <returns></returns>
         public float[] getData(int StartPosInFRecordingInSamples, int Length)
         {
+            float[] data2 = new float[1];
             float[] data = new float[Length];
             using (AudioFileReader audioFileReader = new AudioFileReader(FQfileName))
             {
-
                 audioFileReader.Position = BlockStartInFileInSamples * 4; // to convert the start location in floats to location in bytes
                 audioFileReader.Read(data, 0, Length);
             }
-            return (data);
+
+            using (WaveFileReader wfr = new WaveFileReader(FQfileName))
+            {
+                var sp = wfr.ToSampleProvider();
+                if (wfr.Length / 2 < Length) Length = (int)(wfr.Length / 2);
+                data2 = new float[Length];
+                sp.Read(data2, StartPosInFRecordingInSamples, Length);
+            }
+            return (data2);
         }
-
-
     }
 }

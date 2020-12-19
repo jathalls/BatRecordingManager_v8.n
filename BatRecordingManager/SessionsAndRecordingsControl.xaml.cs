@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,6 +29,142 @@ using System.Windows.Threading;
 
 namespace BatRecordingManager
 {
+    /// <summary>
+    ///     special class to combine an instance of a recording with a specific bat so
+    ///     that the combined object can be the source fot a datagrid and elements of the
+    ///     recording that refer to the named bat can be displayed in the grid
+    /// </summary>
+    public class BatRecording
+    {
+        /// <summary>
+        ///     default constructor
+        /// </summary>
+        /// <param name="recording"></param>
+        /// <param name="bat"></param>
+        public BatRecording(Recording recording, Bat bat)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+        {
+            try
+            {
+                this.recording = recording;
+                this.bat = bat;
+                if (recording != null && bat != null)
+                {
+                    imageCount = (from seg in recording.LabelledSegments
+                                  from link in seg.BatSegmentLinks
+                                  where !(link.ByAutoID ?? false) && link.BatID == bat.Id
+                                  select seg.SegmentDatas.Count).Sum();
+
+                    segmentCountForBat = (from seg in recording.LabelledSegments
+                                          from lnk in seg.BatSegmentLinks
+                                          where !(lnk.ByAutoID ?? false) && lnk.BatID == bat.Id
+                                          select seg).Count();
+                }
+
+                //segmentCountForBat = recording.GetSegmentCount(bat);
+            }
+            catch (Exception ex)
+            {
+                Tools.ErrorLog(ex.Message);
+                Debug.WriteLine(ex);
+            }
+        }
+
+        /// <summary>
+        ///     bat for this bat/recording pair
+        /// </summary>
+        public Bat bat { get; set; }
+
+        /// <summary>
+        ///     number of images in the recordings with this bat
+        /// </summary>
+        public int imageCount { get; }
+
+        /// <summary>
+        ///     recording for this bat/recording pair
+        /// </summary>
+        public Recording recording { get; set; }
+
+        /// <summary>
+        ///     number of segments in this recording with this bat
+        /// </summary>
+        public int segmentCountForBat { get; }
+    }
+
+    /// <summary>
+    ///     special class to combine an instance of a RecordingSession with a specific bat
+    ///     so that the the combination can be used as the ItemSource for a DataGrid and
+    ///     that datagrid can display only infomration relevant to the selected bat.
+    /// </summary>
+    public class BatSession
+    {
+        /// <summary>
+        ///     A composite class with data about recordings with a specified bat in the specified session
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="bat"></param>
+        public BatSession(RecordingSession session, Bat bat)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+        {
+            try
+            {
+                this.session = session;
+                this.bat = bat;
+                imageCount = 0;
+                //var segmentDatasForBat = DBAccess.GetImportedSegmentDatasForBat(bat);
+                batRecordings.Clear();
+                //foreach (var rec in session.Recordings)
+                //{
+                /*
+                bool recordingHasBat = false;
+                imageCount += rec.GetImageCount(bat,out recordingHasBat); // includes imported image count
+                if (recordingHasBat)
+                {
+                    batRecordings.Add(rec);
+                }*/
+                var recordingsWithBat = from rec in session.Recordings
+                                        from brLink in rec.BatRecordingLinks
+                                        where !(brLink.ByAutoID ?? false) && brLink.BatID == bat.Id
+                                        select rec;
+
+                imageCount = (from rec in recordingsWithBat
+                              from seg in rec.LabelledSegments
+                              from lnk in seg.BatSegmentLinks
+                              where !(lnk.ByAutoID ?? false) && lnk.BatID == bat.Id
+                              select seg.SegmentDatas.Count).Sum();
+                batRecordings.AddRange(recordingsWithBat);
+
+                //}
+            }
+            catch (Exception ex)
+            {
+                Tools.ErrorLog(ex.Message);
+                Debug.WriteLine(ex);
+            }
+        }
+
+        /// <summary>
+        ///     The bat for this bat/session pair
+        /// </summary>
+        public Bat bat { get; set; }
+
+        /// <summary>
+        ///     collection of recordings related to a specific bat
+        /// </summary>
+        public BulkObservableCollection<Recording> batRecordings { get; set; } =
+            new BulkObservableCollection<Recording>();
+
+        /// <summary>
+        ///     The number of images for recordings with this bat
+        /// </summary>
+        public int imageCount { get; }
+
+        /// <summary>
+        ///     the session for this bat/session pair
+        /// </summary>
+        public RecordingSession session { get; set; }
+    }
+
     /// <summary>
     ///     Provides arguments for an event.
     /// </summary>
@@ -78,18 +214,6 @@ namespace BatRecordingManager
     /// </summary>
     public partial class SessionsAndRecordingsControl : UserControl
     {
-        private readonly object _sessionActionEventLock = new object();
-
-        private ImportPictureDialog _importPictureDialog;
-        private bool _isPictureDialogOpen;
-        private BatStatistics _selectedBatDetails;
-
-
-        private BulkObservableCollection<BatStatistics> _selectedBatDetailsList =
-            new BulkObservableCollection<BatStatistics>();
-
-        private EventHandler<SessionActionEventArgs> _sessionActionEvent;
-
         /// <summary>
         ///     The selected bat identifier
         /// </summary>
@@ -104,9 +228,7 @@ namespace BatRecordingManager
             InitializeComponent();
             DataContext = this;
 
-
             //SessionsDataGrid.ItemsSource = matchingSessions;
-
 
             SessionsDataGrid.EnableColumnVirtualization = true;
             SessionsDataGrid.EnableRowVirtualization = true;
@@ -118,6 +240,27 @@ namespace BatRecordingManager
             //BindingOperations.EnableCollectionSynchronization(matchingRecordingData, matchingRecordingData);
         }
 
+        /// <summary>
+        ///     Event raised after the session property value has changed.
+        /// </summary>
+        public event EventHandler<SessionActionEventArgs> e_SessionAction
+        {
+            add
+            {
+                lock (_sessionActionEventLock)
+                {
+                    _sessionActionEvent += value;
+                }
+            }
+            remove
+            {
+                lock (_sessionActionEventLock)
+                {
+                    _sessionActionEvent -= value;
+                }
+            }
+        }
+
         public bool IsLoading
         {
             get
@@ -127,6 +270,19 @@ namespace BatRecordingManager
                 return !IsLoaded;
             }
         }
+
+        //public BulkObservableCollection<BatSessionRecordingData> matchingRecordingData { get; } = new BulkObservableCollection<BatSessionRecordingData>();
+        public AsyncVirtualizingCollection<BatSessionRecordingData> matchingRecordingData { get; set; }
+
+        /// <summary>
+        ///     A list of all the recordings in the selected sessions
+        /// </summary>
+        //public BulkObservableCollection<BatRecording> matchingRecordings { get; } = new BulkObservableCollection<BatRecording>();
+        /// <summary>
+        ///     list of tailored class of items containg displayable data for the sessions list
+        /// </summary>
+        public BulkObservableCollection<BatSessionData> matchingSessionData { get; } =
+            new BulkObservableCollection<BatSessionData>();
 
         /// <summary>
         ///     Gets or sets the selected bat details.
@@ -180,20 +336,6 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     A list of all the recordings in the selected sessions
-        /// </summary>
-        //public BulkObservableCollection<BatRecording> matchingRecordings { get; } = new BulkObservableCollection<BatRecording>();
-
-        //public BulkObservableCollection<BatSessionRecordingData> matchingRecordingData { get; } = new BulkObservableCollection<BatSessionRecordingData>();
-        public AsyncVirtualizingCollection<BatSessionRecordingData> matchingRecordingData { get; set; }
-
-        /// <summary>
-        ///     list of tailored class of items containg displayable data for the sessions list
-        /// </summary>
-        public BulkObservableCollection<BatSessionData> matchingSessionData { get; } =
-            new BulkObservableCollection<BatSessionData>();
-
-        /// <summary>
         ///     Accommodates multiple selections of BatStatistics to populate the sessions panel
         /// </summary>
         public BulkObservableCollection<BatStatistics> SelectedBatDetailsList
@@ -207,69 +349,6 @@ namespace BatRecordingManager
                     _selectedBatDetailsList = value;
                 }
             }
-        }
-
-        /// <summary>
-        ///     Event raised after the session property value has changed.
-        /// </summary>
-        public event EventHandler<SessionActionEventArgs> e_SessionAction
-        {
-            add
-            {
-                lock (_sessionActionEventLock)
-                {
-                    _sessionActionEvent += value;
-                }
-            }
-            remove
-            {
-                lock (_sessionActionEventLock)
-                {
-                    _sessionActionEvent -= value;
-                }
-            }
-        }
-
-        /// <summary>
-        ///     forces a select all for sessions data grid
-        /// </summary>
-        internal void SelectAll()
-        {
-            SessionsDataGrid.SelectAll();
-        }
-
-        //public BatAndCallImageScrollerControl imageScroller { get; internal set; }
-
-        /// <summary>
-        ///     Raises the <see cref="e_SessionAction" /> event.
-        /// </summary>
-        /// <param name="e">
-        ///     <see cref="SessionActionEventArgs" /> object that provides the arguments for the event.
-        /// </param>
-        protected virtual void OnSessionAction(SessionActionEventArgs e)
-        {
-            EventHandler<SessionActionEventArgs> handler = null;
-
-            lock (_sessionActionEventLock)
-            {
-                handler = _sessionActionEvent;
-
-                if (handler == null)
-                    return;
-            }
-
-            handler(this, e);
-        }
-
-        internal void SetMatchingSessionsAndRecordings()
-        {
-            //matchingSessions.Clear();
-            matchingSessionData.Clear();
-            //matchingRecordings.Clear();
-
-            foreach (var bs in SelectedBatDetailsList)
-                matchingSessionData.AddRange(DBAccess.GetBatSessionData(bs.bat.Id));
-            SessionsDataGrid.SelectAll();
         }
 
         /// <summary>
@@ -328,8 +407,150 @@ namespace BatRecordingManager
             return result;
         }
 
-        private Recording thisRecording { get; set; } = null;
+        /// <summary>
+        ///     forces a select all for sessions data grid
+        /// </summary>
+        internal void SelectAll()
+        {
+            SessionsDataGrid.SelectAll();
+        }
+
+        internal void SetMatchingSessionsAndRecordings()
+        {
+            //matchingSessions.Clear();
+            matchingSessionData.Clear();
+            //matchingRecordings.Clear();
+
+            foreach (var bs in SelectedBatDetailsList)
+                matchingSessionData.AddRange(DBAccess.GetBatSessionData(bs.bat.Id));
+            SessionsDataGrid.SelectAll();
+        }
+
+        /// <summary>
+        ///     Raises the <see cref="e_SessionAction" /> event.
+        /// </summary>
+        /// <param name="e">
+        ///     <see cref="SessionActionEventArgs" /> object that provides the arguments for the event.
+        /// </param>
+        protected virtual void OnSessionAction(SessionActionEventArgs e)
+        {
+            EventHandler<SessionActionEventArgs> handler = null;
+
+            lock (_sessionActionEventLock)
+            {
+                handler = _sessionActionEvent;
+
+                if (handler == null)
+                    return;
+            }
+
+            handler(this, e);
+        }
+
+        private readonly object _sessionActionEventLock = new object();
+
         private readonly AnalyseAndImportClass aai = null;
+        private ImportPictureDialog _importPictureDialog;
+        private bool _isPictureDialogOpen;
+        private BatStatistics _selectedBatDetails;
+
+        private BulkObservableCollection<BatStatistics> _selectedBatDetailsList =
+            new BulkObservableCollection<BatStatistics>();
+
+        private EventHandler<SessionActionEventArgs> _sessionActionEvent;
+
+        //public BatAndCallImageScrollerControl imageScroller { get; internal set; }
+        private Recording thisRecording { get; set; } = null;
+
+        private void Aai_e_DataUpdated(object sender, EventArgs e)
+        {
+            if (thisRecording != null && aai != null)
+            {
+                if (Tools.IsTextFileModified(aai.startedAt ?? DateTime.Now, thisRecording))
+                {
+                    if (!Dispatcher.CheckAccess())
+                    {
+                        Dispatcher.BeginInvoke(DispatcherPriority.Background,
+                            new Action(() => { RefreshParentData(); }));
+                    }
+                    else
+                    {
+                        RefreshParentData();
+                    }
+                }
+            }
+        }
+
+        private void ImportPictureDialog_Closed(object sender, EventArgs e)
+        {
+            _isPictureDialogOpen = false;
+        }
+
+        private void MatchingRecordingData_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Debug.WriteLine("recording data changed:-" + e.PropertyName);
+            if (e.PropertyName == nameof(IsLoading))
+            {
+                if (matchingRecordingData.IsLoading)
+                {
+                    Debug.WriteLine("Set wait cursor");
+                    //RecordingsDataGrid.Cursor = Cursors.Wait;
+                }
+                else
+                {
+                    Debug.WriteLine("Clear wait cursor");
+                    // RecordingsDataGrid.Cursor = Cursors.Arrow;
+                }
+            }
+        }
+
+        private void miExportFiles_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if ((RecordingsDataGrid.SelectedItems.Count) <= 0) return;
+            string folder = Tools.SelectWavFileFolder("");
+            if (string.IsNullOrWhiteSpace(folder)) return;
+            if (!Directory.Exists(folder)) return;
+            foreach (var obj in RecordingsDataGrid.SelectedItems)
+            {
+                var bsrd = obj as BatSessionRecordingData;
+                var session = DBAccess.GetRecordingSession(bsrd?.SessionId ?? -1);
+                var parentFolder = session?.OriginalFilePath;
+                if (!Directory.Exists(parentFolder))
+                {
+                    Debug.WriteLine($"Session folder <{parentFolder}> does not exist");
+                    continue;
+                }
+                if (!File.Exists(parentFolder + bsrd.RecordingName))
+                {
+                    Debug.WriteLine($"Recording <{bsrd.RecordingName}> does not exist in folder <{parentFolder}>");
+                    continue;
+                }
+                string filename = parentFolder + bsrd?.RecordingName;
+                AppFilter.TransferFile(filename, folder, false);
+            }
+        }
+
+        private void miOpenImportPicture_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if (!_isPictureDialogOpen)
+            {
+                _importPictureDialog = new ImportPictureDialog();
+                _importPictureDialog.Closed += ImportPictureDialog_Closed;
+            }
+
+            if (RecordingsDataGrid.SelectedItem as BatSessionRecordingData != null)
+            {
+                var fileName = (RecordingsDataGrid.SelectedItem as BatSessionRecordingData).RecordingName;
+                _importPictureDialog.SetCaption(fileName);
+            }
+
+            if (!_isPictureDialogOpen)
+            {
+                _importPictureDialog.Show();
+                _isPictureDialogOpen = true;
+            }
+        }
+
         private void RecordingsDataGrid_MouseDoubleClick(object sender, EventArgs e)
         {
             //var dg = sender as DataGrid;
@@ -343,31 +564,67 @@ namespace BatRecordingManager
                 aai.AnalyseRecording();
             }
 
-
             //Tools.OpenWavFile(DBAccess.GetRecording(selectedItem.RecordingId ?? -1));
         }
 
-        private void Aai_e_DataUpdated(object sender, EventArgs e)
+        /// <summary>
+        ///     Use a right mouse button click ending on a recording to bring up the Import Picture
+        ///     Dialog as a non-modal window witht he caption set to the name of the recording file.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RecordingsDataGrid_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (thisRecording != null && aai != null)
+            if (!_isPictureDialogOpen)
             {
-                if (Tools.IsTextFileModified(aai.startedAt ?? DateTime.Now, thisRecording))
-                {
-                    if (!Dispatcher.CheckAccess())
-                    {
-
-
-                        Dispatcher.BeginInvoke(DispatcherPriority.Background,
-                            new Action(() => { RefreshParentData(); }));
-
-                    }
-                    else
-                    {
-                        RefreshParentData();
-                    }
-                }
+                _importPictureDialog = new ImportPictureDialog();
+                _importPictureDialog.Closed += ImportPictureDialog_Closed;
             }
 
+            if (RecordingsDataGrid.SelectedItem as BatSessionRecordingData != null)
+            {
+                var fileName = (RecordingsDataGrid.SelectedItem as BatSessionRecordingData).RecordingName;
+                _importPictureDialog.SetCaption(fileName);
+            }
+
+            if (!_isPictureDialogOpen)
+            {
+                _importPictureDialog.Show();
+                _isPictureDialogOpen = true;
+            }
+        }
+
+        /// <summary>
+        ///     The selected recording has changed so find the newly selected recording and populate the
+        ///     image control with the images for this recording if any.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RecordingsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            RecordingImageScroller.Clear();
+            if (e.AddedItems != null && e.AddedItems.Count > 0 || e.RemovedItems != null && e.RemovedItems.Count > 0)
+                if (RecordingsDataGrid.SelectedItems != null)
+                    foreach (var item in RecordingsDataGrid.SelectedItems)
+                        if (item is BatSessionRecordingData)
+                        {
+                            var brec = item as BatSessionRecordingData;
+                            //Recording recording = DBAccess.GetRecording(brec.RecordingId??-1);
+                            //var recordingImages = recording.GetImageList(brec.BatID);
+
+                            var recordingImages = DBAccess.GetRecordingImagesForBat(brec.RecordingId, brec.BatId);
+
+                            if (!recordingImages.IsNullOrEmpty())
+                            {
+                                foreach (var image in recordingImages) RecordingImageScroller.AddImage(image);
+                                RecordingImageScroller.IsReadOnly = true;
+                            }
+                        }
+
+            if (_importPictureDialog != null && _isPictureDialogOpen)
+                if (RecordingsDataGrid.SelectedItem as BatSessionRecordingData != null)
+                    _importPictureDialog.SetCaption((RecordingsDataGrid.SelectedItem as BatSessionRecordingData)
+                        .RecordingName);
         }
 
         /// <summary>
@@ -429,274 +686,5 @@ namespace BatRecordingManager
                 }
             }
         }
-
-        private void MatchingRecordingData_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            Debug.WriteLine("recording data changed:-" + e.PropertyName);
-            if (e.PropertyName == nameof(IsLoading))
-            {
-                if (matchingRecordingData.IsLoading)
-                {
-                    Debug.WriteLine("Set wait cursor");
-                    //RecordingsDataGrid.Cursor = Cursors.Wait;
-                }
-                else
-                {
-                    Debug.WriteLine("Clear wait cursor");
-                    // RecordingsDataGrid.Cursor = Cursors.Arrow;
-                }
-            }
-        }
-
-        /// <summary>
-        ///     The selected recording has changed so find the newly selected recording and populate the
-        ///     image control with the images for this recording if any.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void RecordingsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            RecordingImageScroller.Clear();
-            if (e.AddedItems != null && e.AddedItems.Count > 0 || e.RemovedItems != null && e.RemovedItems.Count > 0)
-                if (RecordingsDataGrid.SelectedItems != null)
-                    foreach (var item in RecordingsDataGrid.SelectedItems)
-                        if (item is BatSessionRecordingData)
-                        {
-                            var brec = item as BatSessionRecordingData;
-                            //Recording recording = DBAccess.GetRecording(brec.RecordingId??-1);
-                            //var recordingImages = recording.GetImageList(brec.BatID);
-
-                            var recordingImages = DBAccess.GetRecordingImagesForBat(brec.RecordingId, brec.BatId);
-
-                            if (!recordingImages.IsNullOrEmpty())
-                            {
-                                foreach (var image in recordingImages) RecordingImageScroller.AddImage(image);
-                                RecordingImageScroller.IsReadOnly = true;
-                            }
-                        }
-
-            if (_importPictureDialog != null && _isPictureDialogOpen)
-                if (RecordingsDataGrid.SelectedItem as BatSessionRecordingData != null)
-                    _importPictureDialog.SetCaption((RecordingsDataGrid.SelectedItem as BatSessionRecordingData)
-                        .RecordingName);
-        }
-
-        /// <summary>
-        ///     Use a right mouse button click ending on a recording to bring up the Import Picture
-        ///     Dialog as a non-modal window witht he caption set to the name of the recording file.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void RecordingsDataGrid_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            if (!_isPictureDialogOpen)
-            {
-                _importPictureDialog = new ImportPictureDialog();
-                _importPictureDialog.Closed += ImportPictureDialog_Closed;
-            }
-
-            if (RecordingsDataGrid.SelectedItem as BatSessionRecordingData != null)
-            {
-                var fileName = (RecordingsDataGrid.SelectedItem as BatSessionRecordingData).RecordingName;
-                _importPictureDialog.SetCaption(fileName);
-            }
-
-            if (!_isPictureDialogOpen)
-            {
-                _importPictureDialog.Show();
-                _isPictureDialogOpen = true;
-            }
-        }
-
-        private void ImportPictureDialog_Closed(object sender, EventArgs e)
-        {
-            _isPictureDialogOpen = false;
-        }
-
-        private void miOpenImportPicture_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            if (!_isPictureDialogOpen)
-            {
-                _importPictureDialog = new ImportPictureDialog();
-                _importPictureDialog.Closed += ImportPictureDialog_Closed;
-            }
-
-            if (RecordingsDataGrid.SelectedItem as BatSessionRecordingData != null)
-            {
-                var fileName = (RecordingsDataGrid.SelectedItem as BatSessionRecordingData).RecordingName;
-                _importPictureDialog.SetCaption(fileName);
-            }
-
-            if (!_isPictureDialogOpen)
-            {
-                _importPictureDialog.Show();
-                _isPictureDialogOpen = true;
-            }
-
-        }
-
-        private void miExportFiles_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            if ((RecordingsDataGrid.SelectedItems.Count) <= 0) return;
-            string folder = Tools.SelectWavFileFolder("");
-            if (string.IsNullOrWhiteSpace(folder)) return;
-            if (!Directory.Exists(folder)) return;
-            foreach (var obj in RecordingsDataGrid.SelectedItems)
-            {
-                var bsrd = obj as BatSessionRecordingData;
-                var session = DBAccess.GetRecordingSession(bsrd?.SessionId ?? -1);
-                var parentFolder = session?.OriginalFilePath;
-                if (!Directory.Exists(parentFolder))
-                {
-                    Debug.WriteLine($"Session folder <{parentFolder}> does not exist");
-                    continue;
-                }
-                if (!File.Exists(parentFolder + bsrd.RecordingName))
-                {
-                    Debug.WriteLine($"Recording <{bsrd.RecordingName}> does not exist in folder <{parentFolder}>");
-                    continue;
-                }
-                string filename = parentFolder + bsrd?.RecordingName;
-                AppFilter.TransferFile(filename, folder, false);
-            }
-        }
-
-
-    }
-
-    /// <summary>
-    ///     special class to combine an instance of a recording with a specific bat so
-    ///     that the combined object can be the source fot a datagrid and elements of the
-    ///     recording that refer to the named bat can be displayed in the grid
-    /// </summary>
-    public class BatRecording
-    {
-        /// <summary>
-        ///     default constructor
-        /// </summary>
-        /// <param name="recording"></param>
-        /// <param name="bat"></param>
-        public BatRecording(Recording recording, Bat bat)
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        {
-            try
-            {
-                this.recording = recording;
-                this.bat = bat;
-                if (recording != null && bat != null)
-                {
-                    imageCount = (from seg in recording.LabelledSegments
-                                  from link in seg.BatSegmentLinks
-                                  where link.BatID == bat.Id
-                                  select seg.SegmentDatas.Count).Sum();
-
-                    segmentCountForBat = (from seg in recording.LabelledSegments
-                                          from lnk in seg.BatSegmentLinks
-                                          where lnk.BatID == bat.Id
-                                          select seg).Count();
-                }
-
-                //segmentCountForBat = recording.GetSegmentCount(bat);
-            }
-            catch (Exception ex)
-            {
-                Tools.ErrorLog(ex.Message);
-                Debug.WriteLine(ex);
-            }
-        }
-
-        /// <summary>
-        ///     recording for this bat/recording pair
-        /// </summary>
-        public Recording recording { get; set; }
-
-        /// <summary>
-        ///     bat for this bat/recording pair
-        /// </summary>
-        public Bat bat { get; set; }
-
-        /// <summary>
-        ///     number of images in the recordings with this bat
-        /// </summary>
-        public int imageCount { get; }
-
-        /// <summary>
-        ///     number of segments in this recording with this bat
-        /// </summary>
-        public int segmentCountForBat { get; }
-    }
-
-    /// <summary>
-    ///     special class to combine an instance of a RecordingSession with a specific bat
-    ///     so that the the combination can be used as the ItemSource for a DataGrid and
-    ///     that datagrid can display only infomration relevant to the selected bat.
-    /// </summary>
-    public class BatSession
-    {
-        /// <summary>
-        ///     A composite class with data about recordings with a specified bat in the specified session
-        /// </summary>
-        /// <param name="session"></param>
-        /// <param name="bat"></param>
-        public BatSession(RecordingSession session, Bat bat)
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        {
-            try
-            {
-                this.session = session;
-                this.bat = bat;
-                imageCount = 0;
-                //var segmentDatasForBat = DBAccess.GetImportedSegmentDatasForBat(bat);
-                batRecordings.Clear();
-                //foreach (var rec in session.Recordings)
-                //{
-                /*
-                bool recordingHasBat = false;
-                imageCount += rec.GetImageCount(bat,out recordingHasBat); // includes imported image count
-                if (recordingHasBat)
-                {
-                    batRecordings.Add(rec);
-                }*/
-                var recordingsWithBat = from rec in session.Recordings
-                                        from brLink in rec.BatRecordingLinks
-                                        where brLink.BatID == bat.Id
-                                        select rec;
-
-                imageCount = (from rec in recordingsWithBat
-                              from seg in rec.LabelledSegments
-                              from lnk in seg.BatSegmentLinks
-                              where lnk.BatID == bat.Id
-                              select seg.SegmentDatas.Count).Sum();
-                batRecordings.AddRange(recordingsWithBat);
-
-                //}
-            }
-            catch (Exception ex)
-            {
-                Tools.ErrorLog(ex.Message);
-                Debug.WriteLine(ex);
-            }
-        }
-
-        /// <summary>
-        ///     the session for this bat/session pair
-        /// </summary>
-        public RecordingSession session { get; set; }
-
-        /// <summary>
-        ///     The bat for this bat/session pair
-        /// </summary>
-        public Bat bat { get; set; }
-
-        /// <summary>
-        ///     collection of recordings related to a specific bat
-        /// </summary>
-        public BulkObservableCollection<Recording> batRecordings { get; set; } =
-            new BulkObservableCollection<Recording>();
-
-        /// <summary>
-        ///     The number of images for recordings with this bat
-        /// </summary>
-        public int imageCount { get; }
     }
 }

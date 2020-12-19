@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,7 +16,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace BatRecordingManager
 {
@@ -37,6 +39,7 @@ namespace BatRecordingManager
             segments = 0;
             passes = 0;
             batCommonName = "";
+            batAutoID = "";
         }
 
         /// <summary>
@@ -55,9 +58,12 @@ namespace BatRecordingManager
             segments = 0;
             passes = 0;
             batCommonName = "";
+            batAutoID = "";
 
-            Add(duration);
+            Add(duration, "");
         }
+
+        public string batAutoID { get; set; }
 
         /// <summary>
         ///     Gets or sets the name of the bat common.
@@ -129,7 +135,7 @@ namespace BatRecordingManager
         /// <param name="duration">
         ///     The duration.
         /// </param>
-        public void Add(TimeSpan duration)
+        public void Add(TimeSpan duration, string AutoID)
         {
             if (duration.Ticks < 0) duration = -duration;
             if (duration.Ticks > 0)
@@ -151,6 +157,13 @@ namespace BatRecordingManager
                 if (duration < minDuration) minDuration = duration;
                 meanDuration = new TimeSpan(totalDuration.Ticks / count);
             }
+            if (!string.IsNullOrWhiteSpace(AutoID))
+            {
+                if (!(batAutoID?.Contains(AutoID) ?? false))
+                {
+                    batAutoID = (batAutoID ?? "") + "; " + AutoID;
+                }
+            }
         }
 
         /// <summary>
@@ -161,7 +174,9 @@ namespace BatRecordingManager
         {
             if (!segList.IsNullOrEmpty())
                 foreach (var segment in segList.Distinct())
-                    Add(segment.EndOffset - segment.StartOffset);
+                {
+                    Add(segment.EndOffset - segment.StartOffset, segment.AutoID);
+                }
         }
 
         /// <summary>
@@ -188,6 +203,14 @@ namespace BatRecordingManager
                 }
             }
 
+            if (!string.IsNullOrEmpty(newData.batAutoID))
+            {
+                string newAutoID = newData.batAutoID;
+                if (newAutoID.StartsWith(";")) newAutoID = newAutoID.Substring(1).Trim();
+
+                batAutoID = incrementListCount(batAutoID, newAutoID); // either adds the new string or incrments the counter adjacent to the string
+            }
+
             if (newData != null && newData.count > 0)
             {
                 if (newData.maxDuration > maxDuration) maxDuration = newData.maxDuration;
@@ -198,6 +221,51 @@ namespace BatRecordingManager
                 totalDuration += newData.totalDuration;
                 meanDuration = new TimeSpan(totalDuration.Ticks / count);
             }
+        }
+
+        /// <summary>
+        /// given a string of bat names, some followed by a count in brackets, checks to see if the new bat is in the list
+        /// and if so either adds or incrments the count in brackets, otherwise adds the new string to the ; separated list.
+        /// </summary>
+        /// <param name="batAutoID"></param>
+        /// <param name="newAutoID"></param>
+        /// <returns></returns>
+        private string incrementListCount(string batAutoID, string newAutoID)
+        {
+            if (string.IsNullOrWhiteSpace(batAutoID)) return (newAutoID + ";");
+            if (!batAutoID.Contains(newAutoID))
+            {
+                return (batAutoID + " " + newAutoID + ";"); // get rid of the simple case
+            }
+            string pattern = $@"({newAutoID})\(?([0-9]*)?\)?";
+            var match = Regex.Match(batAutoID, pattern);
+            if (match.Success)
+            {
+                string replacement = newAutoID;
+                if (match.Groups.Count >= 3)
+                {
+                    if (int.TryParse(match.Groups[2].Value, out int num))
+                    {
+                        num++;
+                        replacement = $"{newAutoID}({num})";
+                    }
+                    else
+                    {
+                        if (match.Groups.Count >= 2)
+                        {
+                            replacement = $"{newAutoID}(2)";
+                        }
+                    }
+                }
+                batAutoID = Regex.Replace(batAutoID, pattern, replacement);
+            }
+            else
+            {
+                // should not really get here!
+                Debug.WriteLine($"+++Regex failed to find {newAutoID} in {batAutoID}");
+                return (batAutoID + " " + newAutoID);
+            }
+            return (batAutoID);
         }
 
         /*

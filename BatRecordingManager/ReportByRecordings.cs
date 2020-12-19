@@ -162,6 +162,8 @@ namespace BatRecordingManager
             ReportDataGrid.Columns.Add(column);
             column = CreateColumn("Bat", "bat.Name", Visibility.Visible, "");
             ReportDataGrid.Columns.Add(column);
+            column = CreateColumn("AutoID", "recordingStats.batAutoID", Visibility.Visible, "");
+            ReportDataGrid.Columns.Add(column);
             column = CreateColumn("Start Time", "recording.RecordingStartTime", Visibility.Visible,
                 "ShortTime_Converter");
 

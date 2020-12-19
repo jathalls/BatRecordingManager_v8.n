@@ -1,4 +1,6 @@
-﻿namespace BatPassAnalysisFW
+﻿using System.Diagnostics;
+
+namespace BatPassAnalysisFW
 {
     /// <summary>
     /// Class to record the parameters of a peak detected in the waveform or spectrum
@@ -6,108 +8,7 @@
     public class Peak
     {
         /// <summary>
-        /// The ordinal number of the peak in the sequence
-        /// </summary>
-        public int peak_Number { get; set; } = -1;
-
-
-
-        internal float GetMaxVal()
-        {
-            return (maxVal);
-        }
-
-
-
-        /// <summary>
-        /// The width of the peak in secs = endSecs-startSecs
-        /// </summary>
-        public float peakWidthMs
-        {
-            get
-            {
-                return ((float)(ConvertSamplesToSecs(endAsSampleInPass - startAsSampleInPass) * 1000.0f));
-            }
-        }
-
-        private int peakWidthSamples
-        {
-            get
-            {
-                return endAsSampleInPass - startAsSampleInPass;
-            }
-        }
-
-        internal int startPosInPulse;
-
-
-
-        /// <summary>
-        /// Number of samples from the start of the segmen tot he start of the peak
-        /// </summary>
-        private int startAsSampleInPass { get; set; }
-
-        /// <summary>
-        /// number of samples from the start of the segment to the end of the peak
-        /// </summary>
-        private int endAsSampleInPass { get; set; }
-
-        /// <summary>
-        /// number of samples from the start of the recording to the start of the peak
-        /// </summary>
-        private int startAsSampleInSegment { get; set; }
-
-        /// <summary>
-        /// number of samples from the start of the recording to the end of the peak
-        /// </summary>
-        private int endAsSampleInSegment { get; set; }
-
-        /// <summary>
-        /// time in secs from the end of the previous peak to he start of this peak
-        /// or zero if there was no previous peak
-        /// </summary>
-        public float prevIntervalMs
-        {
-            get
-            {
-                return ((float)(ConvertSamplesToSecs(prevIntervalSamples) * 1000.0f));
-            }
-        }
-
-        /// <summary>
-        /// number of samples from the start of the previous peak tot he start of this peak or zero if
-        /// there was no previous peak
-        /// </summary>
-        private int prevIntervalSamples { get; set; }
-
-        /// <summary>
-        /// the maximum value of the envelope for this peak
-        /// </summary>
-        private float maxVal { get; set; }
-
-        /// <summary>
-        /// the sample rate of the recording in samples per second
-        /// </summary>
-        private int sampleRatePerSecond { get; set; }
-
-        /// <summary>
-        /// Area of the peak - sum of the values within peakStart-peakEnd
-        /// </summary>
-        private double peakArea { get; set; }
-
-        internal double GetPeakArea()
-        {
-            return (peakArea);
-        }
-
-
-        public int recordingNumber { get; set; }
-
-        public float AbsoluteThreshold { get; set; }
-
-
-        /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="rate">
         /// sample rate in samples per second</param>
@@ -137,36 +38,37 @@
             this.AbsoluteThreshold = AbsoluteThreshold;
         }
 
-        internal int GetStartAsSampleInSeg()
-        {
-            return (startAsSampleInSegment);
-        }
+        public float AbsoluteThreshold { get; set; }
 
-        internal int getPeakWidthSamples()
-        {
-            return (peakWidthSamples);
-        }
+        /// <summary>
+        /// The ordinal number of the peak in the sequence
+        /// </summary>
+        public int peak_Number { get; set; } = -1;
 
-        internal int getStartAsSampleInPass()
+        /// <summary>
+        /// The width of the peak in secs = endSecs-startSecs
+        /// </summary>
+        public float peakWidthMs
         {
-            return (startAsSampleInPass);
-        }
-
-
-        private float ConvertSamplesToSecs(long samples)
-        {
-            float result = 0.0f;
-            if (samples > 0)
+            get
             {
-                result = samples / (float)sampleRatePerSecond;
+                return ((float)(ConvertSamplesToSecs(endAsSampleInPass - startAsSampleInPass) * 1000.0f));
             }
-            return (result);
         }
 
-        internal int GetSampleRatePerSecond()
+        /// <summary>
+        /// time in secs from the end of the previous peak to he start of this peak
+        /// or zero if there was no previous peak
+        /// </summary>
+        public float prevIntervalMs
         {
-            return sampleRatePerSecond;
+            get
+            {
+                return ((float)(ConvertSamplesToSecs(prevIntervalSamples) * 1000.0f));
+            }
         }
+
+        public int recordingNumber { get; set; }
 
         /// <summary>
         /// Creates a record of the detected peak based on the sample start number and the width of
@@ -177,11 +79,26 @@
         public static Peak Create(int peakNumber, int peakStartInPass, int peakCount, double peakArea, float maxHeight, int interval, int sampleRate,
             int startOfPassInSegment = 0, int RecordingNumber = 1, float AbsoluteThreshold = 0.0f)
         {
-
-            //Debug.WriteLine($"Peak at {peakStartInPass} for {peakCount} - {(float)peakStartInPass / sampleRate}/{(float)peakCount / sampleRate}");
+            Debug.WriteLine($"Peak at {peakStartInPass} for {peakCount} samples = {(float)peakStartInPass / sampleRate:G3}ms for {(float)peakCount / sampleRate:G3}ms");
             Peak peak = new Peak(peakNumber, sampleRate, startOfPassInSegment, peakStartInPass, peakCount, peakArea, maxHeight, interval, RecordingNumber, AbsoluteThreshold);
             return (peak);
+        }
 
+        internal int startPosInPulse;
+
+        internal float GetMaxVal()
+        {
+            return (maxVal);
+        }
+
+        internal double GetPeakArea()
+        {
+            return (peakArea);
+        }
+
+        internal int getPeakWidthSamples()
+        {
+            return (peakWidthSamples);
         }
 
         internal int? GetPrevIntervalSamples()
@@ -189,9 +106,83 @@
             return (prevIntervalSamples);
         }
 
+        internal int GetSampleRatePerSecond()
+        {
+            return sampleRatePerSecond;
+        }
+
+        internal int getStartAsSampleInPass()
+        {
+            return (startAsSampleInPass);
+        }
+
+        internal int GetStartAsSampleInSeg()
+        {
+            return (startAsSampleInSegment);
+        }
+
         internal void SetPrevIntervalSamples(int interval)
         {
             prevIntervalSamples = interval;
+        }
+
+        /// <summary>
+        /// number of samples from the start of the segment to the end of the peak
+        /// </summary>
+        private int endAsSampleInPass { get; set; }
+
+        /// <summary>
+        /// number of samples from the start of the recording to the end of the peak
+        /// </summary>
+        private int endAsSampleInSegment { get; set; }
+
+        /// <summary>
+        /// the maximum value of the envelope for this peak
+        /// </summary>
+        private float maxVal { get; set; }
+
+        /// <summary>
+        /// Area of the peak - sum of the values within peakStart-peakEnd
+        /// </summary>
+        private double peakArea { get; set; }
+
+        private int peakWidthSamples
+        {
+            get
+            {
+                return endAsSampleInPass - startAsSampleInPass;
+            }
+        }
+
+        /// <summary>
+        /// number of samples from the start of the previous peak tot he start of this peak or zero if
+        /// there was no previous peak
+        /// </summary>
+        private int prevIntervalSamples { get; set; }
+
+        /// <summary>
+        /// the sample rate of the recording in samples per second
+        /// </summary>
+        private int sampleRatePerSecond { get; set; }
+
+        /// <summary>
+        /// Number of samples from the start of the segmen tot he start of the peak
+        /// </summary>
+        private int startAsSampleInPass { get; set; }
+
+        /// <summary>
+        /// number of samples from the start of the recording to the start of the peak
+        /// </summary>
+        private int startAsSampleInSegment { get; set; }
+
+        private float ConvertSamplesToSecs(long samples)
+        {
+            float result = 0.0f;
+            if (samples > 0)
+            {
+                result = samples / (float)sampleRatePerSecond;
+            }
+            return (result);
         }
 
         //internal float GetStart_As_Secs_In_Rec()
@@ -204,7 +195,4 @@
         //    return (endAsSecsInRec);
         //}
     }
-
-
-
 }

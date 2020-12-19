@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,14 +33,15 @@ namespace BatRecordingManager
     public class ReportByFrequency : ReportMaster
     {
         /// <summary>
-        ///     BOC to hold the formatted Frequency data for display and export
+        /// public enum defining the possible values for the block sizes in the frequency table
         /// </summary>
-        public BulkObservableCollection<FrequencyData> reportDataList { get; set; } =
-            new BulkObservableCollection<FrequencyData>();
-
-        private BulkObservableCollection<Bat> batList { get; set; } = new BulkObservableCollection<Bat>();
-
-        private int _aggregationPeriod = 10;
+        public enum BlockSizeInMinutes
+        {
+            FIVE = 5,
+            TEN = 10,
+            FIFTEEN = 15,
+            TWENTY = 20
+        };
 
         public int AggregationPeriodInMinutes
         {
@@ -60,24 +61,30 @@ namespace BatRecordingManager
 
                     _aggregationPeriod = value;
                 }
-
-
             }
         }
+
+        /// <summary>
+        ///     BOC to hold the formatted Frequency data for display and export
+        /// </summary>
+        public BulkObservableCollection<FrequencyData> reportDataList { get; set; } =
+            new BulkObservableCollection<FrequencyData>();
 
         /// <summary>
         /// boolean to indicate if time of day should be raltive to sunset with table start at sunset -6 hours.
         /// </summary>
         public bool reSunset { get; set; } = false;
 
-        private int _tableStartTimeInMinutesFromMidnight = 720;
+        /// <summary>
+        ///     Read only string for the label in the tab to identify this report type
+        /// </summary>
+        public override string tabHeader { get; } = "Frequencies";
 
         public int TableStartTimeInMinutesFromMidnight
         {
             get { return (_tableStartTimeInMinutesFromMidnight); }
             set
             {
-
                 if (value < 0 || value >= 1440)
                 {
                     _tableStartTimeInMinutesFromMidnight = 720;
@@ -88,45 +95,14 @@ namespace BatRecordingManager
                     while (t < value)
                     {
                         t += AggregationPeriodInMinutes;
-
                     }
 
                     t -= AggregationPeriodInMinutes;
                     if (t <= 0 || t > 1440) t = 720;
                     _tableStartTimeInMinutesFromMidnight = t;
-
                 }
-
-
             }
         }
-
-        private readonly int _numberOfPeriods = 144;
-
-        private int NumberOfPeriods
-        {
-            get { return (1440 / AggregationPeriodInMinutes); }
-        }
-
-        private readonly BulkObservableCollection<FrequencyData> OccurrencesPerPeriod =
-            new BulkObservableCollection<FrequencyData>();
-
-        /// <summary>
-        /// public enum defining the possible values for the block sizes in the frequency table
-        /// </summary>
-        public enum BlockSizeInMinutes
-        {
-            FIVE = 5,
-            TEN = 10,
-            FIFTEEN = 15,
-            TWENTY = 20
-        };
-
-
-        /// <summary>
-        ///     Read only string for the label in the tab to identify this report type
-        /// </summary>
-        public override string tabHeader { get; } = "Frequencies";
 
         /// <summary>
         ///     SetData is passed the full set of report data in the form of three lists and uses whatever is necessary
@@ -153,7 +129,6 @@ namespace BatRecordingManager
                 Debug.WriteLine("Error in SetData(Frequency) creating data binding " + ex.Message);
             }
 
-
             try
             {
                 var bats = (from b in reportBatStatsList
@@ -164,14 +139,13 @@ namespace BatRecordingManager
                 // aggregation period and start time for table and number of periods have been set or defaulted globally
                 foreach (var bat in batList)
                 {
-
                     FrequencyData fd = FrequencyData.CreateEmpty(AggregationPeriodInMinutes, bat);
 
                     foreach (var recordingSession in reportSessionList)
                     {
                         bool sessionHasBat = (
                             from sessbatLnk in recordingSession.BatSessionLinks
-                            where sessbatLnk.BatID == bat.Id
+                            where !(sessbatLnk.ByAutoID ?? false) && sessbatLnk.BatID == bat.Id
                             select sessbatLnk).Any();
                         if (sessionHasBat)
                         {
@@ -200,8 +174,6 @@ namespace BatRecordingManager
                         }
                     }
                     reportDataList.Add(fd);
-
-
                 }
             }
             catch (Exception ex)
@@ -211,8 +183,6 @@ namespace BatRecordingManager
 
             try
             {
-
-
                 CreateFrequencyTable();
             }
             catch (Exception ex)
@@ -238,7 +208,6 @@ namespace BatRecordingManager
                 ReportDataGrid.ItemsSource = reportDataList;
             }
 
-
             /* original method
                  var aggregationPeriod = 10;
             reportDataList = SetFrequencyData(aggregationPeriod, reportSessionList);
@@ -246,104 +215,19 @@ namespace BatRecordingManager
             ReportDataGrid.ItemsSource = reportDataList;*/
         }
 
-        private FrequencyData GetFrequencyData(Bat bat, RecordingSession recordingSession, BulkObservableCollection<Recording> reportRecordingList)
+        private readonly int _numberOfPeriods = 144;
+
+        private readonly BulkObservableCollection<FrequencyData> OccurrencesPerPeriod =
+            new BulkObservableCollection<FrequencyData>();
+
+        private int _aggregationPeriod = 10;
+        private int _tableStartTimeInMinutesFromMidnight = 720;
+        private BulkObservableCollection<Bat> batList { get; set; } = new BulkObservableCollection<Bat>();
+
+        private int NumberOfPeriods
         {
-            FrequencyData fd = FrequencyData.CreateEmpty(AggregationPeriodInMinutes, bat);
-
-            //List<int> OccurrencesPerPeriodForBat = new List<int>();
-            //for (int i = 0; i < NumberOfPeriods; i++) OccurrencesPerPeriodForBat.Add(0);
-
-            var segmentsForThisBat = from seg in (reportRecordingList.SelectMany(rec => rec.LabelledSegments))
-                                     where seg.Recording.RecordingSession.Id == recordingSession.Id &&
-                                           seg.StartOffset != seg.EndOffset
-                                     from lnk in seg.BatSegmentLinks
-                                     where lnk.BatID == bat.Id
-                                     select seg;
-
-
-            int firstBlock = GetFirstBlock(segmentsForThisBat);
-            int lastBlock = GetLastBlock(segmentsForThisBat);
-            for (int i = firstBlock; i <= lastBlock; i++)
-            {
-                fd.OccurrencesPerPeriod[i] = GetOcccurrencesForBlock(i, segmentsForThisBat);
-            }
-
-
-            return (fd);
+            get { return (1440 / AggregationPeriodInMinutes); }
         }
-
-        /// <summary>
-        /// Examines the provided segments to see how many minutes in this block overlap segments in the set
-        /// </summary>
-        /// <param name="i"></param>
-        /// <param name="segmentsForThisBat"></param>
-        /// <returns></returns>
-        private int GetOcccurrencesForBlock(int blockIndex, IEnumerable<LabelledSegment> segmentsForThisBat)
-        {
-            int result = 0;
-            TimeSpan startTimeForBlock = TimeSpan.FromMinutes(blockIndex * AggregationPeriodInMinutes);
-
-            for (int minute = (int)startTimeForBlock.TotalMinutes;
-                minute < (int)startTimeForBlock.TotalMinutes + AggregationPeriodInMinutes;
-                minute++)
-            {
-                foreach (var seg in segmentsForThisBat)
-                {
-                    Debug.WriteLine(
-                        $"seg start at {seg.StartTime(TableStartTimeInMinutesFromMidnight)}({seg.StartTime(TableStartTimeInMinutesFromMidnight).TotalMinutes})" +
-                        $" end at {seg.EndTime(TableStartTimeInMinutesFromMidnight)}({seg.EndTime(TableStartTimeInMinutesFromMidnight).TotalMinutes})" +
-                        $"in minute {minute} ");
-                }
-
-                var inseg = (from seg in segmentsForThisBat
-                             where (int)(seg.StartTime(TableStartTimeInMinutesFromMidnight).TotalMinutes) <= minute &&
-                                   (int)(seg.EndTime(TableStartTimeInMinutesFromMidnight).TotalMinutes) >= minute
-                             select seg).Any();
-
-                if (inseg)
-                {
-                    Debug.WriteLine("start<=minute && end>=minute");
-                    result++;
-                }
-
-            }
-
-            return (result);
-        }
-
-        /// <summary>
-        /// Finds the earliest segment and locates the first block that includes the start of that segment
-        /// </summary>
-        /// <param name="segmentsForThisBat"></param>
-        /// <returns></returns>
-        private int GetFirstBlock(IEnumerable<LabelledSegment> segmentsForThisBat)
-        {
-            var firstSegmentStart = (from seg in segmentsForThisBat
-                                     orderby seg.StartTime(TableStartTimeInMinutesFromMidnight)
-                                     select seg.StartTime(TableStartTimeInMinutesFromMidnight)).First();
-            if (firstSegmentStart.Ticks <= 0)
-            {
-                return (0);
-            }
-
-            var block = (int)firstSegmentStart.TotalMinutes / AggregationPeriodInMinutes;
-            return (block);
-        }
-
-        private int GetLastBlock(IEnumerable<LabelledSegment> segmentsForThisBat)
-        {
-            var lastSegmentEnd = (from seg in segmentsForThisBat
-                                  orderby seg.EndTime(TableStartTimeInMinutesFromMidnight) descending
-                                  select seg.EndTime(TableStartTimeInMinutesFromMidnight)).First();
-            if (lastSegmentEnd.Ticks <= 0)
-            {
-                return (0);
-            }
-
-            var block = (int)lastSegmentEnd.TotalMinutes / AggregationPeriodInMinutes;
-            return (block);
-        }
-
 
         /// <summary>
         ///     Creates a single column in the reportDataGridByFrequency Datagrid which will hold the list of bats
@@ -412,16 +296,102 @@ namespace BatRecordingManager
                 Binding = new Binding("OccurrencesPerPeriod[" + i + "]")
             };
 
-
             return valueColumn;
         }
 
+        /// <summary>
+        /// Finds the earliest segment and locates the first block that includes the start of that segment
+        /// </summary>
+        /// <param name="segmentsForThisBat"></param>
+        /// <returns></returns>
+        private int GetFirstBlock(IEnumerable<LabelledSegment> segmentsForThisBat)
+        {
+            var firstSegmentStart = (from seg in segmentsForThisBat
+                                     orderby seg.StartTime(TableStartTimeInMinutesFromMidnight)
+                                     select seg.StartTime(TableStartTimeInMinutesFromMidnight)).First();
+            if (firstSegmentStart.Ticks <= 0)
+            {
+                return (0);
+            }
 
+            var block = (int)firstSegmentStart.TotalMinutes / AggregationPeriodInMinutes;
+            return (block);
+        }
 
+        private FrequencyData GetFrequencyData(Bat bat, RecordingSession recordingSession, BulkObservableCollection<Recording> reportRecordingList)
+        {
+            FrequencyData fd = FrequencyData.CreateEmpty(AggregationPeriodInMinutes, bat);
 
+            //List<int> OccurrencesPerPeriodForBat = new List<int>();
+            //for (int i = 0; i < NumberOfPeriods; i++) OccurrencesPerPeriodForBat.Add(0);
 
+            var segmentsForThisBat = from seg in (reportRecordingList.SelectMany(rec => rec.LabelledSegments))
+                                     where seg.Recording.RecordingSession.Id == recordingSession.Id &&
+                                           seg.StartOffset != seg.EndOffset
+                                     from lnk in seg.BatSegmentLinks
+                                     where !(lnk.ByAutoID ?? false) && lnk.BatID == bat.Id
+                                     select seg;
 
+            int firstBlock = GetFirstBlock(segmentsForThisBat);
+            int lastBlock = GetLastBlock(segmentsForThisBat);
+            for (int i = firstBlock; i <= lastBlock; i++)
+            {
+                fd.OccurrencesPerPeriod[i] = GetOcccurrencesForBlock(i, segmentsForThisBat);
+            }
 
+            return (fd);
+        }
 
+        private int GetLastBlock(IEnumerable<LabelledSegment> segmentsForThisBat)
+        {
+            var lastSegmentEnd = (from seg in segmentsForThisBat
+                                  orderby seg.EndTime(TableStartTimeInMinutesFromMidnight) descending
+                                  select seg.EndTime(TableStartTimeInMinutesFromMidnight)).First();
+            if (lastSegmentEnd.Ticks <= 0)
+            {
+                return (0);
+            }
+
+            var block = (int)lastSegmentEnd.TotalMinutes / AggregationPeriodInMinutes;
+            return (block);
+        }
+
+        /// <summary>
+        /// Examines the provided segments to see how many minutes in this block overlap segments in the set
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="segmentsForThisBat"></param>
+        /// <returns></returns>
+        private int GetOcccurrencesForBlock(int blockIndex, IEnumerable<LabelledSegment> segmentsForThisBat)
+        {
+            int result = 0;
+            TimeSpan startTimeForBlock = TimeSpan.FromMinutes(blockIndex * AggregationPeriodInMinutes);
+
+            for (int minute = (int)startTimeForBlock.TotalMinutes;
+                minute < (int)startTimeForBlock.TotalMinutes + AggregationPeriodInMinutes;
+                minute++)
+            {
+                foreach (var seg in segmentsForThisBat)
+                {
+                    Debug.WriteLine(
+                        $"seg start at {seg.StartTime(TableStartTimeInMinutesFromMidnight)}({seg.StartTime(TableStartTimeInMinutesFromMidnight).TotalMinutes})" +
+                        $" end at {seg.EndTime(TableStartTimeInMinutesFromMidnight)}({seg.EndTime(TableStartTimeInMinutesFromMidnight).TotalMinutes})" +
+                        $"in minute {minute} ");
+                }
+
+                var inseg = (from seg in segmentsForThisBat
+                             where (int)(seg.StartTime(TableStartTimeInMinutesFromMidnight).TotalMinutes) <= minute &&
+                                   (int)(seg.EndTime(TableStartTimeInMinutesFromMidnight).TotalMinutes) >= minute
+                             select seg).Any();
+
+                if (inseg)
+                {
+                    Debug.WriteLine("start<=minute && end>=minute");
+                    result++;
+                }
+            }
+
+            return (result);
+        }
     }
 }
