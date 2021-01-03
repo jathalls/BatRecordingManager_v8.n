@@ -294,11 +294,10 @@ namespace BatPassAnalysisFW
                     {
                         Pulse pulse = item as Pulse;
                         int index = combinedPulseList.IndexOf(pulse);
-                        foreach (var peak in pulse.GetSpectrumDetails().spectralPeakList)
+                        var peakList = pulse.GetSpectrumDetails().spectralPeakList;
+                        foreach (var spPeak in peakList)
                         {
-                            SpectralPeak sp = peak as SpectralPeak;
-                            sp.parentPulseIndex = index;
-                            combinedSpectrumList.Add(sp);
+                            combinedSpectrumList.Add(spPeak);
                         }
                     }
                 }
@@ -414,13 +413,17 @@ namespace BatPassAnalysisFW
                 {
                     SpectralPeak sp = selectedItems[0] as SpectralPeak;
 
-                    int p = sp.Pulse_ - 1;
+                    int p = sp.parentPeak.peak_Number;
                     if (p >= 0 && p < combinedPulseList.Count())
                     {
                         Pulse pulse = combinedPulseList[p];
 
                         var details = pulse.GetSpectrumDetails();
-                        var peakList = details.spectralPeakList;
+                        ObservableList<Peak> peakList = new ObservableList<Peak>();
+                        foreach (var sPeak in details.spectralPeakList)
+                        {
+                            peakList.Add(sPeak.parentPeak);
+                        }
                         List<float> corrData = new List<float>();
                         List<float> fftData = new List<float>();
                         pulse.getFFT(out fftData, out corrData);
@@ -581,7 +584,7 @@ namespace BatPassAnalysisFW
         {
             if (selectedSpectrum != null)
             {
-                Peak selectedPeak = selectedSpectrum.getPulsePeak();
+                Peak selectedPeak = selectedSpectrum.parentPeak;
                 Pulse pulse = (from p in combinedPulseList
                                where p.getPeak() == selectedPeak
                                select p).SingleOrDefault();

@@ -17,6 +17,26 @@ namespace BatPassAnalysisFW
     /// </summary>
     public class bpaRecording
     {
+        public bpaRecording(int recNumber, string FQfileName)
+        {
+            if (!string.IsNullOrWhiteSpace(FQfileName))
+            {
+                this.FQfilename = FQfileName;
+            }
+            else
+            {
+                this.FQfilename = "";
+            }
+            if (File.Exists(FQfilename))
+            {
+                var created = File.GetCreationTime(FQfilename);
+                recorded = created.ToShortDateString() + " " + created.ToShortTimeString();
+            }
+            this.recNumber = recNumber;
+        }
+
+        public string Comment { get; set; }
+
         // Visible public members
         public string File_Name
         {
@@ -35,31 +55,9 @@ namespace BatPassAnalysisFW
             }
         }
 
-        public string recorded { get; set; }
-
-
-
-        public int recNumber { get; set; }
-
-
-
-
         /// the name of the file containing the recording being processed
         /// </summary>
         public string FQfilename { get; set; } = "";
-
-        /// <summary>
-        /// A list of all the segments in the recording and their associated data
-        /// </summary>
-        private ObservableList<bpaSegment> segmentList { get; set; } = new ObservableList<bpaSegment>();
-
-        public int segmentCount
-        {
-            get
-            {
-                return (segmentList.Count());
-            }
-        }
 
         public int? passCount
         {
@@ -81,41 +79,46 @@ namespace BatPassAnalysisFW
             }
         }
 
-        //private float[] data;
+        public int recNumber { get; set; }
+        public string recorded { get; set; }
+        public int SampleRate { get; set; } = 384000;
 
-        public bpaRecording(int recNumber, string FQfileName)
+        public int segmentCount
         {
-            if (!string.IsNullOrWhiteSpace(FQfileName))
+            get
             {
-                this.FQfilename = FQfileName;
+                return (segmentList.Count());
+            }
+        }
+
+        /// <summary>
+        /// adds a label to the specified text file with the specified start and end times and no comment
+        /// unless start and end are both zero in which case eadd a text of 'No Bats'
+        /// </summary>
+        /// <param name="textFileName"></param>
+        /// <param name="startOfLabel"></param>
+        /// <param name="endOfLabel"></param>
+        public static void CreateLabel(string textFileName, float startOfLabel, float endOfLabel, string comment = "")
+        {
+            startOfLabel -= 1.0f;
+            if (startOfLabel < 0.0f) startOfLabel = 0.0f;
+            endOfLabel += 1.0f;
+
+            if ((endOfLabel - startOfLabel) < 0.0005)
+            {
+                File.AppendAllText(textFileName, $"{startOfLabel}\t{endOfLabel}\tNo Bats\n");
             }
             else
             {
-                this.FQfilename = "";
+                File.AppendAllText(textFileName, $"{startOfLabel}\t{endOfLabel}\t{comment}".Trim() + "\n");
             }
-            if (File.Exists(FQfilename))
-            {
-                var created = File.GetCreationTime(FQfilename);
-                recorded = created.ToShortDateString() + " " + created.ToShortTimeString();
-            }
-            this.recNumber = recNumber;
-
         }
 
+        //private float[] data;
         public void AddSegment(bpaSegment segment)
         {
             segmentList.Add(segment);
         }
-
-        public ObservableList<bpaSegment> getSegmentList()
-        {
-            return (segmentList);
-        }
-
-        public string Comment { get; set; }
-
-        public int SampleRate { get; set; } = 384000;
-
 
         public bool CreateSegments(decimal thresholdFactor, decimal spectrumFactor)
         {
@@ -126,8 +129,6 @@ namespace BatPassAnalysisFW
                 int segNumber = 1;
                 try
                 {
-
-
                     TimeSpan duration = new TimeSpan();
                     try
                     {
@@ -135,7 +136,6 @@ namespace BatPassAnalysisFW
                         {
                             SampleRate = afr.WaveFormat.SampleRate;
                             duration = afr.TotalTime;
-
                         }
                     }
                     catch (Exception ex)
@@ -167,6 +167,7 @@ namespace BatPassAnalysisFW
                                         Comment = "";
                                     }
                                     var segmentLength = (int)((end - startTimeOfSegment) * SampleRate);
+                                    if (duration.TotalSeconds > 0) segmentLength = (int)(duration.TotalSeconds * SampleRate);
                                     //data = new float[segmentLength];
                                     //afr.Position = 0;
                                     //var sp = afr.ToSampleProvider();
@@ -184,8 +185,6 @@ namespace BatPassAnalysisFW
                     }
                     else
                     {
-
-
                         long totalSamples = (int)(duration.TotalSeconds * SampleRate);
                         if (totalSamples > int.MaxValue)
                         {
@@ -214,9 +213,7 @@ namespace BatPassAnalysisFW
                         bpaSegment segment = new bpaSegment(recNumber, segNumber++, 0, dab, SampleRate, Comment);
 
                         segmentList.Add(segment);
-
                     }
-
 
                     foreach (var segment in segmentList)
                     {
@@ -234,38 +231,75 @@ namespace BatPassAnalysisFW
             return (result);
         }
 
-
-
-        private string ReadWAMDComment(WaveFileReader wfr, RiffChunk md)
+        public void getLabelLine(string line, out double start, out double end, out string comment)
         {
-            string result = "";
-            var chunk = wfr.GetChunkData(md);
-            string wamdChunk = System.Text.Encoding.UTF8.GetString(chunk);
-            if (!string.IsNullOrWhiteSpace(wamdChunk))
+            start = 0.0d;
+            end = 0.0d;
+            comment = "";
+            string pattern = @"([0-9.]*)[\s-]*([0-9.]*)[\s-]*(.*)";
+            var match = Regex.Match(line, pattern);
+            if (match.Success)
             {
-                result = wamdChunk;
-            }
-            return (result);
-        }
-
-        private string ReadGuanoComment(WaveFileReader wfr, RiffChunk md)
-        {
-            string result = "";
-            var chunk = wfr.GetChunkData(md);
-            string guanoChunk = System.Text.Encoding.UTF8.GetString(chunk);
-            var lines = guanoChunk.Split('\n');
-            foreach (var line in lines)
-            {
-                if (line.Contains("Manual ID:"))
+                if (match.Groups.Count > 1)
                 {
-                    var parts = line.Split(':');
-                    if (parts.Length > 1)
+                    if (double.TryParse(match.Groups[1].Value, out double startSecs))
                     {
-                        return (parts[1]);
+                        start = startSecs;
+                    }
+                    if (match.Groups.Count > 2)
+                    {
+                        if (double.TryParse(match.Groups[2].Value, out double endSecs))
+                        {
+                            end = endSecs;
+                        }
+                        if (match.Groups.Count > 3)
+                        {
+                            comment = match.Groups[3].Value;
+                        }
                     }
                 }
             }
-            return (result);
+        }
+
+        public ObservableList<bpaSegment> getSegmentList()
+        {
+            return (segmentList);
+        }
+
+        /// <summary>
+        /// appends <see langword="abstract"/>comment string for the designated pass and its parent segment
+        /// </summary>
+        /// <param name="pass"></param>
+        /// <param name="v"></param>
+        internal void appendCommentForPass(bpaPass pass, string comment)
+        {
+            var segment = (from seg in segmentList
+                           where seg.No == pass.segmentNumber
+                           select seg).FirstOrDefault();
+            if (segment != null && segment.No > 0)
+            {
+                segment.Comment += $"({pass.Pass_Number}:{comment}";
+                segment.AppendCommentForPass(pass, comment);
+            }
+        }
+
+        /// <summary>
+        /// Deletes the specified pass and segment if appropriate
+        /// </summary>
+        /// <param name="pass"></param>
+        internal void DeletePass(bpaPass pass)
+        {
+            var segment = (from seg in segmentList
+                           where seg.No == pass.segmentNumber
+                           select seg).SingleOrDefault();
+            if (segment != null)
+            {
+                int passesRemaining = segment.DeletePass(pass);
+                if (passesRemaining == 0)
+                {
+                    segmentList.Remove(segment);
+                }
+            }
         }
 
         /// <summary>
@@ -318,7 +352,6 @@ namespace BatPassAnalysisFW
                                 startPass = pass.Pass_Number;
                                 pulseCount = 0;
                             }
-
                         }
                         timeOfLastPulse = pulseStartInrecording;
                         pulseCount++;
@@ -351,60 +384,6 @@ namespace BatPassAnalysisFW
         }
 
         /// <summary>
-        /// adds a label to the specified text file with the specified start and end times and no comment
-        /// unless start and end are both zero in which case eadd a text of 'No Bats'
-        /// </summary>
-        /// <param name="textFileName"></param>
-        /// <param name="startOfLabel"></param>
-        /// <param name="endOfLabel"></param>
-        public static void CreateLabel(string textFileName, float startOfLabel, float endOfLabel, string comment = "")
-        {
-            startOfLabel -= 1.0f;
-            if (startOfLabel < 0.0f) startOfLabel = 0.0f;
-            endOfLabel += 1.0f;
-
-            if ((endOfLabel - startOfLabel) < 0.0005)
-            {
-                File.AppendAllText(textFileName, $"{startOfLabel}\t{endOfLabel}\tNo Bats\n");
-            }
-            else
-            {
-                File.AppendAllText(textFileName, $"{startOfLabel}\t{endOfLabel}\t{comment}".Trim() + "\n");
-            }
-        }
-
-        public void getLabelLine(string line, out double start, out double end, out string comment)
-        {
-            start = 0.0d;
-            end = 0.0d;
-            comment = "";
-            string pattern = @"([0-9.]*)[\s-]*([0-9.]*)[\s-]*(.*)";
-            var match = Regex.Match(line, pattern);
-            if (match.Success)
-            {
-                if (match.Groups.Count > 1)
-                {
-                    if (double.TryParse(match.Groups[1].Value, out double startSecs))
-                    {
-                        start = startSecs;
-                    }
-                    if (match.Groups.Count > 2)
-                    {
-                        if (double.TryParse(match.Groups[2].Value, out double endSecs))
-                        {
-                            end = endSecs;
-                        }
-                        if (match.Groups.Count > 3)
-                        {
-                            comment = match.Groups[3].Value;
-                        }
-                    }
-                }
-            }
-
-        }
-
-        /// <summary>
         /// Given a list of passes set them back into their segments in the recordings segment list
         /// </summary>
         /// <param name="list"></param>
@@ -424,42 +403,40 @@ namespace BatPassAnalysisFW
         }
 
         /// <summary>
-        /// Deletes the specified pass and segment if appropriate
+        /// A list of all the segments in the recording and their associated data
         /// </summary>
-        /// <param name="pass"></param>
-        internal void DeletePass(bpaPass pass)
+        private ObservableList<bpaSegment> segmentList { get; set; } = new ObservableList<bpaSegment>();
+
+        private string ReadGuanoComment(WaveFileReader wfr, RiffChunk md)
         {
-            var segment = (from seg in segmentList
-                           where seg.No == pass.segmentNumber
-                           select seg).SingleOrDefault();
-            if (segment != null)
+            string result = "";
+            var chunk = wfr.GetChunkData(md);
+            string guanoChunk = System.Text.Encoding.UTF8.GetString(chunk);
+            var lines = guanoChunk.Split('\n');
+            foreach (var line in lines)
             {
-                int passesRemaining = segment.DeletePass(pass);
-                if (passesRemaining == 0)
+                if (line.Contains("Manual ID:"))
                 {
-                    segmentList.Remove(segment);
+                    var parts = line.Split(':');
+                    if (parts.Length > 1)
+                    {
+                        return (parts[1]);
+                    }
                 }
-
             }
-
+            return (result);
         }
 
-        /// <summary>
-        /// appends <see langword="abstract"/>comment string for the designated pass and its parent segment
-        /// </summary>
-        /// <param name="pass"></param>
-        /// <param name="v"></param>
-        internal void appendCommentForPass(bpaPass pass, string comment)
+        private string ReadWAMDComment(WaveFileReader wfr, RiffChunk md)
         {
-            var segment = (from seg in segmentList
-                           where seg.No == pass.segmentNumber
-                           select seg).FirstOrDefault();
-            if (segment != null && segment.No > 0)
+            string result = "";
+            var chunk = wfr.GetChunkData(md);
+            string wamdChunk = System.Text.Encoding.UTF8.GetString(chunk);
+            if (!string.IsNullOrWhiteSpace(wamdChunk))
             {
-                segment.Comment += $"({pass.Pass_Number}:{comment}";
-                segment.AppendCommentForPass(pass, comment);
+                result = wamdChunk;
             }
+            return (result);
         }
     }
-
 }

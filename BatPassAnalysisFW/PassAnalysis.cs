@@ -47,15 +47,16 @@ namespace BatPassAnalysisFW
         /// <returns></returns>
         public static Bitmap GetBitmap(ref List<float> shortData, ref ObservableList<Peak> peakList, double PassLengthInSamples = 0.0d, int blockSize = 1)
 
-        {
-            shortData = (from d in shortData select (float)Math.Abs(d)).ToList<float>();
+        { // short data of 1863 samples, 6 peaks, passLength=963740, blockSize=21
+            /// example numbers taken from a 2.04s pass at 384000sps
+            shortData = (from d in shortData select (float)Math.Abs(d)).ToList<float>(); //
             if (PassLengthInSamples <= 0.0d) PassLengthInSamples = shortData.Count;
 
             int widthFactor = 1;
             int dataSize = shortData.Count();
             while (dataSize * widthFactor < 1500) widthFactor++;
-            int imageHeight = (int)(0.56f * dataSize * widthFactor);
-            int imageWidth = dataSize * widthFactor;
+            int imageHeight = (int)(0.56f * dataSize * widthFactor);    // WidthFactor=1
+            int imageWidth = dataSize * widthFactor;                    // image 1863 x 1043
             var bmp = new Bitmap(imageWidth, imageHeight, PixelFormat.Format32bppArgb);
             //var bmp = new Bitmap(dataSize , imageHeight, PixelFormat.Format32bppArgb);
 
@@ -65,18 +66,9 @@ namespace BatPassAnalysisFW
             int HzPerSample = 0;
             if (peakList != null && peakList.Any())
             {
-                if (peakList.First() is SpectralPeak sp)
-                {
-                    sampleRate = 0;
-                    HzPerSample = sp.GetHzPerSample();
-                    AbsoluteThreshold = sp.AbsoluteThreshold;
-                }
-                else
-                {
-                    sampleRate = peakList.First().GetSampleRatePerSecond();
-                    HzPerSample = 0;
-                    AbsoluteThreshold = peakList.First().AbsoluteThreshold;
-                }
+                sampleRate = peakList.First().GetSampleRatePerSecond();
+                HzPerSample = 0;
+                AbsoluteThreshold = peakList.First().AbsoluteThreshold;
             }
 
             Debug.WriteLine($"AbsThreshold={AbsoluteThreshold}");
@@ -87,11 +79,11 @@ namespace BatPassAnalysisFW
             {
                 //int[] normalData = new float[data.Length];
                 int plotHeight = imageHeight - dataOffset;
-                var max = shortData.Max();
+                var max = shortData.Max(); //=.00054
                 var min = shortData.Min();
-                var range = max;
+                var range = max;    // range=.00054
                 var mean = shortData.Average();
-                var scaleFactor = plotHeight / max;
+                var scaleFactor = plotHeight / max; // = 1837704
                 Debug.WriteLine($"ScaleFactor={scaleFactor} Min={min}, Range={range}");
                 var scaledData = shortData.Select(val => (int)(val * scaleFactor)).ToList();
                 //draw the graph of the data
@@ -135,6 +127,7 @@ namespace BatPassAnalysisFW
                 g.DrawLine(new Pen(new SolidBrush(Color.Green)), new Point(0, plotHeight - scaledThreshold), new Point((dataSize * widthFactor) - 1, plotHeight - scaledThreshold));
                 Debug.WriteLine($"Draw threshold at {plotHeight - scaledThreshold}");
 
+                double xScale = 1.0d;
                 if (sampleRate == 0)
                 {// assume we are plotting a spectrum and include a frequency scale
                     int fsdHz = shortData.Count * HzPerSample;
@@ -148,11 +141,22 @@ namespace BatPassAnalysisFW
                 }
                 else
                 {// assume we are plotting envelopes and have a time scale
-                    int ms = sampleRate / 1000;
+                    int samplesPerMs = sampleRate / 1000;
+
+                    xScale = imageWidth / PassLengthInSamples;
+                    int stepSize = 1;
+                    var ms = (int)(samplesPerMs * xScale);
+
+                    while (ms <= 0)
+                    {
+                        stepSize *= 10;
+                        ms = (int)(samplesPerMs * stepSize * xScale);
+                    }
+
                     int fullSize = shortData.Count;
                     Debug.WriteLine($"Bitmap:- SR={sampleRate} step={ms} size={fullSize} ");
 
-                    for (int j = 0, k = 0; j < fullSize; j += ms, k++)
+                    for (int j = 0, k = 0; j < imageWidth; j += ms, k += stepSize)
                     {
                         int xpos = j;
                         int ht = 5;
@@ -169,27 +173,27 @@ namespace BatPassAnalysisFW
                     {
                         //Debug.WriteLine($"{peak.pulse_Number} at {peak.GetStartAsSampleInSeg() / blocksize},{height/2} to {(int)((peak.GetStartAsSampleInSeg() + peak.getPeakWidthSamples()) / blocksize)}" +
                         //   $"mean={mean} ptmean={ptMean} line at {ptMean+dataOffset}");
-                        int peakStartPos = (int)Math.Ceiling(imageWidth * (peak.getStartAsSampleInPass() / PassLengthInSamples));
+                        int peakStartPos = (int)(peak.getStartAsSampleInPass() * xScale);
 
                         g.DrawString(peak.peak_Number.ToString(), new Font(FontFamily.GenericMonospace, 8), new SolidBrush(Color.Blue), new PointF(peakStartPos, dataOffset / 2));
 
                         Rectangle rect = new Rectangle();
-                        double widthScale = peak.getPeakWidthSamples() / PassLengthInSamples;
-                        rect.Width = (int)Math.Ceiling(imageWidth * widthScale);
+                        double rwidth = peak.getPeakWidthSamples() * xScale;
+                        rect.Width = (int)Math.Ceiling(rwidth);
                         if (rect.Width < 4) rect.Width = 4;
                         rect.Height = 4;
-                        rect.X = peakStartPos;
+                        rect.X = (int)(peakStartPos);// already scaled by xScale
                         if (rect.X < 0) rect.X = 0;
                         rect.Y = plotHeight / 2;
                         float scaledThresholdLine = peak.AbsoluteThreshold * scaleFactor;
                         var p = (int)(scaledThresholdLine);
-                        rect.Y = plotHeight - (p);
+                        //rect.Y = plotHeight - (p);
 
                         g.DrawRectangle(new Pen(new SolidBrush(Color.Red)), rect);
                         Debug.WriteLine("");
                         Debug.WriteLine($"Image {imageWidth} x {imageHeight}");
                         Debug.WriteLine($"Peak start at {peak.getStartAsSampleInPass()} in {PassLengthInSamples} of width {peak.getPeakWidthSamples()}");
-                        Debug.WriteLine($"Rect is {rect.Width}x{rect.Height} at {rect.X},{rect.Y}");
+                        Debug.WriteLine($"Rect is {rect.Width}x{rect.Height} at (x,y) {rect.X}, {rect.Y}");
 
                         Debug.WriteLine($"At peak {peak.peak_Number} Threshold={peak.AbsoluteThreshold}={scaledThreshold} plotted at {dataOffset}+{p}={dataOffset + p} width={peak.peakWidthMs:#0.##}");
                         Debug.WriteLine($"start={peak.getStartAsSampleInPass()},smooth=20,blockSize={blockSize},widthFactor={widthFactor}");
@@ -212,7 +216,11 @@ namespace BatPassAnalysisFW
         /// <returns></returns>
         public static Bitmap GetGraph(ref float[] data, ref ObservableList<Peak> peakList, double PasslengthInSamples)
         {
-            if (data == null || data.Length <= 1900) return (null);
+            if (data == null || data.Length <= 1900)
+            {
+                Debug.WriteLine($"GetGraph: Too few data points to graph - data is {data.Length} is less than 1900");
+                return (null);
+            }
             List<float> shortData = new List<float>();
             int blocksize = (int)Math.Ceiling(data.Length / 1900.0d);
 
@@ -233,6 +241,7 @@ namespace BatPassAnalysisFW
             return (bmp);
         }
 
+        /*
         /// <summary>
         /// scans a data array looking for peaks that are above tha background noise level, and for each peak creates
         /// a Peak instance or a SpectralPeak instance depending on the value of asSpectralPeak
@@ -250,10 +259,13 @@ namespace BatPassAnalysisFW
         /// <param name="PassNumber"></param>
         /// <param name="RecordingNumber"></param>
         /// <returns></returns>
-        public static string getPeaks(ref float[] dataInPass, int sampleRate, int leadInSamples, int leadOutSamples, float thresholdFactor, out ObservableList<Peak> peakList, float autoCorrelationWidth,
-            int startOfPassInSegment = 0, bool asSpectralPeak = false, Peak parentPulse = null, bool isValidPulse = true, int PassNumber = 1, int RecordingNumber = 1)
+        public static string getPeaks(ref float[] dataInPass, int sampleRate, int leadInSamples, int leadOutSamples, float thresholdFactor,
+            out ObservableList<Peak> peakList, float autoCorrelationWidth, out ObservableList<SpectralPeak> spectralPeakList,
+            int startOfPassInSegment = 0, bool asSpectralPeak = false, Peak parentPulse = null, bool isValidPulse = true, int PassNumber = 1,
+            int RecordingNumber = 1)
         {
             peakList = new ObservableList<Peak>();
+            spectralPeakList = new ObservableList<SpectralPeak>();
             peakState currentPeakState = peakState.NOTINPEAK;
             float limit = dataInPass.Average() * thresholdFactor;
             float maxValue = float.MinValue;
@@ -408,58 +420,32 @@ namespace BatPassAnalysisFW
                             leadArea += dataInPass[sampleInPass];
                             if (leadOutCount > leadoutLimit)
                             {
+                                int peakWidth = peakCount;
+                                Peak parentPeak = parentPulse;
                                 currentPeakState = peakState.NOTINPEAK;
                                 outofpeakstartsat = sampleInPass;
                                 peakEndInPass = sampleInPass - leadoutLimit;
                                 if (peakEndInPass < 0) peakEndInPass = 0;
                                 if (peakEndInPass > dataInPass.Length) peakEndInPass = dataInPass.Length - 1;
                                 int interval = lastStart > 0 ? peakStartInPass - lastStart : 0;
-                                if (asSpectralPeak || ((interval == 0 || interval > (sampleRate * 0.01))))// sampleRate/50 == 30ms min separation
+                                if (((interval == 0 || interval > (sampleRate * 0.01))))// sampleRate/50 == 30ms min separation
                                 {
-                                    if (asSpectralPeak)
-                                    {
-                                        int HzPerSample = (sampleRate / 2) / dataInPass.Length;
-                                        SpectralPeak peak = SpectralPeak.Create(
-                                            ++peakNumber,
-                                            peakStartInPass,
-                                            peakCount,
-                                            peakArea,
-                                            maxValue,
-                                            lastStart > 0 ? peakStartInPass - lastStart : 0,
-                                            sampleRate,
-                                            autoCorrelationWidth,
-                                            parentPulse,
-                                            isValidPulse,
-                                            startOfPassInSegment,
-                                            dataInPass.Skip(peakStartInPass).Take(peakCount).ToArray<float>(),
-                                            HzPerSample,
-                                            PassNumber,
-                                            RecordingNumber,
-                                            limit
+                                    Debug.WriteLine($"PEAKLEADIN at {leadinstartsat} INPEAK at {peakstartsat} LEADOUT at {leadoutstartsat} INPEAK at {peakrestartat} OUTOFPEAK at {outofpeakstartsat}-{leadoutLimit}");
+                                    //float[] peakData = dataInPass.Skip(peakStartInPass).Take(peakCount).ToArray<float>();
+                                    float peakStartSecs = peakStartInPass / (float)sampleRate;
+                                    float peakEndSecs = peakEndInPass / (float)sampleRate;
+                                    float width = (peakEndSecs - peakStartSecs) * 1000.0f;
+                                    float passStartSecs = startOfPassInSegment / (float)sampleRate;
+                                    maxmaxvalue = maxValue > maxmaxvalue ? maxValue : maxmaxvalue;
+                                    Debug.WriteLine($"start at {peakStartInPass} end at {peakEndInPass} width= {peakEndInPass - peakStartInPass}");
+                                    //if (width>0.0f && width < 30.0f)
+                                    //{
+                                    Peak peak = Peak.Create(++peakNumber, peakStartInPass, peakEndInPass - peakStartInPass, peakArea, maxValue, lastStart > 0 ? peakStartInPass - lastStart : 0,
+                                        sampleRate, startOfPassInSegment, RecordingNumber: RecordingNumber, AbsoluteThreshold: limit);
 
-                                            );
-                                        peakList.Add(peak);
-                                        lastStart = peakStartInPass;
-                                    }
-                                    else
-                                    {
-                                        Debug.WriteLine($"PEAKLEADIN at {leadinstartsat} INPEAK at {peakstartsat} LEADOUT at {leadoutstartsat} INPEAK at {peakrestartat} OUTOFPEAK at {outofpeakstartsat}-{leadoutLimit}");
-                                        //float[] peakData = dataInPass.Skip(peakStartInPass).Take(peakCount).ToArray<float>();
-                                        float peakStartSecs = peakStartInPass / (float)sampleRate;
-                                        float peakEndSecs = peakEndInPass / (float)sampleRate;
-                                        float width = (peakEndSecs - peakStartSecs) * 1000.0f;
-                                        float passStartSecs = startOfPassInSegment / (float)sampleRate;
-                                        maxmaxvalue = maxValue > maxmaxvalue ? maxValue : maxmaxvalue;
-                                        Debug.WriteLine($"start at {peakStartInPass} end at {peakEndInPass} width= {peakEndInPass - peakStartInPass}");
-                                        //if (width>0.0f && width < 30.0f)
-                                        //{
-                                        Peak peak = Peak.Create(++peakNumber, peakStartInPass, peakEndInPass - peakStartInPass, peakArea, maxValue, lastStart > 0 ? peakStartInPass - lastStart : 0,
-                                            sampleRate, startOfPassInSegment, RecordingNumber: RecordingNumber, AbsoluteThreshold: limit);
-
-                                        peakList.Add(peak);
-                                        lastStart = peakStartInPass;
-                                        //}
-                                    }
+                                    peakList.Add(peak);
+                                    lastStart = peakStartInPass;
+                                    //}
                                 }
                                 maxValue = float.MinValue;
                             }
@@ -475,43 +461,172 @@ namespace BatPassAnalysisFW
                 peakList.Clear();
             }
             return ($"found {peakList.Count} peaks");
-        }
+        }*/ // GetPeaks
 
-        /*
         /// <summary>
-        /// Provides arguments for an event.
+        /// Alternative version of getpeaks which uses slopes of the data rather than values
         /// </summary>
-        [Serializable]
-        public class AnalysisResultEventArgs : EventArgs
+        /// <param name="data"></param>
+        /// <param name="sampleRate"></param>
+        /// <param name="leadInSamples"></param>
+        /// <param name="leadOutSamples"></param>
+        /// <param name="thresholdFactor"></param>
+        /// <param name="spectralPeakList"></param>
+        /// <param name="autoCorrelationWidth"></param>
+        /// <param name="startOfPassInSegment"></param>
+        /// <param name="asSpectralPeak"></param>
+        /// <param name="parentPeak"></param>
+        /// <param name="isValidPulse"></param>
+        /// <param name="PassNumber"></param>
+        /// <param name="RecordingNumber"></param>
+        internal static void getSpectralPeaks(ref float[] data, int sampleRate, int leadInSamples, int leadOutSamples, float thresholdFactor,
+            out ObservableList<SpectralPeak> spectralPeakList, float autoCorrelationWidth, int startOfPassInSegment, bool asSpectralPeak,
+            Peak parentPeak, bool isValidPulse, int PassNumber, int RecordingNumber)
         {
-            public new static readonly AnalysisResultEventArgs Empty = new AnalysisResultEventArgs("");
+            spectralPeakList = new ObservableList<SpectralPeak>();
 
-            #region Public Properties
-
-            /// <summary>
-            /// The text containing statistical details of the analysis so far
-            /// to be inserted as is into a TextBox.text field
-            /// </summary>
-            public string text = "";
-
-            #endregion Public Properties
-
-            #region Constructors
-
-            /// <summary>
-            /// Constructs a new instance of the <see cref="CustomEventArgs" /> class.
-            /// </summary>
-            public AnalysisResultEventArgs(string text)
+            float[] slope = new float[data.Length - 1];
+            var HzPerBin = (sampleRate / 2) / data.Length;
+            var binFor12kHz = 12000 / HzPerBin;
+            for (int i = 0; i < binFor12kHz; i++) slope[i] = 0;
+            List<(int Position, float initialValue, int NumOfValues, float avgValue, bool IsPositive)> slopeGroups = new List<(int, float, int, float, bool)>();
+            bool LastSlopeIsPositive;
+            if (data[binFor12kHz] > data[binFor12kHz - 1]) LastSlopeIsPositive = true;
+            else LastSlopeIsPositive = false;
+            int blockStart = binFor12kHz;
+            int blockCount = 0;
+            float startValue = 0.0f;
+            float sumOfValues = 0.0f;
+            for (int i = binFor12kHz; i < slope.Length; i++)
             {
-                this.text = text;
+                slope[i] = data[i] - data[i - 1];
+                if (slope[i] > 0 && LastSlopeIsPositive) // continuing a started positive block
+                {
+                    blockCount++;
+                    sumOfValues += slope[i];
+                }
+                else if (slope[i] > 0 && !LastSlopeIsPositive) // first positive slope of a block
+                {
+                    if (blockCount > 0) // end of a real negative block
+                    {
+                        slopeGroups.Add((Position: blockStart, initialValue: startValue, NumOfValues: blockCount, avgValue: sumOfValues / blockCount, IsPositive: false));
+                    }
+                    blockCount = 1;
+                    blockStart = i;
+                    sumOfValues = slope[i];
+                    startValue = data[i];
+                    LastSlopeIsPositive = true;
+                }
+                else if (slope[i] < 0 && !LastSlopeIsPositive) // continuing a negative slope block
+                {
+                    blockCount++;
+                    sumOfValues += slope[i];
+                }
+                else if (slope[i] < 0 && LastSlopeIsPositive) // first negative slopeof a block
+                {
+                    if (blockCount > 0)
+                    {
+                        slopeGroups.Add((Position: blockStart, initialValue: startValue, NumOfValues: blockCount, sumOfValues / blockCount, IsPositive: true));
+                    }
+                    blockCount = 1;
+                    blockStart = i;
+                    sumOfValues = slope[i];
+                    startValue = data[i];
+                    LastSlopeIsPositive = false;
+                }
+                else
+                {
+                    if (blockCount > 0)
+                    {
+                        blockCount++;
+                        sumOfValues += slope[i];
+                    }
+                }
             }
 
-            #endregion Constructors
+            var hfData = data.Skip(binFor12kHz);
+            float valueAtPeak = hfData.Max();
+            int PositionOfPeak = hfData.IndexOf(valueAtPeak) + binFor12kHz;
+
+            var blocksBelowPeak = slopeGroups.Where(sg => sg.Position < PositionOfPeak);
+            if (!blocksBelowPeak.Any()) blocksBelowPeak = null;
+            var maxSlope = blocksBelowPeak?.Select(sg => sg.NumOfValues)?.Max();
+            var positiveBlock = blocksBelowPeak?.Where(sg => sg.NumOfValues == (maxSlope ?? -1))?.Last();
+
+            var blocksAbovePeak = slopeGroups.Where(sg => sg.Position > PositionOfPeak);
+            if (!blocksAbovePeak.Any()) blocksAbovePeak = null;
+            maxSlope = blocksAbovePeak?.Select(sg => sg.NumOfValues)?.Max();
+            var negativeBlock = blocksAbovePeak?.Where(sg => sg.NumOfValues == (maxSlope ?? -1))?.First();
+
+            if (positiveBlock != null && negativeBlock != null)
+            {
+                float maximum = hfData.Max();
+
+                int fPeak = PositionOfPeak * HzPerBin;
+
+                int fLow = getIntercept(positiveBlock, HzPerBin);
+                int fHigh = getIntercept(negativeBlock, HzPerBin);
+
+                int fHalfHeightLow = getHalfHeight(positiveBlock, HzPerBin, fLow, valueAtPeak);
+                int fHalfHeightHigh = getHalfHeight(negativeBlock, HzPerBin, fHigh, valueAtPeak);
+                int fHalfHeightWidth = fHalfHeightHigh - fHalfHeightLow;
+
+                SpectralPeak sp = (SpectralPeak)SpectralPeak.CreateSP(fLow, fHigh, (fPeak * (fHigh - fLow)) / 2,
+                    fPeak, sampleRate, 0.01f, parentPeak, true, data, HzPerBin, autoCorrelationWidth);
+
+                sp.halfHeightHighFrequency = fHalfHeightHigh;
+                sp.halfHeightLowFrequency = fHalfHeightLow;
+                sp.halfHeightWidthHz = fHalfHeightWidth;
+
+                spectralPeakList.Add(sp);
+            }
         }
 
-        public event EventHandler<AnalysisResultEventArgs> ResultProduced;
+        private static int getHalfHeight((int Position, float initialValue, int NumOfValues, float avgValue, bool IsPositive)? slopeBlock, int hzPerBin, int fIntercept, float valueAtPeak)
+        {
+            if (slopeBlock == null) return (0);
+            int bin = 0;
+            int interceptBin = fIntercept / hzPerBin;
+            if (slopeBlock.Value.IsPositive)
+            {
+                var binAtHalfHeight = (int)((valueAtPeak / 2) / Math.Abs(slopeBlock.Value.avgValue));
+                bin = interceptBin + binAtHalfHeight;
+                if (bin < 0) bin = 0;
+            }
+            else
+            {
+                var binAtHalfHeight = (int)((valueAtPeak / 2) / Math.Abs(slopeBlock.Value.avgValue));
+                bin = interceptBin - binAtHalfHeight;
+                if (bin < 0) bin = 0;
+            }
+            int result = bin * hzPerBin;
+            return (result);
+        }
 
-        protected virtual void OnResultProduced(AnalysisResultEventArgs e) => ResultProduced?.Invoke(this, e);
-        */
+        /// <summary>
+        /// given a block of slope values and a starting bin calculates the interception of the slope with zero and converts that
+        /// bin number to a frequency
+        /// </summary>
+        /// <param name="positiveBlock"></param>
+        /// <param name="hzPerBin"></param>
+        /// <returns></returns>
+        private static int getIntercept((int Position, float initialValue, int NumOfValues, float avgValue, bool IsPositive)? slopeBlock, int hzPerBin)
+        {
+            if (slopeBlock == null) return (0);
+            int bin = 0;
+            if (slopeBlock.Value.IsPositive)
+            {
+                int binsBeforeStart = (int)(slopeBlock.Value.initialValue / slopeBlock.Value.avgValue);
+                bin = slopeBlock.Value.Position - binsBeforeStart; ;
+                if (bin < 0) bin = 0;
+            }
+            else
+            {
+                int binsAfterStart = (int)(slopeBlock.Value.initialValue / (Math.Abs(slopeBlock.Value.avgValue)));
+                bin = slopeBlock.Value.Position + binsAfterStart;
+            }
+            int result = bin * hzPerBin;
+            return (result);
+        }
     }
 }

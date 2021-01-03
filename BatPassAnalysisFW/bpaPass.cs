@@ -48,7 +48,6 @@ namespace BatPassAnalysisFW
         public enum peakState { NOTINPEAK, INPEAKLEADIN, INPEAK, INPEAKLEADOUT };
 
         public int alternationNumber { get; set; }
-
         public string Comment { get; set; }
 
         public (float Mean, float SD, float NoPulses) durationDetails
@@ -257,7 +256,6 @@ namespace BatPassAnalysisFW
         }
 
         public DataAccessBlock passDataAccessBlock { get; set; }
-
         public TimeSpan passStart { get; set; }
 
         /// <summary>
@@ -304,15 +302,10 @@ namespace BatPassAnalysisFW
         }
 
         public int recordingNumber { get; set; }
-
         public float SegLengthSecs { get; set; }
-
         public int segmentNumber { get; set; }
-
         public TimeSpan segStart { get; set; }
-
         public string shtFileName { get; set; }
-
         public decimal spectrumfactor { get; set; }
 
         /// <summary>
@@ -363,14 +356,15 @@ namespace BatPassAnalysisFW
         {
             float[] data = passDataAccessBlock.getData((int)passDataAccessBlock.BlockStartInFileInSamples, (int)passDataAccessBlock.Length);
 
+            Debug.WriteLine($"GE2:- raw max={data.IndexOf(data.Max())}");
             HighPassFilter(ref data, 15000, sampleRate);
-
+            Debug.WriteLine($"GE2:- HF max={data.IndexOf(data.Max())}");
             data = data.Select(val => Math.Abs(val)).ToArray();
 
             LoPassFilter(ref data, 3000, sampleRate);
-
+            Debug.WriteLine($"GE2:- absLF max={data.IndexOf(data.Max())}");
             HighPassFilter(ref data, 100, sampleRate);
-
+            Debug.WriteLine($"GE2:- HF2 max={data.IndexOf(data.Max())}");
             List<double> smoothedData = new List<double>();
             double total = 0.0d;
             for (int i = 1; i < data.Length; i++)
@@ -384,6 +378,7 @@ namespace BatPassAnalysisFW
                     total = 0.0d;
                 }
             }
+            Debug.WriteLine($"GE2:- smooth{smooth} max={smoothedData.IndexOf(smoothedData.Max())}");
             double min = smoothedData.Min();
             double scale = 1 / min;
             //smoothedData = smoothedData.Select(val => val * scale).ToList();
@@ -536,7 +531,14 @@ namespace BatPassAnalysisFW
                 quietStart = getQuietStart2(ref fullPassSmoothedEnvelope, thresholdFactor, out threshold);
             }
 
-            peakList = getPeaks3(ref fullPassSmoothedEnvelope, leadinLimit, leadoutLimit, (float)thresholdFactor, smooth, threshold);
+            peakNumber = 1;
+            GP4depth = 0;
+            //peakList = getPeaks3(ref fullPassSmoothedEnvelope, leadinLimit, leadoutLimit, (float)thresholdFactor, smooth, threshold);
+            peakList = getPeaks4(fullPassSmoothedEnvelope, leadinLimit, leadoutLimit, (float)thresholdFactor, smooth,
+                double.NaN, new ObservableList<Peak>(), 0);
+
+            peakList = setPeakIntervals(peakList);
+
             //envelope = new float[0];
             //float[] passData = passDataAccessBlock.getData();
             foreach (var peak in peakList)
@@ -605,6 +607,7 @@ namespace BatPassAnalysisFW
 
         internal int SampleRate { get; set; }
 
+        /*
         internal static float[] GetEnvelope(DataAccessBlock passDab, int sampleRate)
         {
             float[] data = passDab.getData();
@@ -630,7 +633,7 @@ namespace BatPassAnalysisFW
                 }
             }
             return (data);
-        }
+        }*/ //GetEnvelope
 
         /// <summary>
         /// Delete any pulses with start, end or peak frequencies more than 2SD from the mean
@@ -782,7 +785,7 @@ namespace BatPassAnalysisFW
         }
 
         internal void NotifyPropertyChanged(string propertyName) =>
-                                                                                                                                                                                                                                                                                                                                                                                                                            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+                                                                                                                                                                                                                                                                                                                                                                                                                                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         /// <summary>
         /// removes items from the PulseList in order to reduce the variation in frequency
@@ -861,16 +864,25 @@ namespace BatPassAnalysisFW
         }
 
         private readonly ObservableList<Pulse> pulseList = new ObservableList<Pulse>();
+
         private float _endFrequencykHz = -1.0f;
+
         private float _endFrequencykHzSD = -1.0f;
+
         private int _intervalCount = 0;
+
         private float _intervalSD = 0.0f;
+
         private float _peakFrequencykHz = -1.0f;
+
         private float _peakFrequencykHzSD = -1.0f;
 
         private float _startFrequencykHz = -1.0f;
 
         private float _startFrequencykHzSD = -1.0f;
+
+        private int GP4depth = 0;
+        private int peakNumber = 0;
 
         private float endFrequencykHz
         {
@@ -989,6 +1001,31 @@ namespace BatPassAnalysisFW
             return (result);
         }
 
+        /// <summary>
+        /// given a section of data and a position and value of the maximum within that data set, extracts and creates a peak
+        /// surrounding that maximum and returns it.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="maxVal"></param>
+        /// <param name="smoothedBy"></param>
+        /// <param name="threshold"></param>
+        /// <param name="dataStartInPass"></param>
+        /// <param name="peakStartInData"></param>
+        /// <param name="peakEndInData"></param>
+        /// <returns></returns>
+        private Peak ExtractPeak(List<double> data, (double value, int position) maxVal, int smoothedBy, double threshold,
+            int dataStartInPass, out int peakStartInData, out int peakEndInData)
+        {
+            (int startPosition, int endPositioon, double Area) peakPosition = getPeakLimits(data, maxVal, threshold);
+            peakStartInData = peakPosition.startPosition;
+            peakEndInData = peakPosition.endPositioon;
+
+            Peak peak = Peak.Create(peakNumber++, (peakPosition.startPosition * smoothedBy) + dataStartInPass, (peakPosition.endPositioon - peakPosition.startPosition) * smoothedBy,
+                peakPosition.Area, (float)maxVal.value, 0, SampleRate, OffsetInSegmentInSamples, recordingNumber, (float)threshold);
+
+            return (peak);
+        }
+
         private void FindPeak(List<double> fullPassSmoothedEnvelope, List<double> slope, int peakPosinSmoothedPass, double threshold, int smoothedLeadinLimit, int smoothedLeadoutLimit, out int startOfPeak, out int widthOfPeak, out double peakArea)
         {
             startOfPeak = getPeakStart(fullPassSmoothedEnvelope, slope, peakPosinSmoothedPass, (float)threshold, smoothedLeadinLimit);
@@ -1036,6 +1073,28 @@ namespace BatPassAnalysisFW
                 }
             }
             return (envelope.Count - 1);
+        }
+
+        /// <summary>
+        /// Given a section of data in the form of a List of double, finds the maximum value and returns it
+        /// and its position as a Tuple
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        private (double value, int position) getMaximum(List<double> data)
+        {
+            (double value, int position) result;
+            result.value = double.MinValue;
+            result.position = -1;
+            for (int i = 0; i < data.Count; i++)
+            {
+                if (data[i] > result.value)
+                {
+                    result.value = data[i];
+                    result.position = i;
+                }
+            }
+            return (result);
         }
 
         private double getPeakArea(List<double> envelope, int startInEnvelope, int endInEnvelope)
@@ -1130,6 +1189,54 @@ namespace BatPassAnalysisFW
             return (result);
         }
 
+        /// <summary>
+        /// given a section of data as a List of double, and the location of the maximum in that list, finds the lateral limits of tha peak
+        /// and the area of the peak
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="maxVal"></param>
+        /// <param name="threshold"></param>
+        /// <returns></returns>
+        private (int startPosition, int endPositioon, double Area) getPeakLimits(List<double> data, (double value, int position) maxVal, double threshold)
+        {
+            (int startPosition, int endPosition, double Area) result;
+            int stepsBelowThreshold = 0;
+            result.startPosition = 0;
+            for (int steps = maxVal.position; steps >= 0; steps--)
+            {
+                if (data[steps] <= threshold)
+                {
+                    stepsBelowThreshold++;
+                    if (stepsBelowThreshold >= 3)
+                    {
+                        result.startPosition = steps + stepsBelowThreshold;
+                        break;
+                    }
+                }
+            }
+
+            stepsBelowThreshold = 0;
+            result.endPosition = data.Count - 1;
+            for (int steps = maxVal.position; steps < data.Count; steps++)
+            {
+                if (data[steps] <= threshold)
+                {
+                    stepsBelowThreshold++;
+                    if (stepsBelowThreshold >= 3)
+                    {
+                        result.endPosition = steps - stepsBelowThreshold;
+                        break;
+                    }
+                }
+            }
+
+            result.Area = 0.0d;
+            for (int i = result.startPosition; i <= result.endPosition; i++) result.Area += data[i];
+
+            return (result);
+        }
+
+        /*
         /// <summary>
         /// Uses a differentiated squared envelope to detect peaks
         /// </summary>
@@ -1261,9 +1368,11 @@ namespace BatPassAnalysisFW
             }
 
             return (result);
-        }
+        }*/ //GetPeaks2
 
-        private ObservableList<Peak> getPeaks3(ref List<double> fullPassSmoothedEnvelope, int leadinLimit, int leadoutLimit, float thresholdFactor, int smooth, double threshold = double.NaN)
+        /*
+        private ObservableList<Peak> getPeaks3(ref List<double> fullPassSmoothedEnvelope, int leadinLimit, int leadoutLimit, float thresholdFactor,
+                            int smooth, double threshold = double.NaN)
         {
             int envelopeSize = fullPassSmoothedEnvelope.Count;
             var result = new ObservableList<Peak>();
@@ -1325,6 +1434,54 @@ namespace BatPassAnalysisFW
             }
 
             return (result);
+        }*/ // GetPeaks3
+
+        /// <summary>
+        /// Another attempt at getPeaks.  Called recursively.
+        /// Find the biggest vale in the supplied data segment, extracts the peak surrounding that point,
+        /// then calls itself for the data to the left of the extracted peak, then calls itself for the data
+        /// to the right of the extracted peak.  The extracted peak is added to the peaks list and the list is returned.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="leadInLimit"></param>
+        /// <param name="leadoutLimit"></param>
+        /// <param name="thresholdFactor"></param>
+        /// <param name="smoothedBy"></param>
+        /// <param name="threshold"></param>
+        /// <returns></returns>
+        private ObservableList<Peak> getPeaks4(List<double> data, int leadInLimit, int leadoutLimit, float thresholdFactor,
+            int smoothedBy, double threshold = double.NaN, ObservableList<Peak> peaks = null, int dataStartInPass = 0)
+        {
+            for (int i = 0; i < GP4depth; i++) Debug.Write("\t");
+            Debug.WriteLine($"GP4:- from {dataStartInPass / (double)SampleRate:0.000} to {(dataStartInPass + (data.Count * smoothedBy)) / (double)SampleRate:0.000} = {dataStartInPass}-{dataStartInPass + (data.Count * smoothedBy)}");
+            if (peaks == null) peaks = new ObservableList<Peak>();
+            if (data == null || !data.Any()) return (peaks);
+            if (double.IsNaN(threshold)) threshold = data.Average() * thresholdFactor;
+            int minLength = (leadInLimit + leadoutLimit) / smoothedBy;
+            if (minLength < 10) minLength = 10;
+
+            if (data.Count < minLength) return (peaks); // data too short to be searchable
+
+            (double value, int position) maxVal = getMaximum(data);
+            if (maxVal.position < minLength) return (peaks);
+            if (maxVal.value < threshold) return (peaks); // no further big enough peaks in this data segment
+
+            Peak peak = ExtractPeak(data, maxVal, smoothedBy, threshold, dataStartInPass, out int peakStartInData, out int peakEndInData);
+
+            peaks.Add(peak);
+
+            GP4depth++;
+            Debug.Write("L");
+            // search to the left
+            peaks = getPeaks4(data.Take(peakStartInData).ToList(), leadInLimit, leadoutLimit, thresholdFactor, smoothedBy,
+                double.NaN, peaks, dataStartInPass);
+
+            Debug.Write("R");
+            // search to the right
+            peaks = getPeaks4(data.Skip(peakEndInData).ToList(), leadInLimit, leadoutLimit, thresholdFactor, smoothedBy,
+                double.NaN, peaks, dataStartInPass + (peakEndInData * smoothedBy));
+            GP4depth--;
+            return (peaks);
         }
 
         /// <summary>
@@ -1586,6 +1743,7 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /*
         /// <summary>
         /// revised recursive function to find peaks in a segment of an envelope
         /// </summary>
@@ -1661,14 +1819,15 @@ namespace BatPassAnalysisFW
                 getSegmentPeaks2(ref fullPassSmoothedEnvelope, ref slope, endOfPeak, sizeOfBlock, threshold,
                     ref result, smooth, smoothedLeadinLimit, smoothedLeadoutLimit, depth);
             }
-        }
+        }*/ // getsegmentpeaks2
 
+        /*
         private double GetThreshold(IEnumerable<double> dataSection)
         {
             double mean = dataSection.Average();
             double sd = dataSection.StandardDeviation();
             return ((mean + mean) * (double)thresholdFactor * 2.0d);
-        }
+        }*/ // GetThreshold
 
         /// <summary>
         /// Having detected a qualifying peak in the envelope, creates a new peak in
@@ -1692,6 +1851,7 @@ namespace BatPassAnalysisFW
             int startOfPassInSegment = this.OffsetInSegmentInSamples;
             int RecordingNumber = this.recordingNumber;
 
+            int nextInterval;
             int previousInterval;
             int peakStartInPass;
             int peakWidthInSamples;
@@ -1705,16 +1865,52 @@ namespace BatPassAnalysisFW
             if (peakList.Count > 0)
             {
                 previousInterval = peakStartInPass - peakList[peakList.Count - 1].getStartAsSampleInPass();
+                nextInterval = envelope.Count - (peakStartInPass + peakWidthInSamples);
             }
             else
             {
                 previousInterval = 0;
+                nextInterval = 0;
             }
+
+            if (previousInterval < 10000) return (null);
+            if (nextInterval < 10000) return (null);
 
             Peak peak = Peak.Create(peakNumber, peakStartInPass, peakWidthInSamples, peakArea, maxHeight,
                 previousInterval, SampleRate, startOfPassInSegment, RecordingNumber, AbsoluteThreshold);
 
             return (peak);
+        }
+
+        /// <summary>
+        /// goes through a list of peaks in discovered order, sorts them by startInpass
+        /// and sets the previous interval for each, returning the modified list"
+        /// </summary>
+        /// <param name="peakList"></param>
+        /// <returns></returns>
+        private ObservableList<Peak> setPeakIntervals(ObservableList<Peak> peakList)
+        {
+            ObservableList<Peak> result = new ObservableList<Peak>();
+
+            var sortedList = (from pk in peakList
+                              orderby pk.getStartAsSampleInPass()
+                              select pk)?.ToList();
+
+            int lastPos = 0;
+            for (int i = 0; i < sortedList.Count(); i++)
+            {
+                var interval = sortedList[i].getStartAsSampleInPass() - lastPos;
+
+                sortedList[i].SetPrevIntervalSamples(interval);
+
+                if (sortedList[i].prevIntervalMs > 10.0f)
+                {
+                    result.Add(sortedList[i]);
+                    lastPos = sortedList[i].getStartAsSampleInPass();
+                }
+            }
+
+            return (result);
         }
     }
 

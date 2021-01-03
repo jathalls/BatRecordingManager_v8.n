@@ -12,42 +12,6 @@ namespace BatPassAnalysisFW
     ///
     public class Pulse
     {
-        private Peak peak { get; set; }
-
-        /// <summary>
-        /// number of the pass in the segment
-        /// </summary>
-        public int Pass { get; set; }
-
-        /// <summary>
-        /// get returns peak.pulse_Number
-        /// </summary>
-        public int Pulse_Number { get { return (peak.peak_Number); } }
-
-        /// <summary>
-        /// et returns peak.peakWidthms
-        /// </summary>
-        public float Pulse_Length_ms { get { return (peak.peakWidthMs); } }
-
-        /// <summary>
-        /// get returns peak.prevIntervalMs
-        /// </summary>
-        public float Pulse_Interval_ms { get { return (peak.prevIntervalMs); } }
-
-        private readonly DataAccessBlock passDAB;
-
-        internal SpectrumDetails spectralDetails { get; set; }
-
-        private readonly int startPosInPass;
-
-        private readonly int endposInPass;
-
-        private readonly int quietStart;
-
-        public bool isValidPulse { get; set; } = false;
-
-
-
         /// <summary>
         /// constructor for the definition of a single pulse corresponding to a peak in the envelope
         /// </summary>
@@ -58,7 +22,6 @@ namespace BatPassAnalysisFW
         /// <param name="quietStart"> start of a region of data below a threshold of at least 5000 samples</param>
         public Pulse(DataAccessBlock passDAB, int passStartInSegment, Peak peak, int pass, int quietStart, decimal spectrumFactor, SpectrumDetails spectralDetails = null)
         {
-
             int FFTSize = CrossSettings.Current.Get<int>("FftSize");
             this.peak = peak;
             Pass = pass;
@@ -69,15 +32,14 @@ namespace BatPassAnalysisFW
             //List<float> sectionDataList = new List<float>();
 
             int peakStartInSeg = peak.GetStartAsSampleInSeg();
-            int peakStartInPass = peakStartInSeg - passStartInSegment;
+            int peakStartInPass = peak.getStartAsSampleInPass();
             int peakWidth = peak.getPeakWidthSamples();
             float sr = peak.GetSampleRatePerSecond();
 
             float peakStartSecs = peakStartInSeg / sr;
             float peakEnd = (peakStartInSeg + (float)peakWidth) / sr;
 
-            //Debug.WriteLine($"peakStart secs {peakStartSecs} ends at {peakEnd} and has {peakWidth} samples");
-
+            Debug.WriteLine($"Peak {peak.peak_Number} peakStart secs {peakStartSecs} ends at {peakEnd} and has {peakWidth} samples");
 
             // start a peakswidth to the left of the peakStart or an FFTSize to the left of the peak whcihever is the greater
             startPosInPass = peakStartInPass - (Math.Max(peak.getPeakWidthSamples(), FFTSize));
@@ -94,6 +56,9 @@ namespace BatPassAnalysisFW
                 Debug.WriteLine($"Invalid Pulse end, Pass start={startPosInPass} for {passDAB.Length}; Pulse start in Pass={peakStartInPass}");
             }
 
+            Debug.WriteLine($"Data from {startPosInPass}={startPosInPass / (double)peak.GetSampleRatePerSecond()} to " +
+                $"{endposInPass}={endposInPass / (double)peak.GetSampleRatePerSecond()}");
+
             sectionData = new List<float>();
             List<float> preData = new List<float>();
 
@@ -108,17 +73,15 @@ namespace BatPassAnalysisFW
             float mean = sectionData.Average();
             //Debug.WriteLine($" data range=max{max}, mean {mean}");
 
-
-
-
             //Debug.WriteLine($"predata start={quietStart / sr} of size {preData.Length}={(preData.Length) / sr}s");
 
             if (spectralDetails == null)
             {
+                FFTSize = 512;
                 Spectrum spectrum = new Spectrum(peak.GetSampleRatePerSecond(), FFTSize, peak.peak_Number);
                 List<double> fft = new List<double>();
                 List<float> autoCorr = new List<float>();
-                isValidPulse = spectrum.GetSpectralData(sectionData.ToArray(), preData.ToArray(), peak, out fft, out autoCorr);
+                isValidPulse = spectrum.GetSpectralData(sectionData.ToArray(), preData.ToArray(), peak, out fft, out autoCorr, 128, 512);
                 this.spectralDetails = new SpectrumDetails(spectrum);
                 this.spectralDetails.GetDetailsFromSpectrum(fft, peak, isValidPulse, pass, spectrumFactor);
             }
@@ -126,15 +89,29 @@ namespace BatPassAnalysisFW
             {
                 this.spectralDetails = spectralDetails;
             }
-
         }
 
-        public int GetLength()
-        {
-            //DataAccessBlock pulseDAB = new DataAccessBlock(passDAB.FQfileName, passDAB.BlockStartInFileInSamples + startPosInPass, endposInPass - startPosInPass);
-            return (endposInPass - startPosInPass);
-        }
+        public bool isValidPulse { get; set; } = false;
 
+        /// <summary>
+        /// number of the pass in the segment
+        /// </summary>
+        public int Pass { get; set; }
+
+        /// <summary>
+        /// get returns peak.prevIntervalMs
+        /// </summary>
+        public float Pulse_Interval_ms { get { return (peak.prevIntervalMs); } }
+
+        /// <summary>
+        /// et returns peak.peakWidthms
+        /// </summary>
+        public float Pulse_Length_ms { get { return (peak.peakWidthMs); } }
+
+        /// <summary>
+        /// get returns peak.pulse_Number
+        /// </summary>
+        public int Pulse_Number { get { return (peak.peak_Number); } }
 
         /// <summary>
         /// Returns the data for this Pulse, which includes leadin of a peak width and a leadout of up to a peakwidth
@@ -161,11 +138,10 @@ namespace BatPassAnalysisFW
             return (offset);
         }
 
-
-        /// returns the spectral details of the pulse
-        public SpectrumDetails GetSpectrumDetails()
+        public int GetLength()
         {
-            return (spectralDetails);
+            //DataAccessBlock pulseDAB = new DataAccessBlock(passDAB.FQfileName, passDAB.BlockStartInFileInSamples + startPosInPass, endposInPass - startPosInPass);
+            return (endposInPass - startPosInPass);
         }
 
         /// <summary>
@@ -177,6 +153,20 @@ namespace BatPassAnalysisFW
             return (peak);
         }
 
+        /// returns the spectral details of the pulse
+        public SpectrumDetails GetSpectrumDetails()
+        {
+            return (spectralDetails);
+        }
+
+        internal SpectrumDetails spectralDetails { get; set; }
+
+        internal BitmapImage getEnvelopeBitmap()
+        {
+            var bmp = GetGraph();
+            return (bpaPass.loadBitmap(bmp));
+        }
+
         internal void getFFT(out List<float> fftData, out List<float> autoCorr)
         {
             List<float> sectionData = new List<float>();
@@ -186,13 +176,6 @@ namespace BatPassAnalysisFW
 
             Spectrum spectrum = spectralDetails.getSpectrum();
             spectrum.getFrequencyDomain(out fftData, out autoCorr, sectionData, preData, peak);
-
-        }
-
-        internal BitmapImage getEnvelopeBitmap()
-        {
-            var bmp = GetGraph();
-            return (bpaPass.loadBitmap(bmp));
         }
 
         internal Bitmap GetGraph()
@@ -200,22 +183,22 @@ namespace BatPassAnalysisFW
             //List<float> paddedPassData = new List<float>();
             List<float> preData = new List<float>();
             List<float> peakdata = new List<float>();
+            int smooth = 20;
 
             //_ = getData(ref paddedPassData, ref preData);
             //passDAB.BlockStartInFileInSamples, endposInPass - startPosInPass
             int sampleRate = peak.GetSampleRatePerSecond();
-            float[] envelope = bpaPass.GetEnvelope(passDAB, sampleRate);
-            int length = endposInPass - startPosInPass;
-            float[] paddedPassData = envelope.Skip(startPosInPass).Take(length).ToArray();
-            int factor = 1;
-            if (paddedPassData.Count() > 3800)
-            {
-                paddedPassData = shrinkData(paddedPassData, 3800, out factor);
-            }
+            float[] envelope = bpaPass.GetEnvelope2(passDAB, sampleRate, smooth).Select(v => (float)v).ToArray();
+            int unSmoothedLength = endposInPass - startPosInPass;
+            float[] paddedPassData = envelope.Skip(startPosInPass / smooth).Take(unSmoothedLength / 20).ToArray();
+            int factor = 20;
+            //if (paddedPassData.Count() > 3800)
+            //{
+            //    paddedPassData = shrinkData(paddedPassData, 3800, out factor);
+            // }
 
-            Debug.WriteLine($"Pulse {Pulse_Number} of {length} samples from {startPosInPass}");
+            Debug.WriteLine($"Pulse {Pulse_Number} of {unSmoothedLength} samples from {startPosInPass}");
             Debug.WriteLine($"Peak at {peak.startPosInPulse} of length {peak.getPeakWidthSamples()}");
-
 
             var bmp = new Bitmap(paddedPassData.Count(), (int)(0.56f * paddedPassData.Count()), System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             using (Graphics g = Graphics.FromImage(bmp))
@@ -243,7 +226,19 @@ namespace BatPassAnalysisFW
             }
 
             return (bmp);
+        }
 
+        private readonly int endposInPass;
+        private readonly DataAccessBlock passDAB;
+        private readonly int quietStart;
+        private readonly int startPosInPass;
+        private Peak peak { get; set; }
+
+        private int Scale(float val, float max, int height)
+        {
+            int result = height - (int)((val / max) * height);
+
+            return (result);
         }
 
         /// <summary>
@@ -263,14 +258,6 @@ namespace BatPassAnalysisFW
                 result.Add(mean);
             }
             return (result.ToArray());
-
-        }
-
-        private int Scale(float val, float max, int height)
-        {
-            int result = height - (int)((val / max) * height);
-
-            return (result);
         }
     }
 }

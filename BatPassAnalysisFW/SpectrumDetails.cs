@@ -11,14 +11,38 @@ namespace BatPassAnalysisFW
     /// </summary>
     public class SpectrumDetails
     {
-        private readonly Spectrum m_Spect;
+        public ObservableList<SpectralPeak> spectralPeakList = new ObservableList<SpectralPeak>();
 
-        public int pulse { get; set; } = 0;
+        /// <summary>
+        /// Creator for SpectrumDetails
+        /// </summary>
+        /// <param name="spect">
+        /// The spectrum to be analysed to provide the details
+        /// </param>
+        public SpectrumDetails(Spectrum spect)
+        {
+            m_Spect = spect;
+        }
 
-        public ObservableList<Peak> spectralPeakList = new ObservableList<Peak>();
+        public float pfEnd
+        {
+            get
+            {
+                if (_pfEnd == null)
+                {
+                    var pfEndList = from sp in spectralPeakList
+                                    where sp != null && sp != null && sp.fLow >= 12000.0
+                                    select sp.fLow;
+                    if (pfEndList != null && pfEndList.Any())
+                    {
+                        _pfEnd = ((float)pfEndList.Average());
+                    }
+                }
+                return _pfEnd ?? -1.0f;
+            }
+            set { _pfEnd = value; }
+        }
 
-
-        private float? _pfMeanOfPeakFrequenciesInSpectralPeaksList = null;
         /// <summary>
         /// returns the average of the peak frequencies in the spectralPeakList
         /// </summary>
@@ -30,8 +54,8 @@ namespace BatPassAnalysisFW
 
                 {
                     var pfMeanList = from sp in spectralPeakList
-                                     where sp != null && (sp as SpectralPeak) != null && (sp as SpectralPeak).peakFrequency >= 15000.0
-                                     select (sp as SpectralPeak).peakFrequency;
+                                     where sp != null && sp != null && sp.fPeak >= 15000.0
+                                     select sp.fPeak;
                     if (pfMeanList != null && pfMeanList.Any())
                     {
                         _pfMeanOfPeakFrequenciesInSpectralPeaksList = ((float)pfMeanList.Average());
@@ -46,7 +70,6 @@ namespace BatPassAnalysisFW
             }
         }
 
-        private float? _pfStart = null;
         public float pfStart
         {
             get
@@ -54,8 +77,8 @@ namespace BatPassAnalysisFW
                 if (_pfStart == null)
                 {
                     var pfStartList = from sp in spectralPeakList
-                                      where sp != null && (sp as SpectralPeak) != null && (sp as SpectralPeak).highFrequency >= 15000.0
-                                      select (sp as SpectralPeak).highFrequency;
+                                      where sp != null && sp != null && sp.fHigh >= 15000.0
+                                      select sp.fHigh;
                     if (pfStartList != null && pfStartList.Any())
                     {
                         _pfStart = ((float)pfStartList.Average());
@@ -70,45 +93,12 @@ namespace BatPassAnalysisFW
             }
         }
 
-
-        private float? _pfEnd = null;
-        public float pfEnd
-        {
-            get
-            {
-                if (_pfEnd == null)
-                {
-                    var pfEndList = from sp in spectralPeakList
-                                    where sp != null && (sp as SpectralPeak) != null && (sp as SpectralPeak).lowFrequency >= 15000.0
-                                    select (sp as SpectralPeak).lowFrequency;
-                    if (pfEndList != null && pfEndList.Any())
-                    {
-                        _pfEnd = ((float)pfEndList.Average());
-                    }
-                }
-                return _pfEnd ?? -1.0f;
-            }
-            set { _pfEnd = value; }
-        }
-
-        /// <summary>
-        /// Creator for SpectrumDetails
-        /// </summary>
-        /// <param name="spect">
-        /// The spectrum to be analysed to provide the details
-        /// </param>
-        public SpectrumDetails(Spectrum spect)
-        {
-            m_Spect = spect;
-        }
+        public int pulse { get; set; } = 0;
 
         public void AddSpectralPeak(SpectralPeak spectPeak)
         {
             spectralPeakList.Add(spectPeak);
         }
-
-
-
 
         public Spectrum getSpectrum()
         {
@@ -129,7 +119,6 @@ namespace BatPassAnalysisFW
                 CrossSettings.Current.Set<int>("SpectrumLeadInSamples", leadInSamples);
             }
 
-
             int leadOutSamples = CrossSettings.Current.Get<int>("SpectrumLeadOutSamples");
             if (leadOutSamples <= 0.0f)
             {
@@ -137,13 +126,12 @@ namespace BatPassAnalysisFW
                 CrossSettings.Current.Set<float>("SpectrumLeadOutSamples", leadOutSamples);
             }
 
-
             //float[] shortData = data.Skip(40).ToArray<float>();
-            PassAnalysis.getPeaks(ref data, m_Spect.sampleRate, leadInSamples: leadInSamples, leadOutSamples: leadOutSamples, thresholdFactor: (float)spectrumFactor,
+            PassAnalysis.getSpectralPeaks(ref data, m_Spect.sampleRate, leadInSamples: leadInSamples, leadOutSamples: leadOutSamples, thresholdFactor: (float)spectrumFactor,
                 out spectralPeakList, m_Spect.autoCorrelationWidth, startOfPassInSegment: 0, asSpectralPeak: true, parentPeak, isValidPulse, PassNumber: passNumber, RecordingNumber: parentPeak.recordingNumber);
-            var orderedData = new List<Peak>();
+            var orderedData = new List<SpectralPeak>();
             orderedData = (from d in spectralPeakList
-                           orderby d.GetPeakArea() descending
+                           orderby d.peakAreaHz descending
                            select d).ToList();
             spectralPeakList.Clear();
             if (orderedData.Any())
@@ -155,11 +143,12 @@ namespace BatPassAnalysisFW
 
             pulse = m_Spect.pulseNumber;
 
-
             return (true);
         }
 
-
-
+        private readonly Spectrum m_Spect;
+        private float? _pfEnd = null;
+        private float? _pfMeanOfPeakFrequenciesInSpectralPeaksList = null;
+        private float? _pfStart = null;
     }
 }
