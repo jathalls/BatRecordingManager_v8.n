@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -46,23 +46,6 @@ namespace BatRecordingManager
             DataContext = this;
         }
 
-        /// <summary>
-        ///     Returns the currently selected image or if no image is the first image in the image list.
-        ///     If there are  no images returns null.
-        /// </summary>
-        /// <returns></returns>
-        internal StoredImage GetSelectedImage()
-        {
-            StoredImage result = null;
-            if (ComparisonStackPanel.SelectedItem is DisplayStoredImageControl selectedImageControl)
-                result = selectedImageControl.storedImage;
-
-            if (result == null)
-                if (storedImageList != null && storedImageList.Count > 0)
-                    result = storedImageList.First().storedImage;
-            return result;
-        }
-
         internal void AddImage(StoredImage image, bool asModified = false)
         {
             var displayImage = new DisplayStoredImageControl();
@@ -79,9 +62,9 @@ namespace BatRecordingManager
             displayImage.storedImage = image;
             displayImage.DataContext = displayImage.storedImage;
             displayImage.IsModified = asModified;
+
             if (displayImage.DisplayActualSize)
             {
-
                 //displayImage.DisplayImageCanvas.Height = image.image.Height;
                 displayImage.DisplayImageCanvas.Width = image.image.Width;
                 displayImage.imageBrush.Stretch = System.Windows.Media.Stretch.None;
@@ -91,7 +74,6 @@ namespace BatRecordingManager
                 displayImage.imageBrush.Stretch = System.Windows.Media.Stretch.Uniform;
             }
             //DisplayImage.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
-
 
             var binding = new MultiBinding { Converter = new MultiscaleConverter() };
             binding.Bindings.Add(new Binding("ActualHeight") { Source = this });
@@ -119,60 +101,60 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Event handler when the Fids button is right clicked to allow the FIDS state to be toggled for
-        ///     all images
+        ///     Returns the currently selected image or if no image is the first image in the image list.
+        ///     If there are  no images returns null.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void DisplayImage_FidsButtonRClicked(object sender, EventArgs e)
+        /// <returns></returns>
+        internal StoredImage GetSelectedImage()
         {
-            var thisButton = sender as ToggleButton;
-            var toChecked = thisButton.IsChecked;
-            if (storedImageList != null && storedImageList.Count > 0)
-                using (new WaitCursor("Enabling Fiducial Lines"))
+            StoredImage result = null;
+            if (ComparisonStackPanel.SelectedItem is DisplayStoredImageControl selectedImageControl)
+                result = selectedImageControl.storedImage;
+
+            if (result == null)
+                if (storedImageList != null && storedImageList.Count > 0)
+                    result = storedImageList.First().storedImage;
+            return result;
+        }
+
+        private void ComparisonStackPanel_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            var move = e.Delta;
+            var dsic = sender as DisplayStoredImageControl;
+
+            if (!(dsic?.Parent is ScrollViewer)) return;
+            var sv = dsic.Parent as ScrollViewer;
+            if (move > 0) sv.PageUp();
+            if (move < 0) sv.PageDown();
+        }
+
+        private void ComparisonStackPanel_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
                 {
-                    foreach (var item in storedImageList)
-                        if (item != null)
-                        {
-                            var dsic = item;
-                            dsic?.SetImageFids(toChecked);
-                        }
-                }
+                    RoutedEvent = MouseWheelEvent,
+                    Source = sender
+                };
+                var parent = ((Control)sender).Parent as UIElement;
+                parent.RaiseEvent(eventArg);
+            }
         }
 
         /// <summary>
-        ///     Event handler for the OnDuplicate event of DisplayStoredImageControl.  It is passed a DuplicateEeventArgs
-        ///     which contains parameters for the fiduical lines and grid of the currently selected DisplayStoredImageControl.
-        ///     These args are passed intact tot he duplicate function of DisplayStoredImageControl for every image in the list.
-        ///     Only those with no existing fiducial ines will copy the lines, others will simply return.  Grid positions are
-        ///     also set by that function
+        ///     removes leading digits from the string
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void DisplayImage_Duplicate(object sender, EventArgs e)
+        /// <param name="description"></param>
+        /// <returns></returns>
+        private string Denumber(string description)
         {
-            if (storedImageList != null && storedImageList.Count > 0)
-                using (new WaitCursor("Copying Grid to Fiducial Lines"))
-                {
-                    foreach (var item in storedImageList)
-                    {
-                        var control = item;
-                        control?.DuplicateThis(e as DuplicateEventArgs);
-                    }
-                }
-        }
-
-        private void DisplayImage_FullButtonRClicked(object sender, EventArgs e)
-        {
-            var thisButton = (sender as DisplayStoredImageControl).FullSizeButton;
-            var toFull = thisButton.Content as string == "FULL";
-            if (storedImageList != null && storedImageList.Count > 0)
-                foreach (var item in storedImageList)
-                    if (item != null)
-                    {
-                        var dsic = item;
-                        dsic?.SetImageFull(toFull);
-                    }
+            description = description.Trim();
+            while (!string.IsNullOrWhiteSpace(description) && char.IsDigit(description[0]))
+                description = description.Substring(1);
+            description = description.Trim();
+            return description;
         }
 
         private void DisplayImage_DelButtonPressed(object sender, EventArgs e)
@@ -206,6 +188,63 @@ namespace BatRecordingManager
             }
         }
 
+        /// <summary>
+        ///     Event handler for the OnDuplicate event of DisplayStoredImageControl.  It is passed a DuplicateEeventArgs
+        ///     which contains parameters for the fiduical lines and grid of the currently selected DisplayStoredImageControl.
+        ///     These args are passed intact tot he duplicate function of DisplayStoredImageControl for every image in the list.
+        ///     Only those with no existing fiducial ines will copy the lines, others will simply return.  Grid positions are
+        ///     also set by that function
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DisplayImage_Duplicate(object sender, EventArgs e)
+        {
+            if (storedImageList != null && storedImageList.Count > 0)
+                using (new WaitCursor("Copying Grid to Fiducial Lines"))
+                {
+                    foreach (var item in storedImageList)
+                    {
+                        var control = item;
+                        control?.DuplicateThis(e as DuplicateEventArgs);
+                    }
+                }
+        }
+
+        /// <summary>
+        ///     Event handler when the Fids button is right clicked to allow the FIDS state to be toggled for
+        ///     all images
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DisplayImage_FidsButtonRClicked(object sender, EventArgs e)
+        {
+            var thisButton = sender as ToggleButton;
+            var toChecked = thisButton.IsChecked;
+            if (storedImageList != null && storedImageList.Count > 0)
+                using (new WaitCursor("Enabling Fiducial Lines"))
+                {
+                    foreach (var item in storedImageList)
+                        if (item != null)
+                        {
+                            var dsic = item;
+                            dsic?.SetImageFids(toChecked);
+                        }
+                }
+        }
+
+        private void DisplayImage_FullButtonRClicked(object sender, EventArgs e)
+        {
+            var thisButton = (sender as DisplayStoredImageControl).FullSizeButton;
+            var toFull = thisButton.Content as string == "FULL";
+            if (storedImageList != null && storedImageList.Count > 0)
+                foreach (var item in storedImageList)
+                    if (item != null)
+                    {
+                        var dsic = item;
+                        dsic?.SetImageFull(toFull);
+                    }
+        }
+
         private void DisplayImage_UpButtonPressed(object sender, EventArgs e)
         {
             var item = sender as DisplayStoredImageControl;
@@ -225,80 +264,12 @@ namespace BatRecordingManager
             //if (view != null) view.Refresh();
         }
 
-        private void Window_Closing(object sender, CancelEventArgs e)
-        {
-            if (ComparisonStackPanel.Items != null && ComparisonStackPanel.Items.Count > 0)
-                using (new WaitCursor("Saving Images to the Database..."))
-                {
-                    foreach (var item in ComparisonStackPanel.Items) (item as DisplayStoredImageControl).Save();
-                }
-
-            storedImageList.Clear();
-            ShowInTaskbar = true;
-            WindowState = WindowState.Minimized;
-
-            e.Cancel = true;
-        }
-
-        private void ComparisonStackPanel_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            var move = e.Delta;
-            var dsic = sender as DisplayStoredImageControl;
-
-            if (!(dsic?.Parent is ScrollViewer)) return;
-            var sv = dsic.Parent as ScrollViewer;
-            if (move > 0) sv.PageUp();
-            if (move < 0) sv.PageDown();
-        }
-
-        /// <summary>
-        ///     Imports all the pictures in a folder to the comparison window, but does not insert
-        ///     them into the database
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ImportPicturesButton_Click(object sender, RoutedEventArgs e)
-        {
-            var folderpath = GetFolderPath();
-            if (!string.IsNullOrWhiteSpace(folderpath))
-            {
-                var fileList = Directory.EnumerateFiles(folderpath, "*.png");
-                //var FILEList= Directory.EnumerateFiles(folderpath, "*.PNG");
-
-                //fileList = fileList.Concat<string>(FILEList);
-                if (!fileList.IsNullOrEmpty())
-                    using (new WaitCursor("Importing Image Files..."))
-                    {
-                        storedImageList.Clear();
-                        foreach (var file in fileList)
-                        {
-                            var si = StoredImage.Load(file);
-                            if (si != null) AddImage(si, true);
-                        }
-                    }
-            }
-        }
-
-        /// <summary>
-        ///     Exports all the pictures in the comparison window to a folder, but does not affect them
-        ///     in the database
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ExportPicturesButton_Click(object sender, RoutedEventArgs e)
-        {
-            var isPng = true;
-            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) isPng = false;
-            ExportPictures(isPng);
-        }
-
         /// <summary>
         /// Exports pictures in .PNG or .JPG format depending on value of isPng
         /// </summary>
         /// <param name="isPNG"></param>
         private void ExportPictures(bool isPNG)
         {
-
             if (!storedImageList.IsNullOrEmpty())
             {
                 var folderPath = GetFolderPath();
@@ -326,6 +297,19 @@ namespace BatRecordingManager
                     }
                 }
             }
+        }
+
+        /// <summary>
+        ///     Exports all the pictures in the comparison window to a folder, but does not affect them
+        ///     in the database
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ExportPicturesButton_Click(object sender, RoutedEventArgs e)
+        {
+            var isPng = true;
+            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) isPng = false;
+            ExportPictures(isPng);
         }
 
         /// <summary>
@@ -364,19 +348,51 @@ namespace BatRecordingManager
             return folderPath;
         }
 
-        private void ComparisonStackPanel_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        /// <summary>
+        ///     Imports all the pictures in a folder to the comparison window, but does not insert
+        ///     them into the database
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ImportPicturesButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!e.Handled)
+            var folderpath = GetFolderPath();
+            if (!string.IsNullOrWhiteSpace(folderpath))
             {
-                e.Handled = true;
-                var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
-                {
-                    RoutedEvent = MouseWheelEvent,
-                    Source = sender
-                };
-                var parent = ((Control)sender).Parent as UIElement;
-                parent.RaiseEvent(eventArg);
+                var fileList = Directory.EnumerateFiles(folderpath, "*.png");
+                //var FILEList= Directory.EnumerateFiles(folderpath, "*.PNG");
+
+                //fileList = fileList.Concat<string>(FILEList);
+                if (!fileList.IsNullOrEmpty())
+                    using (new WaitCursor("Importing Image Files..."))
+                    {
+                        storedImageList.Clear();
+                        foreach (var file in fileList)
+                        {
+                            var si = StoredImage.Load(file);
+                            if (si != null) AddImage(si, true);
+                        }
+                    }
             }
+        }
+
+        private void MiExportJpg_Click(object sender, RoutedEventArgs e)
+        {
+            ExportPictures(false);
+        }
+
+        private void MiExportNormal_Click(object sender, RoutedEventArgs e)
+        {
+            ExportPictures(true);
+        }
+
+        /// <summary>
+        ///     Goes through the images list and removes all leading numbers in the descriptions fields
+        /// </summary>
+        private void RemoveLeadingNumbersFromDescriptions()
+        {
+            foreach (var t in storedImageList)
+                t.storedImage.description = Denumber(t.storedImage.description);
         }
 
         /// <summary>
@@ -404,28 +420,21 @@ namespace BatRecordingManager
             }
         }
 
-        /// <summary>
-        ///     Goes through the images list and removes all leading numbers in the descriptions fields
-        /// </summary>
-        private void RemoveLeadingNumbersFromDescriptions()
+        private void Window_Closing(object sender, CancelEventArgs e)
         {
-            foreach (var t in storedImageList)
-                t.storedImage.description = Denumber(t.storedImage.description);
+            if (ComparisonStackPanel.Items != null && ComparisonStackPanel.Items.Count > 0)
+                using (new WaitCursor("Saving Images to the Database..."))
+                {
+                    foreach (var item in ComparisonStackPanel.Items) (item as DisplayStoredImageControl).Save();
+                }
+
+            storedImageList.Clear();
+            ShowInTaskbar = true;
+            WindowState = WindowState.Minimized;
+
+            e.Cancel = true;
         }
 
-        /// <summary>
-        ///     removes leading digits from the string
-        /// </summary>
-        /// <param name="description"></param>
-        /// <returns></returns>
-        private string Denumber(string description)
-        {
-            description = description.Trim();
-            while (!string.IsNullOrWhiteSpace(description) && char.IsDigit(description[0]))
-                description = description.Substring(1);
-            description = description.Trim();
-            return description;
-        }
         //public readonly BulkObservableCollection<DisplayStoredImageControl> storedImageList = new BulkObservableCollection<DisplayStoredImageControl>();
 
         #region storedImageList
@@ -456,16 +465,6 @@ namespace BatRecordingManager
         }
 
         #endregion storedImageList
-
-        private void MiExportNormal_Click(object sender, RoutedEventArgs e)
-        {
-            ExportPictures(true);
-        }
-
-        private void MiExportJpg_Click(object sender, RoutedEventArgs e)
-        {
-            ExportPictures(false);
-        }
     }
 
     #region DivideBy2Converter (ValueConverter)

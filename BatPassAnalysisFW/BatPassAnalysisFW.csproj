@@ -72,6 +72,15 @@
     <Reference Include="LinqStatistics, Version=2.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\LinqStatistics.2.3.0\lib\net40\LinqStatistics.dll</HintPath>
     </Reference>
+    <Reference Include="LiveCharts, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df, processorArchitecture=MSIL">
+      <HintPath>..\packages\LiveCharts.0.9.7\lib\net45\LiveCharts.dll</HintPath>
+    </Reference>
+    <Reference Include="LiveCharts.Plus, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\LiveCharts.Plus.1.0.0\lib\net40\LiveCharts.Plus.dll</HintPath>
+    </Reference>
+    <Reference Include="LiveCharts.Wpf, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df, processorArchitecture=MSIL">
+      <HintPath>..\packages\LiveCharts.Wpf.0.9.7\lib\net45\LiveCharts.Wpf.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Build.Framework, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Build.Framework.15.3.409\lib\net46\Microsoft.Build.Framework.dll</HintPath>
     </Reference>
@@ -245,6 +254,10 @@
     <Compile Include="WaitCursor.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BatCallAnalysisControlSet\BatCallAnalysisControlSet.csproj">
+      <Project>{acddf392-9241-46c2-8fa5-d5a5501778f4}</Project>
+      <Name>BatCallAnalysisControlSet</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Mm.ExportableDataGrid\Mm.ExportableDataGrid.csproj">
       <Project>{a44b2e90-8698-45ec-afb4-45bf5a6067c5}</Project>
       <Name>Mm.ExportableDataGrid</Name>
@@ -259,6 +272,7 @@
     <None Include="Bat Pulse Analyser.chm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

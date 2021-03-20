@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -48,7 +48,7 @@ namespace BatRecordingManager
                     FrameworkPropertyMetadataOptions.None));
 
         /// <summary>
-        /// Gets or sets the GridControlsVisibility property.  This dependency property 
+        /// Gets or sets the GridControlsVisibility property.  This dependency property
         /// indicates whether the Grid controls are visible or not
         /// </summary>
         public Visibility GridControlsVisibility
@@ -57,66 +57,13 @@ namespace BatRecordingManager
             set { SetValue(GridControlsVisibilityProperty, value); }
         }
 
-        #endregion
-
-
-
-        private readonly double _defaultGridLeftMargin = 0.28d;
-        private readonly double _defaultGridScale = 0.6782d;
-
-        private readonly double _defaultGridTopMargin = 0.154d;
-
-
-        private readonly object _delButtonPressedEventLock = new object();
-        private readonly object _downButtonPressedEventLock = new object();
-
-        private readonly object _duplicateEventLock = new object();
-
-        private readonly object _fidsButtonRClickedEventLock = new object();
-        private readonly object _upButtonPressedEventLock = new object();
-        private Canvas _axisGrid = new Canvas();
-
-        private EventHandler<EventArgs> _delButtonPressedEvent;
-
-        private EventHandler<EventArgs> _downButtonPressedEvent;
-        private EventHandler<EventArgs> _duplicateEvent;
-        private EventHandler<EventArgs> _fidsButtonRClickedEvent;
-
-        private int _gridToShow;
-
-
-        //private bool _isPlacingFiducialLines = false;
-
-        private bool _linesDrawn;
-
-        private int _selectedLine = -1;
-
-        private bool __showGrid = false;
-        private bool _showGrid
-        {
-            get
-            {
-                return (__showGrid);
-            }
-            set
-            {
-                __showGrid = value;
-                miFidsCopyGridFids.IsEnabled = value;
-                Debug.WriteLine("_showGrid and miFidsCopyGridFids.IsEnabled set to " + value);
-            }
-        }
-        private readonly StoredImage _storedImage = new StoredImage(null, "", "", -1);
-
-        private EventHandler<EventArgs> _upButtonPressedEvent;
+        #endregion GridControlsVisibility
 
         /// <summary>
         ///     Simple boolean to indicate if the storedImage has has grid lines added, deleted or changed and thus to
         ///     indicate if the gridlines need to be resaved
         /// </summary>
         public bool IsModified;
-
-        public bool DisplayActualSize { get; set; } = false;
-
 
         /// <summary>
         ///     constructor for display of control for displaying comparison images
@@ -135,7 +82,6 @@ namespace BatRecordingManager
             miShrinkGrid1.DataContext = this;
             miCopyGridFids.DataContext = this;
 
-
             gridTopMargin = _defaultGridTopMargin;
             gridLeftMargin = _defaultGridLeftMargin;
 
@@ -150,7 +96,6 @@ namespace BatRecordingManager
             {
                 SetImageFull(FullSizeButton.Content as string == "FULL");
 
-
                 imageBrush.Stretch = Stretch.Fill;
                 DisplayImageCanvas.Width = storedImage.image.Width;
 
@@ -164,104 +109,6 @@ namespace BatRecordingManager
             }
             DisplayImageCanvas.Focus();
         }
-
-
-
-
-        /// <summary>
-        ///     The instance of a StoredImage to be displayed in this control
-        /// </summary>
-        public StoredImage storedImage
-        {
-            get => (StoredImage)GetValue(storedImageProperty);
-
-            set
-            {
-                SetValue(storedImageProperty, DBAccess.GetImage(value));
-                PlayButton.IsEnabled = value.isPlayable;
-                DisplayActualSize = storedImage.DisplayActualSize;
-                if (DisplayActualSize)
-                {
-                    SetImageFull(FullSizeButton.Content as string == "FULL");
-
-
-                    imageBrush.Stretch = Stretch.Fill;
-                    DisplayImageCanvas.Width = storedImage.image.Width;
-
-                    BringIntoView();
-                    Focus();
-                    DisplayImageCanvas.Focus();
-                }
-                else
-                {
-                    imageBrush.Stretch = Stretch.Uniform;
-
-                }
-            }
-        }
-
-        /// <summary>
-        ///     LineMap has two integers.  The key is the index of a Line in the children of displayImageCanvas
-        ///     the value is the index of a HorizontalGridLine List of the storedImage.
-        ///     The Y values of the Line are bound to the HorizontalGridLine element through a scaling
-        ///     converter.  The line is moved by referencing the relevant HGL via this table and bumping the
-        ///     value appropriately
-        /// </summary>
-        private Dictionary<int, int> HLineMap { get; set; } = new Dictionary<int, int>();
-
-        /// <summary>
-        ///     LineMap has two integers.  The key is the index of a Line in the children of displayImageCanvas
-        ///     the value is the index of a VerticalGridLine List of the storedImage.
-        ///     The Y values of the Line are bound to the VericalGridLine element through a scaling
-        ///     converter.  The line is moved by referencing the relevant VGL via this table and bumping the
-        ///     value appropriately
-        /// </summary>
-        private Dictionary<int, int> VLineMap { get; set; } = new Dictionary<int, int>();
-
-        private void DisplayStoredImageControl_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (IsLoaded)
-            {
-                FiducialsButton.IsChecked = true;
-                FiducialsButton_Click(this, new RoutedEventArgs());
-            }
-        }
-
-        /// <summary>
-        ///     Sets the state of the FIDS button according to the bool
-        /// </summary>
-        /// <param name="toChecked"></param>
-        internal void SetImageFids(bool? toChecked)
-        {
-            FiducialsButton.IsChecked = toChecked;
-        }
-
-        /// <summary>
-        ///     takes the line information from the DuplicateEvwentArgs and applies them to the current image
-        ///     if there are not any existing definitions
-        /// </summary>
-        /// <param name="duplicateEventArgs"></param>
-        internal void DuplicateThis(DuplicateEventArgs duplicateEventArgs)
-        {
-            if (duplicateEventArgs != null)
-            {
-                if (gridTopMargin != _defaultGridTopMargin) gridTopMargin = duplicateEventArgs.TopMargin;
-                if (gridLeftMargin != _defaultGridLeftMargin) gridLeftMargin = duplicateEventArgs.LeftMargin;
-                if (gridScaleValue != _defaultGridScale) gridScaleValue = duplicateEventArgs.Scale;
-                if (storedImage.HorizontalGridlines != null && storedImage.HorizontalGridlines.Count > 0) return;
-                if (storedImage.VerticalGridLines != null && storedImage.VerticalGridLines.Count > 0) return;
-                //if we get here there are no horizontal or vertical gridlines defined
-                storedImage.HorizontalGridlines.Clear();
-                foreach (var hglProp in duplicateEventArgs.HLineProportions)
-                    storedImage.HorizontalGridlines.Add((int)(hglProp * storedImage.image.Height));
-                storedImage.VerticalGridLines.Clear();
-                foreach (var vglProp in duplicateEventArgs.VLineProportions)
-                    storedImage.VerticalGridLines.Add((int)(vglProp * storedImage.image.Width));
-
-                FiducialsButton_Click(this, new RoutedEventArgs());
-            }
-        }
-
 
         /// <summary>
         ///     Event raised after the <see cref="Text" /> property value has changed.
@@ -306,6 +153,48 @@ namespace BatRecordingManager
         }
 
         /// <summary>
+        ///     Event raised after the <see cref="Text" /> property value has changed.
+        /// </summary>
+        public event EventHandler<EventArgs> e_Duplicate
+        {
+            add
+            {
+                lock (_duplicateEventLock)
+                {
+                    _duplicateEvent += value;
+                }
+            }
+            remove
+            {
+                lock (_duplicateEventLock)
+                {
+                    _duplicateEvent -= value;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Event raised after the <see cref="Text" /> property value has changed.
+        /// </summary>
+        public event EventHandler<EventArgs> e_FidsButtonRClicked
+        {
+            add
+            {
+                lock (_fidsButtonRClickedEventLock)
+                {
+                    _fidsButtonRClickedEvent += value;
+                }
+            }
+            remove
+            {
+                lock (_fidsButtonRClickedEventLock)
+                {
+                    _fidsButtonRClickedEvent -= value;
+                }
+            }
+        }
+
+        /// <summary>
         ///     Event raised after the  property value has changed.
         /// </summary>
         public event EventHandler<EventArgs> e_UpButtonPressed
@@ -326,6 +215,142 @@ namespace BatRecordingManager
             }
         }
 
+        public bool DisplayActualSize { get; set; } = false;
+        public bool IsSelectable { get; set; } = false;
+
+        /// <summary>
+        ///     The instance of a StoredImage to be displayed in this control
+        /// </summary>
+        public StoredImage storedImage
+        {
+            get => (StoredImage)GetValue(storedImageProperty);
+
+            set
+            {
+                SetValue(storedImageProperty, DBAccess.GetImage(value));
+                PlayButton.IsEnabled = value.isPlayable;
+                DisplayActualSize = storedImage.DisplayActualSize;
+                if (DisplayActualSize)
+                {
+                    SetImageFull(FullSizeButton.Content as string == "FULL");
+
+                    imageBrush.Stretch = Stretch.Fill;
+                    DisplayImageCanvas.Width = storedImage.image.Width;
+
+                    BringIntoView();
+                    Focus();
+                    DisplayImageCanvas.Focus();
+                }
+                else
+                {
+                    imageBrush.Stretch = Stretch.Uniform;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Finds the ratio of the gridline position to the stored image height making allowance for the fit of
+        ///     the image in the background of the displayImageCanvas in that it might be stretched to fit
+        ///     vertically or horizontally but not both.  The returned value, when multiplied by the actual
+        ///     height of the canvas should determine the location of the horizontal gridline on the canvas.
+        /// </summary>
+        /// <param name="linePositionInImage"></param>
+        /// <param name="displayImageCanvas"></param>
+        /// <param name="storedImage"></param>
+        /// <returns></returns>
+        public static double FindHScaleProportion(int linePositionInImage, double canvasWidth, double canvasHeight,
+            StoredImage storedImage)
+        {
+            //Debug.WriteLine("============================================================================================");
+            var hscale = canvasWidth / storedImage.image.Width;
+            var vscale = canvasHeight / storedImage.image.Height;
+            var actualScale = Math.Min(hscale, vscale);
+            //Debug.WriteLine("Scale: H=" + hscale + " V=" + vscale + " Actual=" + actualScale);
+
+            var linePositionAsProportionOfImage = linePositionInImage / storedImage.image.Height;
+            //Debug.WriteLine("Initial:- Position=" + linePositionInImage + " of Heigh=" + storedImage.image.Height+" prop="+linePositionAsProportionOfImage);
+
+            var linePositionInScaledImage = linePositionAsProportionOfImage * (storedImage.image.Height * actualScale);
+            //Debug.WriteLine("Position In scale=" + linePositionInScaledImage+" in canvas of (h/w) "+canvasHeight+"/"+canvasWidth);
+
+            var rightAndLeftMargins = Math.Abs(canvasWidth - storedImage.image.Width * actualScale);
+            var topAndBottomMargins = Math.Abs(canvasHeight - storedImage.image.Height * actualScale);
+            //Debug.WriteLine("Margins:- r+l=" + rightAndLeftMargins + " t+b=" + topAndBottomMargins);
+            var linePositionInCanvas = linePositionInScaledImage + topAndBottomMargins / 2;
+
+            var linePositionAsProportionOfCanvas = linePositionInCanvas / canvasHeight;
+            //Debug.WriteLine("Pos in Canvas=" + linePositionInCanvas+" As proportion="+linePositionAsProportionOfCanvas);
+            //Debug.WriteLine("----------------------------------------------------------------------------------------------");
+            return linePositionAsProportionOfCanvas;
+        }
+
+        /// <summary>
+        ///     Finds the ratio of the gridline position to the stored image height making allowance for the fit of
+        ///     the image in the background of the displayImageCanvas in that it might be stretched to fit
+        ///     vertically or horizontally but not both.  The returned value, when multiplied by the actual
+        ///     height of the canvas should determine the location of the horizontal gridline on the canvas.
+        /// </summary>
+        /// <param name="linePositionInImage"></param>
+        /// <param name="displayImageCanvas"></param>
+        /// <param name="storedImage"></param>
+        /// <returns></returns>
+        public static double FindVScaleProportion(int linePositionInImage, double canvasWidth, double canvasHeight,
+            StoredImage storedImage)
+        {
+            //Debug.WriteLine("============================================================================================");
+            var hscale = canvasWidth / storedImage.image.Width;
+            var vscale = canvasHeight / storedImage.image.Height;
+            var actualScale = Math.Min(hscale, vscale);
+            //Debug.WriteLine("Scale: H=" + hscale + " V=" + vscale + " Actual=" + actualScale);
+
+            var linePositionAsProportionOfImage = linePositionInImage / storedImage.image.Width;
+            //Debug.WriteLine("Initial:- Position=" + linePositionInImage + " of Heigh=" + storedImage.image.Height + " prop=" + linePositionAsProportionOfImage);
+
+            var linePositionInScaledImage = linePositionAsProportionOfImage * (storedImage.image.Width * actualScale);
+            //Debug.WriteLine("Position In scale=" + linePositionInScaledImage + " in canvas of (h/w) " + canvasHeight + "/" + canvasWidth);
+
+            var rightAndLeftMargins = Math.Abs(canvasWidth - storedImage.image.Width * actualScale);
+            var topAndBottomMargins = Math.Abs(canvasHeight - storedImage.image.Height * actualScale);
+            //Debug.WriteLine("Margins:- r+l=" + rightAndLeftMargins + " t+b=" + topAndBottomMargins);
+            var linePositionInCanvas = linePositionInScaledImage + rightAndLeftMargins / 2;
+
+            var linePositionAsProportionOfCanvas = linePositionInCanvas / canvasWidth;
+            //Debug.WriteLine("Pos in Canvas=" + linePositionInCanvas + " As proportion=" + linePositionAsProportionOfCanvas);
+            //Debug.WriteLine("----------------------------------------------------------------------------------------------");
+            return linePositionAsProportionOfCanvas;
+        }
+
+        public void SetImageFull(bool fullSize)
+        {
+            SetImageSize(fullSize ? 1.0d : 0.5d);
+            FullSizeButton.Content = fullSize ? "HALF" : "FULL";
+        }
+
+        /// <summary>
+        ///     takes the line information from the DuplicateEvwentArgs and applies them to the current image
+        ///     if there are not any existing definitions
+        /// </summary>
+        /// <param name="duplicateEventArgs"></param>
+        internal void DuplicateThis(DuplicateEventArgs duplicateEventArgs)
+        {
+            if (duplicateEventArgs != null)
+            {
+                if (gridTopMargin != _defaultGridTopMargin) gridTopMargin = duplicateEventArgs.TopMargin;
+                if (gridLeftMargin != _defaultGridLeftMargin) gridLeftMargin = duplicateEventArgs.LeftMargin;
+                if (gridScaleValue != _defaultGridScale) gridScaleValue = duplicateEventArgs.Scale;
+                if (storedImage.HorizontalGridlines != null && storedImage.HorizontalGridlines.Count > 0) return;
+                if (storedImage.VerticalGridLines != null && storedImage.VerticalGridLines.Count > 0) return;
+                //if we get here there are no horizontal or vertical gridlines defined
+                storedImage.HorizontalGridlines.Clear();
+                foreach (var hglProp in duplicateEventArgs.HLineProportions)
+                    storedImage.HorizontalGridlines.Add((int)(hglProp * storedImage.image.Height));
+                storedImage.VerticalGridLines.Clear();
+                foreach (var vglProp in duplicateEventArgs.VLineProportions)
+                    storedImage.VerticalGridLines.Add((int)(vglProp * storedImage.image.Width));
+
+                FiducialsButton_Click(this, new RoutedEventArgs());
+            }
+        }
 
         /// <summary>
         ///     ERROR needs to be displayed at full screen, full size for best resolution and even then the lower part of
@@ -343,7 +368,6 @@ namespace BatRecordingManager
             var formatString = @"{0,1:D1} - {1}";
             if (count >= 10) formatString = @"{0,2:D2} - {1}";
             if (count >= 100) formatString = @"{0,3:D3} - {1}";
-
 
             fname = string.Format(formatString, index, fname);
             var i = 0;
@@ -367,6 +391,15 @@ namespace BatRecordingManager
         }
 
         /// <summary>
+        ///     Sets the state of the FIDS button according to the bool
+        /// </summary>
+        /// <param name="toChecked"></param>
+        internal void SetImageFids(bool? toChecked)
+        {
+            FiducialsButton.IsChecked = toChecked;
+        }
+
+        /// <summary>
         ///     Raises the <see cref="e_DelButtonPressed" /> event.
         ///     If the EventArgs flag is false (default state) then the image is deleted from the window
         ///     and not from the database.
@@ -375,7 +408,6 @@ namespace BatRecordingManager
         /// <param name="e"><see cref="EventArgs" /> object that provides the arguments for the event.</param>
         protected virtual void OnDelButtonPressed(BoolEventArgs e)
         {
-
             EventHandler<EventArgs> handler = null;
 
             lock (_delButtonPressedEventLock)
@@ -409,43 +441,23 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Event raised by pressing UP
+        ///     Raises the <see cref="e_Duplicate" /> event.
         /// </summary>
         /// <param name="e"><see cref="EventArgs" /> object that provides the arguments for the event.</param>
-        protected virtual void OnUpButtonPressed(EventArgs e)
+        protected virtual void OnDuplicate(DuplicateEventArgs e)
         {
+            Debug.WriteLine(e.ToString());
             EventHandler<EventArgs> handler = null;
 
-            lock (_upButtonPressedEventLock)
+            lock (_duplicateEventLock)
             {
-                handler = _upButtonPressedEvent;
+                handler = _duplicateEvent;
 
                 if (handler == null)
                     return;
             }
 
             handler(this, e);
-        }
-
-        /// <summary>
-        ///     Event raised after the <see cref="Text" /> property value has changed.
-        /// </summary>
-        public event EventHandler<EventArgs> e_FidsButtonRClicked
-        {
-            add
-            {
-                lock (_fidsButtonRClickedEventLock)
-                {
-                    _fidsButtonRClickedEvent += value;
-                }
-            }
-            remove
-            {
-                lock (_fidsButtonRClickedEventLock)
-                {
-                    _fidsButtonRClickedEvent -= value;
-                }
-            }
         }
 
         /// <summary>
@@ -466,6 +478,102 @@ namespace BatRecordingManager
 
             handler(sender, e);
         }
+
+        /// <summary>
+        ///     Event raised by pressing UP
+        /// </summary>
+        /// <param name="e"><see cref="EventArgs" /> object that provides the arguments for the event.</param>
+        protected virtual void OnUpButtonPressed(EventArgs e)
+        {
+            EventHandler<EventArgs> handler = null;
+
+            lock (_upButtonPressedEventLock)
+            {
+                handler = _upButtonPressedEvent;
+
+                if (handler == null)
+                    return;
+            }
+
+            handler(this, e);
+        }
+
+        private readonly double _defaultGridLeftMargin = 0.28d;
+        private readonly double _defaultGridScale = 0.6782d;
+
+        private readonly double _defaultGridTopMargin = 0.154d;
+
+        private readonly object _delButtonPressedEventLock = new object();
+        private readonly object _downButtonPressedEventLock = new object();
+
+        private readonly object _duplicateEventLock = new object();
+
+        private readonly object _fidsButtonRClickedEventLock = new object();
+        private readonly StoredImage _storedImage = new StoredImage(null, "", "", -1);
+        private readonly object _upButtonPressedEventLock = new object();
+        private bool __showGrid = false;
+        private Canvas _axisGrid = new Canvas();
+
+        private EventHandler<EventArgs> _delButtonPressedEvent;
+
+        private EventHandler<EventArgs> _downButtonPressedEvent;
+        private EventHandler<EventArgs> _duplicateEvent;
+        private EventHandler<EventArgs> _fidsButtonRClickedEvent;
+
+        private int _gridToShow;
+
+        //private bool _isPlacingFiducialLines = false;
+
+        private bool _linesDrawn;
+
+        private int _selectedLine = -1;
+        private EventHandler<EventArgs> _upButtonPressedEvent;
+
+        private bool isGridHighlighted = false;
+
+        private bool selectImagePoint = false;
+
+        private Point startOfDrag = new Point(0, 0);
+
+        private enum Orientation
+        {
+            HORIZONTAL,
+            VERTICAL
+        }
+
+        private bool _showGrid
+        {
+            get
+            {
+                return (__showGrid);
+            }
+            set
+            {
+                __showGrid = value;
+                miFidsCopyGridFids.IsEnabled = value;
+                Debug.WriteLine("_showGrid and miFidsCopyGridFids.IsEnabled set to " + value);
+            }
+        }
+
+        /// <summary>
+        ///     LineMap has two integers.  The key is the index of a Line in the children of displayImageCanvas
+        ///     the value is the index of a HorizontalGridLine List of the storedImage.
+        ///     The Y values of the Line are bound to the HorizontalGridLine element through a scaling
+        ///     converter.  The line is moved by referencing the relevant HGL via this table and bumping the
+        ///     value appropriately
+        /// </summary>
+        private Dictionary<int, int> HLineMap { get; set; } = new Dictionary<int, int>();
+
+        private Point rightMousePos { get; set; } = new Point();
+
+        /// <summary>
+        ///     LineMap has two integers.  The key is the index of a Line in the children of displayImageCanvas
+        ///     the value is the index of a VerticalGridLine List of the storedImage.
+        ///     The Y values of the Line are bound to the VericalGridLine element through a scaling
+        ///     converter.  The line is moved by referencing the relevant VGL via this table and bumping the
+        ///     value appropriately
+        /// </summary>
+        private Dictionary<int, int> VLineMap { get; set; } = new Dictionary<int, int>();
 
         private bool AdjustFiducials(object sender, KeyEventArgs e, int moveSize)
         {
@@ -541,6 +649,57 @@ namespace BatRecordingManager
                 else
                     VLineMap = new Dictionary<int, int>();
                 _selectedLine = -1;
+            }
+        }
+
+        private void CopyGridToFids()
+        {
+            var gridWidth = 0.0d;
+            var gridHeight = 0.0d;
+            var gridTop = 0.0d;
+            var gridLeft = 0.0d;
+            var numHLines = 0;
+            var numVLines = 0;
+
+            ClearGridlines();
+            storedImage.HorizontalGridlines.Clear();
+            storedImage.VerticalGridLines.Clear();
+            if (_axisGrid != null)
+            {
+                gridWidth = _axisGrid.ActualWidth;
+                gridHeight = _axisGrid.ActualHeight;
+                gridLeft = gridLeftMargin * DisplayImageCanvas.ActualWidth;
+                gridTop = gridTopMargin * DisplayImageCanvas.ActualHeight;
+                if (_gridToShow == 675)
+                {
+                    numHLines = 7;
+                    numVLines = 6;
+                }
+                else
+                {
+                    numHLines = 9;
+                    numVLines = 6;
+                }
+
+                var hLineSpacing = gridHeight / (numHLines - 1);
+                var vLineSpacing = gridWidth / (numVLines - 1);
+                var pos = gridTop;
+                for (var i = 0; i < numHLines; i++)
+                {
+                    var newGl = HeightDeScale(pos);
+                    storedImage.HorizontalGridlines.Add(newGl);
+                    pos += hLineSpacing;
+                }
+
+                pos = gridLeft;
+                for (var i = 0; i < numVLines; i++)
+                {
+                    var newGl = WidthDeScale(pos);
+                    storedImage.VerticalGridLines.Add(newGl);
+                    pos += vLineSpacing;
+                }
+
+                DrawAllLines();
             }
         }
 
@@ -660,45 +819,13 @@ namespace BatRecordingManager
             DisplayImageCanvas.Focus();
         }
 
-        /// <summary>
-        ///     EventHander for when the window is loaded - identifies the current
-        ///     window and adds a handler for the PreviewKeyDown event which is used to
-        ///     adjust the size of the scale grid
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void DisplayImage_Loaded(object sender, RoutedEventArgs e)
+        private void DescriptionTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            var window = Window.GetWindow(this);
-
-            DisplayImageCanvas.Focus();
-            e.Handled = true;
-        }
-
-        /// <summary>
-        ///     creates a fiducial line horizontally on the image which will be dragged by the mouse
-        ///     and made permanent by releasing the mouse button.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void DisplayImage_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (!e.Handled)
-            {
-                e.Handled = true;
-                var pos = e.GetPosition(DisplayImageCanvas);
-                bool horizontal = true;
-                if (Keyboard.IsKeyDown(Key.LeftShift))
-                {
-                    horizontal = false;
-                }
-                DisplayImage_AddFiducial(horizontal, pos);
-            }
+            IsModified = true;
         }
 
         private void DisplayImage_AddFiducial(bool horizontal, Point pos)
         {
-
             if (FiducialsButton.IsChecked ?? false)
             {
                 //var pos = e.GetPosition(DisplayImageCanvas);
@@ -759,17 +886,119 @@ namespace BatRecordingManager
                     IsModified = true;
                 }
             }
+        }
 
+        /// <summary>
+        ///     EventHander for when the window is loaded - identifies the current
+        ///     window and adds a handler for the PreviewKeyDown event which is used to
+        ///     adjust the size of the scale grid
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DisplayImage_Loaded(object sender, RoutedEventArgs e)
+        {
+            var window = Window.GetWindow(this);
+
+            DisplayImageCanvas.Focus();
+            e.Handled = true;
+        }
+
+        /// <summary>
+        ///     creates a fiducial line horizontally on the image which will be dragged by the mouse
+        ///     and made permanent by releasing the mouse button.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DisplayImage_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                var pos = e.GetPosition(DisplayImageCanvas);
+                bool horizontal = true;
+                if (Keyboard.IsKeyDown(Key.LeftShift))
+                {
+                    horizontal = false;
+                }
+                DisplayImage_AddFiducial(horizontal, pos);
+            }
         }
 
         private void DisplayImage_Unloaded(object sender, RoutedEventArgs e)
         {
         }
 
+        /// <summary>
+        /// Stores the start position for a drag and select if the Select button is depressed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void displayImageCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             //Debug.WriteLine("MouseLeftButtonDown");
             DisplayImageCanvas.Focus();
+
+            if (SelectButton.IsChecked ?? false)
+            {
+                startOfDrag = e.GetPosition(DisplayImageCanvas);
+                var bgHeight = storedImage.image.Height;
+                var canvasHeight = DisplayImageCanvas.ActualHeight;
+                if (bgHeight < canvasHeight)
+                {
+                    var clickY = startOfDrag.Y - ((canvasHeight - bgHeight) / 2.0d);
+                    startOfDrag.Y = clickY;
+                }
+            }
+            else
+            {
+                startOfDrag = new Point(0, 0);
+            }
+        }
+
+        /// <summary>
+        /// Ends the drag and select operation if the Select button is depressed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DisplayImageCanvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            DisplayImageCanvas.Focus();
+
+            if (SelectButton.IsChecked ?? false)
+            {
+                using (new WaitCursor())
+                {
+                    Point endOfDrag = e.GetPosition(DisplayImageCanvas);
+                    var bgHeight = storedImage.image.Height;
+                    var canvasHeight = DisplayImageCanvas.ActualHeight;
+                    if (bgHeight < canvasHeight)
+                    {
+                        var clickY = endOfDrag.Y - ((canvasHeight - bgHeight) / 2.0d);// adjusts click position in canvas to position in background image
+                        endOfDrag.Y = clickY;
+                    }
+
+                    var distance = Math.Sqrt(Math.Pow(startOfDrag.X - endOfDrag.X, 2) + Math.Pow(startOfDrag.Y - endOfDrag.Y, 2)) / 2.0d;
+                    if (distance < 10)
+                    {
+                        Debug.WriteLine($"Clicked at {e.GetPosition(DisplayImageCanvas).X},{e.GetPosition(DisplayImageCanvas).Y}");
+                        storedImage.ClickedAt(e.GetPosition(DisplayImageCanvas));
+                        e.Handled = true;
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Dragged from {startOfDrag.X},{startOfDrag.Y} - {endOfDrag.X},{endOfDrag.Y}");
+                        storedImage.ClickedAt(startOfDrag, endOfDrag);
+                        e.Handled = true;
+                    }
+                }
+            }
+            startOfDrag = new Point(0, 0);
+        }
+
+        private void DisplayImageCanvas_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            rightMousePos = e.GetPosition(DisplayImageCanvas);
+            e.Handled = false;
         }
 
         private void displayImageCanvas_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -815,7 +1044,6 @@ namespace BatRecordingManager
                 var moveScale = 0.002d;
 
                 //Debug.WriteLine("wKey Previewed =" + e.Key.ToString());
-
 
                 //var stackPanel = (StackPanel)(canvas.Parent as Grid).Parent);
 
@@ -929,6 +1157,14 @@ namespace BatRecordingManager
             }
         }
 
+        private void DisplayStoredImageControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (IsLoaded)
+            {
+                FiducialsButton.IsChecked = true;
+                FiducialsButton_Click(this, new RoutedEventArgs());
+            }
+        }
 
         private void DownImageButton_Click(object sender, RoutedEventArgs e)
         {
@@ -981,7 +1217,6 @@ namespace BatRecordingManager
         private void DrawLine(int indexToGridLine, Orientation direction)
         {
             var line = new Line { Stroke = Brushes.Black, StrokeThickness = 1 };
-
 
             if (direction == Orientation.HORIZONTAL && indexToGridLine >= 0 &&
                 indexToGridLine <= storedImage.image.Height)
@@ -1041,7 +1276,6 @@ namespace BatRecordingManager
                 mbXBinding.Bindings.Add(binding);
 
                 BindingOperations.SetBinding(line, Line.X2Property, mbXBinding);
-
 
                 var mBinding = new MultiBinding { Converter = new HGridLineConverter() };
 
@@ -1137,7 +1371,6 @@ namespace BatRecordingManager
 
                 BindingOperations.SetBinding(line, Line.Y2Property, mbXBinding);
 
-
                 var mBinding = new MultiBinding { Converter = new VGridLineConverter() };
                 binding = new Binding { Source = indexToGridLine.ToString() };
                 //double proportion = FindHScaleProportion(gridline);
@@ -1206,6 +1439,37 @@ namespace BatRecordingManager
             }
         }
 
+        /// <summary>
+        ///     If <see langword="abstract" />GRID is displayed and the mouse is left-clicked, then Fiducial lines are
+        ///     turned on (regardless of the previous state), all existing fiducial lines are deleted and a new set are
+        ///     drawn to match the locations of the lines in the displayed grid
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FiducialsButton_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (!(Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))) return; // not a CTRL-Click
+            if (!_showGrid) return; // GRID is not displayed so do nothing
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                CopyGridToFids();
+            }
+        }
+
+        private void FiducialsButton_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            Debug.WriteLine("Mouse Right button uP on FIDS");
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                OnFidsButtonRClicked(sender, e);
+                BringIntoView();
+                Focus();
+                DisplayImageCanvas.Focus();
+            }
+        }
+
         private void FiducialsButton_Unchecked(object sender, RoutedEventArgs e)
         {
             FiducialsButton_Click(sender, e);
@@ -1220,11 +1484,9 @@ namespace BatRecordingManager
         {
             Debug.WriteLine("FullSizeButtonClick");
 
-
             var thisButton = sender as Button;
 
             SetImageFull(FullSizeButton.Content as string == "FULL");
-
 
             BringIntoView();
             Focus();
@@ -1243,26 +1505,6 @@ namespace BatRecordingManager
                 DisplayImageCanvas.Focus();
             }
         }
-
-        private void FiducialsButton_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            Debug.WriteLine("Mouse Right button uP on FIDS");
-            if (!e.Handled)
-            {
-                e.Handled = true;
-                OnFidsButtonRClicked(sender, e);
-                BringIntoView();
-                Focus();
-                DisplayImageCanvas.Focus();
-            }
-        }
-
-        public void SetImageFull(bool fullSize)
-        {
-            SetImageSize(fullSize ? 1.0d : 0.5d);
-            FullSizeButton.Content = fullSize ? "HALF" : "FULL";
-        }
-
 
         /// <summary>
         ///     Given an X position in the displayCanvas, return the corresponding position in the
@@ -1305,7 +1547,6 @@ namespace BatRecordingManager
                 //FiducialGrid.Visibility = Visibility.Hidden;
 
                 _showGrid = false;
-
             }
             else
             {
@@ -1335,7 +1576,6 @@ namespace BatRecordingManager
                 GridSelectionComboBox.Visibility = Visibility.Visible;
                 GridSelectionComboBox.IsDropDownOpen = true;
                 _showGrid = true;
-
             }
         }
 
@@ -1397,116 +1637,6 @@ namespace BatRecordingManager
             return (int)positionInImage;
         }
 
-
-        /// <summary>
-        ///     Finds the ratio of the gridline position to the stored image height making allowance for the fit of
-        ///     the image in the background of the displayImageCanvas in that it might be stretched to fit
-        ///     vertically or horizontally but not both.  The returned value, when multiplied by the actual
-        ///     height of the canvas should determine the location of the horizontal gridline on the canvas.
-        /// </summary>
-        /// <param name="linePositionInImage"></param>
-        /// <param name="displayImageCanvas"></param>
-        /// <param name="storedImage"></param>
-        /// <returns></returns>
-        public static double FindHScaleProportion(int linePositionInImage, double canvasWidth, double canvasHeight,
-            StoredImage storedImage)
-        {
-            //Debug.WriteLine("============================================================================================");
-            var hscale = canvasWidth / storedImage.image.Width;
-            var vscale = canvasHeight / storedImage.image.Height;
-            var actualScale = Math.Min(hscale, vscale);
-            //Debug.WriteLine("Scale: H=" + hscale + " V=" + vscale + " Actual=" + actualScale);
-
-            var linePositionAsProportionOfImage = linePositionInImage / storedImage.image.Height;
-            //Debug.WriteLine("Initial:- Position=" + linePositionInImage + " of Heigh=" + storedImage.image.Height+" prop="+linePositionAsProportionOfImage);
-
-            var linePositionInScaledImage = linePositionAsProportionOfImage * (storedImage.image.Height * actualScale);
-            //Debug.WriteLine("Position In scale=" + linePositionInScaledImage+" in canvas of (h/w) "+canvasHeight+"/"+canvasWidth);
-
-            var rightAndLeftMargins = Math.Abs(canvasWidth - storedImage.image.Width * actualScale);
-            var topAndBottomMargins = Math.Abs(canvasHeight - storedImage.image.Height * actualScale);
-            //Debug.WriteLine("Margins:- r+l=" + rightAndLeftMargins + " t+b=" + topAndBottomMargins);
-            var linePositionInCanvas = linePositionInScaledImage + topAndBottomMargins / 2;
-
-            var linePositionAsProportionOfCanvas = linePositionInCanvas / canvasHeight;
-            //Debug.WriteLine("Pos in Canvas=" + linePositionInCanvas+" As proportion="+linePositionAsProportionOfCanvas);
-            //Debug.WriteLine("----------------------------------------------------------------------------------------------");
-            return linePositionAsProportionOfCanvas;
-        }
-
-        /// <summary>
-        ///     Finds the ratio of the gridline position to the stored image height making allowance for the fit of
-        ///     the image in the background of the displayImageCanvas in that it might be stretched to fit
-        ///     vertically or horizontally but not both.  The returned value, when multiplied by the actual
-        ///     height of the canvas should determine the location of the horizontal gridline on the canvas.
-        /// </summary>
-        /// <param name="linePositionInImage"></param>
-        /// <param name="displayImageCanvas"></param>
-        /// <param name="storedImage"></param>
-        /// <returns></returns>
-        public static double FindVScaleProportion(int linePositionInImage, double canvasWidth, double canvasHeight,
-            StoredImage storedImage)
-        {
-            //Debug.WriteLine("============================================================================================");
-            var hscale = canvasWidth / storedImage.image.Width;
-            var vscale = canvasHeight / storedImage.image.Height;
-            var actualScale = Math.Min(hscale, vscale);
-            //Debug.WriteLine("Scale: H=" + hscale + " V=" + vscale + " Actual=" + actualScale);
-
-            var linePositionAsProportionOfImage = linePositionInImage / storedImage.image.Width;
-            //Debug.WriteLine("Initial:- Position=" + linePositionInImage + " of Heigh=" + storedImage.image.Height + " prop=" + linePositionAsProportionOfImage);
-
-            var linePositionInScaledImage = linePositionAsProportionOfImage * (storedImage.image.Width * actualScale);
-            //Debug.WriteLine("Position In scale=" + linePositionInScaledImage + " in canvas of (h/w) " + canvasHeight + "/" + canvasWidth);
-
-            var rightAndLeftMargins = Math.Abs(canvasWidth - storedImage.image.Width * actualScale);
-            var topAndBottomMargins = Math.Abs(canvasHeight - storedImage.image.Height * actualScale);
-            //Debug.WriteLine("Margins:- r+l=" + rightAndLeftMargins + " t+b=" + topAndBottomMargins);
-            var linePositionInCanvas = linePositionInScaledImage + rightAndLeftMargins / 2;
-
-            var linePositionAsProportionOfCanvas = linePositionInCanvas / canvasWidth;
-            //Debug.WriteLine("Pos in Canvas=" + linePositionInCanvas + " As proportion=" + linePositionAsProportionOfCanvas);
-            //Debug.WriteLine("----------------------------------------------------------------------------------------------");
-            return linePositionAsProportionOfCanvas;
-        }
-
-
-        private void HighlightSelectedLine()
-        {
-            if (DisplayImageCanvas.Children != null)
-            {
-                foreach (var child in DisplayImageCanvas.Children)
-                    if (child is Line line)
-                        line.StrokeThickness = 1;
-                if (_selectedLine >= 0)
-                {
-                    if (DisplayImageCanvas.Children[_selectedLine] is Line)
-                        (DisplayImageCanvas.Children[_selectedLine] as Line).StrokeThickness = 2;
-                }
-                else
-                {
-                    if (_showGrid)
-                    {
-                        if (isGridHighlighted)
-                        {
-                            HighlightGrid(false);
-                        }
-                        else
-                        {
-                            HighlightGrid(true);
-
-                        }
-                    }
-
-                }
-            }
-
-            DisplayImageCanvas.UpdateLayout();
-            DisplayImageCanvas.Focus();
-        }
-
-        private bool isGridHighlighted = false;
-
         private void HighlightGrid(bool setHighlighted)
         {
             var currentGrid = AxisGrid675;
@@ -1536,6 +1666,38 @@ namespace BatRecordingManager
             isGridHighlighted = setHighlighted;
         }
 
+        private void HighlightSelectedLine()
+        {
+            if (DisplayImageCanvas.Children != null)
+            {
+                foreach (var child in DisplayImageCanvas.Children)
+                    if (child is Line line)
+                        line.StrokeThickness = 1;
+                if (_selectedLine >= 0)
+                {
+                    if (DisplayImageCanvas.Children[_selectedLine] is Line)
+                        (DisplayImageCanvas.Children[_selectedLine] as Line).StrokeThickness = 2;
+                }
+                else
+                {
+                    if (_showGrid)
+                    {
+                        if (isGridHighlighted)
+                        {
+                            HighlightGrid(false);
+                        }
+                        else
+                        {
+                            HighlightGrid(true);
+                        }
+                    }
+                }
+            }
+
+            DisplayImageCanvas.UpdateLayout();
+            DisplayImageCanvas.Focus();
+        }
+
         private bool IncrementSelectedLine()
         {
             Debug.Write("Incrementing from " + _selectedLine);
@@ -1554,6 +1716,170 @@ namespace BatRecordingManager
             return result;
         }
 
+        private void MiAddHorizontalLine_Click(object sender, RoutedEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+
+                var pos = rightMousePos;
+                bool horizontal = true;
+
+                DisplayImage_AddFiducial(horizontal, pos);
+            }
+        }
+
+        private void MiAddVerticalLine_Click(object sender, RoutedEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+
+                var pos = rightMousePos;
+                bool horizontal = false;
+                DisplayImage_AddFiducial(horizontal, pos);
+            }
+        }
+
+        private void MiDeleteFiducialLine_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedLine >= 0) DeleteGridLine();
+            DisplayImageCanvas.Focus();
+        }
+
+        private void MiDeleteImageFromDB_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show(@"This will permanently remove this image from the database.
+Are you sure?", "Delete Image from database", MessageBoxButton.OKCancel);
+            if (result == MessageBoxResult.OK)
+            {
+                OnDelButtonPressed(new BoolEventArgs(true));
+            }
+            DisplayImageCanvas.Focus();
+        }
+
+        private void MiDeleteImageFromList_Click(object sender, RoutedEventArgs e)
+        {
+            OnDelButtonPressed(new BoolEventArgs());
+            DisplayImageCanvas.Focus();
+        }
+
+        private void MiFidsCopyGridFids_Click(object sender, RoutedEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                CopyGridToFids();
+            }
+        }
+
+        private void MiFidsDeleteAll_Click(object sender, RoutedEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                storedImage.HorizontalGridlines.Clear();
+                storedImage.VerticalGridLines.Clear();
+                ClearGridlines();
+            }
+        }
+
+        private void MiFidsDeselectFids_Click(object sender, RoutedEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+
+                if (DisplayImageCanvas.Children != null)
+                {
+                    foreach (var child in DisplayImageCanvas.Children)
+                        if (child is Line line)
+                            line.StrokeThickness = 1;
+                    _selectedLine = -1;
+                    HighlightGrid(false);
+                }
+            }
+            DisplayImageCanvas.Focus();
+        }
+
+        private void MiFidsOff_Click(object sender, RoutedEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                FiducialsButton.IsChecked = false;
+            }
+        }
+
+        private void MiFidsOffGlobal_Click(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("Context All FIDS off");
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                FiducialsButton.IsChecked = false;
+                OnFidsButtonRClicked(FiducialsButton, e);
+                BringIntoView();
+                Focus();
+                DisplayImageCanvas.Focus();
+            }
+        }
+
+        private void MiFidsOn_Click(object sender, RoutedEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                FiducialsButton.IsChecked = true;
+            }
+        }
+
+        private void MiFidsOnGlobal_Click(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("Context All Fids On");
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                FiducialsButton.IsChecked = true;
+                OnFidsButtonRClicked(FiducialsButton, e);
+                BringIntoView();
+                Focus();
+                DisplayImageCanvas.Focus();
+            }
+        }
+
+        private void MiRotateLeft_Click(object sender, RoutedEventArgs e)
+        {
+            RotateImage90(false);
+        }
+
+        private void MiRotateRight_Click(object sender, RoutedEventArgs e)
+        {
+            RotateImage90(true);
+        }
+
+        private bool MoveLineDown(int moveSize)
+        {
+            var result = false;
+            if (DisplayImageCanvas.Children != null && _selectedLine >= 0 &&
+                DisplayImageCanvas.Children.Count > _selectedLine)
+                if (DisplayImageCanvas.Children[_selectedLine] is Line)
+                {
+                    var line = DisplayImageCanvas.Children[_selectedLine] as Line;
+                    if (line.HorizontalAlignment == HorizontalAlignment.Stretch)
+                    {
+                        var xy = HLineMap[_selectedLine];
+                        storedImage.HorizontalGridlines[xy] += moveSize;
+                        if (storedImage.HorizontalGridlines[xy] > storedImage.image.Height)
+                            storedImage.HorizontalGridlines[xy] = (int)storedImage.image.Height;
+                        //line.Y1 = HeightScale(storedImage.HorizontalGridlines[xy]);
+                        //line.Y2 = line.Y1;
+                        result = true;
+                    }
+                }
+
+            return result;
+        }
 
         private bool MoveLineLeft(int moveSize)
         {
@@ -1602,29 +1928,6 @@ namespace BatRecordingManager
             return result;
         }
 
-        private bool MoveLineDown(int moveSize)
-        {
-            var result = false;
-            if (DisplayImageCanvas.Children != null && _selectedLine >= 0 &&
-                DisplayImageCanvas.Children.Count > _selectedLine)
-                if (DisplayImageCanvas.Children[_selectedLine] is Line)
-                {
-                    var line = DisplayImageCanvas.Children[_selectedLine] as Line;
-                    if (line.HorizontalAlignment == HorizontalAlignment.Stretch)
-                    {
-                        var xy = HLineMap[_selectedLine];
-                        storedImage.HorizontalGridlines[xy] += moveSize;
-                        if (storedImage.HorizontalGridlines[xy] > storedImage.image.Height)
-                            storedImage.HorizontalGridlines[xy] = (int)storedImage.image.Height;
-                        //line.Y1 = HeightScale(storedImage.HorizontalGridlines[xy]);
-                        //line.Y2 = line.Y1;
-                        result = true;
-                    }
-                }
-
-            return result;
-        }
-
         private bool MoveLineUp(int moveSize)
         {
             //Debug.WriteLine("--------------------------MOVELINE-UP---------------------------------");
@@ -1649,6 +1952,41 @@ namespace BatRecordingManager
 
             //Debug.WriteLine("-----------------------------------------" + result + "-----------------------------------------------");
             return result;
+        }
+
+        /// <summary>
+        ///     Opens the associated recording or segment in Audacity
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OpenButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+
+                if (storedImage.isPlayable)
+                    using (new WaitCursor("Opening recording in Audacity..."))
+                    {
+                        storedImage.Open();
+                    }
+            }
+        }
+
+        private void PlayButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+
+                if (storedImage.isPlayable)
+                {
+                    AudioHost.Instance.audioPlayer.Stop();
+                    if (!storedImage.segmentsForImage.IsNullOrEmpty())
+                        foreach (var seg in storedImage.segmentsForImage)
+                            AudioHost.Instance.audioPlayer.AddToList(seg);
+                }
+            }
         }
 
         private void RotateImage90(bool clockwise)
@@ -1682,6 +2020,10 @@ namespace BatRecordingManager
             RotateImage90(true);
         }
 
+        private void SelectButton_Click(object sender, RoutedEventArgs e)
+        {
+        }
+
         /// <summary>
         ///     sets the size of the displayImage panel by adjusting the binding
         ///     converter parameter.
@@ -1711,163 +2053,6 @@ namespace BatRecordingManager
             var proportionOfScaledImage = positionInScaledImage / (storedImage.image.Width * actualScale);
             var positionInImage = proportionOfScaledImage * storedImage.image.Width;
             return (int)positionInImage;
-        }
-
-        /// <summary>
-        ///     Event raised after the <see cref="Text" /> property value has changed.
-        /// </summary>
-        public event EventHandler<EventArgs> e_Duplicate
-        {
-            add
-            {
-                lock (_duplicateEventLock)
-                {
-                    _duplicateEvent += value;
-                }
-            }
-            remove
-            {
-                lock (_duplicateEventLock)
-                {
-                    _duplicateEvent -= value;
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Raises the <see cref="e_Duplicate" /> event.
-        /// </summary>
-        /// <param name="e"><see cref="EventArgs" /> object that provides the arguments for the event.</param>
-        protected virtual void OnDuplicate(DuplicateEventArgs e)
-        {
-            Debug.WriteLine(e.ToString());
-            EventHandler<EventArgs> handler = null;
-
-            lock (_duplicateEventLock)
-            {
-                handler = _duplicateEvent;
-
-                if (handler == null)
-                    return;
-            }
-
-            handler(this, e);
-        }
-
-        /// <summary>
-        ///     If <see langword="abstract" />GRID is displayed and the mouse is left-clicked, then Fiducial lines are
-        ///     turned on (regardless of the previous state), all existing fiducial lines are deleted and a new set are
-        ///     drawn to match the locations of the lines in the displayed grid
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void FiducialsButton_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            if (!(Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))) return; // not a CTRL-Click
-            if (!_showGrid) return; // GRID is not displayed so do nothing
-            if (!e.Handled)
-            {
-                e.Handled = true;
-                CopyGridToFids();
-            }
-        }
-
-        private void CopyGridToFids()
-        {
-            var gridWidth = 0.0d;
-            var gridHeight = 0.0d;
-            var gridTop = 0.0d;
-            var gridLeft = 0.0d;
-            var numHLines = 0;
-            var numVLines = 0;
-
-            ClearGridlines();
-            storedImage.HorizontalGridlines.Clear();
-            storedImage.VerticalGridLines.Clear();
-            if (_axisGrid != null)
-            {
-                gridWidth = _axisGrid.ActualWidth;
-                gridHeight = _axisGrid.ActualHeight;
-                gridLeft = gridLeftMargin * DisplayImageCanvas.ActualWidth;
-                gridTop = gridTopMargin * DisplayImageCanvas.ActualHeight;
-                if (_gridToShow == 675)
-                {
-                    numHLines = 7;
-                    numVLines = 6;
-                }
-                else
-                {
-                    numHLines = 9;
-                    numVLines = 6;
-                }
-
-                var hLineSpacing = gridHeight / (numHLines - 1);
-                var vLineSpacing = gridWidth / (numVLines - 1);
-                var pos = gridTop;
-                for (var i = 0; i < numHLines; i++)
-                {
-                    var newGl = HeightDeScale(pos);
-                    storedImage.HorizontalGridlines.Add(newGl);
-                    pos += hLineSpacing;
-                }
-
-                pos = gridLeft;
-                for (var i = 0; i < numVLines; i++)
-                {
-                    var newGl = WidthDeScale(pos);
-                    storedImage.VerticalGridLines.Add(newGl);
-                    pos += vLineSpacing;
-                }
-
-                DrawAllLines();
-            }
-        }
-
-        private void DescriptionTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            IsModified = true;
-        }
-
-        private void PlayButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (!e.Handled)
-            {
-                e.Handled = true;
-
-                if (storedImage.isPlayable)
-                {
-                    AudioHost.Instance.audioPlayer.Stop();
-                    if (!storedImage.segmentsForImage.IsNullOrEmpty())
-                        foreach (var seg in storedImage.segmentsForImage)
-                            AudioHost.Instance.audioPlayer.AddToList(seg);
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Opens the associated recording or segment in Audacity
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OpenButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (!e.Handled)
-            {
-                e.Handled = true;
-
-                if (storedImage.isPlayable)
-                    using (new WaitCursor("Opening recording in Audacity..."))
-                    {
-                        storedImage.Open();
-                    }
-            }
-        }
-
-
-        private enum Orientation
-        {
-            HORIZONTAL,
-            VERTICAL
         }
 
         #region scaleValue
@@ -1954,7 +2139,6 @@ namespace BatRecordingManager
 
         #endregion gridTopMargin
 
-
         #region FullButtonRClickedEvent
 
         /// <summary>
@@ -2004,156 +2188,6 @@ namespace BatRecordingManager
 
         #endregion FullButtonRClickedEvent
 
-        private void MiRotateRight_Click(object sender, RoutedEventArgs e)
-        {
-            RotateImage90(true);
-        }
-
-        private void MiRotateLeft_Click(object sender, RoutedEventArgs e)
-        {
-            RotateImage90(false);
-        }
-
-        private void MiDeleteImageFromList_Click(object sender, RoutedEventArgs e)
-        {
-            OnDelButtonPressed(new BoolEventArgs());
-            DisplayImageCanvas.Focus();
-        }
-
-        private void MiDeleteImageFromDB_Click(object sender, RoutedEventArgs e)
-        {
-            var result = MessageBox.Show(@"This will permanently remove this image from the database.
-Are you sure?", "Delete Image from database", MessageBoxButton.OKCancel);
-            if (result == MessageBoxResult.OK)
-            {
-                OnDelButtonPressed(new BoolEventArgs(true));
-            }
-            DisplayImageCanvas.Focus();
-        }
-
-        private void MiDeleteFiducialLine_Click(object sender, RoutedEventArgs e)
-        {
-            if (_selectedLine >= 0) DeleteGridLine();
-            DisplayImageCanvas.Focus();
-        }
-
-        private void MiAddHorizontalLine_Click(object sender, RoutedEventArgs e)
-        {
-            if (!e.Handled)
-            {
-                e.Handled = true;
-
-                var pos = rightMousePos;
-                bool horizontal = true;
-
-                DisplayImage_AddFiducial(horizontal, pos);
-            }
-        }
-
-        private Point rightMousePos { get; set; } = new Point();
-        private void DisplayImageCanvas_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            rightMousePos = e.GetPosition(DisplayImageCanvas);
-            e.Handled = false;
-        }
-
-        private void MiAddVerticalLine_Click(object sender, RoutedEventArgs e)
-        {
-            if (!e.Handled)
-            {
-                e.Handled = true;
-
-                var pos = rightMousePos;
-                bool horizontal = false;
-                DisplayImage_AddFiducial(horizontal, pos);
-            }
-        }
-
-        private void MiFidsOn_Click(object sender, RoutedEventArgs e)
-        {
-            if (!e.Handled)
-            {
-                e.Handled = true;
-                FiducialsButton.IsChecked = true;
-            }
-        }
-
-        private void MiFidsOff_Click(object sender, RoutedEventArgs e)
-        {
-            if (!e.Handled)
-            {
-                e.Handled = true;
-                FiducialsButton.IsChecked = false;
-            }
-        }
-
-        private void MiFidsOnGlobal_Click(object sender, RoutedEventArgs e)
-        {
-            Debug.WriteLine("Context All Fids On");
-            if (!e.Handled)
-            {
-                e.Handled = true;
-                FiducialsButton.IsChecked = true;
-                OnFidsButtonRClicked(FiducialsButton, e);
-                BringIntoView();
-                Focus();
-                DisplayImageCanvas.Focus();
-            }
-        }
-
-        private void MiFidsOffGlobal_Click(object sender, RoutedEventArgs e)
-        {
-            Debug.WriteLine("Context All FIDS off");
-            if (!e.Handled)
-            {
-                e.Handled = true;
-                FiducialsButton.IsChecked = false;
-                OnFidsButtonRClicked(FiducialsButton, e);
-                BringIntoView();
-                Focus();
-                DisplayImageCanvas.Focus();
-            }
-        }
-
-        private void MiFidsCopyGridFids_Click(object sender, RoutedEventArgs e)
-        {
-            if (!e.Handled)
-            {
-                e.Handled = true;
-                CopyGridToFids();
-            }
-        }
-
-        private void MiFidsDeselectFids_Click(object sender, RoutedEventArgs e)
-        {
-            if (!e.Handled)
-            {
-                e.Handled = true;
-
-                if (DisplayImageCanvas.Children != null)
-                {
-                    foreach (var child in DisplayImageCanvas.Children)
-                        if (child is Line line)
-                            line.StrokeThickness = 1;
-                    _selectedLine = -1;
-                    HighlightGrid(false);
-                }
-            }
-            DisplayImageCanvas.Focus();
-        }
-
-        private void MiFidsDeleteAll_Click(object sender, RoutedEventArgs e)
-        {
-            if (!e.Handled)
-            {
-                e.Handled = true;
-                storedImage.HorizontalGridlines.Clear();
-                storedImage.VerticalGridLines.Clear();
-                ClearGridlines();
-
-            }
-        }
-
         private void ZoomInButton_Click(object sender, RoutedEventArgs e)
         {
             if (DisplayImageCanvas.ActualWidth * 2 < storedImage.image.Width * 8)
@@ -2192,8 +2226,9 @@ Are you sure?", "Delete Image from database", MessageBoxButton.OKCancel);
 
         #region Public Properties
 
-        public List<double> HLineProportions { get; set; }
-        public List<double> VLineProportions { get; set; }
+        public double LeftMargin;
+        public double Scale;
+        public double TopMargin;
 
         public enum Grid
         {
@@ -2202,12 +2237,10 @@ Are you sure?", "Delete Image from database", MessageBoxButton.OKCancel);
         }
 
         public Grid GridType { get; set; }
-        public double LeftMargin;
-        public double TopMargin;
-        public double Scale;
+        public List<double> HLineProportions { get; set; }
+        public List<double> VLineProportions { get; set; }
 
         #endregion Public Properties
-
 
         #region Constructors
 

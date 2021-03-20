@@ -1,0 +1,42 @@
+﻿<UserControl x:Class="BatCallAnalysisControlSet.SfEfChart"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Plus"
+             xmlns:local="clr-namespace:BatCallAnalysisControlSet"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <lvc:CartesianChart
+                x:Name="sfEfStackedBarChart"
+                DisableAnimations="True"
+                Hoverable="False"
+                LegendLocation="Top"
+                DataTooltip="{x:Null}">
+
+            <lvc:CartesianChart.AxisX>
+                <lvc:Axis
+
+                    Title="Species/Call Type"
+                    Foreground="Black"
+                    Visibility="Visible"
+                    LabelFormatter="{Binding Formatter}"
+
+                    LabelsRotation="-50" Labels="{Binding Labels}">
+                    <lvc:Axis.Separator>
+                        <lvc:Separator Step="1" />
+                    </lvc:Axis.Separator>
+                </lvc:Axis>
+            </lvc:CartesianChart.AxisX>
+
+            <lvc:CartesianChart.AxisY>
+                <lvc:Axis
+                    x:Name="yAxis"
+                    Title="Frequency kHz"
+                    LabelFormatter="{Binding Formatter}">
+                </lvc:Axis>
+            </lvc:CartesianChart.AxisY>
+        </lvc:CartesianChart>
+    </Grid>
+</UserControl>

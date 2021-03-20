@@ -45,10 +45,13 @@ namespace BatPassAnalysisFW
         /// <param name="LengthFactor">ratio of pass width in samples to the size of the smoothed datablock plotted</param>
         /// <param name="blockSize"></param>
         /// <returns></returns>
-        public static Bitmap GetBitmap(ref List<float> shortData, ref ObservableList<Peak> peakList, double PassLengthInSamples = 0.0d, int blockSize = 1)
+        public static Bitmap GetBitmap(ref List<float> shortData, ref ObservableList<Peak> peakList, double PassLengthInSamples = 0.0d, int blockSize = 1, int HzPerSample = 0)
 
         { // short data of 1863 samples, 6 peaks, passLength=963740, blockSize=21
             /// example numbers taken from a 2.04s pass at 384000sps
+            ///
+            bool IsSpectralPlot = PassLengthInSamples == 0 || HzPerSample > 0;
+
             shortData = (from d in shortData select (float)Math.Abs(d)).ToList<float>(); //
             if (PassLengthInSamples <= 0.0d) PassLengthInSamples = shortData.Count;
 
@@ -63,11 +66,11 @@ namespace BatPassAnalysisFW
             Debug.WriteLine($"Image is {dataSize * widthFactor}x{imageHeight}");
             float AbsoluteThreshold = 0.0f;
             int sampleRate = 0;
-            int HzPerSample = 0;
+            //int HzPerSample = 0;
             if (peakList != null && peakList.Any())
             {
                 sampleRate = peakList.First().GetSampleRatePerSecond();
-                HzPerSample = 0;
+                //HzPerSample = 0;
                 AbsoluteThreshold = peakList.First().AbsoluteThreshold;
             }
 
@@ -128,22 +131,37 @@ namespace BatPassAnalysisFW
                 Debug.WriteLine($"Draw threshold at {plotHeight - scaledThreshold}");
 
                 double xScale = 1.0d;
-                if (sampleRate == 0)
+                float scaleValue = 0.0f;
+                if (IsSpectralPlot)
                 {// assume we are plotting a spectrum and include a frequency scale
                     int fsdHz = shortData.Count * HzPerSample;
-                    for (int j = 0, k = 0; j < fsdHz; j += 1000, k++)
+                    for (int hz = 0, k = 0; hz < fsdHz; hz += 1000, k++)
                     {
                         int ht = 10;
-                        if (k % 10 == 0) ht = 20;
-                        int xpos = widthFactor * (int)(j / (float)HzPerSample);
+                        int xpos = widthFactor * (int)(hz / (float)HzPerSample);
+                        if (k % 10 == 0)
+                        {
+                            ht = 20;
+                            var offset = 9;
+                            if (scaleValue >= 100) offset = 12;
+                            var xloc = xpos - offset < 0 ? 0 : xpos - offset;
+                            g.DrawString($"{scaleValue:##0}",
+                                new Font(FontFamily.GenericMonospace, 8),
+                                new SolidBrush(Color.Black),
+                                new PointF(xloc, plotHeight + ht + 3));
+                            scaleValue += 10.0f;
+                        }
+
                         g.DrawLine(blackPen, new Point(xpos, plotHeight + 1), new Point(xpos, plotHeight + ht + 1));
                     }
                 }
                 else
                 {// assume we are plotting envelopes and have a time scale
+                    if (sampleRate <= 0) return (null);
                     int samplesPerMs = sampleRate / 1000;
 
                     xScale = imageWidth / PassLengthInSamples;
+                    if (xScale <= 0) return (null);
                     int stepSize = 1;
                     var ms = (int)(samplesPerMs * xScale);
 
@@ -161,7 +179,16 @@ namespace BatPassAnalysisFW
                         int xpos = j;
                         int ht = 5;
                         if ((k % 10) == 0) ht = 10;
-                        if ((k % 100) == 0) ht = 15;
+                        if ((k % 100) == 0)
+                        {
+                            var xloc = xpos - 12 < 0 ? 0 : xpos - 12;
+                            ht = 15;
+                            g.DrawString($"{scaleValue:0.0}",
+                                new Font(FontFamily.GenericMonospace, 8),
+                                new SolidBrush(Color.Black),
+                                new PointF(xloc, plotHeight + ht + 3));
+                            scaleValue += 0.1f;
+                        }
                         if ((k % 1000) == 0) ht = 20;
                         g.DrawLine(blackPen, new Point(xpos, plotHeight + 1), new Point(xpos, plotHeight + ht + 1));
                     }
@@ -175,7 +202,8 @@ namespace BatPassAnalysisFW
                         //   $"mean={mean} ptmean={ptMean} line at {ptMean+dataOffset}");
                         int peakStartPos = (int)(peak.getStartAsSampleInPass() * xScale);
 
-                        g.DrawString(peak.peak_Number.ToString(), new Font(FontFamily.GenericMonospace, 8), new SolidBrush(Color.Blue), new PointF(peakStartPos, dataOffset / 2));
+                        g.DrawString(peak.peak_Number.ToString(), new Font(FontFamily.GenericMonospace, 8), new SolidBrush(Color.Blue),
+                            new PointF(peakStartPos, dataOffset / 2));
 
                         Rectangle rect = new Rectangle();
                         double rwidth = peak.getPeakWidthSamples() * xScale;
@@ -184,7 +212,7 @@ namespace BatPassAnalysisFW
                         rect.Height = 4;
                         rect.X = (int)(peakStartPos);// already scaled by xScale
                         if (rect.X < 0) rect.X = 0;
-                        rect.Y = plotHeight / 2;
+                        rect.Y = plotHeight + 1;
                         float scaledThresholdLine = peak.AbsoluteThreshold * scaleFactor;
                         var p = (int)(scaledThresholdLine);
                         //rect.Y = plotHeight - (p);

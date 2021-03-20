@@ -4,7 +4,7 @@
 library
 C#
 .cs
-C:\Users\justi\source\repos\BRMv8.n\UniversalToolkit\obj\Debug\
+C:\Users\justi\source\repos\BRMv10.n\UniversalToolkit\obj\Debug\
 UniversalToolkit
 none
 false
@@ -12,8 +12,8 @@ DEBUG;TRACE
 
 4-1608574462
 
-61405454513
-20418878265
+8367532320
+31-1216988727
 Generic.xaml;WPFDateTimePicker.xaml;WPFNumericSpinner.xaml;WPFTimePicker.xaml;
 
 True

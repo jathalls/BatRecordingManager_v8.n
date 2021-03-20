@@ -84,7 +84,7 @@ namespace BatPassAnalysisFW
             }
         }
 
-        public BitmapImage EnvelopeImage
+        public BitmapImage envelopeImage
         {
             get
             {
@@ -93,7 +93,7 @@ namespace BatPassAnalysisFW
             set
             {
                 _envelopeImage = value;
-                NotifyPropertyChanged(nameof(EnvelopeImage));
+                NotifyPropertyChanged(nameof(envelopeImage));
             }
         }
 
@@ -426,12 +426,12 @@ namespace BatPassAnalysisFW
                         }
                         List<float> corrData = new List<float>();
                         List<float> fftData = new List<float>();
-                        pulse.getFFT(out fftData, out corrData);
+                        var hzPerSample = pulse.getFFT(out fftData, out corrData);
                         //float[] autoCorr = pulse.getAutoCorrelation(byFft:true);
 
                         //ObservableList<Peak> peakList = new ObservableList<Peak>();
 
-                        var bmp = PassAnalysis.GetBitmap(ref fftData, ref peakList, (double)spectrumFactor);
+                        var bmp = PassAnalysis.GetBitmap(ref fftData, ref peakList, (double)spectrumFactor, 1, hzPerSample);
                         var bmpi = bpaPass.loadBitmap(bmp);
                         SpectrumImage = bmpi;
                         SpectrumEnabled = true;
@@ -553,7 +553,7 @@ namespace BatPassAnalysisFW
         internal void Clear()
         {
             SpectrumImage = null;
-            EnvelopeImage = null;
+            envelopeImage = null;
             CorrelationImage = null;
             headerText = "Loading...";
             combinedPassList.Clear();
@@ -572,7 +572,7 @@ namespace BatPassAnalysisFW
         {
             BitmapImage bmpi = pass.GetEnvelopeBitmap();
             //OnBmpiCreated(new BmpiEventArgs(bmpi,BmpiEventArgs.ImageType.ENVELOPE));
-            EnvelopeImage = bmpi;
+            envelopeImage = bmpi;
             EnvelopeEnabled = true;
         }
 
@@ -686,7 +686,7 @@ namespace BatPassAnalysisFW
             recordingsDataGrid_SelectionChanged(combinedRecordingList);
             //passDataGrid_SelectionChanged(selection);
 
-            EnvelopeImage = bmpi;
+            envelopeImage = bmpi;
             EnvelopeEnabled = true;
         }
 

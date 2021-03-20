@@ -57,11 +57,11 @@
                 Width="100"
                 VerticalAlignment="Center"
                 Minimum="1"
-                Maximum="4" TickFrequency="0.1" TickPlacement="TopLeft" LargeChange="0.1" />
+                Maximum="10" TickFrequency="0.1" TickPlacement="TopLeft" LargeChange="0.1" />
 
                 <tk:NumericSpinner
                 x:Name="EnvelopeThresholdUpDown"
-                Width="60" MaxValue="4.0" MinValue="1.0"
+                Width="60" MaxValue="10.0" MinValue="1.0"
                 Value="{Binding thresholdFactor,Mode=TwoWay,FallbackValue=2.5}"
                  ValueChanged="EnvelopeThresholdUpDown_ValueChanged" />
             </StackPanel>
@@ -242,6 +242,7 @@
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem x:Name="cmiEnvelope" Header="Generate Envelope Graph" Click="cmiEnvelope_Click" />
+                    <MenuItem x:Name="cmiCallAnalysis" Header="Call Analysis" Click="cmiCallAnalysis_Click" />
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.RowStyle>
@@ -409,8 +410,8 @@
                 <DataGridTextColumn Binding="{Binding halfHeightHighFrequency,StringFormat=###\,##0}" Header="Half-Height High Freq Hz" />
 
                 <DataGridTextColumn Header=" " />
-                <DataGridTextColumn Binding="{Binding AutoCorrelationWidth,StringFormat=0.00}" Header="Auto-Correlation Width ms" />
-                <DataGridTextColumn Binding="{Binding AutoCorrelationWidthCms,StringFormat=#0.00}" Header="Range Resolution cms" />
+                <DataGridTextColumn Binding="{Binding AutoCorrelationWidth,StringFormat=0.0000}" Header="Auto-Correlation Width ms" />
+                <DataGridTextColumn Binding="{Binding AutoCorrelationWidthCms,StringFormat=#0.0000}" Header="Range Resolution cms" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

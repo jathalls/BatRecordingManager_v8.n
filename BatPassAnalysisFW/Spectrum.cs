@@ -78,7 +78,18 @@ namespace BatPassAnalysisFW
             return (frameSize);
         }
 
-        public bool GetSpectralData(float[] sample, float[] pre_sample, Peak peak, out List<double> fft, out List<float> autoCorr, int Overlap = -1, int frameSize = -1)
+        /// <summary>
+        /// gets spectral data and returns HzPerBin
+        /// </summary>
+        /// <param name="sample"></param>
+        /// <param name="pre_sample"></param>
+        /// <param name="peak"></param>
+        /// <param name="fft"></param>
+        /// <param name="autoCorr"></param>
+        /// <param name="Overlap"></param>
+        /// <param name="frameSize"></param>
+        /// <returns></returns>
+        public int GetSpectralData(float[] sample, float[] pre_sample, Peak peak, out List<double> fft, out List<float> autoCorr, int Overlap = -1, int frameSize = -1)
         {
             fft = null;
             autoCorr = null;
@@ -98,7 +109,7 @@ namespace BatPassAnalysisFW
 
             if (sample != null && sample.Length > 0)
             {
-                isValidPulse = GetSpectrum(sample, pre_sample, frameSize, Overlap, peak, out sampleFFT, out rawPreFFT);
+                _ = GetSpectrum(sample, pre_sample, frameSize, Overlap, peak, out sampleFFT, out rawPreFFT);
             }
             isValidPulse = true;
             //Scale(1000, ref sampleFFT);
@@ -135,7 +146,7 @@ namespace BatPassAnalysisFW
             autoCorr = getAutoCorrelationAsFloatArray(rawPreFFT).ToList();
 
             //Scale(1000, ref fft);
-            return (isValidPulse);
+            return ((sampleRate) / frameSize);
         }
 
         internal float[] getAutoCorrelationAsFloatArray(double[] rawFft)
@@ -176,15 +187,17 @@ namespace BatPassAnalysisFW
         }
 
         ///calculates and retuns the smoothed FFT and the autocorrelation of the supplied data
-        internal void getFrequencyDomain(out List<float> fftData, out List<float> autoCorr, List<float> sectionData, List<float> preData, Peak peak)
+        ///returns the number of HzPerBin of the FFT
+        internal int getFrequencyDomain(out List<float> fftData, out List<float> autoCorr, List<float> sectionData, List<float> preData, Peak peak)
         {
             List<double> fftDataDbl = new List<double>();
             fftData = new List<float>();
-            GetSpectralData(sectionData.ToArray(), preData.ToArray(), peak, out fftDataDbl, out autoCorr);
+            int hzPerBin = GetSpectralData(sectionData.ToArray(), preData.ToArray(), peak, out fftDataDbl, out autoCorr);
             foreach (var d in fftDataDbl)
             {
                 fftData.Add((float)d);
             }
+            return (HzPerBin);
         }
 
         private readonly int frameSize;

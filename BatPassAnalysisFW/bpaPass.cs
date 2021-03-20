@@ -1468,7 +1468,10 @@ namespace BatPassAnalysisFW
 
             Peak peak = ExtractPeak(data, maxVal, smoothedBy, threshold, dataStartInPass, out int peakStartInData, out int peakEndInData);
 
-            peaks.Add(peak);
+            if (peak.peakWidthMs > 1.0d)
+            {
+                peaks.Add(peak);
+            }
 
             GP4depth++;
             Debug.Write("L");

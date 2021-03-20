@@ -2087,9 +2087,202 @@ namespace BatRecordingManager
     //########################################################################################################################
     //########################################################################################################################
 
-    #region DoubleStringConverter (ValueConverter)
+
+
+
+
+    /// <summary>
+    ///     static functions to operate on visual UI elements
+    /// </summary>
+    public static class UiHelper
+    {
+        /// <summary>
+        ///     Finds a parent of a given item on the visual tree.
+        /// </summary>
+        /// <typeparam name="T">The type of the queried item.</typeparam>
+        /// <param name="child">A direct or indirect child of the queried item.</param>
+        /// <returns>
+        ///     The first parent item that matches the submitted type parameter.
+        ///     If not matching item can be found, a null reference is being returned.
+        /// </returns>
+        public static T FindVisualParent<T>(DependencyObject child)
+            where T : DependencyObject
+        {
+            // get parent item
+            var parentObject = VisualTreeHelper.GetParent(child);
+
+            // we’ve reached the end of the tree
+            if (parentObject == null) return null;
+
+            // check if the parent matches the type we’re looking for
+            if (parentObject is T parent)
+                return parent;
+            return FindVisualParent<T>(parentObject);
+        }
+    }
+
+    public static class UiServices
+    {
+        /// <summary>
+        /// Sets the busystate as busy.
+        /// </summary>
+        public static void SetBusyState()
+        {
+            SetBusyState(true);
+        }
+
+        /// <summary>
+        ///   A value indicating whether the UI is currently busy
+        /// </summary>
+        private static bool IsBusy;
+
+        /// <summary>
+        /// Handles the Tick event of the dispatcherTimer control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+        private static void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            var dispatcherTimer = sender as DispatcherTimer;
+            if (dispatcherTimer != null)
+            {
+                SetBusyState(false);
+                dispatcherTimer.Stop();
+            }
+        }
+
+        /// <summary>
+        /// Sets the busystate to busy or not busy.
+        /// </summary>
+        /// <param name="busy">if set to <c>true</c> the application is now busy.</param>
+        private static void SetBusyState(bool busy, [CallerMemberName] string caller = null, [CallerLineNumber] int linenumber = 0)
+        {
+            if (busy != IsBusy)
+            {
+                IsBusy = busy;
+                if (Mouse.OverrideCursor == null)
+                {
+                    var mw = (App.Current.MainWindow as MainWindow);
+                    if (mw != null)
+                    {
+                        mw.Dispatcher.Invoke(delegate
+                        {
+                            Mouse.OverrideCursor = busy ? Cursors.Wait : null;
+                            Debug.WriteLine(
+                                $"%%%%%%%%%%%%%%%%%%%%%%%%%    busy={busy} - from {caller} at {linenumber} - {DateTime.Now.ToLongTimeString()}");
+                        });
+                    }
+                }
+
+                if (IsBusy)
+                {
+                    new DispatcherTimer(TimeSpan.FromSeconds(0), DispatcherPriority.ApplicationIdle, dispatcherTimer_Tick, Application.Current.Dispatcher);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Uses a converterparameter to increase or decrease the numerical (double) value in the object
+    /// </summary>
+    public class AddValueConverter : IValueConverter
+
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+
+        {
+            try
+            {
+                double? dValue = value as double?;
+                // Here's where you put the code to handle the value conversion.
+                double.TryParse(parameter as string, out var factor);
+                if (double.IsNaN(dValue ?? double.NaN) || (dValue ?? 0.0d) < 0.0d)
+                {
+                    dValue = 0.0d;
+                }
+                var result = (double)(dValue ?? 0.0d) + factor;
+                if (result < 0.0d) result = 0.0d;
+                return (result);
+            }
+            catch
+            {
+                return value;
+            }
+        }
+
+        /// <summary>
+        /// convertback not implemented
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    public class BSPassesConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.
+                if (value is BatStats)
+                {
+                    BatStats bs = value as BatStats;
+                    string result = bs.passes + "/" + bs.segments;
+                    return (result);
+                }
+
+                return (" - ");
+            }
+            catch
+            {
+                return "ERR";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    public class DebugBreak : IValueConverter
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+    {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.
+                //Debug.WriteLine("&&& DebugBreakConverter:- " + value == null ? "null" : (value.ToString()));
+                return value;
+            }
+            catch
+            {
+                return value;
+            }
+        }
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+        {
+            // Not implemented
+            return null;
+        }
+    }
 
     /// <summary>
     /// format converter for decimal values to and from a formatted string, format
@@ -2149,6 +2342,41 @@ namespace BatRecordingManager
         }
     }
 
+    public class DivideConverter : IValueConverter
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+    {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+        {
+            try
+            {
+                if (value != null && parameter != null)
+                {
+                    var val = (double)value;
+                    var parm = (double)parameter;
+                    return val / parm;
+                }
+
+                return (double)value / 2;
+            }
+            catch
+            {
+                return value;
+            }
+        }
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
     public class DoubleStringConverter : IValueConverter
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
@@ -2192,150 +2420,96 @@ namespace BatRecordingManager
         }
     }
 
-    #endregion DoubleStringConverter (ValueConverter)
+
 
     #region TimeSpanDateConverter (ValueConverter)
 
     /// <summary>
-    ///     Converts a nullable Timespan into a DateTime of the same number of ticks, or a
-    ///     DateTime.Now if it is null
+    /// Converter to return a red brush if the directory in value does not exist and a black brush if it does or in the event of any error
     /// </summary>
-    public class TimeSpanDateConverter : IValueConverter
+    public class FilePathBrushConverter : IValueConverter
     {
-        /// <summary>
-        ///     Converts the specified value.
-        /// </summary>
-        /// <param name="value">
-        ///     The value.
-        /// </param>
-        /// <param name="targetType">
-        ///     Type of the target.
-        /// </param>
-        /// <param name="parameter">
-        ///     The parameter.
-        /// </param>
-        /// <param name="culture">
-        ///     The culture.
-        /// </param>
-        /// <returns>
-        /// </returns>
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             try
             {
-                if (value == null) return DateTime.Now;
-                var time = value as TimeSpan? ?? new TimeSpan();
-                var result = new DateTime(time.Ticks);
-                return result;
+                // Here's where you put the code do handle the value conversion.
+                if (value is string)
+                {
+                    string folder = value as string;
+                    if (!string.IsNullOrWhiteSpace(folder))
+                    {
+                        if (Directory.Exists(folder))
+                        {
+                            return (new SolidColorBrush(Colors.Black));
+                        }
+                    }
+                }
             }
             catch
             {
-                return value;
+                return new SolidColorBrush(Colors.Red);
             }
+
+            return (new SolidColorBrush(Colors.Red));
         }
 
-        /// <summary>
-        ///     Converts the back.
-        /// </summary>
-        /// <param name="value">
-        ///     The value.
-        /// </param>
-        /// <param name="targetType">
-        ///     Type of the target.
-        /// </param>
-        /// <param name="parameter">
-        ///     The parameter.
-        /// </param>
-        /// <param name="culture">
-        ///     The culture.
-        /// </param>
-        /// <returns>
-        /// </returns>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            var result = new TimeSpan((value as DateTime? ?? DateTime.Now).Ticks);
-            return result;
+            // Not implemented
+            return null;
         }
     }
 
-    #endregion TimeSpanDateConverter (ValueConverter)
+    public class GPSConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.
+                if (value is RecordingSession)
+                {
+                    RecordingSession session = value as RecordingSession;
+                    return (session.LocationGPSLatitude.ToString() + ", " + session.LocationGPSLongitude.ToString());
+                }
 
-    #region SegmentToTextConverter (ValueConverter)
+                return ("");
+            }
+            catch
+            {
+                return "ERR";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
 
     /// <summary>
-    ///     Converts a LabelledSegment into a Text form as 'start - end comment'
-    ///     and appends an asterisk if the segnent has associated images
+    ///     Used to set the height of a scale grid inside a canvas of variable size.
+    ///     The converter is passed to bound values the height of the parent canvas and a
+    ///     scale factor.  it returns a value of the height multiplied by the scale factor.
     /// </summary>
-    public class SegmentToTextConverter : IValueConverter
+    public class GridScaleConverter : IMultiValueConverter
     {
-        /// <summary>
-        ///     Converts the specified value.
-        /// </summary>
-        /// <param name="value">
-        ///     The value.
-        /// </param>
-        /// <param name="targetType">
-        ///     Type of the target.
-        /// </param>
-        /// <param name="parameter">
-        ///     The parameter.
-        /// </param>
-        /// <param name="culture">
-        ///     The culture.
-        /// </param>
-        /// <returns>
-        /// </returns>
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            try
-            {
-                if (value == null) return "";
-                var segment = value as LabelledSegment;
-                var result = Tools.FormattedTimeSpan(segment.StartOffset) + " - " +
-                             Tools.FormattedTimeSpan(segment.EndOffset) +
-                             "  " + segment.Comment;
-                while (result.Trim().EndsWith("*")) result = result.Substring(0, result.Length - 1);
-                var pattern = @"\(\s*[0-9]*\s*images?\s*\)";
-                result = Regex.Replace(result, pattern, "");
-                result = result.Trim();
-                if (segment.SegmentDatas.Count > 0) result = result + " (" + segment.SegmentDatas.Count + " images )";
-                return result;
-            }
-            catch
-            {
-                return "";
-            }
+            if (values.Length < 2) return 0.0d as double?;
+            if (values.Length == 1) return values[0] as double?;
+            var height = values[0] as double?;
+            var scale = values[1] as double?;
+            return height * scale;
         }
 
-        /// <summary>
-        ///     Converts the back.
-        /// </summary>
-        /// <param name="value">
-        ///     The value.
-        /// </param>
-        /// <param name="targetType">
-        ///     Type of the target.
-        /// </param>
-        /// <param name="parameter">
-        ///     The parameter.
-        /// </param>
-        /// <param name="culture">
-        ///     The culture.
-        /// </param>
-        /// <returns>
-        /// </returns>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
-            var text = value as string;
-            var modifiedSegment = new LabelledSegment { Comment = text };
-
-            return modifiedSegment;
+            throw new NotImplementedException();
         }
     }
-
-    #endregion SegmentToTextConverter (ValueConverter)
-
-    #region ImageConverter (ValueConverter)
 
     /// <summary>
     ///     ImageConverter converts either a Bitmap or a BitmapImage to a BitmapSource suitable for
@@ -2431,9 +2605,242 @@ namespace BatRecordingManager
         }
     }
 
-    #endregion ImageConverter (ValueConverter)
+    public class MapRefConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.
+                if (value is RecordingSession)
+                {
+                    RecordingSession session = value as RecordingSession;
 
-    #region ShortDateConverter (ValueConverter)
+                    if (session.hasGPSLocation)
+                    {
+                        var lat = (double)session.LocationGPSLatitude;
+                        var longit = (double)session.LocationGPSLongitude;
+                        var gridRef = GPSLocation.ConvertGPStoGridRef(lat, longit);
+                        return (gridRef);
+                    }
+                    else
+                    {
+                        return (" - ");
+                    }
+                }
+
+                return (" - ");
+            }
+            catch
+            {
+                return "ERR";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    /// <summary>
+    ///     Converter class for scaling height or width of an image
+    /// </summary>
+    public class MultiscaleConverter : IMultiValueConverter
+
+    {
+        /// <summary>
+        ///     Forward scale converter
+        /// </summary>
+        /// <param name="values"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.
+                if (values != null && values.Length >= 2)
+                {
+                    var height = 1000.0d;
+                    var factor = 1.0d;
+
+                    if (values[0] is string)
+                    {
+                        var strHeight = values[0] == null ? string.Empty : values[0].ToString();
+                        double.TryParse(strHeight, out height);
+                    }
+
+                    if (values[0] is double) height = ((double?)values[0]).Value;
+
+                    if (values[1] is string)
+                    {
+                        var strFactor = values[1] == null ? string.Empty : values[1].ToString();
+                        double.TryParse(strFactor, out factor);
+                    }
+                    else if (values[1] is double) factor = ((double?)values[1]).Value;
+                    else if (values[1] is int) factor = ((double?)values[1]).Value;
+
+                    return height * factor;
+                }
+
+                return 1000.0d;
+            }
+            catch
+            {
+                return 1000.0d;
+            }
+        }
+
+        /// <summary>
+        ///     Reverse converter not used
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetTypes"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    /// <summary>
+    ///     Converts a LabelledSegment into a Text form as 'start - end comment'
+    ///     and appends an asterisk if the segnent has associated images
+    /// </summary>
+    public class SegmentToTextConverter : IValueConverter
+    {
+        /// <summary>
+        ///     Converts the specified value.
+        /// </summary>
+        /// <param name="value">
+        ///     The value.
+        /// </param>
+        /// <param name="targetType">
+        ///     Type of the target.
+        /// </param>
+        /// <param name="parameter">
+        ///     The parameter.
+        /// </param>
+        /// <param name="culture">
+        ///     The culture.
+        /// </param>
+        /// <returns>
+        /// </returns>
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            try
+            {
+                if (value == null) return "";
+                var segment = value as LabelledSegment;
+                var result = Tools.FormattedTimeSpan(segment.StartOffset) + " - " +
+                             Tools.FormattedTimeSpan(segment.EndOffset) +
+                             "  " + segment.Comment;
+                while (result.Trim().EndsWith("*")) result = result.Substring(0, result.Length - 1);
+                var pattern = @"\(\s*[0-9]*\s*images?\s*\)";
+                result = Regex.Replace(result, pattern, "");
+                result = result.Trim();
+                if (segment.SegmentDatas.Count > 0) result = result + " (" + segment.SegmentDatas.Count + " images )";
+                return result;
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        /// <summary>
+        ///     Converts the back.
+        /// </summary>
+        /// <param name="value">
+        ///     The value.
+        /// </param>
+        /// <param name="targetType">
+        ///     Type of the target.
+        /// </param>
+        /// <param name="parameter">
+        ///     The parameter.
+        /// </param>
+        /// <param name="culture">
+        ///     The culture.
+        /// </param>
+        /// <returns>
+        /// </returns>
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var text = value as string;
+            var modifiedSegment = new LabelledSegment { Comment = text };
+
+            return modifiedSegment;
+        }
+    }
+
+    public class SessionEndDateTimeConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.
+                if (value is RecordingSession)
+                {
+                    RecordingSession session = value as RecordingSession;
+                    string result = ((session.EndDate ?? session.SessionDate).Date +
+                                     (session.SessionEndTime ?? new TimeSpan(23, 59, 0))).ToString();
+                    return (result);
+                }
+
+                return (" - ");
+            }
+            catch
+            {
+                return "ERR";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    public class SessionStartDateTimeConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.
+                if (value is RecordingSession)
+                {
+                    RecordingSession session = value as RecordingSession;
+                    string result = (session.SessionDate.Date +
+                                     (session.SessionStartTime ?? new TimeSpan(18, 0, 0))).ToString();
+                    return (result);
+                }
+
+                return (" - ");
+            }
+            catch
+            {
+                return "ERR";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
 
     /// <summary>
     ///     Converts a nullable DateTime to a short date string safely even for null values
@@ -2496,10 +2903,6 @@ namespace BatRecordingManager
             return result;
         }
     }
-
-    #endregion ShortDateConverter (ValueConverter)
-
-    #region ShortTimeConverter (ValueConverter)
 
     /// <summary>
     ///     Converts a nullable DateTime to a short date string safely even for null values
@@ -2567,53 +2970,6 @@ namespace BatRecordingManager
         }
     }
 
-    #region FilePathBrushConverter (ValueConverter)
-
-    /// <summary>
-    /// Converter to return a red brush if the directory in value does not exist and a black brush if it does or in the event of any error
-    /// </summary>
-    public class FilePathBrushConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            try
-            {
-                // Here's where you put the code do handle the value conversion.
-                if (value is string)
-                {
-                    string folder = value as string;
-                    if (!string.IsNullOrWhiteSpace(folder))
-                    {
-                        if (Directory.Exists(folder))
-                        {
-                            return (new SolidColorBrush(Colors.Black));
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                return new SolidColorBrush(Colors.Red);
-            }
-
-            return (new SolidColorBrush(Colors.Red));
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            // Not implemented
-            return null;
-        }
-    }
-
-    #endregion FilePathBrushConverter (ValueConverter)
-
-    #endregion ShortTimeConverter (ValueConverter)
-
-    #region TextColourConverter (ValueConverter)
-
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
     public class TextColourConverter : IValueConverter
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
@@ -2661,13 +3017,7 @@ namespace BatRecordingManager
         }
     }
 
-    #endregion TextColourConverter (ValueConverter)
-
-    #region DebugBreak (ValueConverter)
-
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
-    public class DebugBreak : IValueConverter
+    public class Times2Converter : IValueConverter
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
@@ -2678,16 +3028,14 @@ namespace BatRecordingManager
             try
             {
                 // Here's where you put the code do handle the value conversion.
-                //Debug.WriteLine("&&& DebugBreakConverter:- " + value == null ? "null" : (value.ToString()));
-                return value;
+                double.TryParse(parameter as string, out var factor);
+                return (double)value * factor;
             }
             catch
             {
                 return value;
             }
         }
-
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
@@ -2697,298 +3045,111 @@ namespace BatRecordingManager
         }
     }
 
+    /// <summary>
+    ///     Converts a nullable Timespan into a DateTime of the same number of ticks, or a
+    ///     DateTime.Now if it is null
+    /// </summary>
+    public class TimeSpanDateConverter : IValueConverter
+    {
+        /// <summary>
+        ///     Converts the specified value.
+        /// </summary>
+        /// <param name="value">
+        ///     The value.
+        /// </param>
+        /// <param name="targetType">
+        ///     Type of the target.
+        /// </param>
+        /// <param name="parameter">
+        ///     The parameter.
+        /// </param>
+        /// <param name="culture">
+        ///     The culture.
+        /// </param>
+        /// <returns>
+        /// </returns>
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            try
+            {
+                if (value == null) return DateTime.Now;
+                var time = value as TimeSpan? ?? new TimeSpan();
+                var result = new DateTime(time.Ticks);
+                return result;
+            }
+            catch
+            {
+                return value;
+            }
+        }
+
+        /// <summary>
+        ///     Converts the back.
+        /// </summary>
+        /// <param name="value">
+        ///     The value.
+        /// </param>
+        /// <param name="targetType">
+        ///     Type of the target.
+        /// </param>
+        /// <param name="parameter">
+        ///     The parameter.
+        /// </param>
+        /// <param name="culture">
+        ///     The culture.
+        /// </param>
+        /// <returns>
+        /// </returns>
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var result = new TimeSpan((value as DateTime? ?? DateTime.Now).Ticks);
+            return result;
+        }
+    }
+
+    #endregion TimeSpanDateConverter (ValueConverter)
+
+    #region SegmentToTextConverter (ValueConverter)
+    #endregion SegmentToTextConverter (ValueConverter)
+
+    #region ImageConverter (ValueConverter)
+    #endregion ImageConverter (ValueConverter)
+
+    #region ShortDateConverter (ValueConverter)
+    #endregion ShortDateConverter (ValueConverter)
+
+    #region ShortTimeConverter (ValueConverter)
+    #region FilePathBrushConverter (ValueConverter)
+    #endregion FilePathBrushConverter (ValueConverter)
+
+    #endregion ShortTimeConverter (ValueConverter)
+
+    #region TextColourConverter (ValueConverter)
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+    #endregion TextColourConverter (ValueConverter)
+
+    #region DebugBreak (ValueConverter)
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     #endregion DebugBreak (ValueConverter)
 
     #region GPSConverter (ValueConverter)
-
-    public class GPSConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            try
-            {
-                // Here's where you put the code do handle the value conversion.
-                if (value is RecordingSession)
-                {
-                    RecordingSession session = value as RecordingSession;
-                    return (session.LocationGPSLatitude.ToString() + ", " + session.LocationGPSLongitude.ToString());
-                }
-
-                return ("");
-            }
-            catch
-            {
-                return "ERR";
-            }
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            // Not implemented
-            return null;
-        }
-    }
-
     #endregion GPSConverter (ValueConverter)
 
     #region MapRefConverter (ValueConverter)
-
-    public class MapRefConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            try
-            {
-                // Here's where you put the code do handle the value conversion.
-                if (value is RecordingSession)
-                {
-                    RecordingSession session = value as RecordingSession;
-
-                    if (session.hasGPSLocation)
-                    {
-                        var lat = (double)session.LocationGPSLatitude;
-                        var longit = (double)session.LocationGPSLongitude;
-                        var gridRef = GPSLocation.ConvertGPStoGridRef(lat, longit);
-                        return (gridRef);
-                    }
-                    else
-                    {
-                        return (" - ");
-                    }
-                }
-
-                return (" - ");
-            }
-            catch
-            {
-                return "ERR";
-            }
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            // Not implemented
-            return null;
-        }
-    }
-
     #endregion MapRefConverter (ValueConverter)
 
     #region SessionStartDateTimeConverter (ValueConverter)
-
-    public class SessionStartDateTimeConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            try
-            {
-                // Here's where you put the code do handle the value conversion.
-                if (value is RecordingSession)
-                {
-                    RecordingSession session = value as RecordingSession;
-                    string result = (session.SessionDate.Date +
-                                     (session.SessionStartTime ?? new TimeSpan(18, 0, 0))).ToString();
-                    return (result);
-                }
-
-                return (" - ");
-            }
-            catch
-            {
-                return "ERR";
-            }
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            // Not implemented
-            return null;
-        }
-    }
-
     #endregion SessionStartDateTimeConverter (ValueConverter)
 
     #region SessionEndDateTimeConverter (ValueConverter)
-
-    public class SessionEndDateTimeConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            try
-            {
-                // Here's where you put the code do handle the value conversion.
-                if (value is RecordingSession)
-                {
-                    RecordingSession session = value as RecordingSession;
-                    string result = ((session.EndDate ?? session.SessionDate).Date +
-                                     (session.SessionEndTime ?? new TimeSpan(23, 59, 0))).ToString();
-                    return (result);
-                }
-
-                return (" - ");
-            }
-            catch
-            {
-                return "ERR";
-            }
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            // Not implemented
-            return null;
-        }
-    }
-
     #endregion SessionEndDateTimeConverter (ValueConverter)
 
     #region BSPassesConverter (ValueConverter)
-
-    public class BSPassesConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            try
-            {
-                // Here's where you put the code do handle the value conversion.
-                if (value is BatStats)
-                {
-                    BatStats bs = value as BatStats;
-                    string result = bs.passes + "/" + bs.segments;
-                    return (result);
-                }
-
-                return (" - ");
-            }
-            catch
-            {
-                return "ERR";
-            }
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            // Not implemented
-            return null;
-        }
-    }
-
     #endregion BSPassesConverter (ValueConverter)
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
-    /// <summary>
-    ///     static functions to operate on visual UI elements
-    /// </summary>
-    public static class UiHelper
-    {
-        /// <summary>
-        ///     Finds a parent of a given item on the visual tree.
-        /// </summary>
-        /// <typeparam name="T">The type of the queried item.</typeparam>
-        /// <param name="child">A direct or indirect child of the queried item.</param>
-        /// <returns>
-        ///     The first parent item that matches the submitted type parameter.
-        ///     If not matching item can be found, a null reference is being returned.
-        /// </returns>
-        public static T FindVisualParent<T>(DependencyObject child)
-            where T : DependencyObject
-        {
-            // get parent item
-            var parentObject = VisualTreeHelper.GetParent(child);
-
-            // we’ve reached the end of the tree
-            if (parentObject == null) return null;
-
-            // check if the parent matches the type we’re looking for
-            if (parentObject is T parent)
-                return parent;
-            return FindVisualParent<T>(parentObject);
-        }
-    }
-
-    public static class UiServices
-    {
-        /// <summary>
-        /// Sets the busystate as busy.
-        /// </summary>
-        public static void SetBusyState()
-        {
-            SetBusyState(true);
-        }
-
-        /// <summary>
-        ///   A value indicating whether the UI is currently busy
-        /// </summary>
-        private static bool IsBusy;
-
-        /// <summary>
-        /// Handles the Tick event of the dispatcherTimer control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-        private static void dispatcherTimer_Tick(object sender, EventArgs e)
-        {
-            var dispatcherTimer = sender as DispatcherTimer;
-            if (dispatcherTimer != null)
-            {
-                SetBusyState(false);
-                dispatcherTimer.Stop();
-            }
-        }
-
-        /// <summary>
-        /// Sets the busystate to busy or not busy.
-        /// </summary>
-        /// <param name="busy">if set to <c>true</c> the application is now busy.</param>
-        private static void SetBusyState(bool busy, [CallerMemberName] string caller = null, [CallerLineNumber] int linenumber = 0)
-        {
-            if (busy != IsBusy)
-            {
-                IsBusy = busy;
-                if (Mouse.OverrideCursor == null)
-                {
-                    var mw = (App.Current.MainWindow as MainWindow);
-                    if (mw != null)
-                    {
-                        mw.Dispatcher.Invoke(delegate
-                        {
-                            Mouse.OverrideCursor = busy ? Cursors.Wait : null;
-                            Debug.WriteLine(
-                                $"%%%%%%%%%%%%%%%%%%%%%%%%%    busy={busy} - from {caller} at {linenumber} - {DateTime.Now.ToLongTimeString()}");
-                        });
-                    }
-                }
-
-                if (IsBusy)
-                {
-                    new DispatcherTimer(TimeSpan.FromSeconds(0), DispatcherPriority.ApplicationIdle, dispatcherTimer_Tick, Application.Current.Dispatcher);
-                }
-            }
-        }
-    }
-
-    /// <summary>
-    ///     Used to set the height of a scale grid inside a canvas of variable size.
-    ///     The converter is passed to bound values the height of the parent canvas and a
-    ///     scale factor.  it returns a value of the height multiplied by the scale factor.
-    /// </summary>
-    public class GridScaleConverter : IMultiValueConverter
-    {
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (values.Length < 2) return 0.0d as double?;
-            if (values.Length == 1) return values[0] as double?;
-            var height = values[0] as double?;
-            var scale = values[1] as double?;
-            return height * scale;
-        }
-
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
 
     /// <summary>
     /// Universal wait cursor class
@@ -3114,116 +3275,82 @@ namespace BatRecordingManager
     #region DivideConverter (ValueConverter)
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
-    public class DivideConverter : IValueConverter
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-    {
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        {
-            try
-            {
-                if (value != null && parameter != null)
-                {
-                    var val = (double)value;
-                    var parm = (double)parameter;
-                    return val / parm;
-                }
-
-                return (double)value / 2;
-            }
-            catch
-            {
-                return value;
-            }
-        }
-
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        {
-            // Not implemented
-            return null;
-        }
-    }
-
     #endregion DivideConverter (ValueConverter)
 
     #region Times2Converter (ValueConverter)
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+    #endregion Times2Converter (ValueConverter)
 
-    public class Times2Converter : IValueConverter
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+    #region AddValueConverter (ValueConverter)
+    #endregion AddValueConverter (ValueConverter)
+
+
+
+
+
+
+
+    #region HGridLineConverter (ValueConverter)
+
+    /// <summary>
+    ///     Converts a LabelledSegment instance to an intelligible string for display
+    /// </summary>
+    public class BatCallConverter : IValueConverter
     {
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
+        /// <summary>
+        ///     Converts the specified value.
+        /// </summary>
+        /// <param name="value">
+        ///     The value.
+        /// </param>
+        /// <param name="targetType">
+        ///     Type of the target.
+        /// </param>
+        /// <param name="parameter">
+        ///     The parameter.
+        /// </param>
+        /// <param name="culture">
+        ///     The culture.
+        /// </param>
+        /// <returns>
+        /// </returns>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             try
             {
                 // Here's where you put the code do handle the value conversion.
-                double.TryParse(parameter as string, out var factor);
-                return (double)value * factor;
-            }
-            catch
-            {
-                return value;
-            }
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        {
-            // Not implemented
-            return null;
-        }
-    }
-
-    #endregion Times2Converter (ValueConverter)
-
-    #region AddValueConverter (ValueConverter)
-
-    /// <summary>
-    /// Uses a converterparameter to increase or decrease the numerical (double) value in the object
-    /// </summary>
-    public class AddValueConverter : IValueConverter
-
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-
-        {
-            try
-            {
-                double? dValue = value as double?;
-                // Here's where you put the code to handle the value conversion.
-                double.TryParse(parameter as string, out var factor);
-                if (double.IsNaN(dValue ?? double.NaN) || (dValue ?? 0.0d) < 0.0d)
+                var result = new Call();
+                if (value is LabelledSegment segment)
                 {
-                    dValue = 0.0d;
+                    result = DBAccess.GetSegmentCall(segment) ?? new Call();
                 }
-                var result = (double)(dValue ?? 0.0d) + factor;
-                if (result < 0.0d) result = 0.0d;
-                return (result);
+
+                return result;
             }
             catch
             {
-                return value;
+                return "";
             }
         }
 
         /// <summary>
-        /// convertback not implemented
+        ///     ConvertBack not implemented
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="targetType"></param>
-        /// <param name="parameter"></param>
-        /// <param name="culture"></param>
-        /// <returns></returns>
+        /// <param name="value">
+        ///     The value.
+        /// </param>
+        /// <param name="targetType">
+        ///     Type of the target.
+        /// </param>
+        /// <param name="parameter">
+        ///     The parameter.
+        /// </param>
+        /// <param name="culture">
+        ///     The culture.
+        /// </param>
+        /// <returns>
+        /// </returns>
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             // Not implemented
@@ -3231,14 +3358,12 @@ namespace BatRecordingManager
         }
     }
 
-    #endregion AddValueConverter (ValueConverter)
-
-    #region multiscaleConverter (ValueConverter)
-
     /// <summary>
     ///     Converter class for scaling height or width of an image
+    ///     It is passed the location of the line in the stored image and a copy of
+    ///     the displayImageCanvas it is to be written and the storedImage it relates to
     /// </summary>
-    public class MultiscaleConverter : IMultiValueConverter
+    public class BottomMarginConverter : IMultiValueConverter
 
     {
         /// <summary>
@@ -3254,36 +3379,27 @@ namespace BatRecordingManager
         {
             try
             {
-                // Here's where you put the code do handle the value conversion.
-                if (values != null && values.Length >= 2)
+                var width = values[0] as double?;
+                var height = values[1] as double?;
+
+                if (width != null && height != null && values[2] is StoredImage si)
                 {
-                    var height = 100.0d;
-                    var factor = 0.5d;
+                    //Debug.WriteLine("============================================================================================");
+                    var hscale = width.Value / si.image.Width;
+                    var vscale = height.Value / si.image.Height;
+                    var actualScale = Math.Min(hscale, vscale);
 
-                    if (values[0] is string)
-                    {
-                        var strHeight = values[0] == null ? string.Empty : values[0].ToString();
-                        double.TryParse(strHeight, out height);
-                    }
+                    var rightAndLeftMargins = Math.Abs(width.Value - si.image.Width * actualScale);
+                    var topAndBottomMargins = Math.Abs(height.Value - si.image.Height * actualScale);
 
-                    if (values[0] is double) height = ((double?)values[0]).Value;
-
-                    if (values[1] is string)
-                    {
-                        var strFactor = values[1] == null ? string.Empty : values[1].ToString();
-                        double.TryParse(strFactor, out factor);
-                    }
-
-                    if (values[1] is double) factor = ((double?)values[1]).Value;
-
-                    return height * factor;
+                    return topAndBottomMargins / 2 + si.image.Height * actualScale;
                 }
 
-                return 100.0d;
+                return 0.0d;
             }
             catch
             {
-                return 100.0d;
+                return 0.0d;
             }
         }
 
@@ -3302,9 +3418,45 @@ namespace BatRecordingManager
         }
     }
 
-    #endregion multiscaleConverter (ValueConverter)
+    /// <summary>
+    ///     Converter to get the number of images associated with a bat and return that value
+    ///     as a string for display in a DataItem Text Column
+    /// </summary>
+    public class ConvertGetNumberOfImages : IValueConverter
+    {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
-    #region HGridLineConverter (ValueConverter)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.
+                if (value != null)
+                {
+                    var bat = value as Bat;
+                    var cnt = 0;
+                    if (bat.BatPictures != null) cnt = bat.BatPictures.Count;
+                    return cnt.ToString();
+                }
+
+                return "-";
+            }
+            catch
+            {
+                return "-";
+            }
+        }
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+        {
+            // Not implemented
+            return null;
+        }
+    }
 
     /// <summary>
     ///     Converter class for scaling height or width of an image
@@ -3369,422 +3521,6 @@ namespace BatRecordingManager
     #endregion HGridLineConverter (ValueConverter)
 
     #region VGridLineConverter (ValueConverter)
-
-    /// <summary>
-    ///     Converter class for scaling height or width of an image
-    ///     It is passed the location of the line in the stored image and a copy of
-    ///     the displayImageCanvas it is to be written and the storedImage it relates to
-    /// </summary>
-    public class VGridLineConverter : IMultiValueConverter
-
-    {
-        /// <summary>
-        ///     Forward scale converter
-        /// </summary>
-        /// <param name="values"></param>
-        /// <param name="targetType"></param>
-        /// <param name="parameter"></param>
-        /// <param name="culture"></param>
-        /// <returns></returns>
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-
-        {
-            try
-            {
-                int.TryParse(values[0] as string, out var indexToGridline);
-                var width = values[1] as double?;
-                var height = values[2] as double?;
-
-                var si = values[3] as StoredImage;
-
-                if (width == null || height == null || indexToGridline < 0 ||
-                    indexToGridline >= si.VerticalGridLines.Count || si == null) return null;
-
-                var displayPosition =
-                    DisplayStoredImageControl.FindVScaleProportion(si.VerticalGridLines[indexToGridline], width.Value,
-                        height.Value, si) * width;
-
-                return displayPosition;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        ///     Reverse converter not used
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="targetTypes"></param>
-        /// <param name="parameter"></param>
-        /// <param name="culture"></param>
-        /// <returns></returns>
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            // Not implemented
-            return null;
-        }
-    }
-
-    #endregion VGridLineConverter (ValueConverter)
-
-    #region LeftMarginConverter (ValueConverter)
-
-    /// <summary>
-    ///     Converter class for scaling height or width of an image
-    ///     It is passed the location of the line in the stored image and a copy of
-    ///     the displayImageCanvas it is to be written and the storedImage it relates to
-    /// </summary>
-    public class LeftMarginConverter : IMultiValueConverter
-
-    {
-        /// <summary>
-        ///     Forward scale converter
-        /// </summary>
-        /// <param name="values"></param>
-        /// <param name="targetType"></param>
-        /// <param name="parameter"></param>
-        /// <param name="culture"></param>
-        /// <returns></returns>
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-
-        {
-            try
-            {
-                var width = values[0] as double?;
-                var height = values[1] as double?;
-
-                if (width != null && height != null && values[2] is StoredImage si)
-                {
-                    //Debug.WriteLine("============================================================================================");
-                    var hscale = width.Value / si.image.Width;
-                    var vscale = height.Value / si.image.Height;
-                    var actualScale = Math.Min(hscale, vscale);
-
-                    var rightAndLeftMargins = Math.Abs(width.Value - si.image.Width * actualScale);
-                    var topAndBottomMargins = Math.Abs(height.Value - si.image.Height * actualScale);
-
-                    return rightAndLeftMargins / 2;
-                }
-
-                return 0.0d;
-            }
-            catch
-            {
-                return 0.0d;
-            }
-        }
-
-        /// <summary>
-        ///     Reverse converter not used
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="targetTypes"></param>
-        /// <param name="parameter"></param>
-        /// <param name="culture"></param>
-        /// <returns></returns>
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            // Not implemented
-            return null;
-        }
-    }
-
-    #endregion LeftMarginConverter (ValueConverter)
-
-    #region RightMarginConverter (ValueConverter)
-
-    /// <summary>
-    ///     Converter class for scaling height or width of an image
-    ///     It is passed the location of the line in the stored image and a copy of
-    ///     the displayImageCanvas it is to be written and the storedImage it relates to
-    /// </summary>
-    public class RightMarginConverter : IMultiValueConverter
-
-    {
-        /// <summary>
-        ///     Forward scale converter
-        /// </summary>
-        /// <param name="values"></param>
-        /// <param name="targetType"></param>
-        /// <param name="parameter"></param>
-        /// <param name="culture"></param>
-        /// <returns></returns>
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-
-        {
-            try
-            {
-                var width = values[0] as double?;
-                var height = values[1] as double?;
-
-                if (width != null && height != null && values[2] is StoredImage si)
-                {
-                    //Debug.WriteLine("============================================================================================");
-                    var hscale = width.Value / si.image.Width;
-                    var vscale = height.Value / si.image.Height;
-                    var actualScale = Math.Min(hscale, vscale);
-
-                    var rightAndLeftMargins = Math.Abs(width.Value - si.image.Width * actualScale);
-                    var topAndBottomMargins = Math.Abs(height.Value - si.image.Height * actualScale);
-
-                    return rightAndLeftMargins / 2 + si.image.Width * actualScale;
-                }
-
-                return 0.0d;
-            }
-            catch
-            {
-                return 0.0d;
-            }
-        }
-
-        /// <summary>
-        ///     Reverse converter not used
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="targetTypes"></param>
-        /// <param name="parameter"></param>
-        /// <param name="culture"></param>
-        /// <returns></returns>
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            // Not implemented
-            return null;
-        }
-    }
-
-    #endregion RightMarginConverter (ValueConverter)
-
-    #region TopMarginConverter
-
-    /// <summary>
-    ///     Converter class for scaling height or width of an image
-    ///     It is passed the location of the line in the stored image and a copy of
-    ///     the displayImageCanvas it is to be written and the storedImage it relates to
-    /// </summary>
-    public class TopMarginConverter : IMultiValueConverter
-
-    {
-        /// <summary>
-        ///     Forward scale converter
-        /// </summary>
-        /// <param name="values"></param>
-        /// <param name="targetType"></param>
-        /// <param name="parameter"></param>
-        /// <param name="culture"></param>
-        /// <returns></returns>
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-
-        {
-            try
-            {
-                var width = values[0] as double?;
-                var height = values[1] as double?;
-
-                if (width != null && height != null && values[2] is StoredImage si)
-                {
-                    //Debug.WriteLine("============================================================================================");
-                    var hscale = width.Value / si.image.Width;
-                    var vscale = height.Value / si.image.Height;
-                    var actualScale = Math.Min(hscale, vscale);
-
-                    var rightAndLeftMargins = Math.Abs(width.Value - si.image.Width * actualScale);
-                    var topAndBottomMargins = Math.Abs(height.Value - si.image.Height * actualScale);
-
-                    return topAndBottomMargins / 2;
-                }
-
-                return 0.0d;
-            }
-            catch
-            {
-                return 0.0d;
-            }
-        }
-
-        /// <summary>
-        ///     Reverse converter not used
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="targetTypes"></param>
-        /// <param name="parameter"></param>
-        /// <param name="culture"></param>
-        /// <returns></returns>
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            // Not implemented
-            return null;
-        }
-    }
-
-    #endregion TopMarginConverter
-
-    #region BottomMarginConverter (ValueConverter)
-
-    /// <summary>
-    ///     Converter class for scaling height or width of an image
-    ///     It is passed the location of the line in the stored image and a copy of
-    ///     the displayImageCanvas it is to be written and the storedImage it relates to
-    /// </summary>
-    public class BottomMarginConverter : IMultiValueConverter
-
-    {
-        /// <summary>
-        ///     Forward scale converter
-        /// </summary>
-        /// <param name="values"></param>
-        /// <param name="targetType"></param>
-        /// <param name="parameter"></param>
-        /// <param name="culture"></param>
-        /// <returns></returns>
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-
-        {
-            try
-            {
-                var width = values[0] as double?;
-                var height = values[1] as double?;
-
-                if (width != null && height != null && values[2] is StoredImage si)
-                {
-                    //Debug.WriteLine("============================================================================================");
-                    var hscale = width.Value / si.image.Width;
-                    var vscale = height.Value / si.image.Height;
-                    var actualScale = Math.Min(hscale, vscale);
-
-                    var rightAndLeftMargins = Math.Abs(width.Value - si.image.Width * actualScale);
-                    var topAndBottomMargins = Math.Abs(height.Value - si.image.Height * actualScale);
-
-                    return topAndBottomMargins / 2 + si.image.Height * actualScale;
-                }
-
-                return 0.0d;
-            }
-            catch
-            {
-                return 0.0d;
-            }
-        }
-
-        /// <summary>
-        ///     Reverse converter not used
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="targetTypes"></param>
-        /// <param name="parameter"></param>
-        /// <param name="culture"></param>
-        /// <returns></returns>
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            // Not implemented
-            return null;
-        }
-    }
-
-    #endregion BottomMarginConverter (ValueConverter)
-
-    #region NumberOfImagesConverter (ValueConverter)
-
-    /// <summary>
-    ///     Is passed an EntitySet of Recordings and calculates the total number of images
-    ///     associated with those recordings, returning the value as a string
-    /// </summary>
-    public class NumberOfImagesConverter : IValueConverter
-    {
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        {
-            try
-            {
-                // Here's where you put the code do handle the value conversion.
-                if (value == null) return "0";
-                var recordings = value as EntitySet<Recording>;
-                if (recordings.Count <= 0) return "0";
-                var imgs = 0;
-
-                imgs = (from rec in recordings
-                        from seg in rec.LabelledSegments
-                        select seg.SegmentDatas.Count).Sum();
-                /*
-                foreach(var rec in recordings)
-                {
-                    if(rec.LabelledSegments!=null && rec.LabelledSegments.Count > 0)
-                    {
-                        foreach(var seg in rec.LabelledSegments)
-                        {
-                            imgs+=seg.SegmentDatas.Count;
-                        }
-                    }
-                }*/
-                return imgs.ToString();
-            }
-            catch
-            {
-                return "0";
-            }
-        }
-
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        {
-            // Not implemented
-            return null;
-        }
-    }
-
-    #endregion NumberOfImagesConverter (ValueConverter)
-
-    #region ConvertGetNumberOfImages (ValueConverter)
-
-    /// <summary>
-    ///     Converter to get the number of images associated with a bat and return that value
-    ///     as a string for display in a DataItem Text Column
-    /// </summary>
-    public class ConvertGetNumberOfImages : IValueConverter
-    {
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        {
-            try
-            {
-                // Here's where you put the code do handle the value conversion.
-                if (value != null)
-                {
-                    var bat = value as Bat;
-                    var cnt = 0;
-                    if (bat.BatPictures != null) cnt = bat.BatPictures.Count;
-                    return cnt.ToString();
-                }
-
-                return "-";
-            }
-            catch
-            {
-                return "-";
-            }
-        }
-
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        {
-            // Not implemented
-            return null;
-        }
-    }
-
-    #endregion ConvertGetNumberOfImages (ValueConverter)
-
-    #region ImagesForAllRecordingsConverter (ValueConverter)
 
     /// <summary>
     ///     converter getting images for all recordings
@@ -3854,10 +3590,6 @@ namespace BatRecordingManager
         }
     }
 
-    #endregion ImagesForAllRecordingsConverter (ValueConverter)
-
-    #region ImageWithGridConverter (ValueConverter)
-
     /// <summary>
     ///     Converter which takes a StoredImage and returns the image component overlaid with horizontal and vertical
     ///     grid lines as defined in the StoredImage lists.
@@ -3895,9 +3627,49 @@ namespace BatRecordingManager
         }
     }
 
-    #endregion ImageWithGridConverter (ValueConverter)
+    /// <summary>
+    /// class determines visibility by a boolean - true is hidden, false is visible
+    /// </summary>
+    public class InVisibilityConverter : IValueConverter
+    {
+        /// <summary>
+        /// converts a boolean to visibility true=hidden false=visible default visible
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                if (value is bool)
+                {
+                    bool? b = value as bool?;
+                    if (b ?? false)
+                    {
+                        return (Visibility.Hidden);
+                    }
+                    else
+                    {
+                        return (Visibility.Visible);
+                    }
+                }
+                return Visibility.Visible;
+            }
+            catch
+            {
+                return Visibility.Visible;
+            }
+        }
 
-    #region LabelledSegmentConverter (ValueConverter)
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
 
     /// <summary>
     ///     Converts a LabelledSegment instance to an intelligible string for display
@@ -3994,75 +3766,324 @@ namespace BatRecordingManager
         }
     }
 
-    #endregion LabelledSegmentConverter (ValueConverter)
-
-    #region BatCallConverter (ValueConverter)
-
     /// <summary>
-    ///     Converts a LabelledSegment instance to an intelligible string for display
+    ///     Converter class for scaling height or width of an image
+    ///     It is passed the location of the line in the stored image and a copy of
+    ///     the displayImageCanvas it is to be written and the storedImage it relates to
     /// </summary>
-    public class BatCallConverter : IValueConverter
+    public class LeftMarginConverter : IMultiValueConverter
+
     {
         /// <summary>
-        ///     Converts the specified value.
+        ///     Forward scale converter
         /// </summary>
-        /// <param name="value">
-        ///     The value.
-        /// </param>
-        /// <param name="targetType">
-        ///     Type of the target.
-        /// </param>
-        /// <param name="parameter">
-        ///     The parameter.
-        /// </param>
-        /// <param name="culture">
-        ///     The culture.
-        /// </param>
-        /// <returns>
-        /// </returns>
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        /// <param name="values"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+
         {
             try
             {
-                // Here's where you put the code do handle the value conversion.
-                var result = new Call();
-                if (value is LabelledSegment segment)
+                var width = values[0] as double?;
+                var height = values[1] as double?;
+
+                if (width != null && height != null && values[2] is StoredImage si)
                 {
-                    result = DBAccess.GetSegmentCall(segment) ?? new Call();
+                    //Debug.WriteLine("============================================================================================");
+                    var hscale = width.Value / si.image.Width;
+                    var vscale = height.Value / si.image.Height;
+                    var actualScale = Math.Min(hscale, vscale);
+
+                    var rightAndLeftMargins = Math.Abs(width.Value - si.image.Width * actualScale);
+                    var topAndBottomMargins = Math.Abs(height.Value - si.image.Height * actualScale);
+
+                    return rightAndLeftMargins / 2;
                 }
 
-                return result;
+                return 0.0d;
             }
             catch
             {
-                return "";
+                return 0.0d;
             }
         }
 
         /// <summary>
-        ///     ConvertBack not implemented
+        ///     Reverse converter not used
         /// </summary>
-        /// <param name="value">
-        ///     The value.
-        /// </param>
-        /// <param name="targetType">
-        ///     Type of the target.
-        /// </param>
-        /// <param name="parameter">
-        ///     The parameter.
-        /// </param>
-        /// <param name="culture">
-        ///     The culture.
-        /// </param>
-        /// <returns>
-        /// </returns>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        /// <param name="value"></param>
+        /// <param name="targetTypes"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             // Not implemented
             return null;
         }
     }
 
+    /// <summary>
+    ///     Is passed an EntitySet of Recordings and calculates the total number of images
+    ///     associated with those recordings, returning the value as a string
+    /// </summary>
+    public class NumberOfImagesConverter : IValueConverter
+    {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.
+                if (value == null) return "0";
+                var recordings = value as EntitySet<Recording>;
+                if (recordings.Count <= 0) return "0";
+                var imgs = 0;
+
+                imgs = (from rec in recordings
+                        from seg in rec.LabelledSegments
+                        select seg.SegmentDatas.Count).Sum();
+                /*
+                foreach(var rec in recordings)
+                {
+                    if(rec.LabelledSegments!=null && rec.LabelledSegments.Count > 0)
+                    {
+                        foreach(var seg in rec.LabelledSegments)
+                        {
+                            imgs+=seg.SegmentDatas.Count;
+                        }
+                    }
+                }*/
+                return imgs.ToString();
+            }
+            catch
+            {
+                return "0";
+            }
+        }
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    /// <summary>
+    ///     Converter class for scaling height or width of an image
+    ///     It is passed the location of the line in the stored image and a copy of
+    ///     the displayImageCanvas it is to be written and the storedImage it relates to
+    /// </summary>
+    public class RightMarginConverter : IMultiValueConverter
+
+    {
+        /// <summary>
+        ///     Forward scale converter
+        /// </summary>
+        /// <param name="values"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+
+        {
+            try
+            {
+                var width = values[0] as double?;
+                var height = values[1] as double?;
+
+                if (width != null && height != null && values[2] is StoredImage si)
+                {
+                    //Debug.WriteLine("============================================================================================");
+                    var hscale = width.Value / si.image.Width;
+                    var vscale = height.Value / si.image.Height;
+                    var actualScale = Math.Min(hscale, vscale);
+
+                    var rightAndLeftMargins = Math.Abs(width.Value - si.image.Width * actualScale);
+                    var topAndBottomMargins = Math.Abs(height.Value - si.image.Height * actualScale);
+
+                    return rightAndLeftMargins / 2 + si.image.Width * actualScale;
+                }
+
+                return 0.0d;
+            }
+            catch
+            {
+                return 0.0d;
+            }
+        }
+
+        /// <summary>
+        ///     Reverse converter not used
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetTypes"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    /// <summary>
+    ///     Converter class for scaling height or width of an image
+    ///     It is passed the location of the line in the stored image and a copy of
+    ///     the displayImageCanvas it is to be written and the storedImage it relates to
+    /// </summary>
+    public class TopMarginConverter : IMultiValueConverter
+
+    {
+        /// <summary>
+        ///     Forward scale converter
+        /// </summary>
+        /// <param name="values"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+
+        {
+            try
+            {
+                var width = values[0] as double?;
+                var height = values[1] as double?;
+
+                if (width != null && height != null && values[2] is StoredImage si)
+                {
+                    //Debug.WriteLine("============================================================================================");
+                    var hscale = width.Value / si.image.Width;
+                    var vscale = height.Value / si.image.Height;
+                    var actualScale = Math.Min(hscale, vscale);
+
+                    var rightAndLeftMargins = Math.Abs(width.Value - si.image.Width * actualScale);
+                    var topAndBottomMargins = Math.Abs(height.Value - si.image.Height * actualScale);
+
+                    return topAndBottomMargins / 2;
+                }
+
+                return 0.0d;
+            }
+            catch
+            {
+                return 0.0d;
+            }
+        }
+
+        /// <summary>
+        ///     Reverse converter not used
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetTypes"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    /// <summary>
+    ///     Converter class for scaling height or width of an image
+    ///     It is passed the location of the line in the stored image and a copy of
+    ///     the displayImageCanvas it is to be written and the storedImage it relates to
+    /// </summary>
+    public class VGridLineConverter : IMultiValueConverter
+
+    {
+        /// <summary>
+        ///     Forward scale converter
+        /// </summary>
+        /// <param name="values"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+
+        {
+            try
+            {
+                int.TryParse(values[0] as string, out var indexToGridline);
+                var width = values[1] as double?;
+                var height = values[2] as double?;
+
+                var si = values[3] as StoredImage;
+
+                if (width == null || height == null || indexToGridline < 0 ||
+                    indexToGridline >= si.VerticalGridLines.Count || si == null) return null;
+
+                var displayPosition =
+                    DisplayStoredImageControl.FindVScaleProportion(si.VerticalGridLines[indexToGridline], width.Value,
+                        height.Value, si) * width;
+
+                return displayPosition;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        ///     Reverse converter not used
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="targetTypes"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    #endregion VGridLineConverter (ValueConverter)
+
+    #region LeftMarginConverter (ValueConverter)
+    #endregion LeftMarginConverter (ValueConverter)
+
+    #region RightMarginConverter (ValueConverter)
+    #endregion RightMarginConverter (ValueConverter)
+
+    #region TopMarginConverter
+    #endregion TopMarginConverter
+
+    #region BottomMarginConverter (ValueConverter)
+    #endregion BottomMarginConverter (ValueConverter)
+
+    #region NumberOfImagesConverter (ValueConverter)
+    #endregion NumberOfImagesConverter (ValueConverter)
+
+    #region ConvertGetNumberOfImages (ValueConverter)
+    #endregion ConvertGetNumberOfImages (ValueConverter)
+
+    #region ImagesForAllRecordingsConverter (ValueConverter)
+    #endregion ImagesForAllRecordingsConverter (ValueConverter)
+
+    #region ImageWithGridConverter (ValueConverter)
+    #endregion ImageWithGridConverter (ValueConverter)
+
+    #region LabelledSegmentConverter (ValueConverter)
+    #endregion LabelledSegmentConverter (ValueConverter)
+
+    #region BatCallConverter (ValueConverter)
     #endregion BatCallConverter (ValueConverter)
 
     #region VisibilityConverter (ValueConverter)
@@ -4114,51 +4135,6 @@ namespace BatRecordingManager
     #endregion VisibilityConverter (ValueConverter)
 
     #region InVisibilityConverter (ValueConverter)
-
-    /// <summary>
-    /// class determines visibility by a boolean - true is hidden, false is visible
-    /// </summary>
-    public class InVisibilityConverter : IValueConverter
-    {
-        /// <summary>
-        /// converts a boolean to visibility true=hidden false=visible default visible
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="targetType"></param>
-        /// <param name="parameter"></param>
-        /// <param name="culture"></param>
-        /// <returns></returns>
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            try
-            {
-                if (value is bool)
-                {
-                    bool? b = value as bool?;
-                    if (b ?? false)
-                    {
-                        return (Visibility.Hidden);
-                    }
-                    else
-                    {
-                        return (Visibility.Visible);
-                    }
-                }
-                return Visibility.Visible;
-            }
-            catch
-            {
-                return Visibility.Visible;
-            }
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            // Not implemented
-            return null;
-        }
-    }
-
     #endregion InVisibilityConverter (ValueConverter)
 
     /// <summary>

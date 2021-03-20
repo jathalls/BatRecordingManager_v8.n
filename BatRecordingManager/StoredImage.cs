@@ -35,6 +35,7 @@ using System.Windows.Threading;
 using Color = System.Drawing.Color;
 using Encoder = System.Drawing.Imaging.Encoder;
 using Pen = System.Drawing.Pen;
+using Point = System.Windows.Point;
 
 namespace BatRecordingManager
 {
@@ -133,11 +134,28 @@ namespace BatRecordingManager
 
         private static readonly Action EmptyDelegate = delegate { };
 
-
         private static ImageCodecInfo GetEncoder(ImageFormat format)
         {
             var codecs = ImageCodecInfo.GetImageDecoders();
             return codecs.Single(codec => codec.FormatID == format.Guid);
+        }
+    }
+
+    public class PointEeventArgs : EventArgs
+    {
+        public Point endPoint;
+        public Point point;
+
+        public PointEeventArgs(Point point)
+        {
+            this.point = point;
+            this.endPoint = point;
+        }
+
+        public PointEeventArgs(Point point1, Point point2)
+        {
+            this.point = point1;
+            this.endPoint = point2;
         }
     }
 
@@ -165,6 +183,8 @@ namespace BatRecordingManager
 
             ImageID = imageID;
         }
+
+        public event EventHandler pointClickedEvent;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -242,6 +262,8 @@ namespace BatRecordingManager
                 return false;
             }
         }
+
+        public bool IsSelectable { get; set; } = false;
 
         /// <summary>
         ///     Not sure if this name field is used
@@ -687,6 +709,20 @@ namespace BatRecordingManager
         }
 
         /// <summary>
+        /// Called when a spectrogram image is clicked on with the Select button enabled
+        /// </summary>
+        /// <param name="point"></param>
+        internal void ClickedAt(System.Windows.Point point)
+        {
+            OnPointClicked(new PointEeventArgs(point));
+        }
+
+        internal void ClickedAt(System.Windows.Point startPoint, Point endPoint)
+        {
+            OnPointClicked(new PointEeventArgs(startPoint, endPoint));
+        }
+
+        /// <summary>
         ///     If the storedImage has a .wav file and/or segments associated with it, then the file is opened
         ///     with Audacity (if it is the default program for .wav files) and zooms to the segment if there is a
         ///     single segment associated with the image.
@@ -824,6 +860,8 @@ namespace BatRecordingManager
         {
             DBAccess.UpdateImage(this);
         }
+
+        protected virtual void OnPointClicked(PointEeventArgs e) => pointClickedEvent?.Invoke(this, e);
 
         private string _caption;
 

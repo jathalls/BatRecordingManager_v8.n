@@ -34,19 +34,19 @@
             Orientation="Horizontal">
             <Button
                 x:Name="RotateImageButton"
-                
+
                 Style="{StaticResource SimpleButton}"
-                Content="ROT*" Click="RotateImageButton_Click" >
+                Content="ROT*" Click="RotateImageButton_Click">
                 <Button.ToolTip>
                     <TextBlock>
-                        "Click to rotate the image clockwise 90 degrees"<LineBreak/>
+                        "Click to rotate the image clockwise 90 degrees"<LineBreak />
                         "Right-Click for context menu to rotate clockwise or anti-clockwise"
                     </TextBlock>
                 </Button.ToolTip>
                 <Button.ContextMenu>
                     <ContextMenu>
-                        <MenuItem x:Name="miRotateRight" Header="Rotate 90deg CW" Click="MiRotateRight_Click"/>
-                        <MenuItem x:Name="miRotateLeft" Header="Rotate 90deg CCW" Click="MiRotateLeft_Click"/>
+                        <MenuItem x:Name="miRotateRight" Header="Rotate 90deg CW" Click="MiRotateRight_Click" />
+                        <MenuItem x:Name="miRotateLeft" Header="Rotate 90deg CCW" Click="MiRotateLeft_Click" />
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>
@@ -54,18 +54,18 @@
                 x:Name="DeleteImageButton"
                 ToolTipService.ShowDuration="10000"
                 Style="{StaticResource SimpleButton}"
-                Content="DEL*" Click="DeleteImageButton_Click" >
+                Content="DEL*" Click="DeleteImageButton_Click">
                 <Button.ToolTip>
                     <TextBlock>
-                        "Click to delete this image from the comparison window, but not from the database"<LineBreak/>
+                        "Click to delete this image from the comparison window, but not from the database"<LineBreak />
                         "Right-Click for conext menu, to delete from database or to delete fiducial lines"
                     </TextBlock>
                 </Button.ToolTip>
                 <Button.ContextMenu>
                     <ContextMenu>
-                        <MenuItem x:Name="miDeleteImageFromList" Header="Delete image from window" Click="MiDeleteImageFromList_Click"/>
-                        <MenuItem x:Name="miDeleteImageFromDB" Header="Delete image from database" Click="MiDeleteImageFromDB_Click"/>
-                        <MenuItem x:Name="miDeleteFiducialLine" Header="Delete selected Fiducial Line" Click="MiDeleteFiducialLine_Click"/>
+                        <MenuItem x:Name="miDeleteImageFromList" Header="Delete image from window" Click="MiDeleteImageFromList_Click" />
+                        <MenuItem x:Name="miDeleteImageFromDB" Header="Delete image from database" Click="MiDeleteImageFromDB_Click" />
+                        <MenuItem x:Name="miDeleteFiducialLine" Header="Delete selected Fiducial Line" Click="MiDeleteFiducialLine_Click" />
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>
@@ -116,24 +116,24 @@
                 Content="FIDS*"
                 Checked="FiducialsButton_Checked"
                 Unchecked="FiducialsButton_Unchecked"
-                
+
                 PreviewMouseLeftButtonUp="FiducialsButton_PreviewMouseLeftButtonUp">
                 <ToggleButton.ToolTip>
                     <TextBlock>
                         "Toggles the display of Fiducial Lines"<LineBreak />
                         "Use TAB key to select and Arrow keys to adjust, DEL key to delete selected line"<LineBreak />
-                        "CTRL-click with GRID ON to replace all fiducial lines with ones matched to the current grid"<LineBreak/>
+                        "CTRL-click with GRID ON to replace all fiducial lines with ones matched to the current grid"<LineBreak />
                         "Right-Click for context menu with additional options"
                     </TextBlock>
                 </ToggleButton.ToolTip>
                 <ToggleButton.ContextMenu>
                     <ContextMenu>
-                        <MenuItem x:Name="miFidsOn" Header="Display Fiducials" ToolTip="Display Fiducial lines for this image" Click="MiFidsOn_Click"/>
-                        <MenuItem x:Name="miFidsOff" Header="Hide Fiducials" ToolTip="Hide Fiducial lines for this image" Click="MiFidsOff_Click"/>
-                        <MenuItem x:Name="miFidsOnGlobal" Header="Display Fiducials All" ToolTip="Display Fiducial Lines on all images" Click="MiFidsOnGlobal_Click"/>
-                        <MenuItem x:Name="miFidsOffGlobal" Header="Hide Fiducials All" ToolTip="Hide Fiducial Lines on all images" Click="MiFidsOffGlobal_Click"/>
-                        <MenuItem x:Name="miFidsCopyGridFids" Header="Copy Grid to Fiducials" ToolTip="Copy grid lines to fiducial lines" IsEnabled="False" Click="MiFidsCopyGridFids_Click"/>
-                        <MenuItem x:Name="miFidsDeselectFids" Header="De-select All Fiducials" ToolTip="De-select the grid and all fiducial lines for this image" Click="MiFidsDeselectFids_Click"/>
+                        <MenuItem x:Name="miFidsOn" Header="Display Fiducials" ToolTip="Display Fiducial lines for this image" Click="MiFidsOn_Click" />
+                        <MenuItem x:Name="miFidsOff" Header="Hide Fiducials" ToolTip="Hide Fiducial lines for this image" Click="MiFidsOff_Click" />
+                        <MenuItem x:Name="miFidsOnGlobal" Header="Display Fiducials All" ToolTip="Display Fiducial Lines on all images" Click="MiFidsOnGlobal_Click" />
+                        <MenuItem x:Name="miFidsOffGlobal" Header="Hide Fiducials All" ToolTip="Hide Fiducial Lines on all images" Click="MiFidsOffGlobal_Click" />
+                        <MenuItem x:Name="miFidsCopyGridFids" Header="Copy Grid to Fiducials" ToolTip="Copy grid lines to fiducial lines" IsEnabled="False" Click="MiFidsCopyGridFids_Click" />
+                        <MenuItem x:Name="miFidsDeselectFids" Header="De-select All Fiducials" ToolTip="De-select the grid and all fiducial lines for this image" Click="MiFidsDeselectFids_Click" />
                         <MenuItem x:Name="miFidsDeleteAll" Header="Delete all Fiducials" ToolTip="Delete all fiducial lines for this image" Click="MiFidsDeleteAll_Click" />
                     </ContextMenu>
                 </ToggleButton.ContextMenu>
@@ -151,7 +151,6 @@
                 <Button.ToolTip>
                     <TextBlock>
                         "Play the .wav file named in the caption"<LineBreak />
-
                     </TextBlock>
                 </Button.ToolTip>
             </Button>
@@ -163,55 +162,61 @@
                 <Button.ToolTip>
                     <TextBlock>
                         "Open the .wav file named in the caption in Audacity"<LineBreak />
-
                     </TextBlock>
                 </Button.ToolTip>
             </Button>
             <Button x:Name="ZoomInButton"
                     Content="Zoom In"
                     Visibility="{Binding Path=DisplayActualSize,Converter={StaticResource VisibilityConverter},FallbackValue=Visible}"
-                    Style="{StaticResource SimpleButton}" Click="ZoomInButton_Click"/>
+                    Style="{StaticResource SimpleButton}" Click="ZoomInButton_Click" />
             <Button x:Name="ZoomOutButton"
                     Content="Zoom Out"
                     Visibility="{Binding Path=DisplayActualSize,Converter={StaticResource VisibilityConverter},FallbackValue=Visible}"
-                    Style="{StaticResource SimpleButton}" Click="ZoomOutButton_Click"/>
+                    Style="{StaticResource SimpleButton}" Click="ZoomOutButton_Click" />
+            <ToggleButton x:Name="SelectButton"
+                    Content="Select"
+                    Visibility="{Binding Path=IsSelectable,Converter={StaticResource VisibilityConverter},FallbackValue=Visible}"
+                    Style="{StaticResource  ToggleButton}" />
         </StackPanel>
 
         <ScrollViewer Grid.Row="2" x:Name="scrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-        <Canvas
+            <Canvas
             x:Name="DisplayImageCanvas"
-            
+
             Panel.ZIndex="0"
             Focusable="True"
             Loaded="DisplayImage_Loaded"
             Unloaded="DisplayImage_Unloaded"
-            
+
             PreviewKeyDown="displayImageCanvas_PreviewKeyDown"
             MouseLeftButtonDown="displayImageCanvas_MouseLeftButtonDown"
-            SnapsToDevicePixels="True" MouseRightButtonDown="DisplayImageCanvas_MouseRightButtonDown">
-            <Canvas.Background>
-                <ImageBrush x:Name="imageBrush"
+
+            SnapsToDevicePixels="True"
+            MouseRightButtonDown="DisplayImageCanvas_MouseRightButtonDown"
+            MouseLeftButtonUp="DisplayImageCanvas_MouseLeftButtonUp">
+                <Canvas.Background>
+                    <ImageBrush x:Name="imageBrush"
                     ImageSource="{Binding Path=image}" Stretch="Uniform" />
-            </Canvas.Background>
+                </Canvas.Background>
 
-            <Canvas.ContextMenu>
-                <ContextMenu>
-                    <MenuItem x:Name="miAddHorizontalLine" Header="Add Horizontal Line" Click="MiAddHorizontalLine_Click" />
-                    <MenuItem x:Name="miAddVerticalLine" Header="Add Vertical Line" Click="MiAddVerticalLine_Click"/>
-                    <MenuItem x:Name="miDeleteSelectedLine" Header="Delete Selected Line"/>
-                    <MenuItem x:Name="miGridSpacer" Header="----------" Visibility="{Binding GridControlsVisibility}"/>
-                    <MenuItem x:Name="miEnlargeGrid5" Header="Enlarge grid by 5" Visibility="{Binding GridControlsVisibility}"/>
-                    <MenuItem x:Name="miEnlargeGrid1" Header="Enlarge Grid by 1" Visibility="{Binding GridControlsVisibility}"/>
-                    <MenuItem x:Name="miShrinkGrid5" Header="Shrink Grid by 5" Visibility="{Binding GridControlsVisibility}"/>
-                    <MenuItem x:Name="miShrinkGrid1" Header="Shrink Grid by 1" Visibility="{Binding GridControlsVisibility}"/>
-                    <MenuItem x:Name="miCopyGridFids" Header="Copy Grid to Fids" Visibility="{Binding GridControlsVisibility}"/>
-                    <MenuItem Header="----------"/>
-                    <MenuItem x:Name="miToggleGrid" Header="Toggle Grid On/Off"/>
-                    <MenuItem x:Name="miToggleFids" Header="Toggle Fids On/Off"/>
-                </ContextMenu>
-            </Canvas.ContextMenu>
+                <Canvas.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem x:Name="miAddHorizontalLine" Header="Add Horizontal Line" Click="MiAddHorizontalLine_Click" />
+                        <MenuItem x:Name="miAddVerticalLine" Header="Add Vertical Line" Click="MiAddVerticalLine_Click" />
+                        <MenuItem x:Name="miDeleteSelectedLine" Header="Delete Selected Line" />
+                        <MenuItem x:Name="miGridSpacer" Header="----------" Visibility="{Binding GridControlsVisibility}" />
+                        <MenuItem x:Name="miEnlargeGrid5" Header="Enlarge grid by 5" Visibility="{Binding GridControlsVisibility}" />
+                        <MenuItem x:Name="miEnlargeGrid1" Header="Enlarge Grid by 1" Visibility="{Binding GridControlsVisibility}" />
+                        <MenuItem x:Name="miShrinkGrid5" Header="Shrink Grid by 5" Visibility="{Binding GridControlsVisibility}" />
+                        <MenuItem x:Name="miShrinkGrid1" Header="Shrink Grid by 1" Visibility="{Binding GridControlsVisibility}" />
+                        <MenuItem x:Name="miCopyGridFids" Header="Copy Grid to Fids" Visibility="{Binding GridControlsVisibility}" />
+                        <MenuItem Header="----------" />
+                        <MenuItem x:Name="miToggleGrid" Header="Toggle Grid On/Off" />
+                        <MenuItem x:Name="miToggleFids" Header="Toggle Fids On/Off" />
+                    </ContextMenu>
+                </Canvas.ContextMenu>
 
-            <Canvas
+                <Canvas
                 x:Name="AxisGrid675"
                 Grid.Row="2"
                 Background="Transparent"
@@ -221,82 +226,82 @@
 
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top">
-                <Canvas.Height>
-                    <MultiBinding Converter="{StaticResource MultiscaleConverter}">
-                        <Binding ElementName="DisplayImageCanvas" Path="ActualHeight" />
-                        <Binding Path="gridScaleValue" />
-                    </MultiBinding>
-                </Canvas.Height>
-                <Canvas.Top>
-                    <MultiBinding Converter="{StaticResource MultiscaleConverter}">
-                        <Binding ElementName="DisplayImageCanvas" Path="ActualHeight" />
-                        <Binding Path="gridTopMargin" />
-                    </MultiBinding>
-                </Canvas.Top>
-                <Canvas.Left>
-                    <MultiBinding Converter="{StaticResource MultiscaleConverter}">
-                        <Binding ElementName="DisplayImageCanvas" Path="ActualWidth" />
-                        <Binding Path="gridLeftMargin" />
-                    </MultiBinding>
-                </Canvas.Left>
+                    <Canvas.Height>
+                        <MultiBinding Converter="{StaticResource MultiscaleConverter}">
+                            <Binding ElementName="DisplayImageCanvas" Path="ActualHeight" />
+                            <Binding Path="gridScaleValue" />
+                        </MultiBinding>
+                    </Canvas.Height>
+                    <Canvas.Top>
+                        <MultiBinding Converter="{StaticResource MultiscaleConverter}">
+                            <Binding ElementName="DisplayImageCanvas" Path="ActualHeight" />
+                            <Binding Path="gridTopMargin" />
+                        </MultiBinding>
+                    </Canvas.Top>
+                    <Canvas.Left>
+                        <MultiBinding Converter="{StaticResource MultiscaleConverter}">
+                            <Binding ElementName="DisplayImageCanvas" Path="ActualWidth" />
+                            <Binding Path="gridLeftMargin" />
+                        </MultiBinding>
+                    </Canvas.Left>
 
-                <Line StrokeThickness="1" Stroke="Black" X1="0"
+                    <Line StrokeThickness="1" Stroke="Black" X1="0"
                       X2="{Binding ElementName=AxisGrid675, Path=ActualWidth}" Y1="0" Y2="0" />
-                <Line StrokeThickness="1" Stroke="Black" X1="0"
+                    <Line StrokeThickness="1" Stroke="Black" X1="0"
                       X2="{Binding ElementName=AxisGrid675, Path=ActualWidth}"
                       Y1="{Binding ElementName=AxisGrid675, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.167}"
                       Y2="{Binding ElementName=AxisGrid675, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.167}" />
-                <Line StrokeThickness="1" Stroke="Black" X1="0"
+                    <Line StrokeThickness="1" Stroke="Black" X1="0"
                       X2="{Binding ElementName=AxisGrid675, Path=ActualWidth}"
                       Y1="{Binding ElementName=AxisGrid675, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.333}"
                       Y2="{Binding ElementName=AxisGrid675, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.333}" />
-                <Line StrokeThickness="1" Stroke="Black" X1="0"
+                    <Line StrokeThickness="1" Stroke="Black" X1="0"
                       X2="{Binding ElementName=AxisGrid675, Path=ActualWidth}"
                       Y1="{Binding ElementName=AxisGrid675, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.5}"
                       Y2="{Binding ElementName=AxisGrid675, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.5}" />
-                <Line StrokeThickness="1" Stroke="Black" X1="0"
+                    <Line StrokeThickness="1" Stroke="Black" X1="0"
                       X2="{Binding ElementName=AxisGrid675, Path=ActualWidth}"
                       Y1="{Binding ElementName=AxisGrid675, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.667}"
                       Y2="{Binding ElementName=AxisGrid675, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.667}" />
-                <Line StrokeThickness="1" Stroke="Black" X1="0"
+                    <Line StrokeThickness="1" Stroke="Black" X1="0"
                       X2="{Binding ElementName=AxisGrid675, Path=ActualWidth}"
                       Y1="{Binding ElementName=AxisGrid675, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.833}"
                       Y2="{Binding ElementName=AxisGrid675, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.833}" />
-                <Line StrokeThickness="1" Stroke="Black" X1="0"
+                    <Line StrokeThickness="1" Stroke="Black" X1="0"
                       X2="{Binding ElementName=AxisGrid675, Path=ActualWidth}"
                       Y1="{Binding ElementName=AxisGrid675, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=1.0}"
                       Y2="{Binding ElementName=AxisGrid675, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=1.0}" />
 
-                <Line StrokeThickness="1" Stroke="Black" Y1="0"
+                    <Line StrokeThickness="1" Stroke="Black" Y1="0"
                       Y2="{Binding ElementName=AxisGrid675, Path=ActualHeight}"
                       X1="0"
                       X2="0" />
-                <Line StrokeThickness="1" Stroke="Black" Y1="0"
+                    <Line StrokeThickness="1" Stroke="Black" Y1="0"
                       Y2="{Binding ElementName=AxisGrid675, Path=ActualHeight}"
                       X1="{Binding ElementName=AxisGrid675, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=.2}"
                       X2="{Binding ElementName=AxisGrid675, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=.2}" />
-                <Line StrokeThickness="1" Stroke="Black" Y1="0"
+                    <Line StrokeThickness="1" Stroke="Black" Y1="0"
                       Y2="{Binding ElementName=AxisGrid675, Path=ActualHeight}"
                       X1="{Binding ElementName=AxisGrid675, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=.4}"
                       X2="{Binding ElementName=AxisGrid675, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=.4}" />
-                <Line StrokeThickness="1" Stroke="Black" Y1="0"
+                    <Line StrokeThickness="1" Stroke="Black" Y1="0"
                       Y2="{Binding ElementName=AxisGrid675, Path=ActualHeight}"
                       X1="{Binding ElementName=AxisGrid675, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=.6}"
                       X2="{Binding ElementName=AxisGrid675, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=.6}" />
-                <Line StrokeThickness="1" Stroke="Black" Y1="0"
+                    <Line StrokeThickness="1" Stroke="Black" Y1="0"
                       Y2="{Binding ElementName=AxisGrid675, Path=ActualHeight}"
                       X1="{Binding ElementName=AxisGrid675, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=.8}"
                       X2="{Binding ElementName=AxisGrid675, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=.8}" />
-                <Line StrokeThickness="1" Stroke="Black" Y1="0"
+                    <Line StrokeThickness="1" Stroke="Black" Y1="0"
                       Y2="{Binding ElementName=AxisGrid675, Path=ActualHeight}"
                       X1="{Binding ElementName=AxisGrid675, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=1.0}"
                       X2="{Binding ElementName=AxisGrid675, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=1.0}" />
-            </Canvas>
+                </Canvas>
 
-            <!--
+                <!--
             160kHz x 120ms sonagram measures 93mm x 320mm.  100ms therefore = 266.67mm.  Width/Height for grid = 266.67/95=2.867
             -->
-            <Canvas
+                <Canvas
                 x:Name="AxisGrid7029A"
                 Grid.Row="2"
                 Background="Transparent"
@@ -306,87 +311,87 @@
 
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center">
-                <Canvas.Height>
-                    <MultiBinding Converter="{StaticResource MultiscaleConverter}">
-                        <Binding ElementName="DisplayImageCanvas" Path="ActualHeight" />
-                        <Binding Path="gridScaleValue" />
-                    </MultiBinding>
-                </Canvas.Height>
-                <Canvas.Top>
-                    <MultiBinding Converter="{StaticResource MultiscaleConverter}">
-                        <Binding ElementName="DisplayImageCanvas" Path="ActualHeight" />
-                        <Binding Path="gridTopMargin" />
-                    </MultiBinding>
-                </Canvas.Top>
-                <Canvas.Left>
-                    <MultiBinding Converter="{StaticResource MultiscaleConverter}">
-                        <Binding ElementName="DisplayImageCanvas" Path="ActualWidth" />
-                        <Binding Path="gridLeftMargin" />
-                    </MultiBinding>
-                </Canvas.Left>
+                    <Canvas.Height>
+                        <MultiBinding Converter="{StaticResource MultiscaleConverter}">
+                            <Binding ElementName="DisplayImageCanvas" Path="ActualHeight" />
+                            <Binding Path="gridScaleValue" />
+                        </MultiBinding>
+                    </Canvas.Height>
+                    <Canvas.Top>
+                        <MultiBinding Converter="{StaticResource MultiscaleConverter}">
+                            <Binding ElementName="DisplayImageCanvas" Path="ActualHeight" />
+                            <Binding Path="gridTopMargin" />
+                        </MultiBinding>
+                    </Canvas.Top>
+                    <Canvas.Left>
+                        <MultiBinding Converter="{StaticResource MultiscaleConverter}">
+                            <Binding ElementName="DisplayImageCanvas" Path="ActualWidth" />
+                            <Binding Path="gridLeftMargin" />
+                        </MultiBinding>
+                    </Canvas.Left>
 
-                <Line StrokeThickness="1" Stroke="Black" X1="0"
+                    <Line StrokeThickness="1" Stroke="Black" X1="0"
                       X2="{Binding ElementName=AxisGrid7029A, Path=ActualWidth}" Y1="0" Y2="0" />
-                <Line StrokeThickness="1" Stroke="Black" X1="0"
+                    <Line StrokeThickness="1" Stroke="Black" X1="0"
                       X2="{Binding ElementName=AxisGrid7029A, Path=ActualWidth}"
                       Y1="{Binding ElementName=AxisGrid7029A, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.125}"
                       Y2="{Binding ElementName=AxisGrid7029A, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.125}" />
-                <Line StrokeThickness="1" Stroke="Black" X1="0"
+                    <Line StrokeThickness="1" Stroke="Black" X1="0"
                       X2="{Binding ElementName=AxisGrid7029A, Path=ActualWidth}"
                       Y1="{Binding ElementName=AxisGrid7029A, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.25}"
                       Y2="{Binding ElementName=AxisGrid7029A, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.25}" />
-                <Line StrokeThickness="1" Stroke="Black" X1="0"
+                    <Line StrokeThickness="1" Stroke="Black" X1="0"
                       X2="{Binding ElementName=AxisGrid7029A, Path=ActualWidth}"
                       Y1="{Binding ElementName=AxisGrid7029A, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.375}"
                       Y2="{Binding ElementName=AxisGrid7029A, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.375}" />
-                <Line StrokeThickness="1" Stroke="Black" X1="0"
+                    <Line StrokeThickness="1" Stroke="Black" X1="0"
                       X2="{Binding ElementName=AxisGrid7029A, Path=ActualWidth}"
                       Y1="{Binding ElementName=AxisGrid7029A, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.5}"
                       Y2="{Binding ElementName=AxisGrid7029A, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.5}" />
-                <Line StrokeThickness="1" Stroke="Black" X1="0"
+                    <Line StrokeThickness="1" Stroke="Black" X1="0"
                       X2="{Binding ElementName=AxisGrid7029A, Path=ActualWidth}"
                       Y1="{Binding ElementName=AxisGrid7029A, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.625}"
                       Y2="{Binding ElementName=AxisGrid7029A, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.625}" />
-                <Line StrokeThickness="1" Stroke="Black" X1="0"
+                    <Line StrokeThickness="1" Stroke="Black" X1="0"
                       X2="{Binding ElementName=AxisGrid7029A, Path=ActualWidth}"
                       Y1="{Binding ElementName=AxisGrid7029A, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.75}"
                       Y2="{Binding ElementName=AxisGrid7029A, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.75}" />
-                <Line StrokeThickness="1" Stroke="Black" X1="0"
+                    <Line StrokeThickness="1" Stroke="Black" X1="0"
                       X2="{Binding ElementName=AxisGrid7029A, Path=ActualWidth}"
                       Y1="{Binding ElementName=AxisGrid7029A, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.875}"
                       Y2="{Binding ElementName=AxisGrid7029A, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=.875}" />
-                <Line StrokeThickness="1" Stroke="Black" X1="0"
+                    <Line StrokeThickness="1" Stroke="Black" X1="0"
                       X2="{Binding ElementName=AxisGrid7029A, Path=ActualWidth}"
                       Y1="{Binding ElementName=AxisGrid7029A, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=1.0}"
                       Y2="{Binding ElementName=AxisGrid7029A, Path=ActualHeight,Converter={StaticResource Times2Converter},ConverterParameter=1.0}" />
 
-                <Line StrokeThickness="1" Stroke="Black" Y1="0"
+                    <Line StrokeThickness="1" Stroke="Black" Y1="0"
                       Y2="{Binding ElementName=AxisGrid7029A, Path=ActualHeight}"
                       X1="0"
                       X2="0" />
-                <Line StrokeThickness="1" Stroke="Black" Y1="0"
+                    <Line StrokeThickness="1" Stroke="Black" Y1="0"
                       Y2="{Binding ElementName=AxisGrid7029A, Path=ActualHeight}"
                       X1="{Binding ElementName=AxisGrid7029A, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=.2}"
                       X2="{Binding ElementName=AxisGrid7029A, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=.2}" />
-                <Line StrokeThickness="1" Stroke="Black" Y1="0"
+                    <Line StrokeThickness="1" Stroke="Black" Y1="0"
                       Y2="{Binding ElementName=AxisGrid7029A, Path=ActualHeight}"
                       X1="{Binding ElementName=AxisGrid7029A, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=.4}"
                       X2="{Binding ElementName=AxisGrid7029A, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=.4}" />
-                <Line StrokeThickness="1" Stroke="Black" Y1="0"
+                    <Line StrokeThickness="1" Stroke="Black" Y1="0"
                       Y2="{Binding ElementName=AxisGrid7029A, Path=ActualHeight}"
                       X1="{Binding ElementName=AxisGrid7029A, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=.6}"
                       X2="{Binding ElementName=AxisGrid7029A, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=.6}" />
-                <Line StrokeThickness="1" Stroke="Black" Y1="0"
+                    <Line StrokeThickness="1" Stroke="Black" Y1="0"
                       Y2="{Binding ElementName=AxisGrid7029A, Path=ActualHeight}"
                       X1="{Binding ElementName=AxisGrid7029A, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=.8}"
                       X2="{Binding ElementName=AxisGrid7029A, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=.8}" />
-                <Line StrokeThickness="1" Stroke="Black" Y1="0"
+                    <Line StrokeThickness="1" Stroke="Black" Y1="0"
                       Y2="{Binding ElementName=AxisGrid7029A, Path=ActualHeight}"
                       X1="{Binding ElementName=AxisGrid7029A, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=1.0}"
                       X2="{Binding ElementName=AxisGrid7029A, Path=ActualWidth,Converter={StaticResource Times2Converter},ConverterParameter=1.0}" />
-            </Canvas>
+                </Canvas>
 
-            <!--
+                <!--
             <Grid
                 x:Name="axisGrid7029A"
                 Grid.Row="2"
@@ -424,7 +429,7 @@
                     <ColumnDefinition Width="20*" />
                 </Grid.ColumnDefinitions>
             </Grid>-->
-        </Canvas>
+            </Canvas>
         </ScrollViewer>
 
         <TextBox

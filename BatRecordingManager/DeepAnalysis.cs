@@ -23,8 +23,10 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Linq.Dynamic;
+using System.Windows;
 using System.Windows.Media.Imaging;
 using Color = System.Drawing.Color;
+using FontStyle = System.Drawing.FontStyle;
 using Pen = System.Drawing.Pen;
 
 namespace BatRecordingManager
@@ -57,13 +59,26 @@ namespace BatRecordingManager
             PeakBin = -1;
             PeakFrequency = 0.0f;
             PeakValue = 0.0d;
+            List<float> paddedData = new List<float>();
+            for (int i = 0; i < FFTSize; i++)
+            {
+                if (i < data.Count())
+                {
+                    paddedData.Add(data[i]);
+                }
+                else
+                {
+                    paddedData.Add(0.0f);
+                }
+            }
+            data = paddedData.ToArray();
 
             for (int i = 0; i < FFTSize; i++)
             {
                 rawFFT[i].X = (float)(data[i] * scale * FastFourierTransform.HammingWindow(i, FFTSize));
                 rawFFT[i].Y = 0.0f;
             }
-            FastFourierTransform.FFT(true, 10, rawFFT);
+            FastFourierTransform.FFT(true, FFTOrder, rawFFT);
             double spectSum = 0.0d;
             for (int i = 0; i < FFTSize / 2; i++)
             {
@@ -81,7 +96,38 @@ namespace BatRecordingManager
             fftMean = spectSum;
         }
 
-        private readonly int FFTOrder = 10;
+        internal static List<Spectrum> Normalize(List<Spectrum> spectra)
+        {
+            List<Spectrum> result = new List<Spectrum>();
+            if (spectra != null && spectra.Count > 0)
+            {
+                Spectrum sum = new Spectrum(spectra[0].FFTOrder);
+                foreach (var spect in spectra)
+                {
+                    for (int i = 0; i < spect.fft.Count(); i++)
+                    {
+                        sum.fft[i] += spect.fft[i];
+                    }
+                }
+                for (int i = 0; i < sum.fft.Count(); i++)
+                {
+                    sum.fft[i] = sum.fft[i] / spectra.Count;
+                }
+
+                for (int i = 0; i < spectra.Count; i++)
+                {
+                    for (int j = 0; j < spectra[i].fft.Count(); j++)
+                    {
+                        spectra[i].fft[j] = spectra[i].fft[j] - sum.fft[j];
+                        if (spectra[i].fft[j] < 0) spectra[i].fft[j] = 0;
+                    }
+                    result.Add(spectra[i]);
+                }
+            }
+            return (result);
+        }
+
+        private readonly int FFTOrder = 9;
         private readonly int FFTSize;
         private Complex[] rawFFT = null;
         private int sampleRate = 0;
@@ -102,10 +148,13 @@ namespace BatRecordingManager
     /// </summary>
     internal class DeepAnalysis
     {
-        public int FFTAdvance = 50;
+        /// <summary>
+        /// The number of data samples each FFT advances beyond the last one so that FFTs overlap by FFTSiz-FFTAdvance
+        /// </summary>
+        public int FFTAdvance = 25;
 
-        public int FFTOrder = 10;
-
+        public int FFTOrder = 9;
+        public float FFTOverlap = 0.5f;
         public int FFTSize;
 
         public int HzPerBin;
@@ -117,40 +166,73 @@ namespace BatRecordingManager
         /// </summary>
         public List<Spectrum> spectra = new List<Spectrum>();
 
+        internal static int GetFFTOrder(int fFTSize)
+        {
+            int FFTOrder = 9;
+            switch (fFTSize)
+            {
+                case 1024:
+                    FFTOrder = 10;
+                    break;
+
+                case 512: FFTOrder = 9; break;
+                case 256: FFTOrder = 8; break;
+                case 128: FFTOrder = 7; break;
+                case 64: FFTOrder = 6; break;
+                case 2048: FFTOrder = 11; break;
+                default: FFTOrder = 9; break;
+            }
+            return (FFTOrder);
+        }
+
         /// <summary>
         /// Given a labelled segment, extracts the relevant portion of the .wav file and then does a detaield
         /// analysis of the pulse train therein.  The results are written to a .txt file for the time being.
         /// </summary>
         /// <param name="sel"></param>
-        internal bool AnalyseSegment(LabelledSegment sel, bool byZeroCrossing = false)
+        /// <param name="AnalysisMode">If zero, analyses 5s centred on the loudest pulse,
+        /// if 1 analyses a single pulse,
+        /// if 5 analyses the 5 loudest pulses</param>
+        internal bool AnalyseSegment(LabelledSegment sel, int AnalysisMode, bool byZeroCrossing = false)
         {
             if (sel == null) return false;
-            string file = sel.Recording.GetFileName();
-            //string file = Path.Combine(sel.Recording.RecordingSession.OriginalFilePath,sel.Recording.RecordingName);
-            if (!File.Exists(file)) return false;
-            FFTSize = (int)Math.Pow(2, FFTOrder);
-
-            using (var wfr = new WaveFileReader(file))
+            using (new WaitCursor())
             {
-                var sp = wfr.ToSampleProvider();
-                sampleRate = wfr.WaveFormat.SampleRate;
-                HzPerBin = sampleRate / FFTSize;
-                var data = sp.Skip(sel.StartOffset).Take((sel.Duration() ?? new TimeSpan()));
-                float[] faData = new float[FFTSize];
-                List<float> alldata = new List<float>();
-                int samplesRead;
-                while ((samplesRead = data.Read(faData, 0, FFTSize)) > 0)
-                {
-                    alldata.AddRange(faData.Take(samplesRead));
-                }
+                string file = sel.Recording.GetFileName();
+                //string file = Path.Combine(sel.Recording.RecordingSession.OriginalFilePath,sel.Recording.RecordingName);
+                if (!File.Exists(file)) return false;
+                FFTSize = (int)Math.Pow(2, FFTOrder);
 
-                var filter = BiQuadFilter.HighPassFilter(sampleRate, 15000, 1);
-                for (int i = 0; i < alldata.Count; i++)
+                using (var wfr = new WaveFileReader(file))
                 {
-                    alldata[i] = filter.Transform(alldata[i]);
-                }
+                    var sp = wfr.ToSampleProvider();
+                    sampleRate = wfr.WaveFormat.SampleRate;
+                    HzPerBin = sampleRate / FFTSize;
+                    var requestedDuration = sel.EndOffset - sel.StartOffset;
+                    if (requestedDuration.TotalSeconds > 5)
+                    {
+                        sel.EndOffset = sel.StartOffset + TimeSpan.FromSeconds(5);
+                    }
+                    var data = sp.Skip(sel.StartOffset).Take(sel.EndOffset - sel.StartOffset);
+                    float[] faData = new float[FFTSize];
+                    alldata = new List<float>();
+                    int samplesRead;
+                    while ((samplesRead = data.Read(faData, 0, FFTSize)) > 0)
+                    {
+                        alldata.AddRange(faData.Take(samplesRead));
+                    }
 
-                AnalyseData(alldata, byZeroCrossing);
+                    var filter = BiQuadFilter.HighPassFilter(sampleRate, 15000, 1);
+                    for (int i = 0; i < alldata.Count; i++)
+                    {
+                        alldata[i] = filter.Transform(alldata[i]);
+                    }
+
+                    spectra?.Clear();
+                    AnalyseData(alldata, byZeroCrossing);// generates spectrograms of the data
+
+                    ParameterizeData(alldata, AnalysisMode);
+                }
             }
             return true;
         }
@@ -163,7 +245,8 @@ namespace BatRecordingManager
         internal BitmapSource GetImage()
         {
             if (spectra.Count <= 0) return (null);
-            int size = spectra[0].fft.Length;
+            int fftSize = spectra[0].fft.Length;
+            int size = spectra[0].fft.Length * 2;
             Bitmap bmp = new Bitmap(spectra.Count, size);
             /*
             logMinimumValue = Math.Abs(20 * Math.Log10(Math.Abs(MinimumValue)));
@@ -177,117 +260,109 @@ namespace BatRecordingManager
 
             foreach (var sp in spectra)
             {
-                for (int row = 0; row < size; row++)
+                for (int bin = 0; bin < fftSize; bin++)
                 {
-                    var scaled = Scale(sp.fft[row]);
-                    bmp.SetPixel(col, size - row - 1, scaled);
+                    var scaled = Scale(sp.fft[bin]);
+
+                    bmp.SetPixel(col, size - (bin * 2) - 1, scaled);
+                    bmp.SetPixel(col, size - (bin * 2) - 2, scaled);
                 }
                 col++;
             }
 
             using (var g = Graphics.FromImage(bmp))
             {
-                int binsPer10kHz = (int)Math.Floor(10000.0d / HzPerBin);
-                Pen blackPen = new Pen(Color.LightGray);
-                for (int i = FFTSize / 2 - 1; i >= 0; i -= binsPer10kHz)
+                double binsPer10kHz = 10000.0d / HzPerBin;
+                Pen blackPen = new Pen(Color.DarkGray);
+                Pen redPen = new Pen(Color.Red);
+                int f = 0;
+                for (int y = size; y >= 0; y -= (int)Math.Ceiling((binsPer10kHz * 2.0d)))//f=frequency in kHz
                 {
-                    g.DrawLine(blackPen, 0.0f, i, spectra.Count, i);
+                    g.DrawLine(blackPen, 0.0f, y, spectra.Count, y);
+                    if (f > 0)
+                    {
+                        g.DrawString(f.ToString() + "kHz", new Font(FontFamily.GenericSansSerif, 10.0f, FontStyle.Regular), new SolidBrush(Color.Black), 10.0f, y);
+                    }
+                    f += 10;
                 }
 
                 double spDurationMs = (1000.0d * FFTAdvance) / sampleRate;
                 int spPer100ms = (int)Math.Floor(100 / spDurationMs);
 
                 float xPos = 0.0f;
+                float tim = 0.0f;
                 while (xPos < spectra.Count)
                 {
                     g.DrawLine(blackPen, xPos, 0.0f, xPos, (float)size - 1);
+                    if (tim > 0.0f)
+                    {
+                        g.DrawString($"{tim:F1}",
+                            new Font(FontFamily.GenericSansSerif, 10.0f, FontStyle.Regular),
+                            new SolidBrush(Color.Black),
+                            xPos - 20,
+                            5);
+                    }
                     xPos += spPer100ms;
+                    tim += 0.1f;
                 }
 
-                Pen redPen = new Pen(Color.Red);
-                Pen bluePen = new Pen(Color.Blue);
-                float last = size / 2;
-                bool inPulse = false;
-                bool fm = false;
-                bool cf = false;
-                bool qcf = false;
-                for (int i = 1; i < peakFrequency.Count && i < spectra.Count; i++)
+                if (param != null)
                 {
-                    var startf = peakFrequency[i - 1].frequency;
-                    var endf = peakFrequency[i].frequency;
-                    var invertedStartBin = (float)size - (startf / HzPerBin);
-                    var invertedEndBin = (float)size - (endf / HzPerBin);
-                    float grad = size / 2 + (gradient[i] / HzPerBin) * 50;
-
-                    if (grad < 0)
+                    if (param.AllPeaks != null && param.AllPeaks.Count > 0)
                     {
-                        Debug.WriteLine($"gradient was {grad}");
-                        grad = 0;
-                    }
-                    //grad = grad * 50;
-                    if (grad > size)
-                    {
-                        Debug.WriteLine($"gradient was {grad}");
-                        grad = size;
-                    }
-
-                    if (invertedStartBin != size && invertedEndBin != size && (startf > endf && startf < 2 * endf) && startf > endf * 0.8d)
-                    {
-                        g.DrawLine(redPen, i - 1, invertedStartBin, i, invertedEndBin);
-                        inPulse = true;
-
-                        //Debug.WriteLine($"{i} - {grad}");
-
-                        //if (last > 0 && last < size && grad > 0 && grad < size)
-                        //{
-                        if (grad <= 0) grad = 1;
-                        if (grad > size - 1) grad = size - 1;
-                        g.DrawLine(bluePen, i - 1, last, i, grad);
-                        //if (inPulse)
-                        //{
-                        // gradient=Hz/unitAdvance
-                        var slope = ((double)gradient[i] / advanceMS) / 1000.0d; // gives kHz/ms
-                        if (slope > 0.0d)
+                        for (int p = 0; p < param.AllPeaks.Count; p++)
                         {
-                            if (slope < 0.1d) cf = true;
-                            else if (slope < 1.0d) qcf = true;
-                            else fm = true;
-                        }
-                        //}
-                        //}
-                    }
-                    else
-                    {
-                        if (inPulse)
-                        {
-                            string strType = "";
-                            if (fm) strType += " fm";
-                            if (cf) strType += " cf";
-                            if (qcf) strType += " qcf";
-                            if (!String.IsNullOrWhiteSpace(strType))
-                            {
-                                g.DrawString(strType, new Font(FontFamily.GenericSerif, 10.0f), new SolidBrush(Color.Blue), new Point(i, size - 20));
-                            }
-                            fm = false;
-                            cf = false;
-                            qcf = false;
+                            var freqs = param.AllPeaks[p].frequencyData;
+                            var peak = param.AllPeaks[p];
+                            int xmin = (int)(peak.startOverall / (FFTSize * FFTOverlap));
+                            int xmax = (int)((peak.startOverall + peak.lengthInSamples) / (FFTSize * FFTOverlap));
+                            int ymin = size - (2 * (int)(freqs.endFrequency / HzPerBin));
+                            int ymax = size - (2 * (int)(freqs.startFrequency / HzPerBin));
 
-                            inPulse = false;
+                            g.DrawLine(redPen, xmin, ymin, xmax, ymin);
+                            g.DrawLine(redPen, xmin, ymin, xmin, ymin + 5);
+                            g.DrawLine(redPen, xmax, ymin, xmax, ymin + 5);
+
+                            g.DrawLine(redPen, xmin, ymax, xmax, ymax);
+                            g.DrawLine(redPen, xmin, ymax, xmin, ymax - 5);
+                            g.DrawLine(redPen, xmax, ymax, xmax, ymax - 5);
                         }
                     }
-                    last = grad;
                 }
             }
 
             return (Tools.ToBitmapSource(bmp));
         }
 
+        internal void reAnalyseSegment(PointEeventArgs pe)
+        {
+            if (pe.point.X == pe.endPoint.X && pe.point.Y == pe.endPoint.Y)
+            {
+                if (param != null)
+                {
+                    param.AnalysePulse(pe.point);
+                }
+            }
+            else
+            {
+                AnalyseRegion(pe.point, pe.endPoint);
+            }
+        }
+
         private readonly double logMaximumValue;
         private readonly double logMinimumValue;
         private double advanceMS = 0;
+        private List<float> alldata = new List<float>();
+
+        private double[] FFTQuiet;
+
         private List<float> gradient = new List<float>();
+
         private double MaximumValue;
+
         private double MinimumValue;
+
+        private Parametrization param = null;
 
         private List<(int frequency, double value, int bin)> peakFrequency = new List<(int frequency, double value, int bin)>();
 
@@ -298,14 +373,20 @@ namespace BatRecordingManager
         /// <param name="data"></param>
         private void AnalyseData(List<float> data, bool byZeroCrossing = false)
         {
+            if (byZeroCrossing)
+            {
+                zcAnalyse(data);
+                return;
+            }
             //List<Spectrum> spectra = new List<Spectrum>();
             //int FFTOrder = 10;
             float scale = 0.9f / (Math.Abs(Math.Max(data.Max(), Math.Abs(data.Min()))));// scale all data to 90% of maximum value
-            FFTAdvance = (int)Math.Floor(FFTSize * .5d);
+            FFTAdvance = (int)Math.Floor(FFTSize * FFTOverlap);
 
             advanceMS = ((double)FFTAdvance / (double)sampleRate) * 1000.0d;
 
-            double[] FFTQuiet = Enumerable.Repeat(0.0d, (FFTSize / 2) + 1).ToArray<double>();
+            FFTQuiet = Enumerable.Repeat(0.0d, (FFTSize / 2) + 1).ToArray<double>();
+
             float[] buffer = new float[FFTSize];
             int offset = 0;
 
@@ -317,14 +398,23 @@ namespace BatRecordingManager
                 spectra.Add(spect);
                 offset += FFTAdvance;
             }
-            var sortedSpectra = from sp in spectra
-                                orderby sp.fftMean
-                                select sp;
+            var sortedSpectra = (from sp in spectra
+                                 orderby sp.fftMean
+                                 select sp).ToList();
             int quietCount = (int)Math.Floor(sortedSpectra.Count() / 10.0d);
             if (quietCount > 0)
             {
-                FFTQuiet = Enumerable.Range(0, FFTSize / 2).AsParallel()
-                    .Select(i => sortedSpectra.Take(quietCount).Select(a => a.fft.Skip(i).First()).Average()).ToArray<double>();
+                //FFTQuiet = Enumerable.Range(0, FFTSize / 2).AsParallel()
+                //    .Select(i => sortedSpectra.Take(quietCount).Select(a => a.fft.Skip(i).First()).Average()).ToArray<double>();
+
+                for (int f = 0; f < spectra.First().fft.Count(); f++)
+                {
+                    for (int q = 0; q < quietCount; q++)
+                    {
+                        FFTQuiet[f] += sortedSpectra[q].fft[f];
+                    }
+                    FFTQuiet[f] = FFTQuiet[f] / quietCount;
+                }
             }
 
             MinimumValue = double.MaxValue;
@@ -422,6 +512,151 @@ namespace BatRecordingManager
         }
 
         /// <summary>
+        /// Like Analyse segment, but the region of waveform to be processes in a relased manner is defined by a pair of points
+        /// selectedd from the sonagram
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="endPoint"></param>
+        private void AnalyseRegion(System.Windows.Point startPoint, System.Windows.Point endPoint)
+        {
+            var startX = Math.Min(startPoint.X, endPoint.X);
+            var endX = Math.Max(startPoint.X, endPoint.X);
+            var startY = Math.Min(startPoint.Y, endPoint.Y);
+            var endY = Math.Max(startPoint.Y, endPoint.Y);
+
+            var startSample = startX * FFTAdvance;
+            var endSample = endX * FFTAdvance;
+
+            int spectHeight = FFTSize;
+
+            var highFreqHz = (spectHeight - startY) * HzPerBin / 2.0d;
+            var lowFreqHz = (spectHeight - endY) * HzPerBin / 2.0d;
+
+            if (alldata != null && alldata.Count > endX)
+            {
+                List<float> sectionData = new List<float>();
+                for (int i = (int)startSample; i < endSample; i++)
+                {
+                    sectionData.Add(alldata[i]);
+                }
+                var HPfilter = BiQuadFilter.HighPassFilter(sampleRate, (float)lowFreqHz, 1);
+                var LPFilter = BiQuadFilter.LowPassFilter(sampleRate, (float)highFreqHz, 1);
+
+                for (int i = (int)startX; i < endX; i++)
+                {
+                    var val = (HPfilter.Transform(alldata[i]));
+                    val = LPFilter.Transform(val);
+                    sectionData.Add(val);
+                }
+
+                param?.AnalysePulse(sectionData, (int)startSample);
+            }
+        }
+
+        /// <summary>
+        /// Given an array of values at frequencies determined by HzPerPeriod, and a
+        /// period, interpolate in the frequency scale to determine the value for the
+        /// specified period
+        /// </summary>
+        /// <param name="fft"></param>
+        /// <param name="v"></param>
+        /// <returns></returns>
+        private double interpolate(double[] fft, double period)
+        {
+            double desiredFrequency = 1.0d / period;
+
+            int binBelow = (int)Math.Floor(desiredFrequency / (double)HzPerBin);
+            int binAbove = (int)Math.Ceiling(desiredFrequency / (double)HzPerBin);
+            double freqBelow = (double)(HzPerBin * binBelow);
+            double freqAbove = (double)(HzPerBin * binAbove);
+            double freqGapAbove = freqAbove - desiredFrequency;
+            double freqGapBelow = desiredFrequency - freqBelow;
+            double proportion = freqGapBelow / (freqAbove - freqBelow);
+            if (binAbove >= fft.Length || binBelow >= fft.Length) return (fft[fft.Length - 1]);
+            if (binBelow < 0 || binAbove < 0) return (fft[0]);
+            double valBelow = fft[binBelow];
+            double valAbove = fft[binAbove];
+            double newVal = valBelow + (proportion * (valAbove - valBelow));
+
+            return (newVal);
+        }
+
+        private void ParameterizeData(List<float> alldata, int AnalysisMode)
+        {
+            param = new Parametrization(alldata, sampleRate, AnalysisMode);
+            param.CalculateParameters(spectra, FFTSize, FFTAdvance);
+        }
+
+        /// <summary>
+        /// fft contains data spaced at HzPerBin frequency spacing for FFTSize bins;
+        /// This function changes the scaling by using the reciprocal of the frequencies
+        /// equally spaced and the interpolating from the existing data to find values for the new
+        /// spacings.  ffTdata is all in the range 0-1.
+        /// </summary>
+        /// <param name="fft"></param>
+        /// <returns></returns>
+        private double[] reciprocal(double[] fft)
+        {
+            List<double> result = new List<double>();
+            int maxfreq = fft.Length * HzPerBin;
+            double minPeriod = 1.0d / maxfreq;
+            double maxPeriod = 1.0d / HzPerBin;
+            double periodPerBin = (double)(maxPeriod - minPeriod) / (double)fft.Length;
+
+            for (int i = 1; i <= fft.Length; i++)
+            {
+                result.Add(interpolate(fft, i * periodPerBin));
+            }
+
+            return (result.ToArray());
+        }
+
+        private Color Scale(double[] recipFft, int bin, double max)
+        {
+            double val = recipFft[bin];
+
+            val = val / max;
+
+            double dbRange = 48.0d;
+
+            int value;
+            if (double.IsNaN(val) || double.IsInfinity(val))
+            {
+                val = 0.0d;
+            }
+            if (double.IsNaN(MaximumValue) || double.IsInfinity(MaximumValue))
+            {
+                MaximumValue = 1.0d;
+            }
+
+            var ratio = val / MaximumValue;
+
+            if (ratio > 1.0d) ratio = 1.0d;
+
+            int grey;
+            if (ratio <= 0.0d)
+            {
+                grey = 255;
+            }
+            else
+            {
+                var db = 20.0d * Math.Log10(ratio); //ranges from 0 to minus lots
+
+                if (db < -dbRange) db = -dbRange;
+
+                db = db * (255.0d / dbRange);  // gives number in range 0 - -255
+
+                db = Math.Abs(db); // make it positive 0-255
+
+                grey = (int)Math.Floor(db);
+            }
+
+            value = grey;
+
+            return (Color.FromArgb(value, value, value));
+        }
+
+        /// <summary>
         /// Scales a value return a color that can be displayed in the bitmap
         /// </summary>
         /// <param name="s"></param>
@@ -465,6 +700,15 @@ namespace BatRecordingManager
             value = grey;
 
             return (Color.FromArgb(value, value, value));
+        }
+
+        /// <summary>
+        /// Converts the .wav filtered data into ZC data and extracts a parameter table from that data
+        /// </summary>
+        /// <param name="data"></param>
+        private void zcAnalyse(List<float> data)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,0 +1,153 @@
+﻿<UserControl x:Class="BatCallAnalysisControlSet.CallDataForm"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+
+             xmlns:local="clr-namespace:BatCallAnalysisControlSet"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="10" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="10" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="30" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="70" />
+            <ColumnDefinition Width="70" />
+            <ColumnDefinition Width="70" />
+            <ColumnDefinition Width="30" />
+            <ColumnDefinition Width="90" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Label Content="Min" HorizontalAlignment="Center" Grid.Column="2" Grid.Row="0" />
+        <Label Content="Mean" HorizontalAlignment="Center" Grid.Column="3" Grid.Row="0" />
+        <Label Content="Max" HorizontalAlignment="Center" Grid.Column="4" Grid.Row="0" />
+
+        <Label Content="Range/2 or SD" HorizontalAlignment="Center" Grid.Column="6" Grid.Row="0" />
+        <Label Content="Enter Mean and SD or Min and Max" Grid.Column="7" Grid.Row="0" />
+
+        <Label Content="Start Frequency kHz" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="1" ToolTip="Highest frequency in the fundamental (H1)" />
+        <Label Content="Peak Frequency kHz" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="2" ToolTip="Frequency of Maximum energy in H1" />
+        <Label Content="End Frequency kHz" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="3" ToolTip="Lowest frequency in the call" />
+
+        <Label Content="Pulse Duration ms" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="5" ToolTip="Pulse length in ms" />
+        <Label Content="Pulse Interval ms" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="6" ToolTip="start-start Interval  to the following pulse" />
+
+        <Label Content="Bandwidth kHz" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="8" ToolTip="Difference between the highest and lowest frequency inn H1" />
+        <Label Content="Knee Frequency kHz" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="9" ToolTip="In some Myotis, the frequency of the steep to shallow inflection" />
+        <Label Content="Heel Frequency kHz" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="10" ToolTip="In some Myotis the frequency of the shallow to steep inflection" />
+
+        <local:ParameterSetter
+            x:Name="startFrequencySetter"
+            Grid.Row="1"
+            Grid.Column="2"
+            Grid.ColumnSpan="5"
+            MaxPermitted="210" />
+
+        <local:ParameterSetter
+            x:Name="peakFrequencySetter"
+            Grid.Row="2"
+            Grid.Column="2"
+            Grid.ColumnSpan="5"
+            MaxPermitted="210" />
+
+        <local:ParameterSetter
+            x:Name="endFrequencySetter"
+            Grid.Row="3"
+            Grid.Column="2"
+            Grid.ColumnSpan="5"
+            MaxPermitted="210" />
+
+        <local:ParameterSetter
+            x:Name="durationSetter"
+            Grid.Row="5"
+            Grid.Column="2"
+            Grid.ColumnSpan="5"
+            MaxPermitted="210" />
+
+        <local:ParameterSetter
+            x:Name="intervalSetter"
+            Grid.Row="6"
+            Grid.Column="2"
+            Grid.ColumnSpan="5"
+            MaxPermitted="210" />
+
+        <local:ParameterSetter
+            x:Name="bandwidthSetter"
+            Grid.Row="8"
+            Grid.Column="2"
+            Grid.ColumnSpan="5"
+            MaxPermitted="210" />
+
+        <local:ParameterSetter
+            x:Name="KneeFrequencySetter"
+            Grid.Row="9"
+            Grid.Column="2"
+            Grid.ColumnSpan="5"
+            MaxPermitted="210" />
+
+        <local:ParameterSetter
+            x:Name="heelFrequencySetter"
+            Grid.Row="10"
+            Grid.Column="2"
+            Grid.ColumnSpan="5"
+            MaxPermitted="210" />
+
+        <DataGrid
+            x:Name="callDataGrid"
+            Grid.Row="11"
+            Grid.Column="1"
+            Grid.ColumnSpan="7"
+            Margin="10"
+            AutoGenerateColumns="False"
+            Visibility="Visible"
+            ItemsSource="{Binding Path=dataGridData}"
+            VerticalScrollBarVisibility="Visible">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Path=Start, StringFormat=F1}" Width="60" ClipboardContentBinding="{x:Null}" Header="Position" />
+                <DataGridTextColumn Binding="{Binding Path=Fhi,StringFormat=F1}" Width="50" ClipboardContentBinding="{x:Null}" Header="Fhi" />
+                <DataGridTextColumn Binding="{Binding Path=Fpk,StringFormat=F1}" Width="50" ClipboardContentBinding="{x:Null}" Header="Fpk" />
+                <DataGridTextColumn Binding="{Binding Path=Flo,StringFormat=F1}" Width="50"  ClipboardContentBinding="{x:Null}" Header="Flo" />
+                <DataGridTextColumn Binding="{Binding Path=Fk,StringFormat=F1}" Width="50"  ClipboardContentBinding="{x:Null}" Header="Fk" />
+                <DataGridTextColumn Binding="{Binding Path=Fh,StringFormat=F1}" Width="50"  ClipboardContentBinding="{x:Null}" Header="Fh" />
+                <DataGridTextColumn Binding="{Binding Path=Dur,StringFormat=F2}" Width="50"  ClipboardContentBinding="{x:Null}" Header="Durtn" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Button
+            x:Name="SetCallParametersButton"
+            Content="Set Call Parameters"
+            Width="150"
+            Grid.Column="3"
+            Grid.ColumnSpan="4"
+            Grid.Row="12" Click="SetCallParametersButton_Click" />
+        <Button
+            x:Name="clearButton"
+            Content="CLEAR"
+            Width="60"
+            Grid.Column="2"
+            Grid.Row="12" Click="clearButton_Click" />
+        <Button
+            x:Name="pasteButton"
+            Content="Paste"
+            Width="60"
+            Grid.Column="1"
+            Grid.Row="12"
+            ToolTip="Paste ZC Analysis data from Kaleidoscope" Click="pasteButton_Click" />
+    </Grid>
+</UserControl>

@@ -81,7 +81,7 @@ namespace BatPassAnalysisFW
                 Spectrum spectrum = new Spectrum(peak.GetSampleRatePerSecond(), FFTSize, peak.peak_Number);
                 List<double> fft = new List<double>();
                 List<float> autoCorr = new List<float>();
-                isValidPulse = spectrum.GetSpectralData(sectionData.ToArray(), preData.ToArray(), peak, out fft, out autoCorr, 128, 512);
+                var hzPerBin = spectrum.GetSpectralData(sectionData.ToArray(), preData.ToArray(), peak, out fft, out autoCorr, 128, 512);
                 this.spectralDetails = new SpectrumDetails(spectrum);
                 this.spectralDetails.GetDetailsFromSpectrum(fft, peak, isValidPulse, pass, spectrumFactor);
             }
@@ -167,7 +167,14 @@ namespace BatPassAnalysisFW
             return (bpaPass.loadBitmap(bmp));
         }
 
-        internal void getFFT(out List<float> fftData, out List<float> autoCorr)
+        /// <summary>
+        /// calculates an FFT which is returned in the parameters with the autocorrelation function.
+        /// Returns the HzPerBin of the FFT
+        /// </summary>
+        /// <param name="fftData"></param>
+        /// <param name="autoCorr"></param>
+        /// <returns></returns>
+        internal int getFFT(out List<float> fftData, out List<float> autoCorr)
         {
             List<float> sectionData = new List<float>();
             List<float> preData = new List<float>();
@@ -175,7 +182,9 @@ namespace BatPassAnalysisFW
             getData(ref sectionData, ref preData);
 
             Spectrum spectrum = spectralDetails.getSpectrum();
-            spectrum.getFrequencyDomain(out fftData, out autoCorr, sectionData, preData, peak);
+            int hzPerBin = spectrum.getFrequencyDomain(out fftData, out autoCorr, sectionData, preData, peak);
+
+            return (hzPerBin);
         }
 
         internal Bitmap GetGraph()

@@ -1,4 +1,5 @@
 ﻿using Acr.Settings;
+using BatCallAnalysisControlSet;
 using Mm.ExportableDataGrid;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using UniversalToolkit;
 
 namespace BatPassAnalysisFW
 {
@@ -32,6 +34,8 @@ namespace BatPassAnalysisFW
                 AnalysisMainControl.ErrorLog($"failed initializing AnalysisTableA {ex.Message}");
             }
         }
+
+        public event EventHandler callChanged;
 
         /// <summary>
         /// Repository of all the displayable data for the analysis
@@ -127,6 +131,8 @@ namespace BatPassAnalysisFW
             tableData.segmentDataGrid_SelectionChanged(null);
         }
 
+        protected virtual void OnCallChanged(callEventArgs e) => callChanged?.Invoke(this, e);
+
         private bool skipDatabaseCheck = true;
 
         private void AutoClassifyButton_Click(object sender, RoutedEventArgs e)
@@ -155,6 +161,46 @@ namespace BatPassAnalysisFW
                     tableData.segmentDataGrid_SelectionChanged(null);
 
                     tableData.passDataGrid_SelectionChanged(passDataGrid.SelectedItems);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Collects call sequence data, saves it to settings and opens the chartGrid tab
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cmiCallAnalysis_Click(object sender, RoutedEventArgs e)
+        {
+            using (new WaitCursor())
+            {
+                List<bpaPass> SelectedPasses = new List<bpaPass>();
+                if (passDataGrid.SelectedItems != null && passDataGrid.SelectedItems.Count > 0)
+                {
+                    ReferenceCall call = new ReferenceCall();
+                    SelectedPasses.Add(passDataGrid.SelectedItems[0] as bpaPass);
+                    var start = SelectedPasses[0].startDetails;
+                    call.fStart_Max = start.Mean + start.SD;
+
+                    call.fStart_Min = start.Mean - start.SD;
+
+                    var end = SelectedPasses[0].endDetails;
+                    call.fEnd_Max = end.Mean + end.SD;
+                    call.fEnd_Min = end.Mean - end.SD;
+
+                    var peak = SelectedPasses[0].peakDetails;
+                    call.fPeak_Max = peak.Mean + peak.SD;
+                    call.fPeak_Min = peak.Mean - peak.SD;
+
+                    var dur = SelectedPasses[0].durationDetails;
+                    call.duration_Max = dur.Mean + dur.SD;
+                    call.duration_Min = dur.Mean - dur.SD;
+
+                    var interval = SelectedPasses[0].intervalDetails;
+                    call.interval_Max = interval.Mean + interval.SD;
+                    call.interval_Min = interval.Mean - interval.SD;
+
+                    OnCallChanged(new callEventArgs(call));
                 }
             }
         }
@@ -469,7 +515,7 @@ namespace BatPassAnalysisFW
             }
             //skipDatabaseCheck = false;
             tableData.passDataGrid_SelectionChanged(passDataGrid.SelectedItems);
-            if (tableData.EnvelopeImage != null) tableData.EnvelopeEnabled = true;
+            if (tableData.envelopeImage != null) tableData.EnvelopeEnabled = true;
         }
 
         private void recordingsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)

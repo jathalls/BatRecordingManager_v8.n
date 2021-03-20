@@ -300,6 +300,8 @@ namespace BatRecordingManager
         private RecordingSession _selectedSession;
         private AnalyseAndImportClass aai;
 
+        private DeepAnalysis deepAnalyser = null;
+
         private void Aai_e_DataUpdated(object sender, EventArgs e)
         {
             //Tools.FindParent<RecordingSessionListDetailControl>(this).RefreshData();
@@ -686,6 +688,21 @@ namespace BatRecordingManager
                 }
         }
 
+        /// <summary>
+        /// event raised when the spectrogram display has the SelectButton toggled on and a point is selected on the bitmap
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Image_pointClickedEvent(object sender, EventArgs e)
+        {
+            var pe = e as PointEeventArgs;
+            Debug.WriteLine($"Point selected at {pe.point.X}, {pe.point.Y}");
+            if (deepAnalyser != null)
+            {
+                deepAnalyser.reAnalyseSegment(pe);
+            }
+        }
+
         private void LabelledSegmentListView_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (!e.Handled)
@@ -848,31 +865,35 @@ namespace BatRecordingManager
         /// <param name="e"></param>
         private void miAnalyseSegment_Click(object sender, RoutedEventArgs e)
         {
+            var _sender = sender as MenuItem;
             var selection = GetSelectedSegments();
             if (selection.IsNullOrEmpty()) selection = GetSegmentsForSelectedRecordings();
             if (!selection.IsNullOrEmpty())
             {
-                DeepAnalysis deepAnalyser = new DeepAnalysis();
-                foreach (var sel in selection)
+                deepAnalyser = new DeepAnalysis();
+                var sel = selection.FirstOrDefault();
+                int AnalysisMode = 0;
+                if (_sender.Name.Contains("1p")) AnalysisMode = 1;
+                if (_sender.Name.Contains("5p")) AnalysisMode = 5;
+                if (deepAnalyser.AnalyseSegment(sel, AnalysisMode))
                 {
-                    if (deepAnalyser.AnalyseSegment(sel))
+                    BitmapSource bmps = deepAnalyser.GetImage();
+                    if (bmps != null)
                     {
-                        BitmapSource bmps = deepAnalyser.GetImage();
-                        if (bmps != null)
+                        StoredImage image =
+                            new StoredImage(bmps,
+                            $"{sel.Recording.RecordingName} {sel.StartOffset.TotalSeconds} {sel.EndOffset.TotalSeconds}",
+                            $"{sel.StartOffset.TotalSeconds} - {sel.EndOffset.TotalSeconds}   {sel.Comment}",
+                            -1);
+                        image.DisplayActualSize = true;
+                        if (image.segmentsForImage == null) image.segmentsForImage = new List<LabelledSegment>();
+                        if (!image.segmentsForImage.Contains(sel))
                         {
-                            StoredImage image =
-                                new StoredImage(bmps,
-                                $"{sel.Recording.RecordingName} {sel.StartOffset.TotalSeconds} {sel.EndOffset.TotalSeconds}",
-                                $"{sel.StartOffset.TotalSeconds} - {sel.EndOffset.TotalSeconds}   {sel.Comment}",
-                                -1);
-                            image.DisplayActualSize = true;
-                            if (image.segmentsForImage == null) image.segmentsForImage = new List<LabelledSegment>();
-                            if (!image.segmentsForImage.Contains(sel))
-                            {
-                                image.segmentsForImage.Add(sel);
-                            }
-                            ComparisonHost.Instance.AddImage(image);
+                            image.segmentsForImage.Add(sel);
                         }
+                        image.IsSelectable = true;
+                        image.pointClickedEvent += Image_pointClickedEvent;
+                        ComparisonHost.Instance.AddImage(image);
                     }
                 }
             }

@@ -50,8 +50,9 @@
                                                 <MenuItem
                                                         x:Name="cmiRecordingNameAnalyse"
                                                         Header="Analyse calls"
-                                                        ToolTip="Opens a window to display an analysis of each pulse in the recordings"
+                                                        ToolTip="Opens a window to display an analysis of the recording"
                                                         Click="cmiRecordingNameAnalyse_Click" />
+
                                                 <MenuItem x:Name="miRecDisplayMetaData" Header="MetaData" IsEnabled="{Binding Path=hasMetadata}"
                                                         ToolTip="Displays wamd/guano metadata for this recording" Click="miDisplayMetaData_Click" />
                                             </ContextMenu>
@@ -132,9 +133,21 @@
                                                                     <MenuItem x:Name="miPlaySegment" Header="Play" Click="miPlaySegment_Click"
                                                                               IsEnabled="{Binding Path=IsWavFile}"
                                                                                   ToolTip="Play this segment at reduced spped or heterodyned" />
-                                                                    <MenuItem x:Name="miAnalyseSegment" Header="Analyse"
+                                                                    <MenuItem x:Name="miAnalyseSegment"
+                                                                              Header="Analyse 5s of the segment"
                                                                               IsEnabled="{Binding Path=IsWavFile}"
-                                                                                  ToolTip="Perform a deep analysis of this segment" Click="miAnalyseSegment_Click" />
+                                                                                  ToolTip="Perform a deep analysis of 5s of this segment centred on the loudest pulse"
+                                                                              Click="miAnalyseSegment_Click" />
+                                                                    <MenuItem x:Name="miAnalyseSegment1p"
+                                                                              Header="Analyse a single pulse"
+                                                                              IsEnabled="{Binding Path=IsWavFile}"
+                                                                                  ToolTip="Perform a deep analysis of the loudest pulse in the segment"
+                                                                              Click="miAnalyseSegment_Click" />
+                                                                    <MenuItem x:Name="miAnalyseSegment5p"
+                                                                              Header="Analyse 5 pulses"
+                                                                              IsEnabled="{Binding Path=IsWavFile}"
+                                                                                  ToolTip="Perform a deep analysis of the five loudest pulses in the segment"
+                                                                              Click="miAnalyseSegment_Click" />
                                                                     <MenuItem x:Name="miDisplayMetaData" Header="MetaData" IsEnabled="{Binding Path=Recording.hasMetadata}"
                                                                               ToolTip="Displays wamd/guano metadata for this recording" Click="miDisplayMetaData_Click" />
                                                                 </ContextMenu>
