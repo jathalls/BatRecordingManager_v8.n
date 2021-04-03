@@ -915,8 +915,11 @@ namespace BatRecordingManager
         {
             Debug.Write(marker);
             Thread.Sleep(100);
-            while (!externalProcess.WaitForInputIdle(500) || !externalProcess.Responding)
+
+            for (int i = 0; i < 5; i++)
             {
+                if (externalProcess.WaitForInputIdle(100)) break;
+                if (externalProcess.Responding) break;
                 Debug.Write(marker);
                 if (externalProcess.HasExited)
                 {
@@ -1387,7 +1390,7 @@ namespace BatRecordingManager
 
             try
             {
-                Application.Current.MainWindow.Focus();
+                MainWindowFocus();
             }
             catch (InvalidOperationException)
             {// may get an InvalidOperationException which can be ignored
@@ -1417,6 +1420,8 @@ namespace BatRecordingManager
                 StreamReader streamReader = new StreamReader(inStream);
                 StreamWriter streamWriter = new StreamWriter(outStream);
                 startAudacityWithPipes(streamReader, streamWriter, FQWavFileName, ipSim);
+
+                ZoomAudacity(0, 5, streamReader, streamWriter);
 
                 if (!WaitForIdle(externalProcess)) return null;
 
@@ -1619,48 +1624,8 @@ namespace BatRecordingManager
         }
 
         private static readonly bool HasErred = false;
+
         private static bool isFirstError = true;
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-        /*
-                internal static void OpenWavFile(Recording selectedRecording)
-                {
-                    if (selectedRecording?.RecordingSession == null) return;
-                    var folder = selectedRecording.RecordingSession.OriginalFilePath;
-                    if (string.IsNullOrWhiteSpace(folder)) return;
-                    folder = folder.Trim();
-
-                    if (!Directory.Exists(folder))
-                        // try to find the folder on a different drive if necessary
-                        if (folder[1] == ':')
-                        {
-                            // then the folder name starts with a drive letter - almost definite
-                            var drivelessFolder = folder.Substring(2);
-                            if (drivelessFolder.StartsWith(@"\")) drivelessFolder = drivelessFolder.Substring(1);
-                            if (!drivelessFolder.EndsWith(@"\")) drivelessFolder = drivelessFolder + @"\";
-
-                            var allDrives = DriveInfo.GetDrives();
-                            foreach (var drive in allDrives)
-                                if (Directory.Exists(drive.Name + drivelessFolder))
-                                {
-                                    folder = drive.Name + drivelessFolder;
-                                    break;
-                                }
-
-                            if (folder[1] != ':') return; // we didn't find a drive with the folder path so give up
-                        }
-
-                    if (!Directory.Exists(folder))
-                    {
-                        // if after trying the folder still doesnt exist, give up
-                        return;
-                    }
-
-                    if (selectedRecording.RecordingName.StartsWith(@"\"))
-                        selectedRecording.RecordingName = selectedRecording.RecordingName.Substring(1);
-                    folder = folder + @"\" + selectedRecording.RecordingName;
-                    OpenWavFile(folder);
-                }*/
 
         /// <summary>
         ///     Given a Process in which Audacity is running, and an Input Simulator, sends keyboard commands to
@@ -1872,6 +1837,22 @@ namespace BatRecordingManager
             return file;
         }
 
+        private static void MainWindowFocus()
+        {
+            try
+            {
+                var mw = Application.Current.MainWindow;
+                if (mw != null)
+                {
+                    mw.Dispatcher.Invoke(delegate
+                    {
+                        mw.Focus();
+                    });
+                }
+            }
+            catch (Exception) { }
+        }
+
         /// <summary>
         ///     Opens an existing text file as a label file by sending keyboard commands to Audacity using the supplied
         ///     InputSimulator.  Audacity is running in the provided Process.
@@ -1891,7 +1872,7 @@ namespace BatRecordingManager
             sw.Write("ImportLabels:\n");
             sr.DiscardBufferedData();
             sw.Flush();
-            Thread.Sleep(2000);
+            Thread.Sleep(3000);
             ipSim.Keyboard.TextEntry($"\"{textFileName}\"");
             Thread.Sleep(100);
             ipSim.Keyboard.KeyPress(VirtualKeyCode.RETURN);
@@ -2002,16 +1983,77 @@ namespace BatRecordingManager
 
         [DllImport("Shell32.dll", CharSet = CharSet.Auto)]
         private static extern uint SHGetSetFolderCustomSettings(ref Lpshfoldercustomsettings pfcs, string pszPath,
-            uint dwReadWrite);
+                    uint dwReadWrite);
 
         [DllImport("user32")]
         private static extern bool ShowWindowAsync(IntPtr hwnd, int a);
 
         private static void startAudacityWithPipes(StreamReader sr, StreamWriter sw, string fQWavFileName, InputSimulator ipSime)
         {
-            string command = $"Import2: Filename=\"{fQWavFileName}\"\n";
+            string command = $"MultiTool:\n";
+            DoPipeCommand(sr, sw, command);
+            command = $"Import2: Filename=\"{fQWavFileName}\"\n";
             DoPipeCommand(sr, sw, command);
         }
+
+        /// <summary>
+        /// Zooms Audacity using Pipes
+        /// </summary>
+        /// <param name="v1"></param>
+        /// <param name="v2"></param>
+        /// <param name="streamReader"></param>
+        /// <param name="streamWriter"></param>
+        private static void ZoomAudacity(int start, int end, StreamReader streamReader, StreamWriter streamWriter)
+        {
+            String command = $"SelectTime:Start=\"{start}\" End=\"{end}\" RelativeTo=\"ProjectStart\"\n";
+            DoPipeCommand(streamReader, streamWriter, command);
+            command = $"ZoomSel:\n";
+            DoPipeCommand(streamReader, streamWriter, command);
+            command = $"SelStart:\n";
+            DoPipeCommand(streamReader, streamWriter, command);
+        }
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        /*
+                internal static void OpenWavFile(Recording selectedRecording)
+                {
+                    if (selectedRecording?.RecordingSession == null) return;
+                    var folder = selectedRecording.RecordingSession.OriginalFilePath;
+                    if (string.IsNullOrWhiteSpace(folder)) return;
+                    folder = folder.Trim();
+
+                    if (!Directory.Exists(folder))
+                        // try to find the folder on a different drive if necessary
+                        if (folder[1] == ':')
+                        {
+                            // then the folder name starts with a drive letter - almost definite
+                            var drivelessFolder = folder.Substring(2);
+                            if (drivelessFolder.StartsWith(@"\")) drivelessFolder = drivelessFolder.Substring(1);
+                            if (!drivelessFolder.EndsWith(@"\")) drivelessFolder = drivelessFolder + @"\";
+
+                            var allDrives = DriveInfo.GetDrives();
+                            foreach (var drive in allDrives)
+                                if (Directory.Exists(drive.Name + drivelessFolder))
+                                {
+                                    folder = drive.Name + drivelessFolder;
+                                    break;
+                                }
+
+                            if (folder[1] != ':') return; // we didn't find a drive with the folder path so give up
+                        }
+
+                    if (!Directory.Exists(folder))
+                    {
+                        // if after trying the folder still doesnt exist, give up
+                        return;
+                    }
+
+                    if (selectedRecording.RecordingName.StartsWith(@"\"))
+                        selectedRecording.RecordingName = selectedRecording.RecordingName.Substring(1);
+                    folder = folder + @"\" + selectedRecording.RecordingName;
+                    OpenWavFile(folder);
+                }*/
 
         private static void ZoomAudacity(double start, double end, InputSimulator ipSim)
         {
@@ -2086,10 +2128,6 @@ namespace BatRecordingManager
 
     //########################################################################################################################
     //########################################################################################################################
-
-
-
-
 
     /// <summary>
     ///     static functions to operate on visual UI elements
@@ -2419,8 +2457,6 @@ namespace BatRecordingManager
             return d;
         }
     }
-
-
 
     #region TimeSpanDateConverter (ValueConverter)
 
@@ -3109,45 +3145,17 @@ namespace BatRecordingManager
 
     #endregion TimeSpanDateConverter (ValueConverter)
 
-    #region SegmentToTextConverter (ValueConverter)
-    #endregion SegmentToTextConverter (ValueConverter)
-
-    #region ImageConverter (ValueConverter)
-    #endregion ImageConverter (ValueConverter)
-
-    #region ShortDateConverter (ValueConverter)
-    #endregion ShortDateConverter (ValueConverter)
-
-    #region ShortTimeConverter (ValueConverter)
-    #region FilePathBrushConverter (ValueConverter)
-    #endregion FilePathBrushConverter (ValueConverter)
-
-    #endregion ShortTimeConverter (ValueConverter)
-
     #region TextColourConverter (ValueConverter)
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
     #endregion TextColourConverter (ValueConverter)
 
     #region DebugBreak (ValueConverter)
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
     #endregion DebugBreak (ValueConverter)
-
-    #region GPSConverter (ValueConverter)
-    #endregion GPSConverter (ValueConverter)
-
-    #region MapRefConverter (ValueConverter)
-    #endregion MapRefConverter (ValueConverter)
-
-    #region SessionStartDateTimeConverter (ValueConverter)
-    #endregion SessionStartDateTimeConverter (ValueConverter)
-
-    #region SessionEndDateTimeConverter (ValueConverter)
-    #endregion SessionEndDateTimeConverter (ValueConverter)
-
-    #region BSPassesConverter (ValueConverter)
-    #endregion BSPassesConverter (ValueConverter)
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
@@ -3275,21 +3283,14 @@ namespace BatRecordingManager
     #region DivideConverter (ValueConverter)
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
     #endregion DivideConverter (ValueConverter)
 
     #region Times2Converter (ValueConverter)
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
     #endregion Times2Converter (ValueConverter)
-
-    #region AddValueConverter (ValueConverter)
-    #endregion AddValueConverter (ValueConverter)
-
-
-
-
-
-
 
     #region HGridLineConverter (ValueConverter)
 
@@ -4056,36 +4057,6 @@ namespace BatRecordingManager
 
     #endregion VGridLineConverter (ValueConverter)
 
-    #region LeftMarginConverter (ValueConverter)
-    #endregion LeftMarginConverter (ValueConverter)
-
-    #region RightMarginConverter (ValueConverter)
-    #endregion RightMarginConverter (ValueConverter)
-
-    #region TopMarginConverter
-    #endregion TopMarginConverter
-
-    #region BottomMarginConverter (ValueConverter)
-    #endregion BottomMarginConverter (ValueConverter)
-
-    #region NumberOfImagesConverter (ValueConverter)
-    #endregion NumberOfImagesConverter (ValueConverter)
-
-    #region ConvertGetNumberOfImages (ValueConverter)
-    #endregion ConvertGetNumberOfImages (ValueConverter)
-
-    #region ImagesForAllRecordingsConverter (ValueConverter)
-    #endregion ImagesForAllRecordingsConverter (ValueConverter)
-
-    #region ImageWithGridConverter (ValueConverter)
-    #endregion ImageWithGridConverter (ValueConverter)
-
-    #region LabelledSegmentConverter (ValueConverter)
-    #endregion LabelledSegmentConverter (ValueConverter)
-
-    #region BatCallConverter (ValueConverter)
-    #endregion BatCallConverter (ValueConverter)
-
     #region VisibilityConverter (ValueConverter)
 
     /// <summary>
@@ -4133,9 +4104,6 @@ namespace BatRecordingManager
     }
 
     #endregion VisibilityConverter (ValueConverter)
-
-    #region InVisibilityConverter (ValueConverter)
-    #endregion InVisibilityConverter (ValueConverter)
 
     /// <summary>
     ///     A simple class to accommodate the parsed and analysed contents of the wamd

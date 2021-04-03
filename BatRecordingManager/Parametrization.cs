@@ -88,6 +88,8 @@ namespace BatRecordingManager
             if (this.AnalysisMode != 0 && this.AnalysisMode != 1 && this.AnalysisMode != 5) this.AnalysisMode = 0;
         }
 
+        public event EventHandler saveClicked;
+
         public List<float> Alldata { get; }
 
         //public List<FrequencyDataSet> AllFrequencyData { get; set; } = new List<FrequencyDataSet>();
@@ -108,6 +110,7 @@ namespace BatRecordingManager
                 var analysisWindow = new CallAnalysisWindow();
                 analysisWindow.WindowState = System.Windows.WindowState.Maximized;
                 analysisWindow.Show();
+                analysisWindow.AnalysisChartGrid.saveClicked += AnalysisChartGrid_saveClicked;
             }
         }
 
@@ -128,6 +131,7 @@ namespace BatRecordingManager
             var analysisWindow = new CallAnalysisWindow();
             analysisWindow.WindowState = System.Windows.WindowState.Maximized;
             analysisWindow.Show();
+            analysisWindow.AnalysisChartGrid.saveClicked += AnalysisChartGrid_saveClicked;
         }
 
         internal void CalculateParameters(List<Spectrum> spectra, int FFTSize, int FFTadvance)
@@ -138,6 +142,8 @@ namespace BatRecordingManager
             getEnvelope();
             getCalls();
         }
+
+        protected virtual void OnSaveClicked(callEventArgs e) => saveClicked?.Invoke(this, e);
 
         private int depth = 0;
 
@@ -154,6 +160,11 @@ namespace BatRecordingManager
         private double threshold;
 
         private int AnalysisMode { get; set; }
+
+        private void AnalysisChartGrid_saveClicked(object sender, EventArgs e)
+        {
+            OnSaveClicked(e as callEventArgs);
+        }
 
         /// <summary>
         /// Takes the data for multiple peaks and condenses them into a referenceCall structure
@@ -287,6 +298,7 @@ namespace BatRecordingManager
 
             List<CallData> displayableData = getDisplayableData(); // get the details of each analysed call
             analysisWindow.SetDisplayableCallData(displayableData); // and send them to the display window
+            analysisWindow.AnalysisChartGrid.saveClicked += AnalysisChartGrid_saveClicked;
         }
 
         /// <summary>

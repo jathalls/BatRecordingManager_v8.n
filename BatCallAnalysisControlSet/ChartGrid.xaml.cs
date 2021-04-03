@@ -38,10 +38,13 @@ namespace BatCallAnalysisControlSet
             chartBase = new ChartBase();
 
             callForm.callSet += CallForm_callSet;
+            callForm.saveClicked += CallForm_saveClicked;
 
             ReferenceCall call = callForm.getCallParametersfromSetters();
             showCharts(call);
         }
+
+        public event EventHandler saveClicked;
 
         public SfEfChart bwChart { get; set; }
 
@@ -67,12 +70,19 @@ namespace BatCallAnalysisControlSet
             ShowBWChart(sortedList, cursorCall);
         }
 
+        protected virtual void OnSaveClicked(callEventArgs e) => saveClicked?.Invoke(this, e);
+
         private ChartBase chartBase;
 
         private void CallForm_callSet(object sender, callEventArgs e)
         {
             var call = e.call;
             showCharts(call);
+        }
+
+        private void CallForm_saveClicked(object sender, EventArgs e)
+        {
+            OnSaveClicked(e as callEventArgs);
         }
 
         private void chartControl_MouseEnter(object sender, MouseEventArgs e)

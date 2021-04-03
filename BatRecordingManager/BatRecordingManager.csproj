@@ -440,11 +440,15 @@
     <Compile Include="CallAnalysisWindow.xaml.cs">
       <DependentUpon>CallAnalysisWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CallDataDisplayWindow.xaml.cs">
+      <DependentUpon>CallDataDisplayWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CommandExtensions.cs" />
     <Compile Include="ComparisonHost.cs" />
     <Compile Include="ComparisonWindow.xaml.cs">
       <DependentUpon>ComparisonWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters.cs" />
     <Compile Include="CscoreWrapper.cs" />
     <Compile Include="Database.xaml.cs">
       <DependentUpon>Database.xaml</DependentUpon>
@@ -557,6 +561,9 @@
     <Compile Include="SearchDialog.xaml.cs">
       <DependentUpon>SearchDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SegmentDetailsControl.xaml.cs">
+      <DependentUpon>SegmentDetailsControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SelectOneDialog.xaml.cs">
       <DependentUpon>SelectOneDialog.xaml</DependentUpon>
     </Compile>
@@ -632,6 +639,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CallAnalysisWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CallDataDisplayWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -775,6 +786,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SearchDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SegmentDetailsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

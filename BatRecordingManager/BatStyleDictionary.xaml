@@ -45,15 +45,15 @@
         <!--
         <Style.Triggers>
             <DataTrigger Binding="{Binding IsLoading}" Value="True">
-                <Setter Property="DataGrid.Cursor" Value="Wait"/>
-                <Setter Property="DataGrid.Background" Value="LightGray"/>
-                <Setter Property="RowBackground" Value="Coral"/>
-                <Setter Property="AlternatingRowBackground" Value="LightCoral"/>
+                <Setter Property="DataGrid.Cursor" Value="Wait" />
+                <Setter Property="DataGrid.Background" Value="LightGray" />
+                <Setter Property="RowBackground" Value="Coral" />
+                <Setter Property="AlternatingRowBackground" Value="LightCoral" />
             </DataTrigger>
             <DataTrigger Binding="{Binding IsLoading}" Value="False">
-                <Setter Property="RowBackground" Value="{StaticResource WindowBackgroundBrush}"/>
-                <Setter Property="AlternatingRowBackground" Value="{StaticResource WindowBackgroundBrushLight}"/>
-                <Setter Property="DataGrid.Cursor" Value="Arrow"/>
+                <Setter Property="RowBackground" Value="{StaticResource WindowBackgroundBrush}" />
+                <Setter Property="AlternatingRowBackground" Value="{StaticResource WindowBackgroundBrushLight}" />
+                <Setter Property="DataGrid.Cursor" Value="Arrow" />
             </DataTrigger>
         </Style.Triggers>-->
     </Style>
@@ -63,33 +63,31 @@
         <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling" />
         <Setter Property="ScrollViewer.IsDeferredScrollingEnabled" Value="True" />
 
-
         <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}" />
-
 
         <Style.Triggers>
             <DataTrigger Binding="{Binding IsLoading}" Value="True">
-                
+
                 <Setter Property="ListView.Background" Value="LightGray" />
             </DataTrigger>
         </Style.Triggers>
     </Style>
 
-    <Style 
+    <Style
         x:Key="lviStyle"
-        TargetType="{x:Type ListViewItem}"
-        >
+        TargetType="{x:Type ListViewItem}">
         <Setter Property="HorizontalContentAlignment" Value="Left"></Setter>
         <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
     </Style>
 
-    <Style 
+    <Style
         x:Key="lbiStyle"
-        TargetType="{x:Type ListBoxItem}"
-    >
+        TargetType="{x:Type ListBoxItem}">
         <Setter Property="HorizontalContentAlignment" Value="Left"></Setter>
         <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
     </Style>
+
+    <local:CallDisplayEnabledConverter x:Key="CallDisplayEnabled" />
 
     <local:BatLatinNameConverter x:Key="ConvertLatinName" />
 
@@ -103,7 +101,7 @@
 
     <local:ShortDateConverter x:Key="ShortDateConverter" />
 
-    <local:RecordingDurationConverter x:Key="RecordingDurationConverter"/>
+    <local:RecordingDurationConverter x:Key="RecordingDurationConverter" />
 
     <local:ShortTimeConverter x:Key="ShortTimeConverter" />
 
@@ -119,7 +117,7 @@
 
     <local:DoubleStringConverter x:Key="DoubleToStringConverter" />
 
-    <local:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
+    <local:DecimalToStringConverter x:Key="DecimalToStringConverter" />
 
     <local:CallParametersConverter x:Key="CallParametersConverter" />
 
@@ -135,7 +133,7 @@
 
     <local:Times2Converter x:Key="Times2Converter" />
 
-    <local:AddValueConverter x:Key="AddValueConverter"/>
+    <local:AddValueConverter x:Key="AddValueConverter" />
 
     <local:MultiscaleConverter x:Key="MultiscaleConverter" />
 
@@ -143,21 +141,21 @@
 
     <local:ImagesForAllRecordingsConverter x:Key="ImagesForAllRecordingsConverter" />
 
-    <local:GPSConverter x:Key="GPSConverter"/>
+    <local:GPSConverter x:Key="GPSConverter" />
 
-    <local:MapRefConverter x:Key="MapRefConverter"/>
+    <local:MapRefConverter x:Key="MapRefConverter" />
 
-    <local:SessionStartDateTimeConverter x:Key="SessionStartDateTimeConverter"/>
+    <local:SessionStartDateTimeConverter x:Key="SessionStartDateTimeConverter" />
 
-    <local:SessionEndDateTimeConverter x:Key="SessionEndDateTimeConverter"/>
+    <local:SessionEndDateTimeConverter x:Key="SessionEndDateTimeConverter" />
 
-    <local:BSPassesConverter x:Key="BSPassesConverter"/>
+    <local:BSPassesConverter x:Key="BSPassesConverter" />
 
-    <local:FilePathBrushConverter x:Key="FilePathBrushConverter"/>
+    <local:FilePathBrushConverter x:Key="FilePathBrushConverter" />
 
-    <local:VisibilityConverter x:Key="VisibilityConverter"/>
+    <local:VisibilityConverter x:Key="VisibilityConverter" />
 
-    <local:InVisibilityConverter x:Key="InVisibilityConverter"/>
+    <local:InVisibilityConverter x:Key="InVisibilityConverter" />
 
     <DataTemplate x:Key="ImageTemplate">
         <local:ImageScrollerControl

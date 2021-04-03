@@ -365,11 +365,11 @@ namespace BatRecordingManager
         public string GetFormattedString()
         {
             string result = "";
-            if (StartFrequency != null && StartFrequency.Value != 0.0d) result += $"sf={StartFrequency}+/-{StartFrequencyVariation ?? 0.0d}";
-            if (EndFrequency != null && EndFrequency.Value != 0.0d) result += $", ef={EndFrequency}+/-{EndFrequencyVariation ?? 0.0d}";
-            if (PeakFrequency != null && PeakFrequency.Value != 0.0d) result += $", pf={PeakFrequency}+/-{PeakFrequencyVariation ?? 0.0d}";
-            if (PulseDuration != null && PulseDuration.Value != 0.0d) result += $", dur={PulseDuration}+/-{PulseDurationVariation ?? 0.0d}";
-            if (PulseInterval != null && PulseInterval.Value != 0.0d) result += $",int={PulseInterval}+/-{PulseIntervalVariation ?? 0.0d}";
+            if (StartFrequency != null && StartFrequency.Value != 0.0d) result += $"sf={StartFrequency:F2}+/-{StartFrequencyVariation ?? 0.0d:F2}";
+            if (EndFrequency != null && EndFrequency.Value != 0.0d) result += $", ef={EndFrequency:F2}+/-{EndFrequencyVariation ?? 0.0d:F2}";
+            if (PeakFrequency != null && PeakFrequency.Value != 0.0d) result += $", pf={PeakFrequency:F2}+/-{PeakFrequencyVariation ?? 0.0d:F2}";
+            if (PulseDuration != null && PulseDuration.Value != 0.0d) result += $", dur={PulseDuration:F2}+/-{PulseDurationVariation ?? 0.0d:F2}";
+            if (PulseInterval != null && PulseInterval.Value != 0.0d) result += $",int={PulseInterval:F1}+/-{PulseIntervalVariation ?? 0.0d:F1}";
             if (!string.IsNullOrWhiteSpace(CallType)) result += $", Type={CallType}";
             if (!string.IsNullOrWhiteSpace(CallFunction)) result += $", Func={CallFunction}";
             if (!string.IsNullOrWhiteSpace(CallNotes)) result += $", Notes='{CallNotes}'";

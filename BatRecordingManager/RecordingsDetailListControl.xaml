@@ -148,6 +148,10 @@
                                                                               IsEnabled="{Binding Path=IsWavFile}"
                                                                                   ToolTip="Perform a deep analysis of the five loudest pulses in the segment"
                                                                               Click="miAnalyseSegment_Click" />
+                                                                    <MenuItem x:Name="miDisplayCalls"
+                                                                              Header="Display Call Data"
+                                                                              IsEnabled="{Binding Converter={StaticResource CallDisplayEnabled}}"
+                                                                              ToolTip="Open a window to display details of all calls identified for this segment" Click="miDisplayCalls_Click" />
                                                                     <MenuItem x:Name="miDisplayMetaData" Header="MetaData" IsEnabled="{Binding Path=Recording.hasMetadata}"
                                                                               ToolTip="Displays wamd/guano metadata for this recording" Click="miDisplayMetaData_Click" />
                                                                 </ContextMenu>

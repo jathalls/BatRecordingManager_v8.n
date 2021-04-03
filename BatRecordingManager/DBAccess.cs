@@ -27,6 +27,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Dynamic;
 using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Forms.VisualStyles;
 using System.Xml.Linq;
 
@@ -954,6 +955,40 @@ namespace BatRecordingManager
             //DBAccess.ResequenceBats();
             var index = newTag.Id;
             return index;
+        }
+
+        /// <summary>
+        /// Given  a set of call parameters, derived form a deepAnalysis or elsewhere in the form of a ReferenceCall
+        /// structure, attaches a call definition containing those details to the specified LabelledSegment.  If there are
+        /// previous call details, then confirmation of there replacement is required.  If the segment's comment has no
+        /// attached bracketed text or data, then the call details are attached as a bracketed string.  If there is a
+        /// previous bracketed string then just a pair of empty braces are attached to the comment as a flag that the
+        /// segment has call paramaters attached and the original bracketed comment is left undisturbed.
+        /// Only a single set of empty braces are permitted.
+        /// </summary>
+        /// <param name="call"></param>
+        /// <param name="selectedSegment"></param>
+        internal static void AppendCallDetailsToSegment(UniversalToolkit.ReferenceCall call, LabelledSegment selectedSegment)
+        {
+            BatReferenceDBLinqDataContext dc = GetFastDataContext();
+
+            var segment = (from seg in dc.LabelledSegments
+                           where seg.Id == selectedSegment.Id
+                           select seg).SingleOrDefault();
+            if (segment == null || segment.Id < 0) return;
+
+            string callString = DBAccess.CreateSegmentCall(call, segment, dc);
+
+            if (selectedSegment.Comment.Contains("{"))
+            {
+                segment.Comment.Replace("{}", "");
+                segment.Comment += "{}";
+            }
+            else
+            {
+                segment.Comment += $" {{{callString}}}";
+            }
+            UpdateLabelledSegment(segment);
         }
 
         internal static void CloseDatabase()
@@ -2450,7 +2485,7 @@ namespace BatRecordingManager
         }
 
         internal static IQueryable<RecordingSession> GetPagedRecordingSessionList(int pageSize, int topOfScreen,
-                    string field)
+                            string field)
         {
             var dc = GetFastDataContext();
             return GetPagedRecordingSessionList(pageSize, topOfScreen, field, dc);
@@ -3929,8 +3964,8 @@ namespace BatRecordingManager
         private static readonly string DBFileName = "BatReferenceDBv5.31.mdf";
 
         private static readonly string DBLocation = Path.Combine(
-                            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                            @"Echolocation\WinBLP\");
+                                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                                    @"Echolocation\WinBLP\");
 
         private static readonly string DbVersion = "v5.31";
 
@@ -4208,6 +4243,47 @@ namespace BatRecordingManager
             }
 
             //short i = 0;
+        }
+
+        /// <summary>
+        /// Given a referenceCall, creates a new segment call, adds it to the database and returns it using the
+        /// supplied dataContext
+        /// </summary>
+        /// <param name="call"></param>
+        /// <returns></returns>
+        private static string CreateSegmentCall(UniversalToolkit.ReferenceCall newCall,
+            LabelledSegment segment, BatReferenceDBLinqDataContext dc)
+        {
+            string result = "";
+
+            if (dc != null && newCall != null && segment != null)
+            {
+                Call call = new Call();
+                call.CallFunction = "el";
+                call.CallNotes = "From Analysis of Segment";
+                call.CallType = "";
+                call.EndFrequency = newCall.fEnd_Mean;
+                call.EndFrequencyVariation = (newCall.fEnd_Max - newCall.fEnd_Min) / 2.0d;
+                call.PeakFrequency = newCall.fPeak_Mean;
+                call.PeakFrequencyVariation = (newCall.fPeak_Max - newCall.fPeak_Min) / 2.0d;
+                call.PulseDuration = newCall.duration_Mean;
+                call.PulseDurationVariation = (newCall.duration_Max = newCall.duration_Min) / 2.0d;
+                call.PulseInterval = newCall.interval_Mean;
+                call.PulseIntervalVariation = (newCall.interval_Max - newCall.interval_Min) / 2.0d;
+                call.StartFrequency = newCall.fStart_Mean;
+                call.StartFrequencyVariation = (newCall.fStart_Max - newCall.fStart_Min) / 2.0d;
+
+                result = call.GetFormattedString();
+                dc.Calls.InsertOnSubmit(call);
+                dc.SubmitChanges();
+
+                SegmentCall sc = new SegmentCall();
+                sc.CallID = call.Id;
+                sc.LabelledSegmentID = segment.Id;
+                dc.SegmentCalls.InsertOnSubmit(sc);
+                dc.SubmitChanges();
+            }
+            return (result);
         }
 
         private static void CreateVersionTable(BatReferenceDBLinqDataContext batReferenceDataContext)

@@ -1,0 +1,66 @@
+﻿<Window x:Class="BatRecordingManager.CallDataDisplayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BatRecordingManager"
+        mc:Ignorable="d"
+        Title="CallDataDisplayWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="150" />
+            <RowDefinition Height="200*" />
+            <RowDefinition Height="25" />
+        </Grid.RowDefinitions>
+        <local:SegmentDetailsControl
+            x:Name="SegmentDetails"
+            Grid.Column="0"
+            Grid.Row="0" />
+        <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Right">
+            <Button x:Name="CloseButton"
+                    Content="Close"
+                    HorizontalAlignment="Right"
+                    Style="{StaticResource SimpleButton}" Margin="5,0,10,0" Click="CloseButton_Click" />
+            <Button x:Name="ClearButton"
+                    Content="Clear"
+                    Style="{StaticResource SimpleButton}"
+                    Margin="5,0,10,0" />
+            <Button x:Name="DelButton"
+                    Content="Del"
+                    HorizontalAlignment="Right"
+                    Style="{StaticResource SimpleButton}"
+                    Margin="5,0,10,0" />
+            <Button x:Name="EditButton"
+                    Content="Edit"
+                    HorizontalAlignment="Right"
+                    Style="{StaticResource SimpleButton}"
+                    Margin="5,0,10,0" />
+        </StackPanel>
+
+        <DataGrid
+            x:Name="callDataGrid"
+            Grid.Row="1"
+
+            Margin="10"
+            AutoGenerateColumns="False"
+            Visibility="Visible"
+            ItemsSource="{Binding Path=CallData}"
+            VerticalScrollBarVisibility="Auto">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Path=StartFrequency, StringFormat=F1}" Width="50" ClipboardContentBinding="{x:Null}" Header="sf" IsReadOnly="True" />
+                <DataGridTextColumn Binding="{Binding Path=StartFrequencyVariation,StringFormat=F2}" Width="50" ClipboardContentBinding="{x:Null}" Header="+/-" IsReadOnly="True" />
+                <DataGridTextColumn Binding="{Binding Path=PeakFrequency,StringFormat=F1}" Width="50" ClipboardContentBinding="{x:Null}" Header="pf" IsReadOnly="True" />
+                <DataGridTextColumn Binding="{Binding Path=PeakFrequencyVariation,StringFormat=F2}" Width="50"  ClipboardContentBinding="{x:Null}" Header="+/-" IsReadOnly="True" />
+                <DataGridTextColumn Binding="{Binding Path=EndFrequency,StringFormat=F1}" Width="50"  ClipboardContentBinding="{x:Null}" Header="ef" IsReadOnly="True" />
+                <DataGridTextColumn Binding="{Binding Path=EndFrequencyVariation,StringFormat=F2}" Width="50"  ClipboardContentBinding="{x:Null}" Header="+/-" IsReadOnly="True" />
+                <DataGridTextColumn Binding="{Binding Path=PulseDuration,StringFormat=F2}" Width="50"  ClipboardContentBinding="{x:Null}" Header="Durtn" IsReadOnly="True" />
+                <DataGridTextColumn Binding="{Binding Path=PulseDurationVariation,StringFormat=F2}" Width="50"  ClipboardContentBinding="{x:Null}" Header="+/-" IsReadOnly="True" />
+                <DataGridTextColumn Binding="{Binding Path=PulseInterval,StringFormat=F0}" Width="50"  ClipboardContentBinding="{x:Null}" Header="Interval" IsReadOnly="True" />
+                <DataGridTextColumn Binding="{Binding Path=PulseIntervalVariation,StringFormat=F1}" Width="50"  ClipboardContentBinding="{x:Null}" Header="+/-" IsReadOnly="True" />
+                <DataGridTextColumn Binding="{Binding Path=CallType}" Width="50"  ClipboardContentBinding="{x:Null}" Header="Type" IsReadOnly="True" />
+                <DataGridTextColumn Binding="{Binding Path=CallFunction}" Width="55"  ClipboardContentBinding="{x:Null}" Header="Function" IsReadOnly="True" />
+                <DataGridTextColumn Binding="{Binding Path=CallNotes}" Width="*"  ClipboardContentBinding="{x:Null}" Header="Notes" IsReadOnly="True" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

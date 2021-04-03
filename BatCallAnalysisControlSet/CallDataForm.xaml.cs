@@ -121,6 +121,8 @@ namespace BatCallAnalysisControlSet
 
         public event EventHandler<callEventArgs> callSet;
 
+        public event EventHandler saveClicked;
+
         public ReferenceCall call { get; set; } = null;
 
         public List<CallData> dataGridData { get; set; } = new List<CallData>();
@@ -187,6 +189,8 @@ namespace BatCallAnalysisControlSet
         }
 
         protected virtual void OnCallSet(callEventArgs e) => callSet?.Invoke(this, e);
+
+        protected virtual void OnSaveButtonClicked(callEventArgs e) => saveClicked?.Invoke(this, e);
 
         private string settingsPath { get; set; }
 
@@ -423,6 +427,18 @@ namespace BatCallAnalysisControlSet
             KneeFrequencySetter.SetAll(getLimits(fKneeList));
 
             SetCallParametersButton_Click(this, new RoutedEventArgs());
+        }
+
+        /// <summary>
+        /// Saves the current selection of values, either to a file or back to the original
+        /// caller depending on the source of the data
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            ReferenceCall call = getCallParametersfromSetters();
+            OnSaveButtonClicked(new callEventArgs(call));
         }
 
         private void SetCallParametersButton_Click(object sender, RoutedEventArgs e)

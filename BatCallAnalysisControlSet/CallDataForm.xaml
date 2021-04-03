@@ -149,5 +149,12 @@
             Grid.Column="1"
             Grid.Row="12"
             ToolTip="Paste ZC Analysis data from Kaleidoscope" Click="pasteButton_Click" />
+        <Button
+            x:Name="SaveButton"
+            Content="Save"
+            Width="60"
+            Grid.Row="12"
+            IsEnabled="True"
+            Grid.Column="7" Click="SaveButton_Click" />
     </Grid>
 </UserControl>

@@ -353,6 +353,7 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
             ExternalProcess = Tools.OpenKaleidoscope(FolderPath, ExternalProcess);
         }
 
+        /*
         internal void OpenWavFile(string FQFileName, string bareFileName)
         {
             if (string.IsNullOrWhiteSpace(bareFileName)) bareFileName = "LabelTrack";
@@ -389,7 +390,7 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
                  * SHIFT-J              Select Cursor to start of track = 5s
                  * CTRL-E               Zoom to selection
                  * CTRL-SHIFT-N         Select None
-                 * */
+                 * *//*
                 var ipSim = new InputSimulator();
                 var epHandle = ExternalProcess.MainWindowHandle;
                 if (epHandle == (IntPtr)0L) return;
@@ -445,7 +446,7 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
             {
                 Debug.WriteLine("From OpenWavFile:- " + ex.Message);
             }
-        }
+        }*/ // replaced with Tools.OpenWavAndTextFile()
 
         /// <summary>
         ///     Raises the <see cref="e_Analysing" /> event.
@@ -541,7 +542,8 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
             var bareFilename = Path.GetFileName(FQFileName);
             //if (file.Contains(@"\") && !file.EndsWith(@"\")) bareFilename = file.Substring(file.LastIndexOf(@"\") + 1);
             OnAnalysing(new AnalysingEventArgs(bareFilename));
-            OpenWavFile(FQFileName, bareFilename);
+            ExternalProcess = Tools.OpenWavAndTextFile(FQFileName);
+            ExternalProcess.Exited += ExternalProcess_Exited;
             return true;
         }
 
@@ -931,9 +933,17 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
                 var lines = File.ReadAllLines(configFile);
                 for (int i = 0; i < lines.Length; i++)
                 {
-                    if (lines[i].StartsWith("DefaultExportPath"))
+                    if (lines[i].StartsWith("[Directories/Export"))
                     {
-                        lines[i] = "DefaultExportPath=" + moddedFolderPath;
+                        for (int j = i; j < lines.Length; j++)
+                        {
+                            if (lines[j].StartsWith("LastUsed"))
+                            {
+                                lines[j] = $"LastUsed={moddedFolderPath}";
+                                j = lines.Length;
+                                i = lines.Length;
+                            }
+                        }
                     }
                 }
                 File.WriteAllLines(configFile, lines);

@@ -14,6 +14,7 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using BatCallAnalysisControlSet;
 using NAudio.Dsp;
 using NAudio.Wave;
 using System;
@@ -25,6 +26,7 @@ using System.Linq;
 using System.Linq.Dynamic;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using UniversalToolkit;
 using Color = System.Drawing.Color;
 using FontStyle = System.Drawing.FontStyle;
 using Pen = System.Drawing.Pen;
@@ -196,6 +198,7 @@ namespace BatRecordingManager
         internal bool AnalyseSegment(LabelledSegment sel, int AnalysisMode, bool byZeroCrossing = false)
         {
             if (sel == null) return false;
+            selectedSegment = sel;
             using (new WaitCursor())
             {
                 string file = sel.Recording.GetFileName();
@@ -353,18 +356,13 @@ namespace BatRecordingManager
         private readonly double logMinimumValue;
         private double advanceMS = 0;
         private List<float> alldata = new List<float>();
-
         private double[] FFTQuiet;
-
         private List<float> gradient = new List<float>();
-
         private double MaximumValue;
-
         private double MinimumValue;
-
         private Parametrization param = null;
-
         private List<(int frequency, double value, int bin)> peakFrequency = new List<(int frequency, double value, int bin)>();
+        private LabelledSegment selectedSegment = null;
 
         /// <summary>
         /// Given a data stream in the form of a SampleProvider, performs the deep analysis
@@ -581,9 +579,24 @@ namespace BatRecordingManager
             return (newVal);
         }
 
+        /// <summary>
+        /// responds to a click on the save button in the chartform of the chartgrid via several
+        /// event handlers.  Identifies the segment on which the analysis is operating and saves the
+        /// returned calldata to the database, also appending the parameters as an addednum to the
+        /// segment comment if there is not already one, or appends {} if there is one.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Param_saveClicked(object sender, EventArgs e)
+        {
+            ReferenceCall call = (e as callEventArgs).call;
+            DBAccess.AppendCallDetailsToSegment(call, selectedSegment);
+        }
+
         private void ParameterizeData(List<float> alldata, int AnalysisMode)
         {
             param = new Parametrization(alldata, sampleRate, AnalysisMode);
+            param.saveClicked += Param_saveClicked;
             param.CalculateParameters(spectra, FFTSize, FFTAdvance);
         }
 

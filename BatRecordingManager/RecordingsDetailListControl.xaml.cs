@@ -150,6 +150,19 @@ namespace BatRecordingManager
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public bool isCallDisplayEnabled
+        {
+            get
+            {
+                return (_isCallDisplayEnabled);
+            }
+            set
+            {
+                _isCallDisplayEnabled = value;
+                NotifyPropertyChanged(nameof(isCallDisplayEnabled));
+            }
+        }
+
         /// <summary>
         ///     Gets or sets the selected session.
         /// </summary>
@@ -221,7 +234,6 @@ namespace BatRecordingManager
         }
 
         public bool selectionIsWavFile { get; set; } = true;
-
         public AsyncVirtualizingCollection<Recording> virtualRecordingsList { get; set; } = new AsyncVirtualizingCollection<Recording>(new RecordingsDataProvider(null), 2, 100);
 
         internal void NotifyPropertyChanged(string propertyName) =>
@@ -289,6 +301,7 @@ namespace BatRecordingManager
         private readonly object _recordingChangedEventLock = new object();
         private readonly SearchableCollection _searchTargets = new SearchableCollection();
         private readonly object _segmentSelectionChangedEventLock = new object();
+        private bool _isCallDisplayEnabled = false;
 
         //private bool _hasMetadata = false;
         private bool _isSegmentSelected;
@@ -512,6 +525,7 @@ namespace BatRecordingManager
         /// <param name="e"></param>
         private void CallsToggleButton_Checked(object sender, RoutedEventArgs e)
         {
+            isCallDisplayEnabled = true;
         }
 
         /// <summary>
@@ -522,6 +536,7 @@ namespace BatRecordingManager
         /// <param name="e"></param>
         private void CallsToggleButton_Unchecked(object sender, RoutedEventArgs e)
         {
+            isCallDisplayEnabled = false;
         }
 
         private void cmiRecordingNameAnalyse_Click(object sender, RoutedEventArgs e)
@@ -763,7 +778,7 @@ namespace BatRecordingManager
                     var seg = segTextBlock.DataContext as LabelledSegment;
                     if (seg.SegmentCalls != null && seg.SegmentCalls.Count > 0)
                     {
-                        var call = seg.SegmentCalls[0].Call;
+                        var call = seg.SegmentCalls?.Last()?.Call;
                         if (call != null) callControl.BatCall = call;
                         ((segTextBlock.Parent as ContentControl).Parent as StackPanel).Children.Add(callControl);
                     }
@@ -897,6 +912,20 @@ namespace BatRecordingManager
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Opens a new window to display and manage data on all call details associated with the currently
+        /// selected segment
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void miDisplayCalls_Click(object sender, RoutedEventArgs e)
+        {
+            CallDataDisplayWindow window = new CallDataDisplayWindow();
+            var selecteddSegment = _selectedSegment;
+            window.setSegmentToDisplay(selecteddSegment);
+            window.ShowDialog();
         }
 
         private void miDisplayMetaData_Click(object sender, RoutedEventArgs e)
