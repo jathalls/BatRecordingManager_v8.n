@@ -22,6 +22,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq.Dynamic;
 using System.Windows.Forms.VisualStyles;
+using UniversalToolkit;
 
 namespace BatRecordingManager
 {
@@ -362,6 +363,23 @@ namespace BatRecordingManager
     //###########################################################################################################
     public partial class Call
     {
+        public void FromRefCall(ReferenceCall newCall)
+        {
+            this.CallFunction = "el";
+            this.CallNotes = "From Analysis of Segment";
+            this.CallType = "";
+            this.EndFrequency = newCall.fEnd_Mean;
+            this.EndFrequencyVariation = (newCall.fEnd_Max - newCall.fEnd_Min) / 2.0d;
+            this.PeakFrequency = newCall.fPeak_Mean;
+            this.PeakFrequencyVariation = (newCall.fPeak_Max - newCall.fPeak_Min) / 2.0d;
+            this.PulseDuration = newCall.duration_Mean;
+            this.PulseDurationVariation = (newCall.duration_Max = newCall.duration_Min) / 2.0d;
+            this.PulseInterval = newCall.interval_Mean;
+            this.PulseIntervalVariation = (newCall.interval_Max - newCall.interval_Min) / 2.0d;
+            this.StartFrequency = newCall.fStart_Mean;
+            this.StartFrequencyVariation = (newCall.fStart_Max - newCall.fStart_Min) / 2.0d;
+        }
+
         public string GetFormattedString()
         {
             string result = "";
@@ -375,6 +393,30 @@ namespace BatRecordingManager
             if (!string.IsNullOrWhiteSpace(CallNotes)) result += $", Notes='{CallNotes}'";
             if (result.StartsWith(",")) result = result.Substring(1).Trim();
             return (result);
+        }
+
+        public ReferenceCall ToRefCall()
+        {
+            ReferenceCall refCall = new ReferenceCall();
+            refCall.CallType = CallType;
+            refCall.setEndFrequency(((EndFrequency ?? 0.0d) - (EndFrequencyVariation ?? 0.0d), EndFrequency ?? 0.0d, (EndFrequency ?? 0.0d) + (EndFrequencyVariation ?? 0.0d)));
+            refCall.setStartFrequency(((StartFrequency ?? 0.0d) - (StartFrequencyVariation ?? 0.0d), StartFrequency ?? 0.0d, (StartFrequency ?? 0.0d) + (StartFrequencyVariation ?? 0.0d)));
+            refCall.setPeakFrequency(((PeakFrequency ?? 0.0d) - (PeakFrequencyVariation ?? 0.0d), PeakFrequency ?? 0.0d, (PeakFrequency ?? 0.0d) + (PeakFrequencyVariation ?? 0.0d)));
+            refCall.setDuration(((PulseDuration ?? 0.0d) - (PulseDurationVariation ?? 0.0d), PulseDuration ?? 0.0d, (PulseDuration ?? 0.0d) + (PulseDurationVariation ?? 0.0d)));
+            refCall.setInterval(((PulseInterval ?? 0.0d) - (PulseIntervalVariation ?? 0.0d), PulseInterval ?? 0.0d, (PulseInterval ?? 0.0d) + (PulseIntervalVariation ?? 0.0d)));
+            Bat bat = null;
+            if (this.BatCalls != null && this.BatCalls.Any())
+            {
+                bat = this.BatCalls[0].Bat;
+            }
+            if (bat != null)
+            {
+                refCall.BatLabel = bat.Name;
+                refCall.BatLatinName = $"{bat.Batgenus} {bat.BatSpecies}";
+                refCall.BatCommonName = bat.Name;
+            }
+
+            return (refCall);
         }
     }
 

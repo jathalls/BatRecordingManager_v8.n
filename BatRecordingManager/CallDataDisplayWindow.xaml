@@ -24,17 +24,18 @@
             <Button x:Name="ClearButton"
                     Content="Clear"
                     Style="{StaticResource SimpleButton}"
-                    Margin="5,0,10,0" />
+                    Margin="5,0,10,0" Click="ClearButton_Click" />
             <Button x:Name="DelButton"
                     Content="Del"
                     HorizontalAlignment="Right"
                     Style="{StaticResource SimpleButton}"
-                    Margin="5,0,10,0" />
+                    Margin="5,0,10,0" Click="DelButton_Click" />
             <Button x:Name="EditButton"
                     Content="Edit"
                     HorizontalAlignment="Right"
                     Style="{StaticResource SimpleButton}"
-                    Margin="5,0,10,0" />
+
+                    Margin="5,0,10,0" Click="EditButton_Click" />
         </StackPanel>
 
         <DataGrid

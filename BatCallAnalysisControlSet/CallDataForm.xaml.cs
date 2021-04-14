@@ -123,6 +123,8 @@ namespace BatCallAnalysisControlSet
 
         public event EventHandler saveClicked;
 
+        public enum setterMode { NORMAL, EDIT };
+
         public ReferenceCall call { get; set; } = null;
 
         public List<CallData> dataGridData { get; set; } = new List<CallData>();
@@ -171,6 +173,17 @@ namespace BatCallAnalysisControlSet
             call.setHeelFrequency(heelFrequencySetter.Value_Set);
 
             return (call);
+        }
+
+        public bool setSetters(ReferenceCall call, setterMode mode = setterMode.NORMAL)
+        {
+            var result = setSetters(call);
+            if (mode == setterMode.EDIT)
+            {
+                SetCallParametersButton.Visibility = Visibility.Hidden;
+                pasteButton.Visibility = Visibility.Hidden;
+            }
+            return (result);
         }
 
         /// <summary>

@@ -44,6 +44,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using UniversalToolkit;
 using WindowsInput;
 using WindowsInput.Native;
 using Application = System.Windows.Application;
@@ -1437,6 +1438,10 @@ namespace BatRecordingManager
                 {
                     if (!CreateAudacityLabelFile(externalProcess, ipSim, textFileName, streamReader, streamWriter)) return null;
                 }
+                string command = $"FirstTrack:\n";
+                DoPipeCommand(streamReader, streamWriter, command);
+                command = $"CursTrackStart:\n";
+                DoPipeCommand(streamReader, streamWriter, command);
             }
             catch (Exception ex)
             {

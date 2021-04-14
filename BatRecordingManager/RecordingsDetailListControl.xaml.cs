@@ -176,7 +176,14 @@ namespace BatRecordingManager
             {
                 if (value?.Id != _selectedSession?.Id)
                 {
-                    _selectedSession = value;
+                    _selectedSession = DBAccess.GetRecordingSession(value?.Id ?? -1);
+                    if (_selectedSession == null)
+                    {
+                        virtualRecordingsList.Clear();
+                        NotifyPropertyChanged(nameof(virtualRecordingsList));
+                        Refresh();
+                        return;
+                    }
                     virtualRecordingsList = new AsyncVirtualizingCollection<Recording>(new RecordingsDataProvider(_selectedSession), 10, 100);
 
                     if (OffsetsButton != null)
@@ -922,10 +929,16 @@ namespace BatRecordingManager
         /// <param name="e"></param>
         private void miDisplayCalls_Click(object sender, RoutedEventArgs e)
         {
+            int selectedRecordingIndex = RecordingsListView.SelectedIndex;
             CallDataDisplayWindow window = new CallDataDisplayWindow();
             var selecteddSegment = _selectedSegment;
             window.setSegmentToDisplay(selecteddSegment);
             window.ShowDialog();
+
+            var thisSession = selectedSession;
+            selectedSession = null;
+            selectedSession = thisSession;
+            RecordingsListView.SelectedIndex = selectedRecordingIndex;
         }
 
         private void miDisplayMetaData_Click(object sender, RoutedEventArgs e)

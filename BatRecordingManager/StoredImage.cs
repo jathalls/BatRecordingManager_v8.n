@@ -419,6 +419,7 @@ namespace BatRecordingManager
         public static StoredImage CreateFromBinary(BinaryData blob)
         {
             StoredImage si;
+            if (blob == null) return (null);
             if (blob.BinaryDataType.ToUpper().Contains("PNG"))
             {
                 var hgls = new List<int>();

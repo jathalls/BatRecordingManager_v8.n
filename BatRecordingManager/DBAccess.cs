@@ -87,7 +87,7 @@ namespace BatRecordingManager
 
                 var existingLink = dc.CallPictures.Where(bp => bp.CallID == call.Id && bp.BinaryDataID == imageData.Id);
                 if (existingLink.IsNullOrEmpty())
-                    if (imageData != null && call.Id >= 0 && imageData.Id >= 0)
+                    if (imageData != null && call.Id > 0 && imageData.Id > 0)
                     {
                         var bpLink = new CallPicture { CallID = call.Id, BinaryDataID = imageData.Id };
                         dc.CallPictures.InsertOnSubmit(bpLink);
@@ -979,15 +979,6 @@ namespace BatRecordingManager
 
             string callString = DBAccess.CreateSegmentCall(call, segment, dc);
 
-            if (selectedSegment.Comment.Contains("{"))
-            {
-                segment.Comment.Replace("{}", "");
-                segment.Comment += "{}";
-            }
-            else
-            {
-                segment.Comment += $" {{{callString}}}";
-            }
             UpdateLabelledSegment(segment);
         }
 
@@ -1194,6 +1185,19 @@ namespace BatRecordingManager
             dc.SubmitChanges();
         }
 
+        internal static LabelledSegment DeleteCallsInSegment(int id)
+        {
+            BatReferenceDBLinqDataContext dc = GetDataContext();
+            LabelledSegment segment = (from seg in dc.LabelledSegments
+                                       where seg.Id == id
+                                       select seg).SingleOrDefault();
+            if (segment.Id < 0) return (null);
+
+            DBAccess.DeleteAllCallsForSegment(segment, dc);
+
+            return (segment);
+        }
+
         /// <summary>
         ///     Deletes the link between the deletedImage and the selected seement identified by their
         ///     IDs.  If the image has no remaining links then it is deleted completely.
@@ -1260,6 +1264,37 @@ namespace BatRecordingManager
                     dc.SubmitChanges();
                 }
             }
+        }
+
+        internal static LabelledSegment DeleteSegmentCall(int segmentId, int callId)
+        {
+            BatReferenceDBLinqDataContext dc = GetDataContext();
+            LabelledSegment segment = (from seg in dc.LabelledSegments
+                                       where seg.Id == segmentId
+                                       select seg).SingleOrDefault();
+            Call call = (from cll in dc.Calls
+                         where cll.Id == callId
+                         select cll).SingleOrDefault();
+            if (call != null && call.Id >= 0)
+            {
+                var links = from lnk in dc.SegmentCalls
+                            where lnk.CallID == call.Id && lnk.LabelledSegmentID == segmentId
+                            select lnk;
+                if (links != null)
+                {
+                    dc.SegmentCalls.DeleteAllOnSubmit(links);
+                    dc.SubmitChanges();
+                }
+                if (call.BatCalls.IsNullOrEmpty())
+                {
+                    dc.Calls.DeleteOnSubmit(call);
+                    dc.SubmitChanges();
+                }
+            }
+
+            segment = DBAccess.UpdateLabelledSegment(segment);
+
+            return (segment);
         }
 
         /// <summary>
@@ -2186,6 +2221,14 @@ namespace BatRecordingManager
             return (session);
         }
 
+        internal static LabelledSegment GetLabelledSegment(int id)
+        {
+            if (id <= 0) return (null);
+            var dc = GetFastDataContext();
+            var result = dc.LabelledSegments.Where(seg => seg.Id == id).SingleOrDefault();
+            return (result);
+        }
+
         /// <summary>
         ///     Gets the location list.
         /// </summary>
@@ -2870,6 +2913,7 @@ namespace BatRecordingManager
 
         internal static RecordingSession GetRecordingSession(int Id)
         {
+            if (Id <= 0) return (null);
             var dc = GetFastDataContext();
             return (GetRecordingSession(Id, dc));
         }
@@ -3623,13 +3667,42 @@ namespace BatRecordingManager
             }
         }
 
+        internal static LabelledSegment UpdateLabelledSegment(LabelledSegment displayedSegment, Call selected)
+        {
+            if (displayedSegment == null || selected == null) return (null);
+            var dc = GetDataContext();
+            LabelledSegment segment = null;
+            if (displayedSegment.Id > 0)
+            {
+                segment = DBAccess.GetLabelledSegment(displayedSegment.Id, dc);
+            }
+            else
+            {
+                segment = DBAccess.InsertSegment(displayedSegment, dc);
+            }
+            selected = DBAccess.UpdateCall(selected, dc);
+            var links = from lnk in dc.SegmentCalls
+                        where lnk.CallID == selected.Id && lnk.LabelledSegmentID == segment.Id
+                        select lnk;
+            if (links.IsNullOrEmpty())
+            {
+                SegmentCall sc = new SegmentCall();
+                sc.LabelledSegmentID = segment.Id;
+                sc.CallID = selected.Id;
+                dc.SegmentCalls.InsertOnSubmit(sc);
+                dc.SubmitChanges();
+            }
+
+            return (UpdateLabelledSegment(segment));
+        }
+
         /// <summary>
         ///     Updates a single labelledSegment which already exists in the database.
         ///     The segment is identified by the ID in the passed parameter.
         ///     NB does not update BatSegmentLinks
         /// </summary>
         /// <param name="segment"></param>
-        internal static void UpdateLabelledSegment(LabelledSegment segment)
+        internal static LabelledSegment UpdateLabelledSegment(LabelledSegment segment)
         {
             LabelledSegment existingsegment = null;
             try
@@ -3644,7 +3717,26 @@ namespace BatRecordingManager
                     existingsegment.StartOffset = segment.StartOffset;
                     existingsegment.EndOffset = segment.EndOffset;
                     existingsegment.Comment = segment.Comment;
+
+                    string callString = "";
+                    if (!existingsegment.SegmentCalls.IsNullOrEmpty())
+                    {
+                        callString = existingsegment.SegmentCalls.Last().Call.GetFormattedString();
+                    }
+                    if (existingsegment.Comment.Contains("{"))
+                    {
+                        //existingsegment.Comment.Replace("{}", "");
+                        string pattern = "{[0-9]*}";
+                        existingsegment.Comment = Regex.Replace(existingsegment.Comment, pattern, "");
+                        existingsegment.Comment += $"{{{segment.SegmentCalls.Count}}}";
+                    }
+                    else
+                    {
+                        existingsegment.Comment += $" {{{callString}}}";
+                    }
+
                     dc.SubmitChanges();
+                    return (existingsegment);
                 }
             }
             catch (SqlException sqlex)
@@ -3654,6 +3746,7 @@ namespace BatRecordingManager
                 Debug.WriteLine("#]#]#] --- " + sqlex.StackTrace);
                 Debug.WriteLine("#]#]#] --- " + existingsegment);
             }
+            return (segment);
         }
 
         /// <summary>
@@ -3964,8 +4057,8 @@ namespace BatRecordingManager
         private static readonly string DBFileName = "BatReferenceDBv5.31.mdf";
 
         private static readonly string DBLocation = Path.Combine(
-                                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                                    @"Echolocation\WinBLP\");
+                                            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                                            @"Echolocation\WinBLP\");
 
         private static readonly string DbVersion = "v5.31";
 
@@ -4259,19 +4352,7 @@ namespace BatRecordingManager
             if (dc != null && newCall != null && segment != null)
             {
                 Call call = new Call();
-                call.CallFunction = "el";
-                call.CallNotes = "From Analysis of Segment";
-                call.CallType = "";
-                call.EndFrequency = newCall.fEnd_Mean;
-                call.EndFrequencyVariation = (newCall.fEnd_Max - newCall.fEnd_Min) / 2.0d;
-                call.PeakFrequency = newCall.fPeak_Mean;
-                call.PeakFrequencyVariation = (newCall.fPeak_Max - newCall.fPeak_Min) / 2.0d;
-                call.PulseDuration = newCall.duration_Mean;
-                call.PulseDurationVariation = (newCall.duration_Max = newCall.duration_Min) / 2.0d;
-                call.PulseInterval = newCall.interval_Mean;
-                call.PulseIntervalVariation = (newCall.interval_Max - newCall.interval_Min) / 2.0d;
-                call.StartFrequency = newCall.fStart_Mean;
-                call.StartFrequencyVariation = (newCall.fStart_Max - newCall.fStart_Min) / 2.0d;
+                call.FromRefCall(newCall);
 
                 result = call.GetFormattedString();
                 dc.Calls.InsertOnSubmit(call);
@@ -4300,11 +4381,10 @@ namespace BatRecordingManager
             }
         }
 
-        private static void DeleteAllCallsForSegment(LabelledSegment existingSegment)
+        private static void DeleteAllCallsForSegment(LabelledSegment existingSegment, BatReferenceDBLinqDataContext dc)
         {
             if (existingSegment == null || existingSegment.Id <= 0) return;
 
-            var dc = GetDataContext();
             var links = from lnk in dc.SegmentCalls
                         where lnk.LabelledSegmentID == existingSegment.Id || lnk.LabelledSegment == null
                         select lnk;
@@ -4314,6 +4394,12 @@ namespace BatRecordingManager
                 dc.SubmitChanges();
                 CleanCallTable();
             }
+        }
+
+        private static void DeleteAllCallsForSegment(LabelledSegment existingSegment)
+        {
+            var dc = GetDataContext();
+            DeleteAllCallsForSegment(existingSegment, dc);
         }
 
         /// <summary>
@@ -4401,7 +4487,7 @@ namespace BatRecordingManager
         }
 
         private static void DeleteAllSegmentsInRecording(IQueryable<Recording> recordings,
-                                    BatReferenceDBLinqDataContext dc)
+                                            BatReferenceDBLinqDataContext dc)
         {
             if (!recordings.IsNullOrEmpty())
             {
@@ -4767,10 +4853,22 @@ namespace BatRecordingManager
             return dc.Bats.FirstOrDefault(bat => bat.Id == batId);
         }
 
+        /// <summary>
+        /// returns from the database the LabelledSegment with the specified ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dc"></param>
+        /// <returns></returns>
+        private static LabelledSegment GetLabelledSegment(int id, BatReferenceDBLinqDataContext dc)
+        {
+            var segment = dc.LabelledSegments.Where(seg => seg.Id == id).SingleOrDefault();
+            return (segment);
+        }
+
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         private static List<LabelledSegment> GetLabelledSegmentsToDelete(
-                            BulkObservableCollection<SegmentAndBatList> listOfSegmentAndBatList, int id,
-                            BatReferenceDBLinqDataContext dc)
+                                    BulkObservableCollection<SegmentAndBatList> listOfSegmentAndBatList, int id,
+                                    BatReferenceDBLinqDataContext dc)
         {
             var result = new List<LabelledSegment>();
             var labelledSegmentsForThisRecording = (from rec in dc.Recordings
@@ -5156,6 +5254,19 @@ namespace BatRecordingManager
             }
 
             return "";
+        }
+
+        /// <summary>
+        /// Inserts the provided LabelledSegment into the database
+        /// </summary>
+        /// <param name="displayedSegment"></param>
+        /// <param name="dc"></param>
+        /// <returns></returns>
+        private static LabelledSegment InsertSegment(LabelledSegment displayedSegment, BatReferenceDBLinqDataContext dc)
+        {
+            dc.LabelledSegments.InsertOnSubmit(displayedSegment);
+            dc.SubmitChanges();
+            return (displayedSegment);
         }
 
         /// <summary>
@@ -5692,44 +5803,6 @@ namespace BatRecordingManager
             return (result);
         }
 
-        /*
-        /// <summary>
-        /// Return an instance of BatStatisitics for the specified bat
-        /// </summary>
-        /// <param name="bat"></param>
-        /// <returns></returns>
-        internal static BatStatistics GetBatStatisticsForBat(Bat bat)
-        {
-            BatStatistics thisBatStats = new BatStatistics();
-            if (bat != null && bat.Id >= 0)
-            {
-                thisBatStats.Name = bat.Name;
-                thisBatStats.Genus = bat.Batgenus;
-                thisBatStats.Species = bat.BatSpecies;
-
-                var recordings = (from lnk in bat.BatSegmentLinks
-                                  select lnk.LabelledSegment.Recording).Distinct();
-
-                var sessions = (from rec in recordings
-                                select rec.RecordingSession).Distinct();
-
-                thisBatStats.sessions.AddRange(sessions);
-                thisBatStats.recordings.AddRange(recordings);
-
-                thisBatStats.numRecordingImages = 0;
-                thisBatStats.numRecordingImages = (from lnk in bat.BatSegmentLinks
-
-                                                   select lnk.LabelledSegment.SegmentDatas.Count).Sum();
-
-                thisBatStats.numRecordingImages += GetImportedSegmentDatasForBat(bat).Count;
-
-                thisBatStats.stats = DBAccess.GetPassesForBat(bat);
-                thisBatStats.bat = bat;
-                thisBatStats.numBatImages = bat.BatPictures.Count;
-            }
-            return (thisBatStats);
-        }*/
-
         /// <summary>
         ///     Updates the list of bat images for the specified bat.  The images may or may
         ///     not already exist and are linked to the bat table through the BatImage link table.
@@ -5917,6 +5990,79 @@ namespace BatRecordingManager
                 Debug.WriteLine("### # UpdateLabelledSegment updating bat segment links: " + ex);
             }
         }
+
+        /// <summary>
+        /// Given a call, inserts it into the database or updates it if it alrady exists
+        /// </summary>
+        /// <param name="selected"></param>
+        /// <param name="dc"></param>
+        /// <returns></returns>
+        private static Call UpdateCall(Call selected, BatReferenceDBLinqDataContext dc)
+        {
+            if (selected.Id > 0)
+            {
+                Call existingCall = dc.Calls.Where(call => call.Id == selected.Id).Single();
+                if (existingCall != null)
+                {
+                    existingCall.CallFunction = selected.CallFunction;
+                    existingCall.CallNotes = selected.CallNotes;
+                    existingCall.CallType = selected.CallType;
+                    existingCall.EndFrequency = selected.EndFrequency;
+                    existingCall.EndFrequencyVariation = selected.EndFrequencyVariation;
+                    existingCall.PeakFrequency = selected.PeakFrequency;
+                    existingCall.PeakFrequencyVariation = selected.PeakFrequencyVariation;
+                    existingCall.PulseDuration = selected.PulseDuration;
+                    existingCall.PulseDurationVariation = selected.PulseDurationVariation;
+                    existingCall.PulseInterval = selected.PulseInterval;
+                    existingCall.PulseIntervalVariation = selected.PulseIntervalVariation;
+                    existingCall.StartFrequency = selected.StartFrequency;
+                    existingCall.StartFrequencyVariation = selected.StartFrequencyVariation;
+                    dc.SubmitChanges();
+                    return (existingCall);
+                }
+            }
+            dc.Calls.InsertOnSubmit(selected);
+            dc.SubmitChanges();
+            return (selected);
+        }
+
+        /*
+        /// <summary>
+        /// Return an instance of BatStatisitics for the specified bat
+        /// </summary>
+        /// <param name="bat"></param>
+        /// <returns></returns>
+        internal static BatStatistics GetBatStatisticsForBat(Bat bat)
+        {
+            BatStatistics thisBatStats = new BatStatistics();
+            if (bat != null && bat.Id >= 0)
+            {
+                thisBatStats.Name = bat.Name;
+                thisBatStats.Genus = bat.Batgenus;
+                thisBatStats.Species = bat.BatSpecies;
+
+                var recordings = (from lnk in bat.BatSegmentLinks
+                                  select lnk.LabelledSegment.Recording).Distinct();
+
+                var sessions = (from rec in recordings
+                                select rec.RecordingSession).Distinct();
+
+                thisBatStats.sessions.AddRange(sessions);
+                thisBatStats.recordings.AddRange(recordings);
+
+                thisBatStats.numRecordingImages = 0;
+                thisBatStats.numRecordingImages = (from lnk in bat.BatSegmentLinks
+
+                                                   select lnk.LabelledSegment.SegmentDatas.Count).Sum();
+
+                thisBatStats.numRecordingImages += GetImportedSegmentDatasForBat(bat).Count;
+
+                thisBatStats.stats = DBAccess.GetPassesForBat(bat);
+                thisBatStats.bat = bat;
+                thisBatStats.numBatImages = bat.BatPictures.Count;
+            }
+            return (thisBatStats);
+        }*/
 
         private static void UpdateCallImages(BulkObservableCollection<StoredImage> listOfImages, Call call,
                     BatReferenceDBLinqDataContext dc)
