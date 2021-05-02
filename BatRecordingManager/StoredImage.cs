@@ -174,12 +174,13 @@ namespace BatRecordingManager
         /// <param name="description"></param>
         /// <param name="ImageID"></param>
         //public StoredImage(BitmapImage image, string caption, string description, int ImageID)
-        public StoredImage(BitmapSource image, string caption, string description, int imageID, bool displayActualSize = false)
+        public StoredImage(BitmapSource image, string caption, string description, int imageID, bool displayActualSize = false, Tools.BlobType blobType = Tools.BlobType.ANY)
         {
             this.image = image;
             this.caption = caption;
             this.description = description;
             this.DisplayActualSize = displayActualSize;
+            this.imageType = blobType;
 
             ImageID = imageID;
         }
@@ -240,6 +241,8 @@ namespace BatRecordingManager
         ///     The index ID of the image in the database
         /// </summary>
         public int ImageID { get; set; } = -1;
+
+        public Tools.BlobType imageType { get; set; }
 
         /// <summary>
         ///     returns true if there is a labelled segment associated with this image.
@@ -420,13 +423,15 @@ namespace BatRecordingManager
         {
             StoredImage si;
             if (blob == null) return (null);
-            if (blob.BinaryDataType.ToUpper().Contains("PNG"))
+            if (blob.BinaryDataType.ToUpper().Contains("PNG") || blob.BinaryDataType.ToUpper().Contains("SPCT"))
             {
                 var hgls = new List<int>();
                 var vgls = new List<int>();
                 si = new StoredImage(ConvertBinaryPngToBitmapImage(blob.BinaryData1, out hgls, out vgls), "", "",
                     blob.Id)
                 { HorizontalGridlines = hgls, VerticalGridLines = vgls };
+                if (blob.BinaryDataType == Tools.BlobType.PNG.ToString()) si.imageType = Tools.BlobType.PNG;
+                if (blob.BinaryDataType == Tools.BlobType.SPCT.ToString()) si.imageType = Tools.BlobType.SPCT;
             }
             else
             {
@@ -465,7 +470,7 @@ namespace BatRecordingManager
                 new BinaryData
                 {
                     BinaryData1 = ConvertBitmapImageToPngBinary(image, HorizontalGridlines, VerticalGridLines),
-                    BinaryDataType = Tools.BlobType.PNG.ToString(),
+                    BinaryDataType = (imageType == Tools.BlobType.SPCT) ? Tools.BlobType.SPCT.ToString() : Tools.BlobType.PNG.ToString(),
                     Description = GetCombinedText(),
                     Id = ImageID
                 };

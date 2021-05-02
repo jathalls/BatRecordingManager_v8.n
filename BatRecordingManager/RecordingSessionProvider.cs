@@ -72,6 +72,26 @@ namespace BatRecordingManager
             return sessionList;
         }
 
+        /// <summary>
+        /// dummy routine does not refresh but returns old data - should replace with a new instance of this item
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public BatSessionRecordingData Refresh(BatSessionRecordingData data)
+        {
+            return (data);
+        }
+
+        /// <summary>
+        /// dummy routine does not refresh but returns old data - should replace with a new instance of this item
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public BatSessionRecordingDataProvider Refresh(BatSessionRecordingDataProvider data)
+        {
+            return (data);
+        }
+
         public void RefreshCount()
         {
         }
@@ -92,9 +112,11 @@ namespace BatRecordingManager
     /// </summary>
     internal class RecordingProvider : IItemsProvider<Recording>
     {
-        public RecordingProvider()
+        public RecordingProvider(int sessionId)
         {
-            _count = DBAccess.GetRecordingListCount();
+            this.sessionId = sessionId;
+
+            _count = DBAccess.GetRecordingListCount(sessionId);
         }
 
         public Recording Default()
@@ -110,16 +132,26 @@ namespace BatRecordingManager
 
         public IList<Recording> FetchRange(int startIndex, int count)
         {
-            Trace.WriteLine("Rec FetchRange: " + startIndex + ", " + count);
+            Trace.WriteLine("Rec Fetch Range: " + startIndex + ", " + count);
             var recordingList = new List<Recording>();
-            var page = DBAccess.GetPagedRecordingList(count, startIndex, _sortColumn);
+            var page = DBAccess.GetPagedRecordingList(sessionId, count, startIndex, _sortColumn);
             if (page != null) recordingList.AddRange(page.ToList());
             return recordingList;
         }
 
+        /// <summary>
+        /// returns a new copy of the item from the database
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public Recording Refresh(Recording data)
+        {
+            return (DBAccess.GetRecording(data.Id));
+        }
+
         public void RefreshCount()
         {
-            _count = DBAccess.GetRecordingListCount();
+            _count = DBAccess.GetRecordingListCount(sessionId);
         }
 
         public void SetSortColumn(string column)
@@ -129,12 +161,13 @@ namespace BatRecordingManager
 
         private int _count;
         private string _sortColumn;
+        private int sessionId { get; set; }
     }
 
     /// <summary>
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// </summary>
-    internal class RecordingsDataProvider : IItemsProvider<Recording>
+    /*internal class RecordingsDataProvider : IItemsProvider<Recording>
     {
         public RecordingsDataProvider(RecordingSession session)
         {
@@ -159,18 +192,23 @@ namespace BatRecordingManager
 
         public IList<Recording> FetchRange(int startIndex, int numberRequested)
         {
-            Trace.WriteLine("Recording FetchRange: " + startIndex + ", " + numberRequested);
+            Trace.WriteLine("RecordingsData FetchRange: " + startIndex + ", " + numberRequested);
             var RecsList = new List<Recording>();
-            if (session != null && !session.Recordings.IsNullOrEmpty())
-            {
-                if (_count > startIndex + numberRequested) // we have plenty
-                {
-                    RecsList.AddRange(session.Recordings.Skip(startIndex).Take(numberRequested));
-                }
-                else if (_count > startIndex) // we have more than the start but not enough beyond that for the requested
-                {
-                    RecsList.AddRange(session.Recordings.Skip(startIndex));
-                }
+
+            var page = DBAccess.GetPagedRecordingList(numberRequested, startIndex, _sortColumn);
+            if (page != null) RecsList.AddRange(page.ToList());
+            return RecsList;
+
+            //if (session != null && !session.Recordings.IsNullOrEmpty())
+            //{
+            //    if (_count > startIndex + numberRequested) // we have plenty
+            //    {
+            //        RecsList.AddRange(session.Recordings.Skip(startIndex).Take(numberRequested));
+            //    }
+            //    else if (_count > startIndex) // we have more than the start but not enough beyond that for the requested
+            //    {
+            //        RecsList.AddRange(session.Recordings.Skip(startIndex));
+            //    }
                 //else if (_count > numberRequested) // we dont have as many as the startIndex, so return none
                 //{
                 //RecsList.AddRange(session.Recordings.Take(numberRequested));
@@ -179,13 +217,13 @@ namespace BatRecordingManager
                 //{
                 //    RecsList.AddRange(session.Recordings);
                 //}
-            }
+            //}
             //else
             //{
             //RecsList.Add(new Recording());
             //}
 
-            return RecsList;
+            //return RecsList;
         }
 
         public void RefreshCount()
@@ -208,7 +246,7 @@ namespace BatRecordingManager
         private int _count;
         private string _sortColumn;
         private RecordingSession session = null;
-    }
+    }*/
 
     /// <summary>
     ///     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -238,6 +276,16 @@ namespace BatRecordingManager
             var page = DBAccess.GetPagedRecordingSessionDataList(count, startIndex, _sortColumn);
             if (page != null) sessionList.AddRange(page.ToList());
             return sessionList;
+        }
+
+        public RecordingSessionData Refresh(RecordingSessionData oldData)
+        {
+            RecordingSessionData result = oldData;
+
+            RecordingSessionData newData = DBAccess.GetRecordingSessionData(oldData.Id);
+            if (newData != null && newData.Id == oldData.Id) result = newData;
+
+            return (result);
         }
 
         public void RefreshCount()
@@ -279,6 +327,11 @@ namespace BatRecordingManager
             var page = DBAccess.GetPagedRecordingSessionList(count, startIndex, _sortColumn);
             if (page != null) sessionList.AddRange(page.ToList());
             return sessionList;
+        }
+
+        public RecordingSession Refresh(RecordingSession data)
+        {
+            return (DBAccess.GetRecordingSession(data.Id));
         }
 
         public void RefreshCount()

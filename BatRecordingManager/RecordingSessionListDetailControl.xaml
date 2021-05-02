@@ -96,10 +96,11 @@
                         x:Name="CompareImagesButton"
                         Width="70"
                         Height="25"
-                        Content="COMP-ALL"
+                        Content="COMP-All"
                         IsEnabled="False"
                         ToolTip="Adds ALL the images for the selected session to the comparison window"
-                        Style="{StaticResource SimpleButton}" Click="CompareImagesButton_Click" />
+                        Style="{StaticResource SimpleButton}" Click="CompareImagesButton_Click">
+                    </Button>
                 </StackPanel>
                 <Grid
                     Background="{StaticResource WindowBackgroundBrush}"
@@ -212,6 +213,12 @@
                             <DataGridTextColumn x:Name="RecordingsColumn" Binding="{Binding NumberOfRecordings}"
                                                 Header="Recordings" SortDirection="Ascending" Width="50*" />
                         </DataGrid.Columns>
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Compare All Images" Click="CompareImagesButton_Click" />
+                                <MenuItem Header="Generate Sonagram Images" Click="GenerateSonagrams_Click" />
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
                         <!--
                         <DataGrid.Columns>
                             <DataGridTextColumn x:Name="TagColumn" Binding="{Binding SessionTag}" Header="Tag" SortDirection="Ascending" Width="50" />

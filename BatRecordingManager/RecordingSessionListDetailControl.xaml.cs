@@ -84,6 +84,8 @@ namespace BatRecordingManager
             //RecordingsListView.ItemsSource = displayedRecordingControls;
         }
 
+        public event EventHandler<EventArgs> SessionChanged;
+
         public BulkObservableCollection<string> sessionSummaryList { get; set; } = new BulkObservableCollection<string>();
 
         public bool GenerateReportSet(object sender, RoutedEventArgs e)
@@ -346,6 +348,8 @@ namespace BatRecordingManager
                 }
         }
 
+        protected virtual void OnSessionChanged(EventArgs e) => SessionChanged?.Invoke(this, e);
+
         private void AddEditRecordingSession(RecordingSessionForm recordingSessionForm)
         {
             using (new WaitCursor())
@@ -389,6 +393,7 @@ Mouse.OverrideCursor = null;*/
                 recordingSessionForm.SetRecordingSession(newSession);
                 Mouse.OverrideCursor = null;
                 AddEditRecordingSession(recordingSessionForm);
+                OnSessionChanged(EventArgs.Empty);
             }
         }
 
@@ -455,6 +460,7 @@ Mouse.OverrideCursor = null;*/
                     if (RecordingSessionListView.SelectedItem != null)
                         RecordingSessionListView.ScrollIntoView(RecordingSessionListView.SelectedItem);
                 }
+                OnSessionChanged(EventArgs.Empty);
             }
         }
 
@@ -623,6 +629,22 @@ Mouse.OverrideCursor = null;*/
             }
         }
 
+        private void GenerateSonagrams_Click(object sender, RoutedEventArgs e)
+        {
+            using (new WaitCursor())
+            {
+                var selectedSession = GetSelectedSession();
+                var sonagrams = new SegmentSonagrams();
+                sonagrams.GenerateForSession(selectedSession);
+                oldSelectionIndex = RecordingSessionListView.SelectedIndex;
+                recordingSessionDataList.Clear();
+
+                recordingSessionDataList.Refresh(oldSelectionIndex);
+
+                OnSessionChanged(EventArgs.Empty);
+            }
+        }
+
         private void OnListViewItemFocused(object sender, RoutedEventArgs e)
         {
             //ListViewItem lvi = sender as D
@@ -742,6 +764,7 @@ Mouse.OverrideCursor = null;*/
         private void RecordingsListControl_RecordingChanged(object sender, EventArgs e)
         {
             RefreshData(PageSize, CurrentTopOfScreen);
+            OnSessionChanged(EventArgs.Empty);
         }
 
         /// <summary>

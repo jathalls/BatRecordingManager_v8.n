@@ -140,6 +140,8 @@ namespace BatRecordingManager
         ///     BMP is a raw bitmap
         ///     BMPS is a BitmapSource object
         ///     WAV is a snippet of waveform read from a .wav file.
+        ///     PNG is an image in PNG format (prefferred)
+        ///     SPCT is an image of a self-generated sonagram/spectrogram in PNG image format
         /// </summary>
         public enum BlobType
         {
@@ -148,7 +150,8 @@ namespace BatRecordingManager
             BMP,
             BMPS,
             WAV,
-            PNG
+            PNG,
+            SPCT
         }
 
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
@@ -1380,6 +1383,8 @@ namespace BatRecordingManager
 
             externalProcess.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
 
+            SetAudacityExportFolder(Path.GetFullPath(FQWavFileName)); // NB assumes C:\audacity-win-portable\
+
             var started = externalProcess.Start();
             while (!externalProcess.Responding)
             {
@@ -1572,6 +1577,76 @@ namespace BatRecordingManager
             }
 
             return (FolderPath);
+        }
+
+        /// <summary>
+        /// Opens the C:\Audacity Config file and edits the export labels folder to
+        /// the current selected folder;
+        /// </summary>
+        /// <param name="folderPath"></param>
+        internal static void SetAudacityExportFolder(string folderPath)
+        {
+            string moddedFolderPath = folderPath.Replace(@"\\", @"\"); // first ensure that hte path only contains single backslashes - which it should
+            moddedFolderPath = moddedFolderPath.Replace(@"\", @"\\"); // then ensure that all backslashes are doubled for insertion into the config file
+            string configFile = @"C:\audacity-win-portable\Portable Settings\audacity.cfg";
+            if (File.Exists(configFile) && (new FileInfo(configFile).Length > 0L))
+            {
+                bool modOk = false;
+                bool modPathOk = false;
+                var lines = File.ReadAllLines(configFile);
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    if (lines[i].StartsWith("[Directories/Export"))
+                    {
+                        for (int j = i; j < lines.Length; j++)
+                        {
+                            if (lines[j].StartsWith("LastUsed"))
+                            {
+                                lines[j] = $"LastUsed={moddedFolderPath}";
+                                i = j;
+                            }
+                        }
+                    }
+                    else if (lines[i].StartsWith("[Module]"))
+                    {
+                        if (lines[i + 1].StartsWith("[Module]"))
+                        {
+                            if (lines[i + 1].StartsWith("mod-script-pipe"))
+                            {
+                                lines[i + 1] = "mod-script-pipe=1";
+                            }
+                            else
+                            {
+                                lines[i] = "[Module]\nmod-script-pipe=1";
+                            }
+                            modOk = true;
+                        }
+                    }
+                    else if (lines[i].StartsWith("[ModulePath]"))
+                    {
+                        if (lines[i + 1].StartsWith("mod-script-pipe"))
+                        {
+                            lines[i + 1] = @"mod-script-pipe=C:\\audacity-win-portable\\modules\\mod-script-pipe.dll";
+                        }
+                        else
+                        {
+                            lines[i] = @"[ModulePath]
+mod-script-pipe=C:\\audacity-win-portable\\modules\\mod-script-pipe.dll";
+                        }
+                        modPathOk = true;
+                    }
+                }
+                if (!modOk)
+                {
+                    lines.Append("[Module]\nmod-script-pipe=1");
+                }
+                if (!modPathOk)
+                {
+                    lines.Append(@"[ModulePath]
+mod-script-pipe=C:\\audacity-win-portable\\modules\\mod-script-pipe.dll");
+                }
+                File.WriteAllLines(configFile, lines);
+            }
         }
 
         /// <summary>

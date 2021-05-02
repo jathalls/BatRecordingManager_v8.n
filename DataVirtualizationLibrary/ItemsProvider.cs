@@ -26,6 +26,12 @@ namespace DataVirtualizationLibrary
     public interface IItemsProvider<T>
     {
         /// <summary>
+        ///     Default function returns an empty example of T, not null
+        /// </summary>
+        /// <returns></returns>
+        T Default();
+
+        /// <summary>
         ///     Fetches the total number of items available.
         /// </summary>
         /// <returns></returns>
@@ -39,14 +45,10 @@ namespace DataVirtualizationLibrary
         /// <returns></returns>
         IList<T> FetchRange(int startIndex, int count);
 
-        void SetSortColumn(string column);
+        T Refresh(T data);
 
         void RefreshCount();
 
-        /// <summary>
-        ///     Default function returns an empty example of T, not null
-        /// </summary>
-        /// <returns></returns>
-        T Default();
+        void SetSortColumn(string column);
     }
 }

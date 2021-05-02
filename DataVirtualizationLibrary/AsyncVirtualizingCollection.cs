@@ -64,7 +64,7 @@ namespace DataVirtualizationLibrary
             SynchronizationContext = SynchronizationContext.Current;
         }
 
-        #endregion
+        #endregion Constructors
 
         #region SynchronizationContext
 
@@ -75,7 +75,7 @@ namespace DataVirtualizationLibrary
         /// <value>The synchronization context.</value>
         protected SynchronizationContext SynchronizationContext { get; }
 
-        #endregion
+        #endregion SynchronizationContext
 
         #region INotifyCollectionChanged
 
@@ -107,7 +107,7 @@ namespace DataVirtualizationLibrary
             OnCollectionChanged(e);
         }
 
-        #endregion
+        #endregion INotifyCollectionChanged
 
         #region INotifyPropertyChanged
 
@@ -137,11 +137,9 @@ namespace DataVirtualizationLibrary
             OnPropertyChanged(e);
         }
 
-        #endregion
+        #endregion INotifyPropertyChanged
 
         #region IsLoading
-
-        private bool _isLoading;
 
         /// <summary>
         ///     Gets or sets a value indicating whether the collection is loading.
@@ -163,7 +161,9 @@ namespace DataVirtualizationLibrary
             }
         }
 
-        #endregion
+        private bool _isLoading;
+
+        #endregion IsLoading
 
         #region Load overrides
 
@@ -179,14 +179,14 @@ namespace DataVirtualizationLibrary
         }
 
         /// <summary>
-        ///     Performed on background thread.
+        ///     Asynchronously loads the page.
         /// </summary>
-        /// <param name="args">None required.</param>
-        private void LoadCountWork(object args)
+        /// <param name="index">The index.</param>
+        protected override void LoadPage(int index)
         {
-            var count = FetchCount();
-            //Debug.WriteLine("LoadCountWork()=" + count);
-            SynchronizationContext.Send(LoadCountCompleted, count);
+            IsLoading = true;
+            //Debug.WriteLine("LoadPage() page="+index);
+            ThreadPool.QueueUserWorkItem(LoadPageWork, index);
         }
 
         /// <summary>
@@ -203,27 +203,14 @@ namespace DataVirtualizationLibrary
         }
 
         /// <summary>
-        ///     Asynchronously loads the page.
-        /// </summary>
-        /// <param name="index">The index.</param>
-        protected override void LoadPage(int index)
-        {
-            IsLoading = true;
-            //Debug.WriteLine("LoadPage() page="+index);
-            ThreadPool.QueueUserWorkItem(LoadPageWork, index);
-        }
-
-        /// <summary>
         ///     Performed on background thread.
         /// </summary>
-        /// <param name="args">Index of the page to load.</param>
-        private void LoadPageWork(object args)
+        /// <param name="args">None required.</param>
+        private void LoadCountWork(object args)
         {
-            var pageIndex = (int)args;
-            //Debug.WriteLine("LoadPageWork() at " + pageIndex);
-            var page = FetchPage(pageIndex);
-            //Debug.WriteLine("LoadPageWork() at " + pageIndex);
-            SynchronizationContext.Send(LoadPageCompleted, new object[] { pageIndex, page });
+            var count = FetchCount();
+            //Debug.WriteLine("LoadCountWork()=" + count);
+            SynchronizationContext.Send(LoadCountCompleted, count);
         }
 
         /// <summary>
@@ -241,6 +228,20 @@ namespace DataVirtualizationLibrary
             FireCollectionReset();
         }
 
-        #endregion
+        /// <summary>
+        ///     Performed on background thread.
+        /// </summary>
+        /// <param name="args">Index of the page to load.</param>
+        private void LoadPageWork(object args)
+        {
+            var pageIndex = (int)args;
+            //Debug.WriteLine("LoadPageWork() at " + pageIndex);
+            var page = FetchPage(pageIndex);
+            //Debug.WriteLine("LoadPageWork() at " + pageIndex);
+            SynchronizationContext.Send(LoadPageCompleted, new object[] { pageIndex, page });
+            //IsLoading = false;
+        }
+
+        #endregion Load overrides
     }
 }

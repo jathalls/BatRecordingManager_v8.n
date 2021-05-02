@@ -63,11 +63,17 @@ namespace BatRecordingManager
             displayImage.DataContext = displayImage.storedImage;
             displayImage.IsModified = asModified;
 
+            if (image.imageType == Tools.BlobType.SPCT)
+            {
+                displayImage.DisplayActualSize = true;
+            }
+
             if (displayImage.DisplayActualSize)
             {
                 //displayImage.DisplayImageCanvas.Height = image.image.Height;
                 displayImage.DisplayImageCanvas.Width = image.image.Width;
-                displayImage.imageBrush.Stretch = System.Windows.Media.Stretch.None;
+
+                displayImage.imageBrush.Stretch = System.Windows.Media.Stretch.Fill;
             }
             else
             {

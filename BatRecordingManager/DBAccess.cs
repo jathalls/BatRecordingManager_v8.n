@@ -791,6 +791,24 @@ namespace BatRecordingManager
         }
 
         /// <summary>
+        ///     Given a list of images (StoredImage) and an Existing segment derived from the given DataContext
+        ///     removes any existing images no longer refferred to, updates images that are referred to and
+        ///     add any new images that were not referred to before.  Images may be de novo or pre-exisiting
+        ///     in the database.  If already exisiting then just a link is added, if new the image is added
+        ///     as well. On deletion, if there are no other links to the image then it is deleted, otherwise just the
+        ///     link is deleted.
+        /// </summary>
+        /// <param name="listOfImages"></param>
+        /// <param name="segment"></param>
+        /// <param name="dc"></param>
+        public static void UpdateSegmentImages(BulkObservableCollection<StoredImage> listOfImages,
+            LabelledSegment segment)
+        {
+            var dc = GetFastDataContext();
+            UpdateSegmentImages(listOfImages, segment, dc);
+        }
+
+        /// <summary>
         ///     Validates the bat. Checkes to see if the required fields exist and are valid in
         ///     format and if so returns an empty string. Otherwise returns a string identifying
         ///     which fields are missing or incorrect.
@@ -2488,6 +2506,17 @@ namespace BatRecordingManager
             return dc.Recordings.Skip(startIndex).Take(count).AsQueryable();
         }
 
+        internal static IQueryable<Recording> GetPagedRecordingList(int sessionId, int count, int startIndex, string p)
+        {
+            var dc = GetFastDataContext();
+
+            var result = (from rec in dc.Recordings
+                          where rec.RecordingSessionId == sessionId
+                          select rec).Skip(startIndex).Take(count).AsQueryable();
+
+            return result;
+        }
+
         /// <summary>
         ///     Gets a page full of Recording session data formatted as RecordingSesssion Data Items
         /// </summary>
@@ -2528,7 +2557,7 @@ namespace BatRecordingManager
         }
 
         internal static IQueryable<RecordingSession> GetPagedRecordingSessionList(int pageSize, int topOfScreen,
-                            string field)
+                                    string field)
         {
             var dc = GetFastDataContext();
             return GetPagedRecordingSessionList(pageSize, topOfScreen, field, dc);
@@ -2827,6 +2856,16 @@ namespace BatRecordingManager
             return result;
         }
 
+        internal static int GetRecordingListCount(int sessionId)
+        {
+            var dc = GetFastDataContext();
+            if (sessionId <= 0) return (0);
+            int count = (from rec in dc.Recordings
+                         where rec.RecordingSessionId == sessionId
+                         select rec).Count();
+            return (count);
+        }
+
         internal static int GetRecordingListCount()
         {
             var dc = GetFastDataContext();
@@ -2927,6 +2966,38 @@ namespace BatRecordingManager
             var dc = GetFastDataContext();
             var result = dc.RecordingSessions.Count();
             return result;
+        }
+
+        internal static RecordingSessionData GetRecordingSessionData(int id)
+        {
+            RecordingSessionData result = null;
+            var dc = GetFastDataContext();
+            var sess = (from rs in dc.RecordingSessions
+                        where rs.Id == id
+                        select rs).SingleOrDefault();
+
+            if (sess != null && sess.Id == id)
+                try
+                {
+                    result = new
+                                  RecordingSessionData(
+                                      sess.Id,
+                                      sess.SessionTag,
+                                      sess.Location,
+                                      sess.SessionDate,
+                                      sess.SessionStartTime,
+                                      dc.SegmentDatas.Count(
+                                          lnk => lnk.LabelledSegment.Recording.RecordingSessionId == sess.Id),
+                                      sess.Recordings.Count
+                                  );
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Error reading data:- " + ex.Message);
+                    Tools.ErrorLog(ex.Message);
+                }
+
+            return (result);
         }
 
         internal static int GetRecordingSessionDataCount()
@@ -3089,6 +3160,24 @@ namespace BatRecordingManager
         }
 
         /// <summary>
+        /// Returns a list of all the labelledSegments for the given recordingsession
+        /// </summary>
+        /// <param name="selectedSession"></param>
+        /// <returns></returns>
+        internal static List<LabelledSegment> GetSessionSegments(RecordingSession selectedSession)
+        {
+            var dc = GetFastDataContext();
+            var enumSegments = from seg in dc.LabelledSegments
+                               where seg.Recording.RecordingSessionId == selectedSession.Id
+                               select seg;
+            if (!enumSegments.IsNullOrEmpty())
+            {
+                return (enumSegments.ToList());
+            }
+            return (new List<LabelledSegment>());
+        }
+
+        /// <summary>
         ///     Returns an Observable Collection if recording sessions encompassed by the (inclusive) range of dates
         ///     given
         /// </summary>
@@ -3112,6 +3201,30 @@ namespace BatRecordingManager
             }
 
             return new BulkObservableCollection<RecordingSession>();
+        }
+
+        /// <summary>
+        /// given a labelledSegment, returns the first, if any, spectrogram image for that segment,
+        /// i.e. a linked image of binaryType SPCT
+        /// </summary>
+        /// <param name="seg"></param>
+        /// <returns></returns>
+        internal static StoredImage GetSpectrogramForSegment(LabelledSegment seg)
+        {
+            var dc = GetFastDataContext();
+            StoredImage result = null;
+
+            if (seg?.SegmentDatas?.Any() ?? false)
+            {
+                var images = from sd in seg.SegmentDatas
+                             where sd.BinaryData.BinaryDataType == Tools.BlobType.SPCT.ToString()
+                             select sd.BinaryData;
+                if (images?.Any() ?? false)
+                {
+                    StoredImage.CreateFromBinary(images.First());
+                }
+            }
+            return (result);
         }
 
         /// <summary>
@@ -6564,7 +6677,7 @@ ADD [AutoID] NVARCHAR (50) NULL;"
 
         /// <summary>
         ///     Given a list of images (StoredImage) and an Existing segment derived from the given DataContext
-        ///     removes any existing images no longer refferred to, updates images that are referred to and
+        ///     removes any existing images no longer referred to, updates images that are referred to and
         ///     add any new images that were not referred to before.  Images may be de novo or pre-exisiting
         ///     in the database.  If already exisiting then just a link is added, if new the image is added
         ///     as well. On deletion, if there are no other links to the image then it is deleted, otherwise just the
@@ -6614,10 +6727,10 @@ ADD [AutoID] NVARCHAR (50) NULL;"
                 //then we modify existing images that might have changed
 
                 // get all images for the segment which are also in the new list
-                var matchingImages = newImageList.Where(newImage =>
+                var matchingStoredImages = newImageList.Where(newImage =>
                     allImagesForSegment.Any(oldImage => oldImage.Id == newImage.ImageID));
-                if (!matchingImages.IsNullOrEmpty())
-                    foreach (var modifiedImage in matchingImages)
+                if (!matchingStoredImages.IsNullOrEmpty())
+                    foreach (var modifiedImage in matchingStoredImages)
                     {
                         var existingBinaryData = (from cp in dc.SegmentDatas
                                                   where cp.BinaryDataId == modifiedImage.ImageID && cp.SegmentId == segment.Id
@@ -6625,7 +6738,15 @@ ADD [AutoID] NVARCHAR (50) NULL;"
                         if (existingBinaryData != null && existingBinaryData.Id >= 0)
                         {
                             existingBinaryData.Description = modifiedImage.GetCombinedText();
-                            existingBinaryData.BinaryDataType = Tools.BlobType.PNG.ToString();
+                            if (modifiedImage.imageType != Tools.BlobType.SPCT)
+                            {
+                                existingBinaryData.BinaryDataType = Tools.BlobType.PNG.ToString();
+                            }
+                            else
+                            {
+                                existingBinaryData.BinaryDataType = Tools.BlobType.SPCT.ToString();
+                            }
+                            //existingBinaryData.BinaryDataType = Tools.BlobType.PNG.ToString();
                             var bd = StoredImage.ConvertBitmapImageToPngBinary(modifiedImage.image,
                                 modifiedImage.HorizontalGridlines, modifiedImage.VerticalGridLines);
                             existingBinaryData.BinaryData1 = bd ?? new Binary(new byte[0]);
@@ -6641,6 +6762,7 @@ ADD [AutoID] NVARCHAR (50) NULL;"
                     foreach (var image in imagesToAdd)
                     {
                         var newBinaryData = image.GetAsBinaryData();
+
                         dc.BinaryDatas.InsertOnSubmit(newBinaryData);
                         dc.SubmitChanges();
                         var newSegmentImageLink = new SegmentData
@@ -6671,6 +6793,14 @@ ADD [AutoID] NVARCHAR (50) NULL;"
                                     dc.SegmentDatas.InsertOnSubmit(sd);
                                     dc.SubmitChanges();
                                     sd.BinaryData.Description = image.GetCombinedText();
+                                    if (image.imageType == Tools.BlobType.SPCT)
+                                    {
+                                        sd.BinaryData.BinaryDataType = Tools.BlobType.SPCT.ToString();
+                                    }
+                                    else
+                                    {
+                                        sd.BinaryData.BinaryDataType = Tools.BlobType.PNG.ToString();
+                                    }
                                     dc.SubmitChanges();
                                 }
                             }

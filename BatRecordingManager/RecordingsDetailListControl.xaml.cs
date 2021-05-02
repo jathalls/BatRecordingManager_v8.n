@@ -26,13 +26,16 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using UniversalToolkit;
 
 namespace BatRecordingManager
 {
@@ -97,6 +100,11 @@ namespace BatRecordingManager
             selectedSession = null;
             InitializeComponent();
             DataContext = this;
+            if (virtualRecordingsList == null)
+            {
+                virtualRecordingsList = new AsyncVirtualizingCollection<Recording>(new RecordingProvider(-1));
+            }
+            virtualRecordingsList.CollectionChanged += VirtualRecordingsList_CollectionChanged;
             RefreshData(5, 100);
             //RecordingsListView.ItemsSource = recordingsList;
             CreateSearchDialog();
@@ -163,6 +171,12 @@ namespace BatRecordingManager
             }
         }
 
+        public int selectedRecordingIndex
+        {
+            get { return _selectedRecordingIndex; }
+            set { _selectedRecordingIndex = value; NotifyPropertyChanged(nameof(selectedRecordingIndex)); }
+        }
+
         /// <summary>
         ///     Gets or sets the selected session.
         /// </summary>
@@ -184,7 +198,8 @@ namespace BatRecordingManager
                         Refresh();
                         return;
                     }
-                    virtualRecordingsList = new AsyncVirtualizingCollection<Recording>(new RecordingsDataProvider(_selectedSession), 10, 100);
+                    virtualRecordingsList = new AsyncVirtualizingCollection<Recording>(new RecordingProvider((selectedSession?.Id) ?? -1), 10, 100);
+                    virtualRecordingsList.CollectionChanged += VirtualRecordingsList_CollectionChanged;
 
                     if (OffsetsButton != null)
                     {
@@ -241,10 +256,19 @@ namespace BatRecordingManager
         }
 
         public bool selectionIsWavFile { get; set; } = true;
-        public AsyncVirtualizingCollection<Recording> virtualRecordingsList { get; set; } = new AsyncVirtualizingCollection<Recording>(new RecordingsDataProvider(null), 2, 100);
+
+        public AsyncVirtualizingCollection<Recording> virtualRecordingsList
+        {
+            get { return (_virtualRecordingsList); }
+            set
+            {
+                _virtualRecordingsList = value;
+                NotifyPropertyChanged(nameof(virtualRecordingsList));
+            }
+        }
 
         internal void NotifyPropertyChanged(string propertyName) =>
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+                            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         /// <summary>
         ///     Gets or sets the recordings list.
@@ -306,21 +330,63 @@ namespace BatRecordingManager
         }
 
         private readonly object _recordingChangedEventLock = new object();
+
         private readonly SearchableCollection _searchTargets = new SearchableCollection();
+
         private readonly object _segmentSelectionChangedEventLock = new object();
+
         private bool _isCallDisplayEnabled = false;
 
         //private bool _hasMetadata = false;
         private bool _isSegmentSelected;
 
         private EventHandler<EventArgs> _recordingChangedEvent;
+
         private SearchDialog _searchDialog;
+
         private EventHandler<EventArgs> _segmentSelectionChangedEvent;
+
+        private int _selectedRecordingIndex;
+
         private LabelledSegment _selectedSegment;
+
         private RecordingSession _selectedSession;
+
+        private AsyncVirtualizingCollection<Recording> _virtualRecordingsList = new AsyncVirtualizingCollection<Recording>(new RecordingProvider(-1), 2, 100);
+
         private AnalyseAndImportClass aai;
 
+        private int currentSelectedRecording;
+
+        private int currentSelectedSegment;
         private DeepAnalysis deepAnalyser = null;
+
+        private bool isChanging = false;
+        private double offset = -1.0d;
+
+        private static DataGridCell GetCell(DataGrid recordingsListView, DataGridRow row, int column)
+        {
+            if (row != null)
+            {
+                DataGridCellsPresenter presenter = WPFToolkit.FindVisualChild<DataGridCellsPresenter>(row);
+                if (presenter == null)
+                {
+                    row.ApplyTemplate();
+                    presenter = WPFToolkit.FindVisualChild<DataGridCellsPresenter>(row);
+                }
+                if (presenter != null)
+                {
+                    DataGridCell cell = presenter.ItemContainerGenerator.ContainerFromIndex(column) as DataGridCell;
+                    if (cell == null)
+                    {
+                        recordingsListView.ScrollIntoView(row, recordingsListView.Columns[column]);
+                        cell = presenter.ItemContainerGenerator.ContainerFromIndex(column) as DataGridCell;
+                    }
+                    return (cell);
+                }
+            }
+            return (null);
+        }
 
         private void Aai_e_DataUpdated(object sender, EventArgs e)
         {
@@ -546,6 +612,18 @@ namespace BatRecordingManager
             isCallDisplayEnabled = false;
         }
 
+        private void cmiGenerateSpectrograms_Click(object sender, RoutedEventArgs e)
+        {
+            using (new WaitCursor())
+            {
+                Recording recording = RecordingsListView?.SelectedItem as Recording;
+                List<LabelledSegment> segments = recording.LabelledSegments.ToList();
+                SegmentSonagrams sonagramGenerator = new SegmentSonagrams();
+                sonagramGenerator.GenerateForSegments(segments);
+                RefreshDisplay();
+            }
+        }
+
         private void cmiRecordingNameAnalyse_Click(object sender, RoutedEventArgs e)
         {
             TextBlock tb = null;
@@ -602,6 +680,11 @@ namespace BatRecordingManager
             {
                 SearchButton.IsEnabled = (selectedSession != null && selectedSession.Recordings.Count > 0);
             }
+        }
+
+        private void DeepAnalyser_SaveClicked(object sender, EventArgs e)
+        {
+            RefreshDisplay();
         }
 
         /// <summary>
@@ -875,6 +958,7 @@ namespace BatRecordingManager
             }
 
             DBAccess.UpdateRecording(selectedRecording, processedSegments, listOfCallImageLists);
+
             //this.Parent.RefreshData();
             Tools.FindParent<RecordingSessionListDetailControl>(this).RefreshData();
             Refresh();
@@ -893,6 +977,7 @@ namespace BatRecordingManager
             if (!selection.IsNullOrEmpty())
             {
                 deepAnalyser = new DeepAnalysis();
+                deepAnalyser.SaveClicked += DeepAnalyser_SaveClicked;
                 var sel = selection.FirstOrDefault();
                 int AnalysisMode = 0;
                 if (_sender.Name.Contains("1p")) AnalysisMode = 1;
@@ -919,6 +1004,8 @@ namespace BatRecordingManager
                     }
                 }
             }
+            OnRecordingChanged(EventArgs.Empty);
+            RefreshDisplay();
         }
 
         /// <summary>
@@ -929,16 +1016,12 @@ namespace BatRecordingManager
         /// <param name="e"></param>
         private void miDisplayCalls_Click(object sender, RoutedEventArgs e)
         {
-            int selectedRecordingIndex = RecordingsListView.SelectedIndex;
             CallDataDisplayWindow window = new CallDataDisplayWindow();
             var selecteddSegment = _selectedSegment;
             window.setSegmentToDisplay(selecteddSegment);
             window.ShowDialog();
 
-            var thisSession = selectedSession;
-            selectedSession = null;
-            selectedSession = thisSession;
-            RecordingsListView.SelectedIndex = selectedRecordingIndex;
+            RefreshDisplay();
         }
 
         private void miDisplayMetaData_Click(object sender, RoutedEventArgs e)
@@ -947,6 +1030,17 @@ namespace BatRecordingManager
             MetaDataDialog metadataDialog = new MetaDataDialog();
             metadataDialog.recording = recording;
             metadataDialog.ShowDialog();
+        }
+
+        private void miGenerateSegSpectrograms_Click(object sender, RoutedEventArgs e)
+        {
+            var selection = GetSelectedSegments();
+            if (selection != null)
+            {
+                SegmentSonagrams sonagramGenerator = new SegmentSonagrams();
+                sonagramGenerator.GenerateForSegments(selection);
+                RefreshDisplay();
+            }
         }
 
         /// <summary>
@@ -1073,9 +1167,11 @@ namespace BatRecordingManager
                 {
                     var selectedRecording = RecordingsListView.SelectedItem as Recording;
                     selectionIsWavFile = selectedRecording?.isWavRecording ?? false;
+                    currentSelectedRecording = RecordingsListView.SelectedIndex;
                 }
                 else
                 {
+                    currentSelectedRecording = RecordingsListView.SelectedIndex;
                     selectionIsWavFile = true;
                 }
                 _isSegmentSelected = false;
@@ -1121,6 +1217,7 @@ namespace BatRecordingManager
 
         private void Refresh()
         {
+            Debug.WriteLine("+++ RDLC-Refresh");
             using (new WaitCursor())
             {
                 var oldIndex = -1;
@@ -1159,13 +1256,16 @@ namespace BatRecordingManager
         /// <param name="topOfScreen"></param>
         private void RefreshData(int pageSize, int topOfScreen)
         {
+            Debug.WriteLine("+++ RDLC-RefreshData");
             if (RecordingsListView == null) return;
             using (new WaitCursor("Recordings_RefreshData"))
             {
                 var oldSelectionIndex = RecordingsListView.SelectedIndex;
+                currentSelectedRecording = oldSelectionIndex;
                 if (virtualRecordingsList == null)
                 {
-                    virtualRecordingsList = new AsyncVirtualizingCollection<Recording>(new RecordingsDataProvider(selectedSession), pageSize, 100);
+                    virtualRecordingsList = new AsyncVirtualizingCollection<Recording>(new RecordingProvider((selectedSession?.Id) ?? -1), pageSize, 100);
+                    virtualRecordingsList.CollectionChanged += VirtualRecordingsList_CollectionChanged;
                 }
                 else
                 {
@@ -1178,7 +1278,47 @@ namespace BatRecordingManager
                 }
                 NotifyPropertyChanged(nameof(virtualRecordingsList));
             }
+
+            //this.Refresh();
             //RecordingsListView.SelectionChanged(this, null);
+        }
+
+        /// <summary>
+        /// retains the index of the selected recording and redfines the itemsSource to ensure that the
+        /// displayed data is refreshed from the database
+        /// </summary>
+        private void RefreshDisplay()
+        {
+            Debug.WriteLine("+++ RDLC-RefreshDisplay");
+            currentSelectedRecording = RecordingsListView.SelectedIndex;
+
+            var segment = DBAccess.GetLabelledSegment(_selectedSegment?.Id ?? -1);
+            if (segment != null)
+            {
+                _selectedSegment = segment;
+                currentSelectedSegment = -1;
+                for (int i = 0; i < segment.Recording.LabelledSegments.Count; i++)
+                {
+                    if (segment.Recording.LabelledSegments[i].Id == segment.Id)
+                    {
+                        currentSelectedSegment = i;
+                        break;
+                    }
+                }
+            }
+            //var thisSession = selectedSession;
+            //selectedSession = null;
+            //selectedSession = thisSession;
+
+            virtualRecordingsList.Refresh();
+
+            SelectRecordingAndSegment(currentSelectedRecording, segment);
+
+            OnRecordingChanged(EventArgs.Empty);
+
+            //scv.ScrollToVerticalOffset(offset);
+
+            //Refresh();
         }
 
         /// <summary>
@@ -1355,6 +1495,80 @@ namespace BatRecordingManager
             {
                 (sender as SearchDialog).Focus();
             }
+        }
+
+        private void SelectRecordingAndSegment(int currentRecordingIndex, LabelledSegment segment)
+        {
+            if (currentRecordingIndex < 0 && segment != null && RecordingsListView.ItemsSource != null)
+            {
+                // we need to find the correct recording index
+                var rec = segment.Recording;
+                for (int i = 0; i < (RecordingsListView.Items.Count); i++)
+                {
+                    var recording = RecordingsListView.Items[i] as Recording;
+                    if (recording != null && recording.Id == rec.Id)
+                    {
+                        currentRecordingIndex = i;
+                        break;
+                    }
+                }
+            }
+            if (!RecordingsListView.SelectionUnit.Equals(DataGridSelectionUnit.FullRow))
+            {
+                return;
+            }
+            if (currentRecordingIndex < 0 || (currentRecordingIndex > RecordingsListView.Items.Count - 1))
+            {
+                return;
+            }
+
+            RecordingsListView.SelectedItems.Clear();
+            object item = RecordingsListView.Items[currentRecordingIndex];
+            RecordingsListView.SelectedItem = item;
+
+            var row = RecordingsListView.ItemContainerGenerator.ContainerFromIndex(currentRecordingIndex) as DataGridRow;
+            if (row == null)
+            {
+                RecordingsListView.ScrollIntoView(item);
+                row = RecordingsListView.ItemContainerGenerator.ContainerFromIndex(currentRecordingIndex) as DataGridRow;
+            }
+
+            if (row != null)
+            {
+                DataGridCell cell = GetCell(RecordingsListView, row, 0);
+                if (cell != null)
+                {
+                    cell.Focus();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Fired when a page is finished loading
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void VirtualRecordingsList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            /*
+            Debug.WriteLine("++++ RDLC-CollectionChanged");
+            if (!isChanging)
+            {
+                isChanging = true;
+                if (currentSelectedRecording >= 0 && currentSelectedRecording < virtualRecordingsList.Count)
+                {
+                    var rec = virtualRecordingsList[currentSelectedRecording];
+                    Debug.WriteLine($"VRL changed at {currentSelectedRecording} has {virtualRecordingsList[currentSelectedRecording].LabelledSegments.Count} segments");
+                    Debug.WriteLine($"segment has {_selectedSegment?.SegmentCalls.Count} calls");
+                    if (currentSelectedSegment >= 0 && currentSelectedSegment < rec.LabelledSegments.Count)
+                    {
+                        Debug.WriteLine($"Segment comment={rec.LabelledSegments[currentSelectedSegment].Comment}");
+                    }
+                }
+                isChanging = false;
+            }
+            NotifyPropertyChanged(nameof(virtualRecordingsList));
+            //SelectRecordingAndSegment(currentSelectedRecording, _selectedSegment);*/
         }
 
 #pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved

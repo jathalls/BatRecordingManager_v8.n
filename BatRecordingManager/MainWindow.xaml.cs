@@ -88,6 +88,8 @@ namespace BatRecordingManager
                     _windowTitle = _windowTitle + _build;
                     Console.WriteLine(_windowTitle);
 
+                    recordingSessionListControl.SessionChanged += RecordingSessionListControl_SessionChanged;
+
                     InvalidateArrange();
                     //DBAccess.InitializeDatabase();
 
@@ -204,38 +206,6 @@ namespace BatRecordingManager
         private readonly string _build;
 
         /// <summary>
-        ///     The is saved
-        /// </summary>
-        //private bool isSaved = true;
-
-        /// <summary>
-        ///     The window title
-        /// </summary>
-        ///
-        //private string _windowTitle { get; set; } = "Bat Log Manager - v";
-
-        #region _windowTitle
-
-        /// <summary>
-        /// _windowTitle Dependency Property
-        /// </summary>
-        public static readonly DependencyProperty _windowTitleProperty =
-            DependencyProperty.Register("_windowTitle", typeof(string), typeof(MainWindow),
-                new FrameworkPropertyMetadata(""));
-
-        /// <summary>
-        /// Gets or sets the _windowTitle property.  This dependency property
-        /// indicates ....
-        /// </summary>
-        public string _windowTitle
-        {
-            get { return (string)GetValue(_windowTitleProperty); }
-            set { SetValue(_windowTitleProperty, value); }
-        }
-
-        #endregion _windowTitle
-
-        /// <summary>
         ///     Instance holder for the Analyze and Import class.  If null, then a new folder
         ///     needs to be selectedd, otherwise analyses the next .wav file in the currently
         ///     selected folder.
@@ -249,6 +219,7 @@ namespace BatRecordingManager
         private bool _runKaleidoscope;
 
         private bool _useCurrentSession;
+
         private BatListControl batListControl { get; } = new BatListControl();
 
         private BatRecordingsListDetailControl BatRecordingListDetailControl { get; } =
@@ -460,8 +431,6 @@ namespace BatRecordingManager
             }
         }
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
         /// <summary>
         ///     Handles the Click event of the miBatSearch control.
         /// </summary>
@@ -629,8 +598,6 @@ Do you wish to update that database to the latest specification?", "Out of Date 
             }
             SetTitle();
         }
-
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
         private void MiDatabaseDisplay_Click(object sender, RoutedEventArgs e)
         {
@@ -826,6 +793,46 @@ Do you wish to update that database to the latest specification?", "Out of Date 
             }
             SetTitle();
         }
+
+        private void RecordingSessionListControl_SessionChanged(object sender, EventArgs e)
+        {
+            miRecordingSearch_Click(this, new RoutedEventArgs());
+        }
+
+        /// <summary>
+        ///     The is saved
+        /// </summary>
+        //private bool isSaved = true;
+
+        /// <summary>
+        ///     The window title
+        /// </summary>
+        ///
+        //private string _windowTitle { get; set; } = "Bat Log Manager - v";
+
+        #region _windowTitle
+
+        /// <summary>
+        /// _windowTitle Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty _windowTitleProperty =
+            DependencyProperty.Register("_windowTitle", typeof(string), typeof(MainWindow),
+                new FrameworkPropertyMetadata(""));
+
+        /// <summary>
+        /// Gets or sets the _windowTitle property.  This dependency property
+        /// indicates ....
+        /// </summary>
+        public string _windowTitle
+        {
+            get { return (string)GetValue(_windowTitleProperty); }
+            set { SetValue(_windowTitleProperty, value); }
+        }
+
+        #endregion _windowTitle
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
         /// <summary>
         ///     Handles the SessionAction event of the SessionsAndRecordings control.

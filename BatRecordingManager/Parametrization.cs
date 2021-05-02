@@ -134,11 +134,11 @@ namespace BatRecordingManager
             analysisWindow.AnalysisChartGrid.saveClicked += AnalysisChartGrid_saveClicked;
         }
 
-        internal void CalculateParameters(List<Spectrum> spectra, int FFTSize, int FFTadvance)
+        internal void CalculateParameters(List<Spectrum> spectra, int FFTSize, int FFTOverlapSamples)
         {
             this.spectra = spectra;
             this.FFTSize = FFTSize;
-            FFTAdvance = FFTadvance;
+            this.FFTOverlapSamples = FFTOverlapSamples;
             getEnvelope();
             getCalls();
         }
@@ -147,7 +147,7 @@ namespace BatRecordingManager
 
         private int depth = 0;
 
-        private int FFTAdvance;
+        private int FFTOverlapSamples;
 
         private int FFTSize;
 
@@ -383,10 +383,10 @@ namespace BatRecordingManager
 
             double maxVal = double.MinValue;
 
-            int firstSpectrum = (peak.startOverall / FFTAdvance) - 1; // index of the first spectrum to fall in the call window
+            int firstSpectrum = (peak.startOverall / FFTOverlapSamples) - 1; // index of the first spectrum to fall in the call window
             if (firstSpectrum < 0) firstSpectrum = 0;
 
-            int lastSpectrum = (int)((peak.startOverall + peak.lengthInSamples) / FFTAdvance) + 1; // index of the last spectrum to fall in the call window
+            int lastSpectrum = (int)((peak.startOverall + peak.lengthInSamples) / FFTOverlapSamples) + 1; // index of the last spectrum to fall in the call window
             if (lastSpectrum >= spectra.Count) lastSpectrum = spectra.Count - 1;
 
             SampleSpectra = spectra.Skip(firstSpectrum).Take(lastSpectrum - firstSpectrum).ToList(); // extract the set of spectra to examine for this call
@@ -535,9 +535,9 @@ namespace BatRecordingManager
             for (int i = 0; i < FFTSize; i++) extendedData.Add(0.0f);
 
             float scale = 0.9f / (Math.Abs(Math.Max(extendedData.Max(), Math.Abs(extendedData.Min()))));// scale all data to 90% of maximum value
-            FFTAdvance = (int)Math.Floor(FFTSize * 0.25);
+            FFTOverlapSamples = (int)Math.Floor(FFTSize * 0.25);
 
-            var advanceMS = ((double)FFTAdvance / (double)SampleRate) * 1000.0d;
+            var advanceMS = ((double)FFTOverlapSamples / (double)SampleRate) * 1000.0d;
 
             float[] buffer = new float[FFTSize];
             int offset = 0;
@@ -549,7 +549,7 @@ namespace BatRecordingManager
                 Spectrum spect = new Spectrum(FFTOrder);
                 spect.Create(buffer, SampleRate, scale);
                 spectra.Add(spect);
-                offset += FFTAdvance;
+                offset += FFTOverlapSamples;
             }
             string file = @"C:\BRMTestData\isoSpectra.csv";
             File.WriteAllText(file, $"For extended sample region start at {startSample} and length {extendedData.Count}\n");
@@ -866,7 +866,7 @@ namespace BatRecordingManager
         /// <param name="pe"></param>
         private void selectNearestPeak(Point pe)
         {
-            double pointMs = (pe.X * FFTAdvance * 1000.0d) / SampleRate;
+            double pointMs = (pe.X * FFTOverlapSamples * 1000.0d) / SampleRate;
             var orderedPeaks = from pk in unfilteredPeaks
                                where Peak.isValidPeak(pk)
                                orderby Math.Pow(pk.peakInMs - pointMs, 2.0d)

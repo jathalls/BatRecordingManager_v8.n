@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,6 +27,10 @@ namespace BatRecordingManager
             InitializeComponent();
         }
 
+        public void SortByColumn(string columnName)
+        {
+        }
+
         private void DatabaseTableDataGrid_Sorting(object sender, DataGridSortingEventArgs e)
         {
             var columnName = e.Column.Header as string;
@@ -34,12 +38,7 @@ namespace BatRecordingManager
                 columnName = columnName + " descending";
             SortByColumn(columnName);
         }
-
-        public void SortByColumn(string columnName)
-        {
-        }
     }
-
 
     public class RecordingSessionTableControl : DatabaseTableControl
     {
@@ -74,7 +73,6 @@ namespace BatRecordingManager
             //}
             //Debug.WriteLine(VirtualizedCollectionOfRecording.Count+" elements in List of Recording");
 
-
             DataContext = VirtualizedCollectionOfRecording;
             //Debug.WriteLine("Data Context for Recordings set");
             //VirtualizedCollectionOfRecording = new AsyncVirtualizingCollection<Recording>(recordingProvider, 100, 0);
@@ -83,6 +81,6 @@ namespace BatRecordingManager
         }
 
         public AsyncVirtualizingCollection<Recording> VirtualizedCollectionOfRecording { get; set; } =
-            new AsyncVirtualizingCollection<Recording>(new RecordingProvider(), 100, 100);
+            new AsyncVirtualizingCollection<Recording>(new RecordingProvider(-1), 100, 100);
     }
 }

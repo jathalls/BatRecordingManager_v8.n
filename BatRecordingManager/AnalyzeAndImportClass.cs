@@ -79,7 +79,7 @@ namespace BatRecordingManager
             if (!string.IsNullOrWhiteSpace(FolderPath) && Directory.Exists(FolderPath) && !WavFileList.IsNullOrEmpty())
             {
                 FolderSelected = true;
-                SetAudacityExportFolder(FolderPath);
+                Tools.SetAudacityExportFolder(FolderPath);
             }
         }
 
@@ -93,7 +93,7 @@ namespace BatRecordingManager
             if (!string.IsNullOrWhiteSpace(FolderPath) && Directory.Exists(FolderPath) && !WavFileList.IsNullOrEmpty())
             {
                 FolderSelected = true;
-                SetAudacityExportFolder(FolderPath);
+                Tools.SetAudacityExportFolder(FolderPath);
             }
         }
 
@@ -114,7 +114,7 @@ namespace BatRecordingManager
                 if (Directory.Exists(FolderPath))
                 {
                     FolderSelected = true;
-                    SetAudacityExportFolder(FolderPath);
+                    Tools.SetAudacityExportFolder(FolderPath);
                     SessionTag = recordingToAnalyse.RecordingSession.SessionTag;
                     FileToAnalyse = FolderPath + recordingToAnalyse.RecordingName;
                     ThisRecordingSession = recordingToAnalyse.RecordingSession;
@@ -916,38 +916,6 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
 
             OnDataUpdated(new EventArgs());
             return savedSession;
-        }
-
-        /// <summary>
-        /// Opens the C:\Audacity Config file and edits the export labels folder to
-        /// the current selected folder;
-        /// </summary>
-        /// <param name="folderPath"></param>
-        private void SetAudacityExportFolder(string folderPath)
-        {
-            string moddedFolderPath = folderPath.Replace(@"\\", @"\"); // first ensure that hte path only contains single backslashes - which it should
-            moddedFolderPath = moddedFolderPath.Replace(@"\", @"\\"); // then ensure that all backslashes are doubled for insertion into the config file
-            string configFile = @"C:\audacity-win-portable\Portable Settings\audacity.cfg";
-            if (File.Exists(configFile) && (new FileInfo(configFile).Length > 0L))
-            {
-                var lines = File.ReadAllLines(configFile);
-                for (int i = 0; i < lines.Length; i++)
-                {
-                    if (lines[i].StartsWith("[Directories/Export"))
-                    {
-                        for (int j = i; j < lines.Length; j++)
-                        {
-                            if (lines[j].StartsWith("LastUsed"))
-                            {
-                                lines[j] = $"LastUsed={moddedFolderPath}";
-                                j = lines.Length;
-                                i = lines.Length;
-                            }
-                        }
-                    }
-                }
-                File.WriteAllLines(configFile, lines);
-            }
         }
     }
 }

@@ -564,6 +564,7 @@
     <Compile Include="SegmentDetailsControl.xaml.cs">
       <DependentUpon>SegmentDetailsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SegmentSonagrams.cs" />
     <Compile Include="SelectOneDialog.xaml.cs">
       <DependentUpon>SelectOneDialog.xaml</DependentUpon>
     </Compile>

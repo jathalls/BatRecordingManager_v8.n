@@ -153,10 +153,10 @@ namespace BatRecordingManager
         /// <summary>
         /// The number of data samples each FFT advances beyond the last one so that FFTs overlap by FFTSiz-FFTAdvance
         /// </summary>
-        public int FFTAdvance = 25;
+        public float FFTAdvanceFactor = 0.5f;
 
         public int FFTOrder = 9;
-        public float FFTOverlap = 0.5f;
+        public int FFTOverlapSamples;
         public int FFTSize;
 
         public int HzPerBin;
@@ -167,6 +167,207 @@ namespace BatRecordingManager
         /// A list of spectra of order FFTOrder at about 95% overlap
         /// </summary>
         public List<Spectrum> spectra = new List<Spectrum>();
+
+        public event EventHandler<EventArgs> SaveClicked;
+
+        public static Bitmap GetBmpFromSpectra(List<Spectrum> spectra, int FFTOrder, float FFTAdvanceFactor, int sampleRate, Parametrization param = null)
+        {
+            int FFTSize = (int)Math.Pow(2, FFTOrder);
+            int FFTOverlap = (int)(FFTAdvanceFactor * FFTSize);
+            int HzPerBin = (int)((double)sampleRate / (double)FFTSize);
+            if (spectra.Count <= 0) return (null);
+            int fftSize = spectra[0].fft.Length;
+            int size = spectra[0].fft.Length * 2;
+            Bitmap bmp = new Bitmap(spectra.Count, size);
+
+            double MaximumValue = Double.MinValue;
+            foreach (var sp in spectra)
+            {
+                if (sp.PeakValue > MaximumValue) MaximumValue = sp.PeakValue;
+            }
+
+            /*
+            logMinimumValue = Math.Abs(20 * Math.Log10(Math.Abs(MinimumValue)));
+            if (double.IsNaN(logMinimumValue)) logMinimumValue = 0.0d;
+            if (double.IsInfinity(logMinimumValue)) logMinimumValue = 0.0d;
+            logMaximumValue = Math.Abs(20 * Math.Log10(Math.Abs(MaximumValue)));
+            if (double.IsNaN(logMaximumValue)) logMaximumValue = 1.0d;*/
+
+            Debug.WriteLine($"bitmap of {spectra.Count}x{size}");
+            int col = 0;
+
+            foreach (var sp in spectra)
+            {
+                for (int bin = 0; bin < fftSize; bin++)
+                {
+                    var scaled = DeepAnalysis.Scale(sp.fft[bin], MaximumValue);
+
+                    bmp.SetPixel(col, size - (bin * 2) - 1, scaled);
+                    bmp.SetPixel(col, size - (bin * 2) - 2, scaled);
+                }
+                col++;
+            }
+
+            using (var g = Graphics.FromImage(bmp))
+            {
+                double binsPer10kHz = 10000.0d / HzPerBin;
+                Pen blackPen = new Pen(Color.DarkGray);
+                Pen redPen = new Pen(Color.Red);
+                int f = 0;
+                for (int y = size; y >= 0; y -= (int)Math.Ceiling((binsPer10kHz * 2.0d)))//f=frequency in kHz
+                {
+                    g.DrawLine(blackPen, 0.0f, y, spectra.Count, y);
+                    if (f > 0)
+                    {
+                        g.DrawString(f.ToString() + "kHz", new Font(FontFamily.GenericSansSerif, 10.0f, FontStyle.Regular), new SolidBrush(Color.Black), 10.0f, y);
+                    }
+                    f += 10;
+                }
+
+                double spDurationMs = (1000.0d * FFTOverlap) / sampleRate;
+                int spPer100ms = (int)Math.Floor(100 / spDurationMs);
+
+                float xPos = 0.0f;
+                float tim = 0.0f;
+                while (xPos < spectra.Count)
+                {
+                    g.DrawLine(blackPen, xPos, 0.0f, xPos, (float)size - 1);
+                    if (tim > 0.0f)
+                    {
+                        g.DrawString($"{tim:F1}",
+                            new Font(FontFamily.GenericSansSerif, 10.0f, FontStyle.Regular),
+                            new SolidBrush(Color.Black),
+                            xPos - 20,
+                            5);
+                    }
+                    xPos += spPer100ms;
+                    tim += 0.1f;
+                }
+
+                if (param != null)
+                {
+                    if (param.AllPeaks != null && param.AllPeaks.Count > 0)
+                    {
+                        for (int p = 0; p < param.AllPeaks.Count; p++)
+                        {
+                            var freqs = param.AllPeaks[p].frequencyData;
+                            var peak = param.AllPeaks[p];
+                            int xmin = (int)(peak.startOverall / (FFTSize * FFTAdvanceFactor));
+                            int xmax = (int)((peak.startOverall + peak.lengthInSamples) / (FFTSize * FFTAdvanceFactor));
+                            int ymin = size - (2 * (int)(freqs.endFrequency / HzPerBin));
+                            int ymax = size - (2 * (int)(freqs.startFrequency / HzPerBin));
+
+                            g.DrawLine(redPen, xmin, ymin, xmax, ymin);
+                            g.DrawLine(redPen, xmin, ymin, xmin, ymin + 5);
+                            g.DrawLine(redPen, xmax, ymin, xmax, ymin + 5);
+
+                            g.DrawLine(redPen, xmin, ymax, xmax, ymax);
+                            g.DrawLine(redPen, xmin, ymax, xmin, ymax - 5);
+                            g.DrawLine(redPen, xmax, ymax, xmax, ymax - 5);
+                        }
+                    }
+                }
+            }
+
+            return (bmp);
+        }
+
+        public static List<Spectrum> GetSpectrum(List<float> data, int sampleRate, int FFTOrder, float FFTAdvanceFactor, out int FFTOverlapSamples, out double advanceMS, out double[] FFTQuiet)
+        {
+            List<Spectrum> spectra = new List<Spectrum>();
+            int FFTSize = (int)Math.Pow(2, FFTOrder);
+            float scale = 0.9f / (Math.Abs(Math.Max(data.Max(), Math.Abs(data.Min()))));// scale all data to 90% of maximum value
+            FFTOverlapSamples = (int)Math.Floor(FFTSize * FFTAdvanceFactor);
+
+            advanceMS = ((double)FFTOverlapSamples / (double)sampleRate) * 1000.0d;
+
+            FFTQuiet = Enumerable.Repeat(0.0d, (FFTSize / 2) + 1).ToArray<double>();
+
+            float[] buffer = new float[FFTSize];
+            int offset = 0;
+
+            while (data.Count - offset >= FFTSize)
+            {
+                buffer = data.Skip(offset).Take(FFTSize).ToArray();
+                Spectrum spect = new Spectrum(FFTOrder);
+                spect.Create(buffer, sampleRate, scale);
+                spectra.Add(spect);
+                offset += FFTOverlapSamples;
+            }
+            var sortedSpectra = (from sp in spectra
+                                 orderby sp.fftMean
+                                 select sp).ToList();
+            int quietCount = (int)Math.Floor(sortedSpectra.Count() / 10.0d);
+            if (quietCount > 0)
+            {
+                //FFTQuiet = Enumerable.Range(0, FFTSize / 2).AsParallel()
+                //    .Select(i => sortedSpectra.Take(quietCount).Select(a => a.fft.Skip(i).First()).Average()).ToArray<double>();
+
+                for (int f = 0; f < spectra.First().fft.Count(); f++)
+                {
+                    for (int q = 0; q < quietCount; q++)
+                    {
+                        FFTQuiet[f] += sortedSpectra[q].fft[f];
+                    }
+                    FFTQuiet[f] = FFTQuiet[f] / quietCount;
+                }
+            }
+            foreach (var sp in spectra)
+            {
+                for (int i = (FFTSize / 2) - 1; i >= 0; i--)
+                {
+                    sp.fft[i] = sp.fft[i] - FFTQuiet[i];
+                    if (sp.fft[i] < 0.0d) sp.fft[i] = 0.0d;
+                }
+            }
+            return (spectra);
+        }
+
+        /// <summary>
+        /// Scales a value return a color that can be displayed in the bitmap
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        public static Color Scale(double val, double MaximumValue)
+        {
+            double dbRange = 48.0d;
+
+            int value;
+            if (double.IsNaN(val) || double.IsInfinity(val))
+            {
+                val = 0.0d;
+            }
+            if (double.IsNaN(MaximumValue) || double.IsInfinity(MaximumValue))
+            {
+                MaximumValue = 1.0d;
+            }
+
+            var ratio = val / MaximumValue;
+
+            if (ratio > 1.0d) ratio = 1.0d;
+
+            int grey;
+            if (ratio <= 0.0d)
+            {
+                grey = 255;
+            }
+            else
+            {
+                var db = 20.0d * Math.Log10(ratio); //ranges from 0 to minus lots
+
+                if (db < -dbRange) db = -dbRange;
+
+                db = db * (255.0d / dbRange);  // gives number in range 0 - -255
+
+                db = Math.Abs(db); // make it positive 0-255
+
+                grey = (int)Math.Floor(db);
+            }
+
+            value = grey;
+
+            return (Color.FromArgb(value, value, value));
+        }
 
         internal static int GetFFTOrder(int fFTSize)
         {
@@ -247,94 +448,7 @@ namespace BatRecordingManager
         /// <returns></returns>
         internal BitmapSource GetImage()
         {
-            if (spectra.Count <= 0) return (null);
-            int fftSize = spectra[0].fft.Length;
-            int size = spectra[0].fft.Length * 2;
-            Bitmap bmp = new Bitmap(spectra.Count, size);
-            /*
-            logMinimumValue = Math.Abs(20 * Math.Log10(Math.Abs(MinimumValue)));
-            if (double.IsNaN(logMinimumValue)) logMinimumValue = 0.0d;
-            if (double.IsInfinity(logMinimumValue)) logMinimumValue = 0.0d;
-            logMaximumValue = Math.Abs(20 * Math.Log10(Math.Abs(MaximumValue)));
-            if (double.IsNaN(logMaximumValue)) logMaximumValue = 1.0d;*/
-
-            Debug.WriteLine($"bitmap of {spectra.Count}x{size}");
-            int col = 0;
-
-            foreach (var sp in spectra)
-            {
-                for (int bin = 0; bin < fftSize; bin++)
-                {
-                    var scaled = Scale(sp.fft[bin]);
-
-                    bmp.SetPixel(col, size - (bin * 2) - 1, scaled);
-                    bmp.SetPixel(col, size - (bin * 2) - 2, scaled);
-                }
-                col++;
-            }
-
-            using (var g = Graphics.FromImage(bmp))
-            {
-                double binsPer10kHz = 10000.0d / HzPerBin;
-                Pen blackPen = new Pen(Color.DarkGray);
-                Pen redPen = new Pen(Color.Red);
-                int f = 0;
-                for (int y = size; y >= 0; y -= (int)Math.Ceiling((binsPer10kHz * 2.0d)))//f=frequency in kHz
-                {
-                    g.DrawLine(blackPen, 0.0f, y, spectra.Count, y);
-                    if (f > 0)
-                    {
-                        g.DrawString(f.ToString() + "kHz", new Font(FontFamily.GenericSansSerif, 10.0f, FontStyle.Regular), new SolidBrush(Color.Black), 10.0f, y);
-                    }
-                    f += 10;
-                }
-
-                double spDurationMs = (1000.0d * FFTAdvance) / sampleRate;
-                int spPer100ms = (int)Math.Floor(100 / spDurationMs);
-
-                float xPos = 0.0f;
-                float tim = 0.0f;
-                while (xPos < spectra.Count)
-                {
-                    g.DrawLine(blackPen, xPos, 0.0f, xPos, (float)size - 1);
-                    if (tim > 0.0f)
-                    {
-                        g.DrawString($"{tim:F1}",
-                            new Font(FontFamily.GenericSansSerif, 10.0f, FontStyle.Regular),
-                            new SolidBrush(Color.Black),
-                            xPos - 20,
-                            5);
-                    }
-                    xPos += spPer100ms;
-                    tim += 0.1f;
-                }
-
-                if (param != null)
-                {
-                    if (param.AllPeaks != null && param.AllPeaks.Count > 0)
-                    {
-                        for (int p = 0; p < param.AllPeaks.Count; p++)
-                        {
-                            var freqs = param.AllPeaks[p].frequencyData;
-                            var peak = param.AllPeaks[p];
-                            int xmin = (int)(peak.startOverall / (FFTSize * FFTOverlap));
-                            int xmax = (int)((peak.startOverall + peak.lengthInSamples) / (FFTSize * FFTOverlap));
-                            int ymin = size - (2 * (int)(freqs.endFrequency / HzPerBin));
-                            int ymax = size - (2 * (int)(freqs.startFrequency / HzPerBin));
-
-                            g.DrawLine(redPen, xmin, ymin, xmax, ymin);
-                            g.DrawLine(redPen, xmin, ymin, xmin, ymin + 5);
-                            g.DrawLine(redPen, xmax, ymin, xmax, ymin + 5);
-
-                            g.DrawLine(redPen, xmin, ymax, xmax, ymax);
-                            g.DrawLine(redPen, xmin, ymax, xmin, ymax - 5);
-                            g.DrawLine(redPen, xmax, ymax, xmax, ymax - 5);
-                        }
-                    }
-                }
-            }
-
-            return (Tools.ToBitmapSource(bmp));
+            return (Tools.ToBitmapSource(GetBmpFromSpectra(spectra, FFTOrder, FFTAdvanceFactor, sampleRate, param)));
         }
 
         internal void reAnalyseSegment(PointEeventArgs pe)
@@ -352,6 +466,8 @@ namespace BatRecordingManager
             }
         }
 
+        protected virtual void OnSaveClicked(EventArgs e) => SaveClicked?.Invoke(this, e);
+
         private readonly double logMaximumValue;
         private readonly double logMinimumValue;
         private double advanceMS = 0;
@@ -363,6 +479,51 @@ namespace BatRecordingManager
         private Parametrization param = null;
         private List<(int frequency, double value, int bin)> peakFrequency = new List<(int frequency, double value, int bin)>();
         private LabelledSegment selectedSegment = null;
+
+        private static Color Scale(double[] recipFft, int bin, double max, double MaximumValue)
+        {
+            double val = recipFft[bin];
+
+            val = val / max;
+
+            double dbRange = 48.0d;
+
+            int value;
+            if (double.IsNaN(val) || double.IsInfinity(val))
+            {
+                val = 0.0d;
+            }
+            if (double.IsNaN(MaximumValue) || double.IsInfinity(MaximumValue))
+            {
+                MaximumValue = 1.0d;
+            }
+
+            var ratio = val / MaximumValue;
+
+            if (ratio > 1.0d) ratio = 1.0d;
+
+            int grey;
+            if (ratio <= 0.0d)
+            {
+                grey = 255;
+            }
+            else
+            {
+                var db = 20.0d * Math.Log10(ratio); //ranges from 0 to minus lots
+
+                if (db < -dbRange) db = -dbRange;
+
+                db = db * (255.0d / dbRange);  // gives number in range 0 - -255
+
+                db = Math.Abs(db); // make it positive 0-255
+
+                grey = (int)Math.Floor(db);
+            }
+
+            value = grey;
+
+            return (Color.FromArgb(value, value, value));
+        }
 
         /// <summary>
         /// Given a data stream in the form of a SampleProvider, performs the deep analysis
@@ -378,42 +539,6 @@ namespace BatRecordingManager
             }
             //List<Spectrum> spectra = new List<Spectrum>();
             //int FFTOrder = 10;
-            float scale = 0.9f / (Math.Abs(Math.Max(data.Max(), Math.Abs(data.Min()))));// scale all data to 90% of maximum value
-            FFTAdvance = (int)Math.Floor(FFTSize * FFTOverlap);
-
-            advanceMS = ((double)FFTAdvance / (double)sampleRate) * 1000.0d;
-
-            FFTQuiet = Enumerable.Repeat(0.0d, (FFTSize / 2) + 1).ToArray<double>();
-
-            float[] buffer = new float[FFTSize];
-            int offset = 0;
-
-            while (data.Count - offset >= FFTSize)
-            {
-                buffer = data.Skip(offset).Take(FFTSize).ToArray();
-                Spectrum spect = new Spectrum(FFTOrder);
-                spect.Create(buffer, sampleRate, scale);
-                spectra.Add(spect);
-                offset += FFTAdvance;
-            }
-            var sortedSpectra = (from sp in spectra
-                                 orderby sp.fftMean
-                                 select sp).ToList();
-            int quietCount = (int)Math.Floor(sortedSpectra.Count() / 10.0d);
-            if (quietCount > 0)
-            {
-                //FFTQuiet = Enumerable.Range(0, FFTSize / 2).AsParallel()
-                //    .Select(i => sortedSpectra.Take(quietCount).Select(a => a.fft.Skip(i).First()).Average()).ToArray<double>();
-
-                for (int f = 0; f < spectra.First().fft.Count(); f++)
-                {
-                    for (int q = 0; q < quietCount; q++)
-                    {
-                        FFTQuiet[f] += sortedSpectra[q].fft[f];
-                    }
-                    FFTQuiet[f] = FFTQuiet[f] / quietCount;
-                }
-            }
 
             MinimumValue = double.MaxValue;
             MaximumValue = double.MinValue;
@@ -426,6 +551,9 @@ namespace BatRecordingManager
 
             var tpf = new List<(int frequency, double value, int bin)>();
             var tgrad = new List<int>();
+
+            spectra = GetSpectrum(data, sampleRate, FFTOrder, FFTAdvanceFactor,
+                out FFTOverlapSamples, out advanceMS, out FFTQuiet);
             foreach (var sp in spectra)
             {
                 spectrumMax = 0.0d;
@@ -433,8 +561,8 @@ namespace BatRecordingManager
                 spectrumPeakBin = -1;
                 for (int i = (FFTSize / 2) - 1; i >= 0; i--)
                 {
-                    sp.fft[i] = sp.fft[i] - FFTQuiet[i];
-                    if (sp.fft[i] < 0.0d) sp.fft[i] = 0.0d;
+                    //sp.fft[i] = sp.fft[i] - FFTQuiet[i];
+                    //if (sp.fft[i] < 0.0d) sp.fft[i] = 0.0d;
                     if (i > 15000 / HzPerBin)
                     {
                         if (sp.fft[i] > spectrumMax)
@@ -522,8 +650,8 @@ namespace BatRecordingManager
             var startY = Math.Min(startPoint.Y, endPoint.Y);
             var endY = Math.Max(startPoint.Y, endPoint.Y);
 
-            var startSample = startX * FFTAdvance;
-            var endSample = endX * FFTAdvance;
+            var startSample = startX * FFTAdvanceFactor;
+            var endSample = endX * FFTAdvanceFactor;
 
             int spectHeight = FFTSize;
 
@@ -591,13 +719,14 @@ namespace BatRecordingManager
         {
             ReferenceCall call = (e as callEventArgs).call;
             DBAccess.AppendCallDetailsToSegment(call, selectedSegment);
+            OnSaveClicked(new EventArgs());
         }
 
         private void ParameterizeData(List<float> alldata, int AnalysisMode)
         {
             param = new Parametrization(alldata, sampleRate, AnalysisMode);
             param.saveClicked += Param_saveClicked;
-            param.CalculateParameters(spectra, FFTSize, FFTAdvance);
+            param.CalculateParameters(spectra, FFTSize, FFTOverlapSamples);
         }
 
         /// <summary>
@@ -622,97 +751,6 @@ namespace BatRecordingManager
             }
 
             return (result.ToArray());
-        }
-
-        private Color Scale(double[] recipFft, int bin, double max)
-        {
-            double val = recipFft[bin];
-
-            val = val / max;
-
-            double dbRange = 48.0d;
-
-            int value;
-            if (double.IsNaN(val) || double.IsInfinity(val))
-            {
-                val = 0.0d;
-            }
-            if (double.IsNaN(MaximumValue) || double.IsInfinity(MaximumValue))
-            {
-                MaximumValue = 1.0d;
-            }
-
-            var ratio = val / MaximumValue;
-
-            if (ratio > 1.0d) ratio = 1.0d;
-
-            int grey;
-            if (ratio <= 0.0d)
-            {
-                grey = 255;
-            }
-            else
-            {
-                var db = 20.0d * Math.Log10(ratio); //ranges from 0 to minus lots
-
-                if (db < -dbRange) db = -dbRange;
-
-                db = db * (255.0d / dbRange);  // gives number in range 0 - -255
-
-                db = Math.Abs(db); // make it positive 0-255
-
-                grey = (int)Math.Floor(db);
-            }
-
-            value = grey;
-
-            return (Color.FromArgb(value, value, value));
-        }
-
-        /// <summary>
-        /// Scales a value return a color that can be displayed in the bitmap
-        /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
-        private Color Scale(double val)
-        {
-            double dbRange = 48.0d;
-
-            int value;
-            if (double.IsNaN(val) || double.IsInfinity(val))
-            {
-                val = 0.0d;
-            }
-            if (double.IsNaN(MaximumValue) || double.IsInfinity(MaximumValue))
-            {
-                MaximumValue = 1.0d;
-            }
-
-            var ratio = val / MaximumValue;
-
-            if (ratio > 1.0d) ratio = 1.0d;
-
-            int grey;
-            if (ratio <= 0.0d)
-            {
-                grey = 255;
-            }
-            else
-            {
-                var db = 20.0d * Math.Log10(ratio); //ranges from 0 to minus lots
-
-                if (db < -dbRange) db = -dbRange;
-
-                db = db * (255.0d / dbRange);  // gives number in range 0 - -255
-
-                db = Math.Abs(db); // make it positive 0-255
-
-                grey = (int)Math.Floor(db);
-            }
-
-            value = grey;
-
-            return (Color.FromArgb(value, value, value));
         }
 
         /// <summary>

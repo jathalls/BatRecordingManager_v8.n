@@ -211,13 +211,13 @@ namespace DataVirtualizationLibrary
                     return ItemsProvider.Default();
                 }
             }
-            set => throw new NotSupportedException();
+            set => throw (new NotImplementedException());
         }
 
         object IList.this[int index]
         {
             get => this[index];
-            set => throw new NotSupportedException();
+            set => throw (new NotImplementedException());
         }
 
         public void Refresh()
@@ -228,6 +228,14 @@ namespace DataVirtualizationLibrary
 
             Count = ItemsProvider.FetchCount();
             RequestPage(0);
+        }
+
+        public void Refresh(int index)
+        {
+            if (index >= 0 && index < this.Count)
+            {
+                //this[index] = ItemsProvider.Refresh(this[index]);
+            }
         }
 
         #endregion Indexer

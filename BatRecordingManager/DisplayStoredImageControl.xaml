@@ -12,7 +12,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="25" />
             <RowDefinition Height="25" />
-            <RowDefinition Height="104*" />
+            <RowDefinition x:Name="imageRow" Height="104*" />
             <RowDefinition Height="5" />
             <RowDefinition Height="27*" />
         </Grid.RowDefinitions>
@@ -196,7 +196,7 @@
             MouseLeftButtonUp="DisplayImageCanvas_MouseLeftButtonUp">
                 <Canvas.Background>
                     <ImageBrush x:Name="imageBrush"
-                    ImageSource="{Binding Path=image}" Stretch="Uniform" />
+                        ImageSource="{Binding Path=image}" Stretch="Uniform" />
                 </Canvas.Background>
 
                 <Canvas.ContextMenu>

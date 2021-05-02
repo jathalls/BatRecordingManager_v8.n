@@ -98,6 +98,7 @@
     <Compile Include="WPFTimePicker.xaml.cs">
       <DependentUpon>WPFTimePicker.xaml</DependentUpon>
     </Compile>
+    <Compile Include="WPFToolkit.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="Generic.xaml">
