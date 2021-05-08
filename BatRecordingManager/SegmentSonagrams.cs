@@ -3,6 +3,7 @@ using NAudio.Dsp;
 using NAudio.Wave;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -46,11 +47,13 @@ namespace BatRecordingManager
         /// <returns></returns>
         private StoredImage generateSpectrogram(LabelledSegment seg)
         {
+            if (seg.StartOffset.TotalMilliseconds == 0 && seg.EndOffset == seg.StartOffset) return (null);
             StoredImage si = DBAccess.GetSpectrogramForSegment(seg);
             if (si == null)
             {
                 int FFTOrder = 10;
                 List<float> data = GetData(seg, FFTOrder, out int sampleRate);
+                Debug.WriteLine($"gen spectrogram-> data {data.Count} lasting {data.Count / (double)sampleRate}s");
                 List<Spectrum> spectra = DeepAnalysis.GetSpectrum(data, sampleRate, FFTOrder, 0.5f, out int FFTAdvance, out double advanceMS, out double[] FFTQuiet);
                 var bmp = DeepAnalysis.GetBmpFromSpectra(spectra, FFTOrder, 0.5f, sampleRate);
                 si = new StoredImage(Tools.ToBitmapSource(bmp),

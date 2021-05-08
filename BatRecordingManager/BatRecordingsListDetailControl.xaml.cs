@@ -158,6 +158,11 @@ namespace BatRecordingManager
             }
         }
 
+        private void BatStatsDataGrid_MouseDoubleClick(object sender, RoutedEventArgs e)
+        {
+            CompareImagesButton_Click(sender, e);
+        }
+
         private void BatStatsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             using (new WaitCursor("Bat selection changed"))

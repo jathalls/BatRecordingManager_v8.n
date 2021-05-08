@@ -15,7 +15,6 @@
         <GridSplitter Grid.Row="1" />
         <!--<Button Visibility="Hidden" Content="{Binding selectedBat}" x:Name="BatButton" />/!-->
 
-
         <DataGrid
             x:Name="SessionsDataGrid"
             Style="{StaticResource VdgStyle}"
@@ -38,7 +37,10 @@
             ToolTip="Double-click to Open Recording-sessions view">
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem x:Name="miListBySessions" Header="Open Recording Sessions View" Click="SessionsDataGrid_MouseDoubleClick"/>
+                    <MenuItem x:Name="miListBySessions" Header="Open Recording Sessions View" Click="SessionsDataGrid_MouseDoubleClick" />
+                    <MenuItem x:Name="miGenerateSessionSpectrograms"
+                              Header="Generate Spectrograms"
+                              ToolTip="Generates spectrograms for every segment in the selected sessions which have this bat" Click="miGenerateSessionSpectrograms_Click" />
                 </ContextMenu>
             </DataGrid.ContextMenu>
 
@@ -69,7 +71,6 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch" />
 
-
             <DataGrid
                 x:Name="RecordingsDataGrid"
                 Style="{StaticResource VdgStyle}"
@@ -88,11 +89,7 @@
                 HorizontalScrollBarVisibility="Visible"
                 VerticalScrollBarVisibility="Visible"
 
-
-                
                 IsSynchronizedWithCurrentItem="True">
-                
-               
 
                 <DataGrid.Columns>
                     <DataGridTextColumn Width="180*" Binding="{Binding RecordingName,IsAsync=True}" Header="File"
@@ -113,11 +110,13 @@
                     <ContextMenu>
                         <MenuItem x:Name="miOpenImportPicture"  Header="Open Import Picture Window" Click="miOpenImportPicture_Click" />
                         <MenuItem x:Name="miExportFiles" Header="Export selected Files" Click="miExportFiles_Click" />
-                        <MenuItem x:Name="miOpenWavFile" Header="Open .Wav File" Click="RecordingsDataGrid_MouseDoubleClick"/>
+                        <MenuItem x:Name="miOpenWavFile" Header="Open .Wav File" Click="RecordingsDataGrid_MouseDoubleClick" />
+                        <MenuItem x:Name="miGenerateRecordingSpectrograms"
+                                  Header="Generate Spectrograms"
+                                  ToolTip="Generate Spectrograms for all segments in this recording for this bat" Click="miGenerateRecordingSpectrograms_Click" />
                     </ContextMenu>
                 </DataGrid.ContextMenu>
             </DataGrid>
-
 
             <local:ImageScrollerControl
                 Grid.Column="2"

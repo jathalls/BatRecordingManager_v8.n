@@ -22,6 +22,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Dynamic;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -527,6 +528,54 @@ namespace BatRecordingManager
                 }
                 string filename = parentFolder + bsrd?.RecordingName;
                 AppFilter.TransferFile(filename, folder, false);
+            }
+        }
+
+        private void miGenerateRecordingSpectrograms_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            using (new WaitCursor())
+            {
+                if (RecordingsDataGrid.SelectedItems != null && RecordingsDataGrid.SelectedItems.Any())
+                {
+                    foreach (var recordingData in RecordingsDataGrid.SelectedItems)
+                    {
+                        BatSessionRecordingData bsrd = recordingData as BatSessionRecordingData;
+                        List<LabelledSegment> segList = DBAccess.GetBatRecordingSegments(bsrd.RecordingId, SelectedBatId);
+                        if (!segList.IsNullOrEmpty())
+                        {
+                            SegmentSonagrams sonagramGenerator = new SegmentSonagrams();
+                            sonagramGenerator.GenerateForSegments(segList);
+                        }
+                    }
+                    this.RefreshParentData();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Generates spectrograms for all the segments in the selected sessions which contain the selected bat
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void miGenerateSessionSpectrograms_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            using (new WaitCursor())
+            {
+                if (SessionsDataGrid.SelectedItems != null && SessionsDataGrid.SelectedItems.Any())
+                {
+                    foreach (var sessionData in SessionsDataGrid.SelectedItems)
+                    {
+                        BatSessionData bsd = sessionData as BatSessionData;
+                        var tag = bsd.SessionTag;
+                        List<LabelledSegment> segList = DBAccess.GetBatSegments(tag, bsd.BatId);
+                        if (segList != null && segList.Any())
+                        {
+                            SegmentSonagrams sonagramGenerator = new SegmentSonagrams();
+                            sonagramGenerator.GenerateForSegments(segList);
+                        }
+                    }
+                    this.RefreshParentData();
+                }
             }
         }
 

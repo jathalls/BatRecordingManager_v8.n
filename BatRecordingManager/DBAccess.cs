@@ -1495,6 +1495,63 @@ namespace BatRecordingManager
         }
 
         /// <summary>
+        /// Returns a list of all segments in the recording specified, that contain the specified bat
+        /// </summary>
+        /// <param name="recordingId"></param>
+        /// <param name="selectedBatId"></param>
+        /// <returns></returns>
+        internal static List<LabelledSegment> GetBatRecordingSegments(int? recordingId, int selectedBatId)
+        {
+            List<LabelledSegment> result = new List<LabelledSegment>();
+            var dc = GetFastDataContext();
+            var segsForRecording = from seg in dc.LabelledSegments
+                                   where seg.RecordingID == recordingId
+                                   select seg;
+            if (segsForRecording != null && segsForRecording.Any())
+            {
+                var segsForBat = from seg in segsForRecording
+                                 from lnk in seg.BatSegmentLinks
+                                 where lnk.BatID == selectedBatId
+                                 select lnk.LabelledSegment;
+                if (!segsForBat.IsNullOrEmpty())
+                {
+                    result = segsForBat.ToList();
+                }
+            }
+            return (result);
+        }
+
+        /// <summary>
+        /// Returns a list of all the labelled segments which are inn the RecordingSession identified by the Sessiontag
+        /// and which are linked to the bat withthe specified BatId
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <param name="batId"></param>
+        /// <returns></returns>
+        internal static List<LabelledSegment> GetBatSegments(string tag, int batId)
+        {
+            List<LabelledSegment> result = new List<LabelledSegment>();
+            var dc = GetFastDataContext();
+            var segsForsession = from sess in dc.RecordingSessions
+                                 where sess.SessionTag == tag
+                                 from seg in dc.LabelledSegments
+                                 where seg.Recording.RecordingSessionId == sess.Id
+                                 select seg;
+            if (segsForsession != null && segsForsession.Any())
+            {
+                var segsForBat = from seg in segsForsession
+                                 from lnk in seg.BatSegmentLinks
+                                 where lnk.BatID == batId
+                                 select lnk.LabelledSegment;
+                if (!segsForBat.IsNullOrEmpty())
+                {
+                    result = segsForBat.ToList();
+                }
+            }
+            return (result);
+        }
+
+        /// <summary>
         ///     Given a bat returns data about all the sessions that feature that bat organised into a collection of
         ///     BatSessionData
         /// </summary>

@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:BatRecordingManager"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="800">
+             d:DesignHeight="500" d:DesignWidth="800">
     <Grid
         Background="{StaticResource BlueGradientBackground}"
         x:Name="Maingrid">
@@ -432,12 +432,22 @@
             </Canvas>
         </ScrollViewer>
 
-        <TextBox
-            x:Name="DescriptionTextBox"
-            Grid.Row="4"
-            Text="{Binding Path=description,Mode=TwoWay}"
-            Style="{StaticResource SimpleTextBox}"
-            IsReadOnly="False" BorderBrush="{DynamicResource SolidBorderBrush}" BorderThickness="2"
-            AcceptsReturn="True" TextChanged="DescriptionTextBox_TextChanged" />
+        <DockPanel Grid.Row="4" HorizontalAlignment="Stretch">
+            <DockPanel HorizontalAlignment="Right" Width="200" Margin="0,0,100,0" DockPanel.Dock="Right">
+                <local:QualityControl
+                    x:Name="qualityControl"
+                    HorizontalAlignment="Right"
+                    Width="200"
+                    DockPanel.Dock="Right" />
+            </DockPanel>
+            <TextBox
+                x:Name="DescriptionTextBox"
+                Grid.Row="4"
+                Text="{Binding Path=description,Mode=TwoWay}"
+                Style="{StaticResource SimpleTextBox}"
+                HorizontalAlignment="Stretch"
+                IsReadOnly="False" BorderBrush="{DynamicResource SolidBorderBrush}" BorderThickness="2"
+                AcceptsReturn="True" TextChanged="DescriptionTextBox_TextChanged" />
+        </DockPanel>
     </Grid>
 </UserControl>

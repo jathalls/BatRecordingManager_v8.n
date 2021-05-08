@@ -515,6 +515,9 @@
     <Compile Include="PulseAnalysisWindow.xaml.cs">
       <DependentUpon>PulseAnalysisWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="QualityControl.xaml.cs">
+      <DependentUpon>QualityControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="RecordingForm.xaml.cs">
       <DependentUpon>RecordingForm.xaml</DependentUpon>
     </Compile>
@@ -724,6 +727,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="PulseAnalysisWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="QualityControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

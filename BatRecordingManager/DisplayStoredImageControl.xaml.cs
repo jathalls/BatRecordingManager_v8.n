@@ -72,6 +72,7 @@ namespace BatRecordingManager
         {
             InitializeComponent();
             Loaded += DisplayStoredImageControl_Loaded;
+            if (qualityControl != null) qualityControl.SaveClicked += QualityControl_SaveClicked;
             DataContext = storedImage;
             AxisGrid675.DataContext = this;
             AxisGrid7029A.DataContext = this;
@@ -217,6 +218,7 @@ namespace BatRecordingManager
 
         public bool DisplayActualSize { get; set; } = false;
         public bool IsSelectable { get; set; } = false;
+        //public Visibility isSpectrogramVisible { get; set; } = Visibility.Hidden;
 
         /// <summary>
         ///     The instance of a StoredImage to be displayed in this control
@@ -230,6 +232,13 @@ namespace BatRecordingManager
                 SetValue(storedImageProperty, DBAccess.GetImage(value));
                 PlayButton.IsEnabled = value.isPlayable;
                 DisplayActualSize = storedImage.DisplayActualSize;
+                if ((storedImage?.imageType ?? Tools.BlobType.NONE) == Tools.BlobType.SPCT)
+                {
+                    qualityControl.Visibility = Visibility.Visible;
+                    qualityControl.SetFromString(storedImage.description);
+                }
+                else qualityControl.Visibility = Visibility.Hidden;
+
                 if (DisplayActualSize)
                 {
                     SetImageFull(FullSizeButton.Content as string == "FULL");
@@ -499,34 +508,42 @@ namespace BatRecordingManager
         }
 
         private readonly double _defaultGridLeftMargin = 0.28d;
+
         private readonly double _defaultGridScale = 0.6782d;
 
         private readonly double _defaultGridTopMargin = 0.154d;
 
         private readonly object _delButtonPressedEventLock = new object();
+
         private readonly object _downButtonPressedEventLock = new object();
 
         private readonly object _duplicateEventLock = new object();
 
         private readonly object _fidsButtonRClickedEventLock = new object();
+
         private readonly StoredImage _storedImage = new StoredImage(null, "", "", -1);
+
         private readonly object _upButtonPressedEventLock = new object();
+
         private bool __showGrid = false;
+
         private Canvas _axisGrid = new Canvas();
 
         private EventHandler<EventArgs> _delButtonPressedEvent;
 
         private EventHandler<EventArgs> _downButtonPressedEvent;
+
         private EventHandler<EventArgs> _duplicateEvent;
+
         private EventHandler<EventArgs> _fidsButtonRClickedEvent;
 
         private int _gridToShow;
 
-        //private bool _isPlacingFiducialLines = false;
-
         private bool _linesDrawn;
 
+        //private bool _isPlacingFiducialLines = false;
         private int _selectedLine = -1;
+
         private EventHandler<EventArgs> _upButtonPressedEvent;
 
         private bool isGridHighlighted = false;
@@ -1987,6 +2004,38 @@ Are you sure?", "Delete Image from database", MessageBoxButton.OKCancel);
                             AudioHost.Instance.audioPlayer.AddToList(seg);
                 }
             }
+        }
+
+        /// <summary>
+        /// Event raised when the quality control has been modified and it's Save button is clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void QualityControl_SaveClicked(object sender, EventArgs e)
+        {
+            Debug.WriteLine("%%%%%%% Quality Save Clicked");
+            var qc = sender as QualityControl;
+
+            string strQuality = qc.AsString();
+            if (strQuality == null) strQuality = "";
+            var txt = storedImage.description;
+            if (!string.IsNullOrWhiteSpace(txt) && txt.Contains("["))
+            {
+                var lines = txt.Trim().Split('\n');
+                txt = "";
+                foreach (var line in lines)
+                {
+                    if (!line.StartsWith("["))
+                    {
+                        txt += line + "\n";
+                    }
+                }
+            }
+            txt = txt.Trim() + "\n" + strQuality;
+            storedImage.description = txt;
+            IsModified = true;
+            this.InvalidateArrange();
+            this.UpdateLayout();
         }
 
         private void RotateImage90(bool clockwise)
