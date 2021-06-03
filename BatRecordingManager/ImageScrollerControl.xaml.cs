@@ -1,13 +1,13 @@
 ﻿// *  Copyright 2016 Justin A T Halls
 //  *
 //  *  This file is part of the Bat Recording Manager Project
-// 
+//
 //         Licensed under the Apache License, Version 2.0 (the "License");
 //         you may not use this file except in compliance with the License.
 //         You may obtain a copy of the License at
-// 
+//
 //             http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //         Unless required by applicable law or agreed to in writing, software
 //         distributed under the License is distributed on an "AS IS" BASIS,
 //         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,22 +22,81 @@ using System.Windows.Input;
 
 namespace BatRecordingManager
 {
+    /// end class ImageScrollerControl
+    /// <summary>
+    ///     Arguments fort a ButtonPressed Event Handler
+    /// </summary>
+    [Serializable]
+    public class ButtonPressedEventArgs : EventArgs
+    {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        public new static readonly ButtonPressedEventArgs Empty = new ButtonPressedEventArgs(null, null, false);
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+
+        #region Constructors
+
+        /// <summary>
+        ///     Constructs a new instance of the <see cref="ButtonPressedEventArgs" /> class.
+        /// </summary>
+        public ButtonPressedEventArgs(Button senderButton, StoredImage image, bool fromDatabase)
+        {
+            PressedButton = senderButton;
+            Image = image;
+            this.fromDatabase = fromDatabase;
+        }
+
+        #endregion Constructors
+
+        #region Public Properties
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        public StoredImage Image;
+        public bool fromDatabase { get; set; }
+        public Button PressedButton { get; set; }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+
+        #endregion Public Properties
+    }
+
+    /// <summary>
+    ///     ImageDeletedEventArgs
+    /// </summary>
+    [Serializable]
+    public class ImageDeletedEventArgs : EventArgs
+    {
+        #region Constructors
+
+        /// <summary>
+        ///     Constructs a new instance of the <see cref="ImageDeletedEventArgs" /> class.
+        /// </summary>
+        public ImageDeletedEventArgs(int ID)
+        {
+            imageID = ID;
+        }
+
+        #endregion Constructors
+
+        #region Public
+
+        public new static readonly ImageDeletedEventArgs Empty = new ImageDeletedEventArgs(-1);
+
+        /// <summary>
+        ///     ID of the image that has been removed from the list
+        /// </summary>
+        public int imageID { get; } = -1;
+
+        #endregion Public
+    }
+
     /// <summary>
     ///     Interaction logic for ImageScrollerControl.xaml
     ///     is used as a base class by BatAndCallImageScroller
     /// </summary>
     public partial class ImageScrollerControl : UserControl
     {
-        private readonly object _buttonPressedEventLock = new object();
-
-        private readonly object _imageDeletedEventLock = new object();
-        private EventHandler<EventArgs> _buttonPressedEvent;
-        private EventHandler<EventArgs> _imageDeletedEvent;
-
-        private int _imageIndex = -1;
-
-        private string _title = "";
-
         /// <summary>
         ///     default constructor for the class.  Clears the imageList and sets the
         ///     DataContext to the selectedImage which is null at this point
@@ -53,10 +112,51 @@ namespace BatRecordingManager
         }
 
         /// <summary>
+        ///     Event raised after one of the handled buttons has been pressed.
+        /// </summary>
+        public event EventHandler<EventArgs> e_ButtonPressed
+        {
+            add
+            {
+                lock (_buttonPressedEventLock)
+                {
+                    _buttonPressedEvent += value;
+                }
+            }
+            remove
+            {
+                lock (_buttonPressedEventLock)
+                {
+                    _buttonPressedEvent -= value;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Event raised after the <see cref="Text" /> property value has changed.
+        /// </summary>
+        public event EventHandler<EventArgs> e_ImageDeleted
+        {
+            add
+            {
+                lock (_imageDeletedEventLock)
+                {
+                    _imageDeletedEvent += value;
+                }
+            }
+            remove
+            {
+                lock (_imageDeletedEventLock)
+                {
+                    _imageDeletedEvent -= value;
+                }
+            }
+        }
+
+        /// <summary>
         ///     protected read-only list of images to be displayed - the contents of the list may be changed
         /// </summary>
         public BulkObservableCollection<StoredImage> imageList { get; } = new BulkObservableCollection<StoredImage>();
-
 
         /// <summary>
         ///     getters and setters for a flag that controls the visibility of the ADD and EDIT buttons
@@ -104,6 +204,130 @@ namespace BatRecordingManager
                     ImportImageButton.IsEnabled = false;
                 }
             }
+        }
+
+        /// <summary>
+        ///     Adds a given image to the imageList
+        /// </summary>
+        /// <param name="newImage"></param>
+        public void AddImage(StoredImage newImage)
+        {
+            if (imageList != null)
+            {
+                imageList.Add(newImage);
+
+                imageIndex = imageList.Count - 1;
+                selectedImage = imageList[imageIndex];
+            }
+        }
+
+        /// <summary>
+        ///     Clears the list of currently displayed images but not the source lists from which
+        ///     it gets populated.  The imageIndex is set to -1 and the selecetdImage to null.
+        /// </summary>
+        public void Clear()
+        {
+            imageList.Clear();
+            imageIndex = -1;
+            CaptionTextBox.Text = "";
+            DescriptionTextBox.Text = "";
+
+            AddImageButton.IsEnabled = true;
+        }
+
+        /// <summary>
+        ///     deletes the currently selected image from the list but does not change the database
+        /// </summary>
+        public void DeleteImage()
+        {
+            if (!imageList.IsNullOrEmpty() && imageIndex >= 0 && imageIndex < imageList.Count)
+            {
+                var DeletedImageID = selectedImage.ImageID;
+                imageList.Remove(selectedImage);
+                selectedImage = null;
+                CaptionTextBox.Text = "";
+                DescriptionTextBox.Text = "";
+                imageIndex--;
+                if (imageIndex < 0 && imageList.Count > 0) imageIndex = 0;
+                while (imageIndex > imageList.Count - 1) imageIndex--;
+
+                OnImageDeleted(new ImageDeletedEventArgs(DeletedImageID));
+            }
+        }
+
+        /// <summary>
+        ///     resets the selectedImage to the item in the imageList pointed to by the
+        ///     imageIndex, or null if the index does not point to a valid entry
+        /// </summary>
+        public void Update()
+        {
+            if (imageIndex >= 0 && imageIndex < imageList.Count)
+                imageList[imageIndex] = selectedImage;
+            else
+                selectedImage = null;
+        }
+
+        internal void DisableAddButton()
+        {
+            AddImageButton.IsEnabled = false;
+        }
+
+        /// <summary>
+        ///     Disables all the buttons in the scrollers button bar
+        /// </summary>
+        internal void DisableAllButtons()
+        {
+            FarLeftButton.IsEnabled = false;
+            FarRightButton.IsEnabled = false;
+            OneLeftButton.IsEnabled = false;
+            OneRightButton.IsEnabled = false;
+            AddImageButton.IsEnabled = false;
+            DelImageButton.IsEnabled = false;
+            EditImageButton.IsEnabled = false;
+            FullScreenButton.IsEnabled = false;
+            ImportImageButton.IsEnabled = false;
+        }
+
+        /// <summary>
+        ///     disables all the controls buttons when there is no parent list that can be added to and no
+        ///     images displayed to modify
+        /// </summary>
+        internal void EnableAllButtons()
+        {
+            FarLeftButton.IsEnabled = true;
+            FarRightButton.IsEnabled = true;
+            OneLeftButton.IsEnabled = true;
+            OneRightButton.IsEnabled = true;
+            AddImageButton.IsEnabled = true;
+            DelImageButton.IsEnabled = true;
+            EditImageButton.IsEnabled = true;
+            FullScreenButton.IsEnabled = true;
+            ImportImageButton.IsEnabled = true;
+        }
+
+        internal void SetImportAllowed(bool allowed)
+        {
+            if (allowed)
+            {
+                ImportImageButton.Visibility = Visibility.Visible;
+                ImportImageButton.IsEnabled = true;
+            }
+            else
+            {
+                ImportImageButton.Visibility = Visibility.Hidden;
+                ImportImageButton.IsEnabled = false;
+            }
+        }
+
+        /// <summary>
+        ///     Sets up the image scroller control for view only mode, basically by disabling the
+        ///     ADD button for when it is used in the image entry mode in which the add dialog is
+        ///     permanently displayed and copies images across into the scroller as they are
+        ///     created.
+        /// </summary>
+        internal void SetViewOnly(bool onoff)
+        {
+            AddImageButton.Visibility = onoff ? Visibility.Hidden : Visibility.Visible;
         }
 
         /// <summary>
@@ -159,158 +383,6 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Adds a given image to the imageList
-        /// </summary>
-        /// <param name="newImage"></param>
-        public void AddImage(StoredImage newImage)
-        {
-            if (imageList != null)
-            {
-                imageList.Add(newImage);
-
-                imageIndex = imageList.Count - 1;
-                selectedImage = imageList[imageIndex];
-            }
-        }
-
-        /// <summary>
-        ///     resets the selectedImage to the item in the imageList pointed to by the
-        ///     imageIndex, or null if the index does not point to a valid entry
-        /// </summary>
-        public void Update()
-        {
-            if (imageIndex >= 0 && imageIndex < imageList.Count)
-                imageList[imageIndex] = selectedImage;
-            else
-                selectedImage = null;
-        }
-
-        /// <summary>
-        ///     deletes the currently selected image from the list but does not change the database
-        /// </summary>
-        public void DeleteImage()
-        {
-            if (!imageList.IsNullOrEmpty() && imageIndex >= 0 && imageIndex < imageList.Count)
-            {
-                var DeletedImageID = selectedImage.ImageID;
-                imageList.Remove(selectedImage);
-                selectedImage = null;
-                CaptionTextBox.Text = "";
-                DescriptionTextBox.Text = "";
-                imageIndex--;
-                if (imageIndex < 0 && imageList.Count > 0) imageIndex = 0;
-                while (imageIndex > imageList.Count - 1) imageIndex--;
-
-                OnImageDeleted(new ImageDeletedEventArgs(DeletedImageID));
-            }
-        }
-
-        /// <summary>
-        ///     disables all the controls buttons when there is no parent list that can be added to and no
-        ///     images displayed to modify
-        /// </summary>
-        internal void EnableAllButtons()
-        {
-            FarLeftButton.IsEnabled = true;
-            FarRightButton.IsEnabled = true;
-            OneLeftButton.IsEnabled = true;
-            OneRightButton.IsEnabled = true;
-            AddImageButton.IsEnabled = true;
-            DelImageButton.IsEnabled = true;
-            EditImageButton.IsEnabled = true;
-            FullScreenButton.IsEnabled = true;
-            ImportImageButton.IsEnabled = true;
-        }
-
-        /// <summary>
-        ///     Clears the list of currently displayed images but not the source lists from which
-        ///     it gets populated.  The imageIndex is set to -1 and the selecetdImage to null.
-        /// </summary>
-        public void Clear()
-        {
-            imageList.Clear();
-            imageIndex = -1;
-            CaptionTextBox.Text = "";
-            DescriptionTextBox.Text = "";
-
-            AddImageButton.IsEnabled = true;
-        }
-
-        private void FarLeftButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (imageList != null && imageList.Count > 0) imageIndex = 0;
-        }
-
-        /// <summary>
-        ///     Disables all the buttons in the scrollers button bar
-        /// </summary>
-        internal void DisableAllButtons()
-        {
-            FarLeftButton.IsEnabled = false;
-            FarRightButton.IsEnabled = false;
-            OneLeftButton.IsEnabled = false;
-            OneRightButton.IsEnabled = false;
-            AddImageButton.IsEnabled = false;
-            DelImageButton.IsEnabled = false;
-            EditImageButton.IsEnabled = false;
-            FullScreenButton.IsEnabled = false;
-            ImportImageButton.IsEnabled = false;
-        }
-
-        internal void DisableAddButton()
-        {
-            AddImageButton.IsEnabled = false;
-        }
-
-        private void OneLeftButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (imageList != null && imageList.Count > 1 && imageIndex > 0) imageIndex--;
-        }
-
-        private void OneRightButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (imageList != null && imageList.Count > 1 && imageIndex >= 0 && imageIndex < imageList.Count - 1)
-                imageIndex++;
-        }
-
-        private void FarRightButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (imageList != null && imageList.Count > 1) imageIndex = imageList.Count - 1;
-        }
-
-        /// <summary>
-        ///     Button to display the selected image full screen
-        ///     A misnomer - adds the image to the comparisonwindow
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void FullScreenButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (selectedImage != null) ComparisonHost.Instance.AddImage(selectedImage);
-        }
-
-        /// <summary>
-        ///     Event raised after one of the handled buttons has been pressed.
-        /// </summary>
-        public event EventHandler<EventArgs> e_ButtonPressed
-        {
-            add
-            {
-                lock (_buttonPressedEventLock)
-                {
-                    _buttonPressedEvent += value;
-                }
-            }
-            remove
-            {
-                lock (_buttonPressedEventLock)
-                {
-                    _buttonPressedEvent -= value;
-                }
-            }
-        }
-
-        /// <summary>
         ///     Raises the <see cref="e_ButtonPressed" /> event.
         /// </summary>
         /// <param name="e"><see cref="EventArgs" /> object that provides the arguments for the event.</param>
@@ -329,6 +401,35 @@ namespace BatRecordingManager
             handler(this, e);
         }
 
+        /// <summary>
+        ///     Raises the <see cref="e_ImageDeleted" /> event.
+        /// </summary>
+        /// <param name="e"><see cref="EventArgs" /> object that provides the arguments for the event.</param>
+        protected virtual void OnImageDeleted(EventArgs e)
+        {
+            EventHandler<EventArgs> handler = null;
+
+            lock (_imageDeletedEventLock)
+            {
+                handler = _imageDeletedEvent;
+
+                if (handler == null)
+                    return;
+            }
+
+            handler(this, e);
+        }
+
+        private readonly object _buttonPressedEventLock = new object();
+
+        private readonly object _imageDeletedEventLock = new object();
+        private EventHandler<EventArgs> _buttonPressedEvent;
+        private EventHandler<EventArgs> _imageDeletedEvent;
+
+        private int _imageIndex = -1;
+
+        private string _title = "";
+
         private void AddImageButton_Click(object sender, RoutedEventArgs e)
         {
             if (imageIndex >= 0 && imageIndex < imageList.Count)
@@ -337,16 +438,28 @@ namespace BatRecordingManager
                 OnButtonPressed(new ButtonPressedEventArgs(sender as Button, null, false));
         }
 
-        /*
-        private void PasteCheckBox_Checked(object sender, RoutedEventArgs e)
+        private void Currentimage_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-            AddImageButton.Content = "PASTE";
+            var move = e.Delta;
+            if (move > 0)
+                OneRightButton_Click(sender, new RoutedEventArgs());
+            else
+                OneLeftButton_Click(sender, new RoutedEventArgs());
         }
 
-        private void PasteCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        private void DelImageButton_Click(object sender, RoutedEventArgs e)
         {
-            AddImageButton.Content = "ADD";
-        }*/
+            if (imageIndex >= 0 && imageIndex < imageList.Count)
+            {
+                var fromDatabase = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
+                var args = new ButtonPressedEventArgs(sender as Button, imageList[imageIndex], fromDatabase);
+                OnButtonPressed(args);
+            }
+            else
+            {
+                OnButtonPressed(new ButtonPressedEventArgs(sender as Button, null, false));
+            }
+        }
 
         private void EditImageButton_Click(object sender, RoutedEventArgs e)
         {
@@ -370,28 +483,75 @@ namespace BatRecordingManager
             }
         }
 
-        private void DelImageButton_Click(object sender, RoutedEventArgs e)
+        private void FarLeftButton_Click(object sender, RoutedEventArgs e)
         {
-            if (imageIndex >= 0 && imageIndex < imageList.Count)
+            if (imageList != null && imageList.Count > 0) imageIndex = 0;
+        }
+
+        private void FarRightButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (imageList != null && imageList.Count > 1) imageIndex = imageList.Count - 1;
+        }
+
+        /// <summary>
+        ///     Button to display the selected image full screen
+        ///     A misnomer - adds the image to the comparisonwindow
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FullScreenButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (selectedImage != null) ComparisonHost.Instance.AddImage(selectedImage);
+        }
+
+        /// <summary>
+        ///     Get the currently selecetd image in the comparison window (if any) and
+        ///     add it to the displayed list and also link it to the source of the currently displayed
+        ///     list.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ImportImageButton_Click(object sender, RoutedEventArgs e)
+        {
+            var newImage = ComparisonHost.Instance?.GetSelectedImage();
+            if (newImage != null && !imageList.Contains(newImage))
             {
-                var fromDatabase = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
-                var args = new ButtonPressedEventArgs(sender as Button, imageList[imageIndex], fromDatabase);
-                OnButtonPressed(args);
-            }
-            else
-            {
-                OnButtonPressed(new ButtonPressedEventArgs(sender as Button, null, false));
+                AddImage(newImage);
+                OnButtonPressed(new ButtonPressedEventArgs(sender as Button, newImage, false));
             }
         }
 
-        private void Currentimage_MouseWheel(object sender, MouseWheelEventArgs e)
+        private void MiDeleteFromdatabase_Click(object sender, RoutedEventArgs e)
         {
-            var move = e.Delta;
-            if (move > 0)
-                OneRightButton_Click(sender, new RoutedEventArgs());
-            else
-                OneLeftButton_Click(sender, new RoutedEventArgs());
+            if (imageIndex >= 0 && imageIndex < imageList.Count)
+            {
+                var fromDatabase = true;
+                var args = new ButtonPressedEventArgs(DelImageButton, imageList[imageIndex], fromDatabase);
+                OnButtonPressed(args);
+            }
         }
+
+        private void OneLeftButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (imageList != null && imageList.Count > 1 && imageIndex > 0) imageIndex--;
+        }
+
+        private void OneRightButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (imageList != null && imageList.Count > 1 && imageIndex >= 0 && imageIndex < imageList.Count - 1)
+                imageIndex++;
+        }
+
+        /*
+        private void PasteCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            AddImageButton.Content = "PASTE";
+        }
+
+        private void PasteCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            AddImageButton.Content = "ADD";
+        }*/
 
         /// <summary>
         ///     Parses the StoredImage Uri for a collection of file names and opens those that have
@@ -413,91 +573,6 @@ namespace BatRecordingManager
             if (selectedImage != null && selectedImage.isPlayable) selectedImage.Open();
         }
 
-        internal void SetImportAllowed(bool allowed)
-        {
-            if (allowed)
-            {
-                ImportImageButton.Visibility = Visibility.Visible;
-                ImportImageButton.IsEnabled = true;
-            }
-            else
-            {
-                ImportImageButton.Visibility = Visibility.Hidden;
-                ImportImageButton.IsEnabled = false;
-            }
-        }
-
-        /// <summary>
-        ///     Sets up the image scroller control for view only mode, basically by disabling the
-        ///     ADD button for when it is used in the image entry mode in which the add dialog is
-        ///     permanently displayed and copies images across into the scroller as they are
-        ///     created.
-        /// </summary>
-        internal void SetViewOnly(bool onoff)
-        {
-            AddImageButton.Visibility = onoff ? Visibility.Hidden : Visibility.Visible;
-        }
-
-        /// <summary>
-        ///     Event raised after the <see cref="Text" /> property value has changed.
-        /// </summary>
-        public event EventHandler<EventArgs> e_ImageDeleted
-        {
-            add
-            {
-                lock (_imageDeletedEventLock)
-                {
-                    _imageDeletedEvent += value;
-                }
-            }
-            remove
-            {
-                lock (_imageDeletedEventLock)
-                {
-                    _imageDeletedEvent -= value;
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Raises the <see cref="e_ImageDeleted" /> event.
-        /// </summary>
-        /// <param name="e"><see cref="EventArgs" /> object that provides the arguments for the event.</param>
-        protected virtual void OnImageDeleted(EventArgs e)
-        {
-            EventHandler<EventArgs> handler = null;
-
-            lock (_imageDeletedEventLock)
-            {
-                handler = _imageDeletedEvent;
-
-                if (handler == null)
-                    return;
-            }
-
-            handler(this, e);
-        }
-
-        /// <summary>
-        ///     Get the currently selecetd image in the comparison window (if any) and
-        ///     add it to the displayed list and also link it to the source of the currently displayed
-        ///     list.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ImportImageButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (ComparisonHost.Instance != null)
-            {
-                var newImage = ComparisonHost.Instance.GetSelectedImage();
-                if (newImage != null && !imageList.Contains(newImage))
-                {
-                    AddImage(newImage);
-                    OnButtonPressed(new ButtonPressedEventArgs(sender as Button, newImage, false));
-                }
-            }
-        }
-
         #region selectedImage
 
         /// <summary>
@@ -506,7 +581,6 @@ namespace BatRecordingManager
         public static readonly DependencyProperty selectedImageProperty =
             DependencyProperty.Register(nameof(selectedImage), typeof(StoredImage), typeof(ImageScrollerControl),
                 new FrameworkPropertyMetadata(null));
-
 
         /// <summary>
         ///     Gets or sets the selectedImageProperty property.  This dependency property
@@ -599,85 +673,7 @@ namespace BatRecordingManager
         }
 
         #endregion IsReadOnly
-
-        private void MiDeleteFromdatabase_Click(object sender, RoutedEventArgs e)
-        {
-            if (imageIndex >= 0 && imageIndex < imageList.Count)
-            {
-                var fromDatabase = true;
-                var args = new ButtonPressedEventArgs(DelImageButton, imageList[imageIndex], fromDatabase);
-                OnButtonPressed(args);
-            }
-        }
     }
 
-    /// end class ImageScrollerControl
-    /// <summary>
-    ///     Arguments fort a ButtonPressed Event Handler
-    /// </summary>
-    [Serializable]
-    public class ButtonPressedEventArgs : EventArgs
-    {
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-        public new static readonly ButtonPressedEventArgs Empty = new ButtonPressedEventArgs(null, null, false);
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-
-
-        #region Constructors
-
-        /// <summary>
-        ///     Constructs a new instance of the <see cref="ButtonPressedEventArgs" /> class.
-        /// </summary>
-        public ButtonPressedEventArgs(Button senderButton, StoredImage image, bool fromDatabase)
-        {
-            PressedButton = senderButton;
-            Image = image;
-            this.fromDatabase = fromDatabase;
-        }
-
-        #endregion Constructors
-
-        #region Public Properties
-
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-        public Button PressedButton { get; set; }
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-        public StoredImage Image;
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        public bool fromDatabase { get; set; }
-
-        #endregion Public Properties
-    } // end class ButtonPressedEventArgs
-
-    /// <summary>
-    ///     ImageDeletedEventArgs
-    /// </summary>
-    [Serializable]
-    public class ImageDeletedEventArgs : EventArgs
-    {
-        #region Constructors
-
-        /// <summary>
-        ///     Constructs a new instance of the <see cref="ImageDeletedEventArgs" /> class.
-        /// </summary>
-        public ImageDeletedEventArgs(int ID)
-        {
-            imageID = ID;
-        }
-
-        #endregion Constructors
-
-        #region Public
-
-        public new static readonly ImageDeletedEventArgs Empty = new ImageDeletedEventArgs(-1);
-
-        /// <summary>
-        ///     ID of the image that has been removed from the list
-        /// </summary>
-        public int imageID { get; } = -1;
-
-        #endregion Public
-    }
+    // end class ButtonPressedEventArgs
 } // end namespace

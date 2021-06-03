@@ -63,3 +63,6 @@ Comment line gets formatted to e.g. Soprano Pipistrelle,)(Auto=(PIPPYG)
 7) modify reports to incorporate manual and auto-id data
 8) modify recordingsdetailcontrol to display manual and autoid data
 
+20/5/2021
+generated spectrograms using the Spectrogram plug-in and 'decorateBitmap', when set to Full height the text is vertically 
+elongated and needs to be reduced, and the grid lines are appearing in white rather than black.

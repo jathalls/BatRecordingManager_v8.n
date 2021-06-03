@@ -462,7 +462,7 @@ namespace BatCallAnalysisControlSet
             /*
             var settingsConfig = new SettingsConfiguration().WriteTo.JsonNet(settingsPath).ReadFrom.JsonNet(settingsPath);
             var SettingsMgr = settingsConfig.CreateSettingsMgr<ISettingsObjectMgr>();
-            var settings = new CustomSettings();
+            var settings = SettingsMgr.ReadSettings();
             settings.call = call;
             SettingsMgr.WriteSettings<CustomSettings>(settings);*/
             call.setToSettings();

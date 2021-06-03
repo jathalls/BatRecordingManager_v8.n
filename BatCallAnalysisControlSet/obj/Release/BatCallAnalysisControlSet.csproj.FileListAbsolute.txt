@@ -41,3 +41,6 @@ C:\Users\justi\source\repos\BRMv10.n\BatCallAnalysisControlSet\obj\Release\BatCa
 C:\Users\justi\source\repos\BRMv10.n\BatCallAnalysisControlSet\obj\Release\BatCallAnalysisControlSet.csproj.CopyComplete
 C:\Users\justi\source\repos\BRMv10.n\BatCallAnalysisControlSet\obj\Release\BatCallAnalysisControlSet.dll
 C:\Users\justi\source\repos\BRMv10.n\BatCallAnalysisControlSet\obj\Release\BatCallAnalysisControlSet.pdb
+C:\Users\justi\source\repos\BRMv10.n\BatCallAnalysisControlSet\bin\Release\FftSharp.dll
+C:\Users\justi\source\repos\BRMv10.n\BatCallAnalysisControlSet\bin\Release\Spectrogram.dll
+C:\Users\justi\source\repos\BRMv10.n\BatCallAnalysisControlSet\bin\Release\System.Drawing.Common.dll

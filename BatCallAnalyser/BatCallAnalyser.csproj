@@ -54,7 +54,7 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>0F18A6376F3087116DAC0C358E838A84EF9DFA53</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>741895613EFDC767E23E5BD296759BF05567C4A0</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>

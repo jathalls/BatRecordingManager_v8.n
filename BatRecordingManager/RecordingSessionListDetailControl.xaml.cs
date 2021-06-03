@@ -14,7 +14,6 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
-using DataVirtualizationLibrary;
 using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Collections.Generic;
@@ -276,8 +275,11 @@ namespace BatRecordingManager
                 //recordingSessionDataList.Clear();
                 //recordingSessionDataList.AddRange(DBAccess.GetPagedRecordingSessionDataList(pageSize, topOfScreen, field));
                 recordingSessionDataList = null;
+                var defaultRSD = new RecordingSessionData();
+                defaultRSD.SessionTag = "Loading...";
                 recordingSessionDataList =
-                    new VirtualizingCollection<RecordingSessionData>(new RecordingSessionDataProvider(), 50, 100);
+                    new BulkObservableCollection<RecordingSessionData>();
+                recordingSessionDataList.AddRange(DBAccess.GetAllRecordingSessionData());
                 //recordingSessionDataList.CollectionChanged += RecordingSessionDataList_CollectionChanged;
 
                 //if (!recordingSessionDataList.IsLoading) recordingSessionDataList.Refresh();
@@ -639,7 +641,7 @@ Mouse.OverrideCursor = null;*/
                 oldSelectionIndex = RecordingSessionListView.SelectedIndex;
                 recordingSessionDataList.Clear();
 
-                recordingSessionDataList.Refresh(oldSelectionIndex);
+                // recordingSessionDataList.Refresh(oldSelectionIndex);
 
                 OnSessionChanged(EventArgs.Empty);
             }
@@ -674,8 +676,8 @@ Mouse.OverrideCursor = null;*/
         /// <param name="e"></param>
         private void RecordingSessionListView_Initialized(object sender, EventArgs e)
         {
-            if (recordingSessionDataList == null ||
-                !recordingSessionDataList.IsLoading && recordingSessionDataList.Count <= 0) RefreshData();
+            //if (recordingSessionDataList == null ||
+            // !recordingSessionDataList.IsLoading && recordingSessionDataList.Count <= 0) RefreshData();
         }
 
         /// <summary>
@@ -763,8 +765,14 @@ Mouse.OverrideCursor = null;*/
 
         private void RecordingsListControl_RecordingChanged(object sender, EventArgs e)
         {
-            RefreshData(PageSize, CurrentTopOfScreen);
-            OnSessionChanged(EventArgs.Empty);
+            //RefreshData(PageSize, CurrentTopOfScreen);
+            //OnSessionChanged(EventArgs.Empty);
+            int index = RecordingSessionListView.SelectedIndex;
+            if (index >= 0 && index < recordingSessionDataList.Count)
+            {
+                recordingSessionDataList[index] = DBAccess.GetRecordingSessionData(recordingSessionDataList[index].Id);
+                RecordingSessionListView.SelectedIndex = index;
+            }
         }
 
         /// <summary>
@@ -797,16 +805,16 @@ Mouse.OverrideCursor = null;*/
         /// </summary>
         public static readonly DependencyProperty recordingSessionDataListProperty =
             DependencyProperty.Register(nameof(recordingSessionDataList),
-                typeof(VirtualizingCollection<RecordingSessionData>), typeof(RecordingSessionListDetailControl),
-                new FrameworkPropertyMetadata(null));
+                typeof(BulkObservableCollection<RecordingSessionData>), typeof(RecordingSessionListDetailControl),
+                new FrameworkPropertyMetadata(new BulkObservableCollection<RecordingSessionData>()));
 
         /// <summary>
         ///     Gets or sets the recordingSessiondataList property.  This dependency property
         ///     indicates ....
         /// </summary>
-        public VirtualizingCollection<RecordingSessionData> recordingSessionDataList
+        public BulkObservableCollection<RecordingSessionData> recordingSessionDataList
         {
-            get => (VirtualizingCollection<RecordingSessionData>)GetValue(recordingSessionDataListProperty);
+            get => (BulkObservableCollection<RecordingSessionData>)GetValue(recordingSessionDataListProperty);
             set => SetValue(recordingSessionDataListProperty, value);
         }
 
@@ -815,6 +823,8 @@ Mouse.OverrideCursor = null;*/
         // public AsyncVirtualizingCollection<RecordingSessionData> recordingSessionDataList = new AsyncVirtualizingCollection<RecordingSessionData>(new RecordingSessionDataProvider(), 50, 100);
 
         #endregion recordingSessionList
+
+        /*
 
         #region IsLoading
 
@@ -845,6 +855,8 @@ Mouse.OverrideCursor = null;*/
         }
 
         #endregion IsLoading
+
+        */
 
         private void ShowMapButton_Click(object sender, RoutedEventArgs e)
         {

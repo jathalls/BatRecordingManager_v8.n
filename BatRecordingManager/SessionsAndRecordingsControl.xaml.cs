@@ -14,7 +14,6 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
-using DataVirtualizationLibrary;
 using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Collections.Generic;
@@ -262,18 +261,8 @@ namespace BatRecordingManager
             }
         }
 
-        public bool IsLoading
-        {
-            get
-            {
-                if (matchingRecordingData != null)
-                    return matchingRecordingData.IsLoading;
-                return !IsLoaded;
-            }
-        }
-
         //public BulkObservableCollection<BatSessionRecordingData> matchingRecordingData { get; } = new BulkObservableCollection<BatSessionRecordingData>();
-        public AsyncVirtualizingCollection<BatSessionRecordingData> matchingRecordingData { get; set; }
+        public BulkObservableCollection<BatSessionRecordingData> matchingRecordingData { get; set; }
 
         /// <summary>
         ///     A list of all the recordings in the selected sessions
@@ -490,19 +479,6 @@ namespace BatRecordingManager
         private void MatchingRecordingData_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             Debug.WriteLine("recording data changed:-" + e.PropertyName);
-            if (e.PropertyName == nameof(IsLoading))
-            {
-                if (matchingRecordingData.IsLoading)
-                {
-                    Debug.WriteLine("Set wait cursor");
-                    //RecordingsDataGrid.Cursor = Cursors.Wait;
-                }
-                else
-                {
-                    Debug.WriteLine("Clear wait cursor");
-                    // RecordingsDataGrid.Cursor = Cursors.Arrow;
-                }
-            }
         }
 
         private void miExportFiles_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -727,11 +703,8 @@ namespace BatRecordingManager
                         numRecordings += batSession.BatRecordingsCount;
                     }
 
-                    matchingRecordingData = new AsyncVirtualizingCollection<BatSessionRecordingData>(
-                        new BatSessionRecordingDataProvider(batIdList, sessionIdList, numRecordings), 25, 100);
-                    matchingRecordingData.PropertyChanged += MatchingRecordingData_PropertyChanged;
-                    RecordingsDataGrid.SetBinding(ItemsControl.ItemsSourceProperty,
-                        new Binding { Source = matchingRecordingData, IsAsync = true });
+                    matchingRecordingData = new BulkObservableCollection<BatSessionRecordingData>();
+                    matchingRecordingData.AddRange(DBAccess.GetPagedBatSessionRecordingData(batIdList, sessionIdList, 0, 1000));
                 }
             }
         }

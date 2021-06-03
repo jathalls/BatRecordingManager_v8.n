@@ -1454,6 +1454,9 @@ namespace BatRecordingManager
                 ErrorLog("Error trying to open .wav and .txt file in Audacity:-" + ex.Message);
             }
 
+            epHandle = externalProcess.MainWindowHandle;
+            SetForegroundWindow(epHandle);
+
             return externalProcess;
         }
 
@@ -1474,7 +1477,10 @@ namespace BatRecordingManager
         internal static void OpenWavFile(string wavFile, TimeSpan startOffset, TimeSpan endOffset)
         {
             if (string.IsNullOrWhiteSpace(wavFile) || !File.Exists(wavFile) || (new FileInfo(wavFile).Length <= 0L))
+            {
+                Debug.WriteLine($"File '{wavFile}' not found, aborting Audacity start");
                 return; // since we don't have a valid file name to work with
+            }
             var startSeconds = (int)startOffset.TotalSeconds;
             var endSeconds = (int)endOffset.TotalSeconds;
             if (endSeconds == startSeconds) endSeconds = startSeconds + 1;
@@ -1500,7 +1506,7 @@ namespace BatRecordingManager
                  * */
                 var ipSim = new InputSimulator();
                 SetForegroundWindow(epHandle);
-                ZoomAudacity(startOffset.TotalSeconds, endOffset.TotalSeconds, ipSim);
+                ZoomAudacity(startSeconds, endSeconds, ipSim);
 
                 Debug.WriteLine("Audacity zoomed");
             }
@@ -1598,29 +1604,34 @@ namespace BatRecordingManager
                 {
                     if (lines[i].StartsWith("[Directories/Export"))
                     {
-                        for (int j = i; j < lines.Length; j++)
+                        for (int j = i + 1; j < lines.Length; j++)
                         {
+                            if (lines[j].StartsWith("Default="))
+                            {
+                                lines[j] = $"Default={moddedFolderPath}";
+                            }
                             if (lines[j].StartsWith("LastUsed"))
                             {
                                 lines[j] = $"LastUsed={moddedFolderPath}";
-                                i = j;
+                            }
+                            if (lines[j].StartsWith("[")) // starting anoother settings category
+                            {
+                                i = j - 1;  // so continue by re-examining this line at the higher level
+                                j = lines.Length; // and get out of the j for-loop
                             }
                         }
                     }
                     else if (lines[i].StartsWith("[Module]"))
                     {
-                        if (lines[i + 1].StartsWith("[Module]"))
+                        if (lines[i + 1].StartsWith("mod-script-pipe"))
                         {
-                            if (lines[i + 1].StartsWith("mod-script-pipe"))
-                            {
-                                lines[i + 1] = "mod-script-pipe=1";
-                            }
-                            else
-                            {
-                                lines[i] = "[Module]\nmod-script-pipe=1";
-                            }
-                            modOk = true;
+                            lines[i + 1] = "mod-script-pipe=1";
                         }
+                        else
+                        {
+                            lines[i] = "[Module]\nmod-script-pipe=1";
+                        }
+                        modOk = true;
                     }
                     else if (lines[i].StartsWith("[ModulePath]"))
                     {
@@ -4156,7 +4167,7 @@ mod-script-pipe=C:\\audacity-win-portable\\modules\\mod-script-pipe.dll");
         {
             try
             {
-                if (value is bool)
+                if (value is bool || value is bool?)
                 {
                     bool? b = value as bool?;
                     if (b ?? false)

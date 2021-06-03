@@ -57,8 +57,8 @@ namespace BatRecordingManager
             {
                 var dc = GetDataContext();
 
-                var existingLink = dc.BatPictures.Where(bp => bp.BatId == bat.Id && bp.BinaryDataId == imageData.Id);
-                if (existingLink.IsNullOrEmpty())
+                var existingLink = dc.BatPictures.Where(bp => bp.BatId == bat.Id && bp.BinaryDataId == imageData.Id).Any();
+                if (!existingLink)
                     if (imageData != null && bat.Id >= 0 && imageData.Id >= 0)
                     {
                         var bpLink = new BatPicture { BatId = bat.Id, BinaryDataId = imageData.Id };
@@ -85,8 +85,8 @@ namespace BatRecordingManager
             {
                 var dc = GetDataContext();
 
-                var existingLink = dc.CallPictures.Where(bp => bp.CallID == call.Id && bp.BinaryDataID == imageData.Id);
-                if (existingLink.IsNullOrEmpty())
+                var existingLink = dc.CallPictures.Where(bp => bp.CallID == call.Id && bp.BinaryDataID == imageData.Id).Any();
+                if (!existingLink)
                     if (imageData != null && call.Id > 0 && imageData.Id > 0)
                     {
                         var bpLink = new CallPicture { CallID = call.Id, BinaryDataID = imageData.Id };
@@ -1441,6 +1441,29 @@ namespace BatRecordingManager
             return result;
         }
 
+        internal static IEnumerable<Recording> GetAllRecordings()
+        {
+            var dc = GetFastDataContext();
+            var result = dc.Recordings.Select(x => x);
+            return (result);
+        }
+
+        internal static IEnumerable<RecordingSessionData> GetAllRecordingSessionData()
+        {
+            var dc = GetFastDataContext();
+            var result = from rs in dc.RecordingSessions
+                         where rs.Recordings.Any()
+                         select (DBAccess.GetRecordingSessionData(rs.Id));
+            return (result);
+        }
+
+        internal static IEnumerable<RecordingSession> GetAllRecordingSessions()
+        {
+            var dc = GetFastDataContext();
+            var result = dc.RecordingSessions.Select(x => x);
+            return (result);
+        }
+
         /// <summary>
         ///     Returns a BOC(StoredImage) contaiing all bat images and all call images for the
         ///     specified species of bat.
@@ -1507,16 +1530,14 @@ namespace BatRecordingManager
             var segsForRecording = from seg in dc.LabelledSegments
                                    where seg.RecordingID == recordingId
                                    select seg;
-            if (segsForRecording != null && segsForRecording.Any())
+            if (segsForRecording?.Any() ?? false)
             {
                 var segsForBat = from seg in segsForRecording
                                  from lnk in seg.BatSegmentLinks
                                  where lnk.BatID == selectedBatId
                                  select lnk.LabelledSegment;
-                if (!segsForBat.IsNullOrEmpty())
-                {
-                    result = segsForBat.ToList();
-                }
+
+                result = segsForBat?.ToList() ?? new List<LabelledSegment>();
             }
             return (result);
         }
@@ -1537,16 +1558,14 @@ namespace BatRecordingManager
                                  from seg in dc.LabelledSegments
                                  where seg.Recording.RecordingSessionId == sess.Id
                                  select seg;
-            if (segsForsession != null && segsForsession.Any())
+            if (segsForsession?.Any() ?? false)
             {
                 var segsForBat = from seg in segsForsession
                                  from lnk in seg.BatSegmentLinks
                                  where lnk.BatID == batId
                                  select lnk.LabelledSegment;
-                if (!segsForBat.IsNullOrEmpty())
-                {
-                    result = segsForBat.ToList();
-                }
+
+                result = segsForBat?.ToList() ?? new List<LabelledSegment>();
             }
             return (result);
         }
@@ -1651,7 +1670,7 @@ namespace BatRecordingManager
             //var allBats = DBAccess.GetSortedBatList();
 
             foreach (var bat in dc.Bats)
-                if (!bat.BatSegmentLinks.Where(lnk => !(lnk.ByAutoID ?? false)).IsNullOrEmpty())
+                if (bat.BatSegmentLinks.Where(lnk => !(lnk.ByAutoID ?? false))?.Any() ?? false)
                 {
                     var thisBatStats = new BatStatistics(bat);
                     //thisBatStats = DBAccess.GetBatStatisticsForBat(bat);
@@ -1705,7 +1724,8 @@ namespace BatRecordingManager
                 var blobs = from blob in dc.BinaryDatas
                             where blob.Id == imageID
                             select blob;
-                if (!blobs.IsNullOrEmpty()) result = blobs.First();
+                if (blobs?.Any() ?? false)
+                    result = blobs?.First();
             }
 
             return result;
@@ -1724,7 +1744,7 @@ namespace BatRecordingManager
                 // if (!seg.IsNullOrEmpty())
                 // {
                 //  var segment = seg.First();
-                if (!segment.SegmentCalls.IsNullOrEmpty())
+                if (segment.SegmentCalls?.Any() ?? false)
                 {
                     //List<Call> callList = new List<Call>();
                     //foreach (var link in segment.SegmentCalls)
@@ -1760,7 +1780,7 @@ namespace BatRecordingManager
                 //select bc.Call;
 
                 var batCallList = bat.BatCalls.Select(bc => bc.Call);
-                if (!batCallList.IsNullOrEmpty()) return batCallList.ToList();
+                return batCallList?.ToList() ?? new List<Call>();
             }
 
             return null;
@@ -2116,7 +2136,7 @@ namespace BatRecordingManager
                                      select sess;
             if (!sessionsAtLocation.IsNullOrEmpty())
             {
-                foreach (var sess in sessionsAtLocation)
+                foreach (var sess in sessionsAtLocation ?? Enumerable.Empty<RecordingSession>().AsQueryable())
                 {
                     if (sess.hasGPSLocation)
                     {
@@ -2138,7 +2158,7 @@ namespace BatRecordingManager
                     var dbBlob = from blob in dc.BinaryDatas
                                  where blob.Id == existingImage.ImageID
                                  select blob;
-                    if (!dbBlob.IsNullOrEmpty())
+                    if (dbBlob?.Any() ?? false)
                         //var thisBlob = dbBlob.Single();
                         result = StoredImage.CreateFromBinary(dbBlob.Single());
                 }
@@ -3271,6 +3291,8 @@ namespace BatRecordingManager
             var dc = GetFastDataContext();
             StoredImage result = null;
 
+            seg = DBAccess.GetLabelledSegment(seg.Id);
+
             if (seg?.SegmentDatas?.Any() ?? false)
             {
                 var images = from sd in seg.SegmentDatas
@@ -3332,19 +3354,25 @@ namespace BatRecordingManager
         /// </returns>
         internal static BulkObservableCollection<BatStats> GetStats(this RecordingSession recordingSession)
         {
+            var dc = DBAccess.GetFastDataContext();
             var result = new BulkObservableCollection<BatStats>();
 
             if (!recordingSession.Recordings.IsNullOrEmpty())
             {
-                var batSegmentsinSession = from rec in recordingSession.Recordings
-                                           from seg in rec.LabelledSegments
-
-                                           from pass in seg.BatSegmentLinks
-                                           where !(pass.ByAutoID ?? false)
-
+                var batSegmentsinSession = from pass in dc.BatSegmentLinks
+                                           where pass.LabelledSegment.Recording.RecordingSessionId == recordingSession.Id &&
+                                                !(pass.ByAutoID ?? false)
                                            select pass;
 
-                if (!batSegmentsinSession.IsNullOrEmpty())
+                //var batSegmentsinSession = from rec in recordingSession.Recordings
+                //                           from seg in rec.LabelledSegments
+                //
+                //                           from pass in seg.BatSegmentLinks
+                //                           where !(pass.ByAutoID ?? false)
+                //
+                //                           select pass;
+
+                if (batSegmentsinSession?.Any() ?? false)
                     foreach (var pass in batSegmentsinSession)
                     {
                         var stat = new BatStats { batCommonName = pass.Bat.Name };
@@ -6126,29 +6154,25 @@ namespace BatRecordingManager
                                     Enumerable.Empty<BatSegmentLink>();
 
                 // 3 - delete existing links not in new links
-                if (!existingLinks.IsNullOrEmpty())
-                {
-                    var linksTodelete = existingLinks.Except(newLinkList);
-                    if (!linksTodelete.IsNullOrEmpty()) dc.BatSegmentLinks.DeleteAllOnSubmit(linksTodelete);
-                }
+
+                var linksTodelete = existingLinks?.Except(newLinkList) ?? Enumerable.Empty<BatSegmentLink>();
+                dc.BatSegmentLinks.DeleteAllOnSubmit(linksTodelete);
 
                 var autoExistingLinks = existingSegment.BatSegmentLinks.Where(lnk => (lnk.ByAutoID ?? false)) ?? Enumerable.Empty<BatSegmentLink>();
-                if (!autoExistingLinks.IsNullOrEmpty())
-                {
-                    var linksTodelete = autoExistingLinks.Except(autoLinkList);
-                    if (!linksTodelete.IsNullOrEmpty()) dc.BatSegmentLinks.DeleteAllOnSubmit(linksTodelete);
-                }
+
+                var BSlinksTodelete = autoExistingLinks.Except(autoLinkList);
+                dc.BatSegmentLinks.DeleteAllOnSubmit(BSlinksTodelete);
 
                 dc.SubmitChanges();
 
                 // 4 - insert new links not present in the existing segment
                 var linksToInsert = newLinkList.Except(existingLinks);
 
-                if (!linksToInsert.IsNullOrEmpty()) dc.BatSegmentLinks.InsertAllOnSubmit(linksToInsert);
+                dc.BatSegmentLinks.InsertAllOnSubmit(linksToInsert ?? Enumerable.Empty<BatSegmentLink>());
                 dc.SubmitChanges();
 
                 linksToInsert = autoLinkList.Except(autoExistingLinks);
-                if (!linksToInsert.IsNullOrEmpty()) dc.BatSegmentLinks.InsertAllOnSubmit(linksToInsert);
+                dc.BatSegmentLinks.InsertAllOnSubmit(linksToInsert ?? Enumerable.Empty<BatSegmentLink>());
                 dc.SubmitChanges();
 
                 foreach (var bat in segmentAndBatList.batList.bats) UpdateBatRecAndSessLinks(bat: bat, segment: existingSegment, byAutoID: false, dc);

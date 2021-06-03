@@ -273,8 +273,16 @@ namespace UniversalToolkit
             settingsPath = Path.Combine(settingsPath, "customSettings.json");
             var settingsConfig = new SettingsConfiguration().WriteTo.JsonNet(settingsPath).ReadFrom.JsonNet(settingsPath);
             var SettingsMgr = settingsConfig.CreateSettingsMgr<ISettingsObjectMgr>();
-
-            var settings = SettingsMgr.ReadSettings<CustomSettings>();
+            CustomSettings settings = new CustomSettings();
+            try
+            {
+                settings = SettingsMgr.ReadSettings<CustomSettings>();
+            }
+            catch (Exception)
+            {
+                settings = new CustomSettings();
+                SettingsMgr.WriteSettings<CustomSettings>(settings);
+            }
             if (settings != null)
             {
                 call = settings.call;
@@ -349,7 +357,16 @@ namespace UniversalToolkit
             settingsPath = Path.Combine(settingsPath, "customSettings.json");
             var settingsConfig = new SettingsConfiguration().WriteTo.JsonNet(settingsPath).ReadFrom.JsonNet(settingsPath);
             var SettingsMgr = settingsConfig.CreateSettingsMgr<ISettingsObjectMgr>();
-            var settings = new CustomSettings();
+            CustomSettings settings = new CustomSettings();
+            try
+            {
+                settings = SettingsMgr.ReadSettings<CustomSettings>();
+            }
+            catch (Exception)
+            {
+                settings = new CustomSettings();
+                SettingsMgr.WriteSettings<CustomSettings>(settings);
+            }
             settings.call = this;
             SettingsMgr.WriteSettings<CustomSettings>(settings);
         }

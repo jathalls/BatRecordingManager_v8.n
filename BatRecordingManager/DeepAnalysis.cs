@@ -170,6 +170,80 @@ namespace BatRecordingManager
 
         public event EventHandler<EventArgs> SaveClicked;
 
+        public Parametrization param { get; set; } = null;
+
+        public static Bitmap decorateBitmap(Bitmap bmp, int FFTSize, int FFTAdvance, int SampleRate, Parametrization param = null)
+        {
+            int HzPerBin = (int)((double)SampleRate / (double)FFTSize);
+
+            Bitmap tempBmp = new Bitmap(bmp.Width, bmp.Height * 2);
+            int size = tempBmp.Height - 1;
+            using (var g = Graphics.FromImage(tempBmp))
+            {
+                g.DrawImage(bmp, new Rectangle(0, 0, tempBmp.Width, tempBmp.Height));
+                //g.DrawImage(bmp, 0, 0);
+                double binsPer10kHz = (10000.0d / HzPerBin) * 2.0d;
+                Pen blackPen = new Pen(Color.FromArgb(0x8f, Color.DarkBlue));
+
+                Pen redPen = new Pen(Color.Red);
+                int f = 0;
+                for (int y = size; y >= 0; y -= (int)Math.Ceiling((binsPer10kHz)))//f=frequency in kHz
+                {
+                    g.DrawLine(blackPen, 0.0f, y, bmp.Width - 1, y);
+                    if (f > 0)
+                    {
+                        g.DrawString(f.ToString() + "kHz", new Font(FontFamily.GenericSansSerif, 10.0f, FontStyle.Regular), new SolidBrush(Color.Black), 10.0f, y);
+                    }
+                    f += 10;
+                }
+
+                double spDurationMs = (1000.0d * FFTAdvance) / SampleRate;
+                int spPer100ms = (int)Math.Floor(100 / spDurationMs);
+
+                float xPos = 0.0f;
+                float tim = 0.0f;
+                while (xPos < bmp.Width)
+                {
+                    g.DrawLine(blackPen, xPos, 0.0f, xPos, (float)size - 1);
+                    if (tim > 0.0f)
+                    {
+                        g.DrawString($"{tim:F1}",
+                            new Font(FontFamily.GenericSansSerif, 10.0f, FontStyle.Regular),
+                            new SolidBrush(Color.Black),
+                            xPos - 20,
+                            5);
+                    }
+                    xPos += spPer100ms;
+                    tim += 0.1f;
+                }
+
+                if (param != null)
+                {
+                    if (param.AllPeaks != null && param.AllPeaks.Count > 0)
+                    {
+                        for (int p = 0; p < param.AllPeaks.Count; p++)
+                        {
+                            var freqs = param.AllPeaks[p].frequencyData;
+                            var peak = param.AllPeaks[p];
+                            int xmin = (int)(peak.startOverall / (FFTAdvance));
+                            int xmax = (int)((peak.startOverall + peak.lengthInSamples) / (FFTAdvance));
+                            int ymin = size - (2 * (int)(freqs.endFrequency / HzPerBin));
+                            int ymax = size - (2 * (int)(freqs.startFrequency / HzPerBin));
+
+                            g.DrawLine(redPen, xmin, ymin, xmax, ymin);
+                            g.DrawLine(redPen, xmin, ymin, xmin, ymin + 5);
+                            g.DrawLine(redPen, xmax, ymin, xmax, ymin + 5);
+
+                            g.DrawLine(redPen, xmin, ymax, xmax, ymax);
+                            g.DrawLine(redPen, xmin, ymax, xmin, ymax - 5);
+                            g.DrawLine(redPen, xmax, ymax, xmax, ymax - 5);
+                        }
+                    }
+                }
+            }
+            return (tempBmp);
+        }
+
         public static Bitmap GetBmpFromSpectra(List<Spectrum> spectra, int FFTOrder, float FFTAdvanceFactor, int sampleRate, Parametrization param = null)
         {
             int FFTSize = (int)Math.Pow(2, FFTOrder);
@@ -208,66 +282,7 @@ namespace BatRecordingManager
                 col++;
             }
 
-            using (var g = Graphics.FromImage(bmp))
-            {
-                double binsPer10kHz = 10000.0d / HzPerBin;
-                Pen blackPen = new Pen(Color.DarkGray);
-                Pen redPen = new Pen(Color.Red);
-                int f = 0;
-                for (int y = size; y >= 0; y -= (int)Math.Ceiling((binsPer10kHz * 2.0d)))//f=frequency in kHz
-                {
-                    g.DrawLine(blackPen, 0.0f, y, spectra.Count, y);
-                    if (f > 0)
-                    {
-                        g.DrawString(f.ToString() + "kHz", new Font(FontFamily.GenericSansSerif, 10.0f, FontStyle.Regular), new SolidBrush(Color.Black), 10.0f, y);
-                    }
-                    f += 10;
-                }
-
-                double spDurationMs = (1000.0d * FFTOverlap) / sampleRate;
-                int spPer100ms = (int)Math.Floor(100 / spDurationMs);
-
-                float xPos = 0.0f;
-                float tim = 0.0f;
-                while (xPos < spectra.Count)
-                {
-                    g.DrawLine(blackPen, xPos, 0.0f, xPos, (float)size - 1);
-                    if (tim > 0.0f)
-                    {
-                        g.DrawString($"{tim:F1}",
-                            new Font(FontFamily.GenericSansSerif, 10.0f, FontStyle.Regular),
-                            new SolidBrush(Color.Black),
-                            xPos - 20,
-                            5);
-                    }
-                    xPos += spPer100ms;
-                    tim += 0.1f;
-                }
-
-                if (param != null)
-                {
-                    if (param.AllPeaks != null && param.AllPeaks.Count > 0)
-                    {
-                        for (int p = 0; p < param.AllPeaks.Count; p++)
-                        {
-                            var freqs = param.AllPeaks[p].frequencyData;
-                            var peak = param.AllPeaks[p];
-                            int xmin = (int)(peak.startOverall / (FFTSize * FFTAdvanceFactor));
-                            int xmax = (int)((peak.startOverall + peak.lengthInSamples) / (FFTSize * FFTAdvanceFactor));
-                            int ymin = size - (2 * (int)(freqs.endFrequency / HzPerBin));
-                            int ymax = size - (2 * (int)(freqs.startFrequency / HzPerBin));
-
-                            g.DrawLine(redPen, xmin, ymin, xmax, ymin);
-                            g.DrawLine(redPen, xmin, ymin, xmin, ymin + 5);
-                            g.DrawLine(redPen, xmax, ymin, xmax, ymin + 5);
-
-                            g.DrawLine(redPen, xmin, ymax, xmax, ymax);
-                            g.DrawLine(redPen, xmin, ymax, xmin, ymax - 5);
-                            g.DrawLine(redPen, xmax, ymax, xmax, ymax - 5);
-                        }
-                    }
-                }
-            }
+            bmp = decorateBitmap(bmp, FFTSize, FFTOverlap, sampleRate, param);
 
             return (bmp);
         }
@@ -476,7 +491,6 @@ namespace BatRecordingManager
         private List<float> gradient = new List<float>();
         private double MaximumValue;
         private double MinimumValue;
-        private Parametrization param = null;
         private List<(int frequency, double value, int bin)> peakFrequency = new List<(int frequency, double value, int bin)>();
         private LabelledSegment selectedSegment = null;
 

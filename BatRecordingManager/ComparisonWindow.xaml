@@ -26,13 +26,12 @@
                 x:Name="ExportPicturesButton"
                 Style="{StaticResource SimpleButton}"
                 Width="50"
-                Content="Export*" 
-                Click="ExportPicturesButton_Click" 
-                >
+                Content="Export*"
+                Click="ExportPicturesButton_Click">
                 <Button.ContextMenu>
                     <ContextMenu>
-                        <MenuItem x:Name="miExportNormal" Header="Export as .PNG" ToolTip="Export selected files as .PNG images with sidecar .TXT files" Click="MiExportNormal_Click"/>
-                        <MenuItem x:Name="miExportJpg" Header="Export as .JPG" ToolTip="Export selected images as .JPG files with embedded text" Click="MiExportJpg_Click"/>
+                        <MenuItem x:Name="miExportNormal" Header="Export as .PNG" ToolTip="Export selected files as .PNG images with sidecar .TXT files" Click="MiExportNormal_Click" />
+                        <MenuItem x:Name="miExportJpg" Header="Export as .JPG" ToolTip="Export selected images as .JPG files with embedded text" Click="MiExportJpg_Click" />
                     </ContextMenu>
                 </Button.ContextMenu>
 
@@ -53,9 +52,26 @@
                 <Button.ToolTip>
                     <TextBlock>
                         "Sort the images on the description text"<LineBreak />
-                        "CTRL-Click to remove leading numbers from description field"
+                        "CTRL-Click to remove leading numbers from description field"<LineBreak />
+                        "Right-Click for Context Menu"
                     </TextBlock>
                 </Button.ToolTip>
+                <Button.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem
+                            x:Name="miSortOnDesc"
+                            Header="Sort On Description"
+                            ToolTip="Sort the images on the description text" Click="miSortOnDesc_Click" />
+                        <MenuItem
+                            x:Name="miStripDescsOfNumbers"
+                            Header="Remove Numbers"
+                            ToolTip="Remove leading numbers from description field" Click="miStripDescsOfNumbers_Click" />
+                        <MenuItem
+                            x:Name="miSortOnDateTime"
+                            Header="Sort on Date and Time"
+                            ToolTip="Sort the images on the basis of the date and time of the recording and segment" Click="miSortOnDateTime_Click" />
+                    </ContextMenu>
+                </Button.ContextMenu>
             </Button>
         </StackPanel>
         <ScrollViewer Grid.Row="1" HorizontalAlignment="Stretch">

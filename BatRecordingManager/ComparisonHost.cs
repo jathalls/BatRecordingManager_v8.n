@@ -43,8 +43,10 @@ namespace BatRecordingManager
                 if (_comparisonWindow == null)
                 {
                     _comparisonWindow = new ComparisonWindow();
+                    _comparisonWindow.WindowClosed += _comparisonWindow_WindowClosed;
 
                     _comparisonWindow.Show();
+                    Debug.WriteLine("Showing new ComparisonWindow in AddImage");
                 }
 
                 _comparisonWindow.AddImage(image);
@@ -60,7 +62,9 @@ namespace BatRecordingManager
                 if (_comparisonWindow == null)
                 {
                     _comparisonWindow = new ComparisonWindow();
+                    _comparisonWindow.WindowClosed += _comparisonWindow_WindowClosed;
                     _comparisonWindow.Show();
+                    Debug.WriteLine("Showing new ComparisonWindow in AddImageRange");
                 }
 
                 _comparisonWindow.AddImageRange(images);
@@ -87,6 +91,7 @@ namespace BatRecordingManager
             {
                 _comparisonWindow.Close();
                 _comparisonWindow = null;
+                Debug.WriteLine("Closing and nulling ComparisonWindow");
             }
         }
 
@@ -96,6 +101,13 @@ namespace BatRecordingManager
 
         private ComparisonHost()
         {
+        }
+
+        private void _comparisonWindow_WindowClosed(object sender, System.EventArgs e)
+        {
+            _comparisonWindow = null;
+            this.Close();
+            Debug.WriteLine("ComparisonWindow is closed, closing ComparisonHost");
         }
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member

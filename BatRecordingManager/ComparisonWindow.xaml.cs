@@ -46,6 +46,8 @@ namespace BatRecordingManager
             DataContext = this;
         }
 
+        public event EventHandler WindowClosed;
+
         internal void AddImage(StoredImage image, bool asModified = false)
         {
             var displayImage = new DisplayStoredImageControl();
@@ -122,6 +124,8 @@ namespace BatRecordingManager
                     result = storedImageList.First().storedImage;
             return result;
         }
+
+        protected virtual void OnWindowClosed(EventArgs e) => WindowClosed?.Invoke(this, e);
 
         private void ComparisonStackPanel_MouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -392,6 +396,33 @@ namespace BatRecordingManager
             ExportPictures(true);
         }
 
+        private void miSortOnDateTime_Click(object sender, RoutedEventArgs e)
+        {
+            var ieList = new List<DisplayStoredImageControl>();
+            ieList.AddRange(storedImageList);
+            var sortedList = from item in ieList
+                             orderby item.getSegmentStartTime()
+                             select item;
+            storedImageList.Clear();
+            storedImageList.AddRange(sortedList);
+        }
+
+        private void miSortOnDesc_Click(object sender, RoutedEventArgs e)
+        {
+            var ieList = new List<DisplayStoredImageControl>();
+            ieList.AddRange(storedImageList);
+            var sortedList = from item in ieList
+                             orderby item.DescriptionTextBox.Text
+                             select item;
+            storedImageList.Clear();
+            storedImageList.AddRange(sortedList);
+        }
+
+        private void miStripDescsOfNumbers_Click(object sender, RoutedEventArgs e)
+        {
+            RemoveLeadingNumbersFromDescriptions();
+        }
+
         /// <summary>
         ///     Goes through the images list and removes all leading numbers in the descriptions fields
         /// </summary>
@@ -437,8 +468,9 @@ namespace BatRecordingManager
             storedImageList.Clear();
             ShowInTaskbar = true;
             WindowState = WindowState.Minimized;
+            OnWindowClosed(EventArgs.Empty);
 
-            e.Cancel = true;
+            //e.Cancel = true; // removed 19/5/21 to prevent multiple windows being open causing confusion when the top one is empty
         }
 
         //public readonly BulkObservableCollection<DisplayStoredImageControl> storedImageList = new BulkObservableCollection<DisplayStoredImageControl>();

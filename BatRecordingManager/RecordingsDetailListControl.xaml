@@ -258,7 +258,7 @@
                     Width="50"
                     Style="{StaticResource ToggleButton}"
                     ToolTip="Displays segment times as time after sunset instead of offset into file"
-                    IsEnabled="False" Click="OffsetsButton_Click" />
+                    IsEnabled="False" />
             </StackPanel>
         </Border>
 
@@ -270,13 +270,15 @@
 
             SelectionChanged="RecordingsListView_SelectionChanged"
 
-            ScrollViewer.CanContentScroll="True"
             VirtualizingPanel.IsVirtualizing="True"
             VirtualizingPanel.ScrollUnit="Pixel"
             VirtualizingPanel.IsContainerVirtualizable="True"
+
             Style="{StaticResource VdgStyle}"
-            ItemsSource="{Binding Path=virtualRecordingsList,IsAsync=True,NotifyOnSourceUpdated=True}"
-            ScrollViewer.VerticalScrollBarVisibility="Visible"
+            ItemsSource="{Binding Path=recordingsList}"
+
+            VerticalScrollBarVisibility="Visible"
+            ScrollViewer.CanContentScroll="True"
             IsSynchronizedWithCurrentItem="False"
             HorizontalAlignment="Stretch"
             VerticalContentAlignment="Stretch"

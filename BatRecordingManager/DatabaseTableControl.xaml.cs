@@ -14,7 +14,7 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
-using DataVirtualizationLibrary;
+using Microsoft.VisualStudio.Language.Intellisense;
 using System.ComponentModel;
 using System.Windows.Controls;
 
@@ -48,17 +48,18 @@ namespace BatRecordingManager
         public RecordingSessionTableControl()
         {
             DatabaseTableDataGrid.DataContext = VirtualizedCollectionOfRecordingSession;
+            VirtualizedCollectionOfRecordingSession.AddRange(DBAccess.GetAllRecordingSessions());
         }
 
-        public AsyncVirtualizingCollection<RecordingSession> VirtualizedCollectionOfRecordingSession { get; set; } =
-            new AsyncVirtualizingCollection<RecordingSession>(new RecordingSessionProvider(), 25, 100);
+        public BulkObservableCollection<RecordingSession> VirtualizedCollectionOfRecordingSession { get; set; } =
+            new BulkObservableCollection<RecordingSession>();
 
         /// <summary>
         ///     string to be used in Linq sortby query
         /// </summary>
         public new void SortByColumn(string name)
         {
-            VirtualizedCollectionOfRecordingSession.sortColumn = name;
+            //VirtualizedCollectionOfRecordingSession.sortColumn = name;
         }
     }
 
@@ -74,13 +75,14 @@ namespace BatRecordingManager
             //Debug.WriteLine(VirtualizedCollectionOfRecording.Count+" elements in List of Recording");
 
             DataContext = VirtualizedCollectionOfRecording;
+            VirtualizedCollectionOfRecording.AddRange(DBAccess.GetAllRecordings());
             //Debug.WriteLine("Data Context for Recordings set");
             //VirtualizedCollectionOfRecording = new AsyncVirtualizingCollection<Recording>(recordingProvider, 100, 0);
             //Debug.WriteLine(VirtualizedCollectionOfRecording.Count + " elements in List of Recording after setting conext");
             //Debug.WriteLine(VirtualizedCollectionOfRecording[0].RecordingName);
         }
 
-        public AsyncVirtualizingCollection<Recording> VirtualizedCollectionOfRecording { get; set; } =
-            new AsyncVirtualizingCollection<Recording>(new RecordingProvider(-1), 100, 100);
+        public BulkObservableCollection<Recording> VirtualizedCollectionOfRecording { get; set; } =
+            new BulkObservableCollection<Recording>();
     }
 }

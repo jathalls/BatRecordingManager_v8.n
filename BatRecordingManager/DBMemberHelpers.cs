@@ -462,6 +462,30 @@ namespace BatRecordingManager
             }
         }
 
+        /// <summary>
+        /// Returns a dateTime with e date and time of the start of the parent recording
+        /// plus the start offset of this labelled segment.
+        /// </summary>
+        public DateTime StartDateTime
+        {
+            get
+            {
+                if (_startDateTime == null) return (_startDateTime.Value);
+                else
+                {
+                    DateTime result = new DateTime();
+                    if (Recording != null && Recording.RecordingStartTime != null)
+                    {
+                        result = (Recording.RecordingDate?.Date) ?? new DateTime();
+                        result += Recording.RecordingStartTime ?? new TimeSpan();
+                        result += StartOffset;
+                    }
+                    _startDateTime = result;
+                    return (result);
+                };
+            }
+        }
+
         public TimeSpan startTime
         {
             get
@@ -497,6 +521,7 @@ namespace BatRecordingManager
         }
 
         private TimeSpan _endTime = new TimeSpan();
+        private DateTime? _startDateTime = null;
         private TimeSpan _startTime = new TimeSpan();
     }
 

@@ -229,15 +229,19 @@ namespace BatRecordingManager
 
             set
             {
-                SetValue(storedImageProperty, DBAccess.GetImage(value));
-                PlayButton.IsEnabled = value.isPlayable;
-                DisplayActualSize = storedImage.DisplayActualSize;
-                if ((storedImage?.imageType ?? Tools.BlobType.NONE) == Tools.BlobType.SPCT)
+                value = DBAccess.GetImage(value);
+                if ((value?.imageType ?? Tools.BlobType.NONE) == Tools.BlobType.SPCT)
                 {
                     qualityControl.Visibility = Visibility.Visible;
                     qualityControl.SetFromString(storedImage.description);
+                    DisplayActualSize = true;
+                    value.DisplayActualSize = true;
                 }
                 else qualityControl.Visibility = Visibility.Hidden;
+
+                SetValue(storedImageProperty, value);
+                PlayButton.IsEnabled = value.isPlayable;
+                DisplayActualSize = value.DisplayActualSize;
 
                 if (DisplayActualSize)
                 {
@@ -387,6 +391,20 @@ namespace BatRecordingManager
             image.Save(folderPath + fname + (isPng ? ".png" : ".jpg"), FiducialsButton.IsChecked ?? false);
             File.WriteAllText(folderPath + fname + ".txt", storedImage.caption + ":- " + storedImage.description);
             return fname + (isPng ? ".png" : ".jpg");
+        }
+
+        internal DateTime getSegmentStartTime()
+        {
+            DateTime result = new DateTime();
+            if (storedImage != null)
+            {
+                if (((storedImage.segmentsForImage?.Count) ?? 0) > 0)
+                {
+                    var seg = storedImage.segmentsForImage[0];
+                    result = seg.StartDateTime;
+                }
+            }
+            return (result);
         }
 
         /// <summary>
