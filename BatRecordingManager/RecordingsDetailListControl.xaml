@@ -110,6 +110,11 @@
                                     HorizontalContentAlignment="Stretch"
                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
                                     ScrollViewer.CanContentScroll="True">
+                                    <ListView.Resources>
+                                        <Style TargetType="{x:Type ListViewItem}">
+                                            <Setter Property="IsSelected" Value="{Binding isSelected,Mode=TwoWay}" />
+                                        </Style>
+                                    </ListView.Resources>
 
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
@@ -297,6 +302,12 @@
             StackPanel.  This gives a more consistent appearance in the window but does NOT allow the use of double-click to open the file in
             Audacity and therefore SHIFT-Click is now used to do this.  If the file is not present then the text of the file name turns red.
             -->
+
+            <DataGrid.Resources>
+                <Style TargetType="{x:Type DataGridRow}">
+                    <Setter Property="IsSelected" Value="{Binding isSelected,Mode=TwoWay,FallbackValue=false}" />
+                </Style>
+            </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTemplateColumn
 

@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:BatRecordingManager"
              xmlns:tk="clr-namespace:UniversalToolkit;assembly=UniversalToolkit"
              mc:Ignorable="d"
-             Width="800" Height="400">
+             Width="800" Height="300">
 
     <Grid Background="{StaticResource WindowBackgroundBrush}">
 

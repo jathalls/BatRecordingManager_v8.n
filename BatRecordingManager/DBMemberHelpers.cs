@@ -454,6 +454,8 @@ namespace BatRecordingManager
             }
         }
 
+        public bool isSelected { get; set; } = false;
+
         public bool IsWavFile
         {
             get
@@ -576,6 +578,8 @@ namespace BatRecordingManager
         {
             get { return (!Metas.IsNullOrEmpty()); }
         }
+
+        public bool isSelected { get; set; } = false;
 
         /// <summary>
         /// returns true if the recording file ends with .wav and false otherwise

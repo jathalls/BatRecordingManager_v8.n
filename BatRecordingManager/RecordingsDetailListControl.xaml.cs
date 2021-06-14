@@ -270,8 +270,16 @@ namespace BatRecordingManager
 
         public bool selectionIsWavFile { get; set; } = true;
 
+        /// <summary>
+        /// Clears the selection of recordings
+        /// </summary>
+        internal void ClearSelection()
+        {
+            RecordingsListView.UnselectAll();
+        }
+
         internal void NotifyPropertyChanged(string propertyName) =>
-                            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+                                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         /// <summary>
         ///     Gets or sets the recordings list.
@@ -295,6 +303,41 @@ namespace BatRecordingManager
 
             lvi.BringIntoView();
             lvi.IsSelected = true;
+        }
+
+        internal void RefreshRecordings(List<Recording> recs)
+        {
+            if (recs != null)
+            {
+                foreach (var rec in recs)
+                {
+                    int i = recordingsList.IndexOf(rec);
+                    recordingsList[i] = DBAccess.GetRecording(rec.Id);
+                    recordingsList[i].isSelected = true;
+                }
+            }
+
+            NotifyPropertyChanged(nameof(recordingsList));
+        }
+
+        /// <summary>
+        /// given a list of strings which start with a bat Common Name, causes all recordings
+        /// in the list which contain an example of that bat to be selected.
+        /// </summary>
+        /// <param name="batList"></param>
+        internal void SelectByBats(List<string> batList)
+        {
+            var recordingListFoRBats = DBAccess.GetRecordingsForBats(batList, selectedSession.Id);
+            if (recordingListFoRBats != null)
+            {
+                foreach (var rec in recordingsList)
+                {
+                    if (recordingListFoRBats.Contains(rec))
+                    {
+                        rec.isSelected = true;
+                    }
+                }
+            }
         }
 
         /// <summary>

@@ -1490,6 +1490,22 @@ namespace BatRecordingManager
             return result;
         }
 
+        internal static Bat GetBatByName(string summary)
+        {
+            var dc = GetFastDataContext();
+            foreach (var bat in dc.Bats)
+            {
+                if (summary.Contains(bat.Name))
+                {
+                    if (!(bat.Name.ToUpper() == "NO BATS"))
+                    {
+                        return (bat);
+                    }
+                }
+            }
+            return (null);
+        }
+
         /// <summary>
         ///     Gets the name of the bat latin for the given common name
         /// </summary>
@@ -2634,7 +2650,7 @@ namespace BatRecordingManager
         }
 
         internal static IQueryable<RecordingSession> GetPagedRecordingSessionList(int pageSize, int topOfScreen,
-                                    string field)
+                                            string field)
         {
             var dc = GetFastDataContext();
             return GetPagedRecordingSessionList(pageSize, topOfScreen, field, dc);
@@ -3125,6 +3141,45 @@ namespace BatRecordingManager
             {
                 return "";
             }
+        }
+
+        /// <summary>
+        /// Given a list of strings which commence with a bat common name, return the collection of recordings
+        /// in the given session, which feature that bat
+        /// </summary>
+        /// <param name="batList"></param>
+        /// <returns></returns>
+        internal static List<Recording> GetRecordingsForBats(List<string> batList, int sessionId)
+        {
+            var dc = GetFastDataContext();
+            List<Recording> result = new List<Recording>();
+
+            var recordings = from rec in dc.Recordings
+                             where rec.RecordingSessionId == sessionId
+
+                             select (rec);
+
+            if (recordings != null)
+            {
+                foreach (var rec in recordings)
+                {
+                    bool found = false;
+                    foreach (var link in rec.BatRecordingLinks)
+                    {
+                        foreach (var bat in batList)
+                        {
+                            if (bat.Contains(link.Bat.Name))
+                            {
+                                result.Add(rec);
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) break;
+                    }
+                }
+            }
+            return (result?.ToList());
         }
 
         /// <summary>

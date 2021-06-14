@@ -15,7 +15,7 @@ namespace BatRecordingManager
 {
     internal class SegmentSonagrams
     {
-        public void GenerateForSegments(List<LabelledSegment> segmentList)
+        public bool GenerateForSegments(List<LabelledSegment> segmentList)
         {
             if (segmentList != null && segmentList.Any())
             {
@@ -32,7 +32,14 @@ namespace BatRecordingManager
                         }
                     }
                 }
+                return (true);
             }
+            return (false);
+        }
+
+        public Task<bool> GenerateForSegmentsAsync(List<LabelledSegment> segments)
+        {
+            return (Task.Run(() => GenerateForSegments(segments)));
         }
 
         internal StoredImage GenerateForSegment(LabelledSegment sel, Parametrization param = null)
@@ -40,10 +47,10 @@ namespace BatRecordingManager
             return (generateSpectrogram(sel, param));
         }
 
-        internal void GenerateForSession(RecordingSession selectedSession)
+        async internal void GenerateForSession(RecordingSession selectedSession)
         {
             List<LabelledSegment> segments = DBAccess.GetSessionSegments(selectedSession);
-            GenerateForSegments(segments);
+            var success = await GenerateForSegmentsAsync(segments);
         }
 
         /// <summary>

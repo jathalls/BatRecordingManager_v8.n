@@ -17,6 +17,7 @@
 using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -33,7 +34,7 @@ namespace BatRecordingManager
     /// <summary>
     ///     Interaction logic for RecordingSessionListDetailControl.xaml
     /// </summary>
-    public partial class RecordingSessionListDetailControl : UserControl
+    public partial class RecordingSessionListDetailControl : UserControl, INotifyPropertyChanged
     {
         /// <summary>
         ///     The index of the first session on the current page or the page to be loaded
@@ -82,6 +83,8 @@ namespace BatRecordingManager
             //RefreshData(pageSize,currentTopOfScreen);
             //RecordingsListView.ItemsSource = displayedRecordingControls;
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public event EventHandler<EventArgs> SessionChanged;
 
@@ -247,6 +250,8 @@ namespace BatRecordingManager
 
             return result;
         }
+
+        internal void NotifyPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         internal void RefreshData()
         {
@@ -470,7 +475,7 @@ Mouse.OverrideCursor = null;*/
         {
             var sessionSummary = await DisplaySessionSummaryAsync(session);
 
-            SessionSummaryStackPanel.Dispatcher.Invoke(
+            SessionSummaryListView.Dispatcher.Invoke(
                 DispatcherPriority.Background,
                 new Action(() =>
                 {
@@ -631,6 +636,13 @@ Mouse.OverrideCursor = null;*/
             }
         }
 
+        async private void generateForSegments(List<LabelledSegment> segments)
+        {
+            SegmentSonagrams sonagramGenerator = new SegmentSonagrams();
+            var success = await sonagramGenerator.GenerateForSegmentsAsync(segments);
+            OnSessionChanged(EventArgs.Empty);
+        }
+
         private void GenerateSonagrams_Click(object sender, RoutedEventArgs e)
         {
             using (new WaitCursor())
@@ -644,6 +656,80 @@ Mouse.OverrideCursor = null;*/
                 // recordingSessionDataList.Refresh(oldSelectionIndex);
 
                 OnSessionChanged(EventArgs.Empty);
+            }
+        }
+
+        private List<LabelledSegment> getSegmentsForSelectedSummaries()
+        {
+            List<Bat> batList = new List<Bat>();
+            if (SessionSummaryListView.SelectedItems != null && SessionSummaryListView.SelectedItems.Count > 0)
+            {
+                foreach (var summaryItem in SessionSummaryListView.SelectedItems)
+                {
+                    string summary = summaryItem as string;
+                    if (!string.IsNullOrWhiteSpace(summary))
+                    {
+                        Bat bat = DBAccess.GetBatByName(summary);
+                        if (bat != null)
+                            batList.Add(bat);
+                    }
+                }
+            }
+
+            var segments = (from rec in RecordingsListControl.recordingsList
+                            from bat in batList
+                            from seg in rec.LabelledSegments
+                            from lnk in seg.BatSegmentLinks
+                            where lnk.BatID == bat.Id
+                            select seg).ToList();
+            return (segments);
+        }
+
+        /// <summary>
+        /// context menu selection to generate spectrograms for every segment which feature the selected bat
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void miBatSonagrams_Click(object sender, RoutedEventArgs e)
+        {
+            using (new WaitCursor())
+            {
+                List<LabelledSegment> segments = new List<LabelledSegment>();
+                segments = getSegmentsForSelectedSummaries();
+
+                generateForSegments(segments);
+
+                List<Recording> recs = segments.Select(seg => seg.Recording).Distinct().ToList();
+                RecordingsListControl.RefreshRecordings(recs);
+            }
+        }
+
+        private void miCompareImages_Click(object sender, RoutedEventArgs e)
+        {
+            using (new WaitCursor())
+            {
+                var segments = getSegmentsForSelectedSummaries();
+
+                var images = new BulkObservableCollection<StoredImage>();
+                if (segments != null)
+                {
+                    foreach (var seg in segments)
+                    {
+                        var segImages = seg.GetImageList();
+                        if (segImages != null)
+                        {
+                            images.AddRange(segImages);
+                        }
+                    }
+                }
+
+                if (images == null || !images.Any())
+                {
+                    ComparisonHost.Instance.AddImage(new StoredImage(null, "", "", -1));
+                    ComparisonHost.Instance.Close();
+                }
+
+                ComparisonHost.Instance.AddImageRange(images);
             }
         }
 
@@ -715,8 +801,7 @@ Mouse.OverrideCursor = null;*/
                         break;
                     }
                 }
-                //RecordingsListControl.recordingsList.Clear();
-                //RecordingsListControl.Refresh();
+
                 var id = (RecordingSessionListView.SelectedItems[0] as RecordingSessionData).Id;
                 RecordingSessionControl.recordingSession = DBAccess.GetRecordingSession(id);
                 RecordingsListControl.selectedSession = RecordingSessionControl.recordingSession;
@@ -732,27 +817,8 @@ Mouse.OverrideCursor = null;*/
                 }
                 else
                 {
-                    //BulkObservableCollection<BatStats> statsForSession = recordingSessionControl.recordingSession.GetStats();
-
-                    //foreach (var batstat in statsForSession)
-                    //{
-                    //    BatPassSummaryControl batPassSummary = new BatPassSummaryControl();
-                    //    batPassSummary.Content = Tools.GetFormattedBatStats(batstat, false);
-                    //    SessionSummaryStackPanel.Children.Add(batPassSummary);
-                    //}
-                    // var sessionSummary = Tools.GetSessionSummary(RecordingSessionControl.recordingSession);
-                    //foreach (var item in sessionSummary)
-                    //{
-                    //    var batPassSummary = new BatPassSummaryControl { Content = item };
-                    //    SessionSummaryStackPanel.Children.Add(batPassSummary);
-                    //}
-
                     DisplaySessionSummary(RecordingSessionControl.recordingSession); // runs asynchronously
 
-                    //displayedRecordings.Clear();
-                    //displayedRecordings.AddRange(recordingSessionControl.recordingSession.Recordings);
-                    //RecordingsListControl.selectedSession = RecordingSessionControl.recordingSession;
-                    //RecordingsListControl.SetRecordingsList(RecordingSessionControl.recordingSession.Recordings);
                     ExportSessionDataButton.IsEnabled = true;
                     EditRecordingSessionButton.IsEnabled = true;
                     DeleteRecordingSessionButton.IsEnabled = true;
@@ -771,6 +837,7 @@ Mouse.OverrideCursor = null;*/
             if (index >= 0 && index < recordingSessionDataList.Count)
             {
                 recordingSessionDataList[index] = DBAccess.GetRecordingSessionData(recordingSessionDataList[index].Id);
+                NotifyPropertyChanged(nameof(recordingSessionDataList));
                 RecordingSessionListView.SelectedIndex = index;
             }
         }
@@ -824,39 +891,18 @@ Mouse.OverrideCursor = null;*/
 
         #endregion recordingSessionList
 
-        /*
-
-        #region IsLoading
-
         /// <summary>
-        ///     IsLoading Dependency Property
+        /// Selecting a line in the summary, or changing the (possibly multiple or extended
+        /// selection, de-selects all labelled segments and then goes through selecting all
+        /// Labelled segments which contain an occurrence of the bat specified in the selected
+        /// summary lines.
+        ///
         /// </summary>
-        public static readonly DependencyProperty IsLoadingProperty =
-            DependencyProperty.Register(nameof(IsLoading), typeof(bool), typeof(RecordingSessionListDetailControl),
-                new FrameworkPropertyMetadata(false));
-
-        /// <summary>
-        ///     Gets or sets the IsLoading property.  This dependency property
-        ///     indicates ....
-        /// </summary>
-        public bool IsLoading
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SessionSummaryListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            get
-            {
-                if (recordingSessionDataList != null)
-                    return recordingSessionDataList.IsLoading;
-                return false;
-            }
-            set
-            {
-                if (recordingSessionDataList != null)
-                    recordingSessionDataList.IsLoading = value;
-            }
         }
-
-        #endregion IsLoading
-
-        */
 
         private void ShowMapButton_Click(object sender, RoutedEventArgs e)
         {

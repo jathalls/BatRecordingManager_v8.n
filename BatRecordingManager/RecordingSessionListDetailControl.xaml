@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:BatRecordingManager"
              mc:Ignorable="d"
-             d:DesignHeight="700" d:DesignWidth="1000">
+             d:DesignHeight="700" d:DesignWidth="1200">
 
     <Grid
         x:Name="FullWindowGrid"
@@ -267,11 +267,24 @@
                     <!-- Recording session control shows the session details /-->
 
                     <ListView
-                        x:Name="SessionSummaryStackPanel"
+                        x:Name="SessionSummaryListView"
                         ItemsSource="{Binding Path=sessionSummaryList}"
                         Style="{StaticResource SimpleListView}"
                         VerticalAlignment="Stretch"
-                        HorizontalAlignment="Stretch" />
+                        HorizontalAlignment="Stretch" SelectionChanged="SessionSummaryListView_SelectionChanged">
+                        <ListView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem
+                                    x:Name="miBatSonagrams"
+                                    Header="Generate Sonagrams"
+                                    ToolTip="Generate spectrograms for all segments with this bat" Click="miBatSonagrams_Click" />
+                                <MenuItem
+                                    x:Name="miCompareImages"
+                                    Header="Compare Images"
+                                    ToolTip="Add all images for segments with this bat, to the comparison window" Click="miCompareImages_Click" />
+                            </ContextMenu>
+                        </ListView.ContextMenu>
+                    </ListView>
                     <!-- session summary is populated by code when the session selection changes /-->
                 </StackPanel>
             </ScrollViewer>
