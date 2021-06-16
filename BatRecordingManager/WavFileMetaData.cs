@@ -645,15 +645,19 @@ namespace BatRecordingManager
                             try
                             {
                                 header = reader.ReadBytes(4);
+
                                 if (header == null || header.Length != 4) break;
+                                var strHeader = Encoding.UTF8.GetString(header);
                                 var size = reader.ReadInt32();
+                                Debug.WriteLine($"Header={strHeader} and size={size}");
+                                if (size <= 0) break;
                                 try
                                 {
                                     data = reader.ReadBytes(size);
                                 }
                                 catch (Exception ex)
                                 {
-                                    Debug.WriteLine($"Tried to read to much data - {size}:-{ex}");
+                                    Debug.WriteLine($"Tried to read too much data - {size}:-{ex}");
                                 }
 
                                 try
@@ -666,7 +670,6 @@ namespace BatRecordingManager
                                 {
                                 }
 
-                                var strHeader = Encoding.UTF8.GetString(header);
                                 if (strHeader == "data") dataBytes = size;
                                 if (strHeader == "wamd" && data != null)
                                 {

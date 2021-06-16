@@ -1592,7 +1592,8 @@ namespace BatRecordingManager
         /// <param name="folderPath"></param>
         internal static void SetAudacityExportFolder(string folderPath)
         {
-            string moddedFolderPath = folderPath.Replace(@"\\", @"\"); // first ensure that hte path only contains single backslashes - which it should
+            folderPath = new FileInfo(folderPath).Directory.FullName;
+            string moddedFolderPath = folderPath.Replace(@"\\", @"\"); // first ensure that the path only contains single backslashes - which it should
             moddedFolderPath = moddedFolderPath.Replace(@"\", @"\\"); // then ensure that all backslashes are doubled for insertion into the config file
             string configFile = @"C:\audacity-win-portable\Portable Settings\audacity.cfg";
             if (File.Exists(configFile) && (new FileInfo(configFile).Length > 0L))
@@ -1932,16 +1933,26 @@ mod-script-pipe=C:\\audacity-win-portable\\modules\\mod-script-pipe.dll");
         {
             try
             {
-                var mw = Application.Current.MainWindow;
+                Application.Current.Dispatcher.Invoke((Action)(() =>
+                {
+                    Application.Current.MainWindow.Focus();
+                }));
+                /*
+                Window mw = null;
+                //Dispatcher.CurrentDispatcher.Invoke(=>{ mw = Application.Current.MainWindow});
+                //var mw = Application.Current.MainWindow;
                 if (mw != null)
                 {
                     mw.Dispatcher.Invoke(delegate
                     {
                         mw.Focus();
                     });
-                }
+                }*/
             }
-            catch (Exception) { }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"ERROR focussing main window:- {ex.Message}");
+            }
         }
 
         /// <summary>
