@@ -180,6 +180,7 @@
                         Style="{StaticResource VdgStyle}"
                         SelectionChanged="RecordingSessionListView_SelectionChanged"
                         IsSynchronizedWithCurrentItem="True"
+                        SelectionMode="Extended"
 
                         ItemsSource="{Binding recordingSessionDataList}"
                         AutoGenerateColumns="False"
@@ -192,7 +193,15 @@
                         CanUserResizeRows="False"
                         IsReadOnly="True"
                         IsTextSearchEnabled="True"
+                        
                         Grid.ColumnSpan="4">
+
+                        <DataGrid.RowStyle>
+                            <Style TargetType="{x:Type DataGridRow}">
+                                <Setter Property="IsSelected" 
+                                    Value="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Style>
+                        </DataGrid.RowStyle>
 
                         <DataGrid.Columns>
                             <DataGridTextColumn x:Name="TagColumn" Binding="{Binding SessionTag}" Header="Tag"

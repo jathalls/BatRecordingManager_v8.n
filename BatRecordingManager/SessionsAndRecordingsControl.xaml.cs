@@ -261,8 +261,8 @@ namespace BatRecordingManager
             }
         }
 
-        //public BulkObservableCollection<BatSessionRecordingData> matchingRecordingData { get; } = new BulkObservableCollection<BatSessionRecordingData>();
-        public BulkObservableCollection<BatSessionRecordingData> matchingRecordingData { get; set; }
+        public BulkObservableCollection<BatSessionRecordingData> matchingRecordingData { get; } = new BulkObservableCollection<BatSessionRecordingData>();
+        //public BulkObservableCollection<BatSessionRecordingData> matchingRecordingData { get; set; }
 
         /// <summary>
         ///     A list of all the recordings in the selected sessions
@@ -703,8 +703,14 @@ namespace BatRecordingManager
                         numRecordings += batSession.BatRecordingsCount;
                     }
 
-                    matchingRecordingData = new BulkObservableCollection<BatSessionRecordingData>();
-                    matchingRecordingData.AddRange(DBAccess.GetPagedBatSessionRecordingData(batIdList, sessionIdList, 0, 1000));
+                    matchingRecordingData.Clear();
+                    var newMatchingRecordingData = new BulkObservableCollection<BatSessionRecordingData>();
+                    newMatchingRecordingData.AddRange(DBAccess.GetPagedBatSessionRecordingData(batIdList, sessionIdList, 0, 1000));
+                    matchingRecordingData.AddRange(newMatchingRecordingData);
+                    //Binding binding = new Binding();
+                    //binding.Path = new System.Windows.PropertyPath(matchingRecordingData);
+                    //binding.IsAsync = true;
+                    //RecordingsDataGrid.SetBinding(DataGrid.ItemsSourceProperty, binding);
                 }
             }
         }

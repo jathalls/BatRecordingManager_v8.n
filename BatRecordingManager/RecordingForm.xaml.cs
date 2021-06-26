@@ -415,7 +415,7 @@ namespace BatRecordingManager
         /// </param>
         private void OKButton_Click(object sender, RoutedEventArgs e)
         {
-            var err = "";
+            
             var processedSegments = new BulkObservableCollection<SegmentAndBatList>();
             using (new WaitCursor("Saving recording data..."))
             {
@@ -436,29 +436,20 @@ namespace BatRecordingManager
                     }
                 }
 
-                /*if (isSegmentModified)
-                {
-                    DBAccess.DeleteAllSegmentsForRecording(recording.Id);
-                    recording.LabelledSegments.Clear();
-                    foreach(var bsl in processedSegments)
-                    {
-                        bsl.segment.Id = 0;
-                        bsl.segment.RecordingID = 0;
-                    }
-                }*/
+                
             }
 
-            err = DBAccess.UpdateRecording(recording, processedSegments,
+            var rec = DBAccess.UpdateRecording(recording, processedSegments,
                 RecordingFormImageScroller.ListofCallImageLists);
 
-            if (string.IsNullOrWhiteSpace(err))
+            if (rec!=null)
             {
                 DialogResult = true;
                 Close();
             }
             else
             {
-                MessageBox.Show(err);
+                MessageBox.Show(@"Error updating recording {recording?.Name}");
             }
         }
 

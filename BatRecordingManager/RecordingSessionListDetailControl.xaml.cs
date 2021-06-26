@@ -276,7 +276,11 @@ namespace BatRecordingManager
             {
                 //  Stopwatch overallWatch = Stopwatch.StartNew();
                 oldSelectionIndex = -1;
-                oldSelectionIndex = RecordingSessionListView.SelectedIndex;
+                if(RecordingSessionListView.SelectedItem != null)
+                {
+                    oldSelectionIndex = (RecordingSessionListView.SelectedItem as RecordingSessionData).Id;
+                }
+                //oldSelectionIndex = selectedIndex;
                 //recordingSessionDataList.Clear();
                 //recordingSessionDataList.AddRange(DBAccess.GetPagedRecordingSessionDataList(pageSize, topOfScreen, field));
                 recordingSessionDataList = null;
@@ -288,9 +292,10 @@ namespace BatRecordingManager
                 //recordingSessionDataList.CollectionChanged += RecordingSessionDataList_CollectionChanged;
 
                 //if (!recordingSessionDataList.IsLoading) recordingSessionDataList.Refresh();
-                if (oldSelectionIndex >= 0 && oldSelectionIndex < recordingSessionDataList.Count)
-                    RecordingSessionListView.SelectedIndex = oldSelectionIndex;
-
+                if (oldSelectionIndex >= 0) {
+                    var rd = recordingSessionDataList.Where(red => red.Id == oldSelectionIndex).FirstOrDefault();
+                    rd.IsSelected = true;
+                }
                 SegmentImageScroller.Clear();
                 if (RecordingSessionListView.SelectedItem == null)
                 {
@@ -312,11 +317,13 @@ namespace BatRecordingManager
                     }
                 }
 
-                RecordingSessionListView_SelectionChanged(this, null);
+                //RecordingSessionListView_SelectionChanged(this, null);
             }
 
             //CollectionViewSource.GetDefaultView(RecordingSessionListView.ItemsSource).Refresh();
         }
+
+        public int selectedIndex { get; set; }
 
         /// <summary>
         ///     Selects the specified recording session.
@@ -331,7 +338,7 @@ namespace BatRecordingManager
                 var sessionData = RecordingSessionListView.Items[i] as RecordingSessionData;
                 if (sessionData.Id == recordingSessionId)
                 {
-                    RecordingSessionListView.SelectedIndex = i;
+                    selectedIndex = i;
                     break;
                 }
             }
@@ -361,7 +368,7 @@ namespace BatRecordingManager
         {
             using (new WaitCursor())
             {
-                var selectedIndex = RecordingSessionListView.SelectedIndex;
+                
 
                 var error = "No Data Entered";
                 Mouse.OverrideCursor = null;
@@ -434,7 +441,7 @@ Mouse.OverrideCursor = null;*/
             {
                 if (RecordingSessionListView.SelectedItem != null && RecordingSessionListView.SelectedItems.Count > 0)
                 {
-                    oldIndex = RecordingSessionListView.SelectedIndex;
+                    oldIndex = selectedIndex; ;
                     for (int i = 0; i < RecordingSessionListView.SelectedItems.Count; i++)
                     {
                         var session =
@@ -463,7 +470,7 @@ Mouse.OverrideCursor = null;*/
                         }
                     }
 
-                    RefreshData(PageSize, CurrentTopOfScreen);
+                    //RefreshData(PageSize, CurrentTopOfScreen);
                     if (RecordingSessionListView.SelectedItem != null)
                         RecordingSessionListView.ScrollIntoView(RecordingSessionListView.SelectedItem);
                 }
@@ -650,7 +657,7 @@ Mouse.OverrideCursor = null;*/
                 var selectedSession = GetSelectedSession();
                 var sonagrams = new SegmentSonagrams();
                 sonagrams.GenerateForSession(selectedSession);
-                oldSelectionIndex = RecordingSessionListView.SelectedIndex;
+                oldSelectionIndex = selectedIndex; 
                 recordingSessionDataList.Clear();
 
                 // recordingSessionDataList.Refresh(oldSelectionIndex);
@@ -744,9 +751,9 @@ Mouse.OverrideCursor = null;*/
         {
             if (oldSelectionIndex >= 0 && oldSelectionIndex < RecordingSessionListView.Items.Count)
             {
-                if (RecordingSessionListView.SelectedIndex != oldSelectionIndex)
+                if (selectedIndex != oldSelectionIndex)
                 {
-                    RecordingSessionListView.SelectedIndex = oldSelectionIndex;
+                    selectedIndex = oldSelectionIndex;
                 }
                 else
                 {
@@ -826,19 +833,30 @@ Mouse.OverrideCursor = null;*/
                 }
             }
 
-            oldSelectionIndex = RecordingSessionListView.SelectedIndex;
+            oldSelectionIndex = selectedIndex;
         }
 
-        private void RecordingsListControl_RecordingChanged(object sender, EventArgs e)
+        private void RecordingsListControl_RecordingChanged(object sender,RecordingChangedEventArgs e)
         {
             //RefreshData(PageSize, CurrentTopOfScreen);
             //OnSessionChanged(EventArgs.Empty);
-            int index = RecordingSessionListView.SelectedIndex;
-            if (index >= 0 && index < recordingSessionDataList.Count)
+            var session = e.recordingSession;
+
+            var index = selectedIndex;
+            if (session!=null)
             {
-                recordingSessionDataList[index] = DBAccess.GetRecordingSessionData(recordingSessionDataList[index].Id);
-                NotifyPropertyChanged(nameof(recordingSessionDataList));
-                RecordingSessionListView.SelectedIndex = index;
+                var data = DBAccess.GetRecordingSessionData(session.Id);
+                data.IsSelected = true;
+
+                var existing=recordingSessionDataList.Where(rsd=>rsd.Id==data.Id).FirstOrDefault();
+                if (existing != null)
+                {
+                    int i = recordingSessionDataList.IndexOf(existing);
+                    recordingSessionDataList[i] = data;
+                }
+
+                
+                
             }
         }
 

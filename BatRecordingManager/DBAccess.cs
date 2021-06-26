@@ -2603,11 +2603,15 @@ namespace BatRecordingManager
         {
             var dc = GetFastDataContext();
 
-            var result = (from rec in dc.Recordings
-                          where rec.RecordingSessionId == sessionId
-                          select rec).Skip(startIndex).Take(count).AsQueryable();
+            var res=(from session in dc.RecordingSessions
+                     where session.Id==sessionId
+                     select session).SingleOrDefault().Recordings.Skip(startIndex).Take(count).AsQueryable();
+            return (res);
+            //var result = (from rec in dc.Recordings
+            //              where rec.RecordingSessionId == sessionId
+           //               select rec).Skip(startIndex).Take(count).AsQueryable();
 
-            return result;
+            //return result;
         }
 
         /// <summary>
@@ -4012,24 +4016,23 @@ namespace BatRecordingManager
         /// <param name="listOfSegmentAndBatLists"></param>
         /// <param name="listOfSegmentImageLists"></param>
         /// <returns></returns>
-        internal static string UpdateRecording(Recording recording,
+        internal static Recording UpdateRecording(Recording recording,
             BulkObservableCollection<SegmentAndBatList> listOfSegmentAndBatLists,
             BulkObservableCollection<BulkObservableCollection<StoredImage>> listOfSegmentImageLists)
         {
-            string errmsg = null;
+            
 
             Recording existingRecording = null;
             var dc = GetFastDataContext();
 
-            errmsg = recording != null ? recording.Validate() : "No recording to validate";
+            
             try
             {
-                if (string.IsNullOrWhiteSpace(errmsg))
-                {
+                
                     var session = (from sess in dc.RecordingSessions
                                    where sess.Id == recording.RecordingSessionId
                                    select sess).SingleOrDefault();
-                    if (session == null) return "Unable to Locate Session for this Recording";
+                    if (session == null) return null;
 
                     // find existing recordings with matching ID or Name
                     IQueryable<Recording> existingRecordings = null;
@@ -4112,15 +4115,15 @@ namespace BatRecordingManager
                     if (listOfSegmentAndBatLists != null)
                         UpdateLabelledSegments(listOfSegmentAndBatLists, existingRecording.Id, listOfSegmentImageLists,
                             dc);
-                }
 
-                return errmsg;
+
+                return existingRecording;
             }
             catch (Exception ex)
             {
                 Tools.ErrorLog(ex.Message);
                 Debug.WriteLine("UpdateRecording - " + ex.Message);
-                return ex.Message;
+                return null;
             }
         }
 

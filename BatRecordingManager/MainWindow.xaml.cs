@@ -432,7 +432,7 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Handles the Click event of the miBatSearch control.
+        ///     Handles the Click event of the miBatSearch control.  Lists recording sessions and recordings by bat
         /// </summary>
         /// <param name="sender">
         ///     The source of the event.

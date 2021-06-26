@@ -83,13 +83,13 @@
                 MouseDoubleClick="RecordingsDataGrid_MouseDoubleClick"
                 IsReadOnly="True"
                 SelectionChanged="RecordingsDataGrid_SelectionChanged"
-                ItemsSource="{Binding Path=matchingRecordingData,IsAsync=True,UpdateSourceTrigger=PropertyChanged}"
+                ItemsSource="{Binding Path=matchingRecordingData,IsAsync=True}"
                 ToolTip="Double-click to open .wav file, Right-click to open Import Picture Dialog "
                 RowHeight="23"
                 HorizontalScrollBarVisibility="Visible"
                 VerticalScrollBarVisibility="Visible"
 
-                IsSynchronizedWithCurrentItem="True">
+                >
 
                 <DataGrid.Columns>
                     <DataGridTextColumn Width="180*" Binding="{Binding RecordingName,IsAsync=True}" Header="File"
@@ -113,7 +113,8 @@
                         <MenuItem x:Name="miOpenWavFile" Header="Open .Wav File" Click="RecordingsDataGrid_MouseDoubleClick" />
                         <MenuItem x:Name="miGenerateRecordingSpectrograms"
                                   Header="Generate Spectrograms"
-                                  ToolTip="Generate Spectrograms for all segments in this recording for this bat" Click="miGenerateRecordingSpectrograms_Click" />
+                                  ToolTip="Generate Spectrograms for all segments in this recording for this bat" 
+                                  Click="miGenerateRecordingSpectrograms_Click" />
                     </ContextMenu>
                 </DataGrid.ContextMenu>
             </DataGrid>

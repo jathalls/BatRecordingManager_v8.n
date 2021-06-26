@@ -98,14 +98,14 @@
                                 <ListView
                                     x:Name="LabelledSegmentListView"
                                     ItemsSource="{Binding LabelledSegments}"
-                                    Style="{StaticResource SimpleListView}"
+                                    
                                     Width="{Binding ElementName=RecordingsListView, Path=ActualWidth, Converter={StaticResource AddValueConverter}, ConverterParameter='-30'}"
 
                                     SelectionChanged="LabelledSegmentListView_SelectionChanged"
                                     PreviewMouseWheel="LabelledSegmentListView_PreviewMouseWheel"
                                     VerticalAlignment="Top"
                                     HorizontalAlignment="Stretch"
-                                    SelectionMode="Single"
+                                    SelectionMode="Extended"
                                     VerticalContentAlignment="Top"
                                     HorizontalContentAlignment="Stretch"
                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -319,16 +319,6 @@
             </DataGrid.ItemTemplate>-->
         </DataGrid>
 
-        <!-- <TextBlock.Text>
-
-                                                                <MultiBinding Converter="{StaticResource LabelledSegmentConverter}">
-                                                                   <MultiBinding.Bindings>
-
-                                                                            <Binding ElementName="OffsetsButton" Path="." ></Binding>
-                                                                            <Binding Path="."></Binding>
-                                                                   </MultiBinding.Bindings>
-                                                                </MultiBinding>
-                                                            </TextBlock.Text>-->
-        <!-- The recordings list is populated from code -->
+        
     </Grid>
 </UserControl>

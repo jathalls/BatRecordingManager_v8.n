@@ -971,6 +971,8 @@ namespace BatRecordingManager
             }
         }
 
+        public bool IsSelected { get; set; } = false;
+
         /// <summary>
         /// Returns <see langword="abstract"/>sDateTime for the start of the session, combining startDate
         /// and start time as necessary

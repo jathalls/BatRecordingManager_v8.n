@@ -16,5 +16,5 @@ DEBUG;TRACE
 31-227100363
 CallDataForm.xaml;ChartControl.xaml;ChartGrid.xaml;ParameterSetter.xaml;SfEfChart.xaml;
 
-False
+True
 

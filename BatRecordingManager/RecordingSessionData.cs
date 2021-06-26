@@ -35,6 +35,7 @@ namespace BatRecordingManager
             StartTime = startTime;
             NumberOfRecordingImages = numImages;
             NumberOfRecordings = numRecordings;
+            IsSelected = false;
         }
 
         public RecordingSessionData()
@@ -46,7 +47,10 @@ namespace BatRecordingManager
             StartTime = null;
             NumberOfRecordingImages = 0;
             NumberOfRecordings = 0;
+            IsSelected = false;
         }
+
+        public bool IsSelected { get; set; } = false;
 
         public event PropertyChangedEventHandler PropertyChanged;
 

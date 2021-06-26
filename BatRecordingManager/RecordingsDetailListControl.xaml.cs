@@ -111,7 +111,7 @@ namespace BatRecordingManager
         /// <summary>
         ///     Event raised after the <see cref="Text" /> property value has changed.
         /// </summary>
-        public event EventHandler<EventArgs> e_RecordingChanged
+        public event EventHandler<RecordingChangedEventArgs> e_RecordingChanged
 #pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved
         {
             add
@@ -205,6 +205,7 @@ namespace BatRecordingManager
 
                         return;
                     }
+                    _selectedSession.IsSelected = true;
                     Recording defRec = new Recording();
                     defRec.RecordingName = "Loading...";
                     //mod virtualRecordingsList = new AsyncVirtualizingCollection<Recording>(new RecordingProvider((selectedSession?.Id) ?? -1), 10, 3000, defRec);
@@ -312,8 +313,9 @@ namespace BatRecordingManager
                 foreach (var rec in recs)
                 {
                     int i = recordingsList.IndexOf(rec);
+                    bool selected = recordingsList[i].isSelected;
                     recordingsList[i] = DBAccess.GetRecording(rec.Id);
-                    recordingsList[i].isSelected = true;
+                    recordingsList[i].isSelected = selected;
                 }
             }
 
@@ -336,17 +338,23 @@ namespace BatRecordingManager
                     {
                         rec.isSelected = true;
                     }
+                    else
+                    {
+                        rec.isSelected = false;
+                    }
                 }
+                NotifyPropertyChanged(nameof(recordingsList));
             }
+            
         }
 
         /// <summary>
         ///     Raises the <see cref="e_RecordingChanged" /> event.
         /// </summary>
-        /// <param name="e"><see cref="EventArgs" /> object that provides the arguments for the event.</param>
-        protected virtual void OnRecordingChanged(EventArgs e)
+        /// <param name="rce"><see cref="RecordingChangedEventArgs" /> object that provides the arguments for the event.</param>
+        protected virtual void OnRecordingChanged(RecordingChangedEventArgs rce)
         {
-            EventHandler<EventArgs> handler = null;
+            EventHandler<RecordingChangedEventArgs> handler = null;
 
             lock (_recordingChangedEventLock)
             {
@@ -356,7 +364,7 @@ namespace BatRecordingManager
                     return;
             }
 
-            handler(this, e);
+            handler(this, rce);
         }
 
         /// <summary>
@@ -386,7 +394,7 @@ namespace BatRecordingManager
         //private bool _hasMetadata = false;
         private bool _isSegmentSelected;
 
-        private EventHandler<EventArgs> _recordingChangedEvent;
+        private EventHandler<RecordingChangedEventArgs> _recordingChangedEvent;
 
         private SearchDialog _searchDialog;
 
@@ -502,18 +510,18 @@ namespace BatRecordingManager
                     //DBAccess.UpdateRecording(recordingForm.recording, null);
                 }
 
-            PopulateRecordingsList();
-            if (oldIndex > 0 && oldIndex < RecordingsListView.Items.Count) RecordingsListView.SelectedIndex = oldIndex;
+            UpdateRecordingsList(recording.Id);
 
+            
             SearchButton.IsEnabled = (selectedSession != null && _selectedSession.Recordings.Count > 0);
-            OnRecordingChanged(EventArgs.Empty);
+            
         }
 
         private void AddRecordingButton_Click(object sender, RoutedEventArgs e)
         {
             var recording = new Recording();
             AddEditRecording(recording);
-            OnRecordingChanged(new EventArgs());
+            
         }
 
         private void AddSegImgButton_Click(object sender, RoutedEventArgs e)
@@ -744,12 +752,19 @@ namespace BatRecordingManager
         private void DeleteRecordingButton_Click(object sender, RoutedEventArgs e)
         {
             var oldIndex = RecordingsListView.SelectedIndex;
+            RecordingSession recordingSession = null;
             if (RecordingsListView.SelectedItem != null)
-                DBAccess.DeleteRecording(RecordingsListView.SelectedItem as Recording);
-            PopulateRecordingsList();
+            {
+                var recording = RecordingsListView.SelectedItem as Recording;
+                recordingSession = recording.RecordingSession;
+                DBAccess.DeleteRecording(recording);
+                recordingsList.Remove(recording);
+                OnRecordingChanged(new RecordingChangedEventArgs(recordingSession));
+            }
+            
             if (oldIndex >= 0 && oldIndex < RecordingsListView.Items.Count) RecordingsListView.SelectedIndex = oldIndex;
             SearchButton.IsEnabled = (selectedSession != null && selectedSession.Recordings.Count > 0);
-            OnRecordingChanged(new EventArgs());
+            
         }
 
         private void DisableSearchButton()
@@ -762,7 +777,7 @@ namespace BatRecordingManager
             var recording = new Recording();
             if (RecordingsListView.SelectedItem != null) recording = RecordingsListView.SelectedItem as Recording;
             AddEditRecording(recording);
-            OnRecordingChanged(EventArgs.Empty);
+            
             if (selectedSession != null && selectedSession.Recordings.Count > 0)
                 SearchButton.IsEnabled = true;
             else
@@ -890,7 +905,15 @@ namespace BatRecordingManager
                     if (RecordingsListView.SelectedItem != null)
                         if (selectedSegment.RecordingID == (RecordingsListView.SelectedItem as Recording).Id)
                             isRecordingSelected = true;
-                    if (!isRecordingSelected) RecordingsListView.SelectedItem = selectedSegment.Recording;
+                    if (!isRecordingSelected)
+                    {
+                        RecordingsListView.UnselectAll();
+                        foreach(var rec in recordingsList)
+                        {
+                            if(rec.Id==selectedSegment.RecordingID) rec.isSelected = true;
+                            else rec.isSelected = false;
+                        }
+                    }
                 }
                 else
                 {
@@ -1002,12 +1025,13 @@ namespace BatRecordingManager
                 listOfCallImageLists.Add(segmentImageList);
             }
 
-            DBAccess.UpdateRecording(selectedRecording, processedSegments, listOfCallImageLists);
-            if (currentSelectedRecording >= 0 && currentSelectedRecording < recordingsList.Count)
+            Recording recording=DBAccess.UpdateRecording(selectedRecording, processedSegments, listOfCallImageLists);
+            if (recording != null)
             {
-                recordingsList[currentSelectedRecording] = DBAccess.GetRecording(selectedRecording.Id);
+                UpdateRecordingsList(recording.Id);
             }
-            OnRecordingChanged(EventArgs.Empty);
+            
+            
         }
 
         /// <summary>
@@ -1057,11 +1081,42 @@ namespace BatRecordingManager
                         ComparisonHost.Instance.AddImage(image);
                     }
                 }
-                if (currentSelectedRecording >= 0 && currentSelectedRecording < recordingsList.Count)
+                
+                
+                UpdateRecordingsList(recId);
+                
+                
+            }
+        }
+
+        /// <summary>
+        /// replaces the recording in the recordingslist with <see langword="abstract"/>newly derived one from the database
+        /// or adds the recording to the list if not already present
+        /// </summary>
+        /// <param name="recordingID"></param>
+        private void UpdateRecordingsList(int recordingID)
+        {
+            if (recordingID >= 0)
+            {
+                var recording=DBAccess.GetRecording(recordingID);
+
+                if (recording != null)
                 {
-                    recordingsList[currentSelectedRecording] = DBAccess.GetRecording(recId);
+                    recording.isSelected = true;
+
+                    var existing=recordingsList.Where(rec=>rec.Id==recording.Id).FirstOrDefault();
+                    if (existing != null)
+                    {
+                        int i=recordingsList.IndexOf(existing);
+                        recordingsList[i] = recording;
+                    }
+                    else
+                    {
+                        recordingsList.Add(recording);
+                    }
                 }
-                OnRecordingChanged(EventArgs.Empty);
+
+                OnRecordingChanged(new RecordingChangedEventArgs(recording?.RecordingSession));
             }
         }
 
@@ -1097,12 +1152,7 @@ namespace BatRecordingManager
                 var recordingId = (selection?.First()?.RecordingID) ?? -1;
                 SegmentSonagrams sonagramGenerator = new SegmentSonagrams();
                 sonagramGenerator.GenerateForSegments(selection);
-                if (currentSelectedRecording >= 0 && currentSelectedRecording < recordingsList.Count)
-                {
-                    recordingsList[currentSelectedRecording] = DBAccess.GetRecording(recordingId);
-                    SelectRecordingAndSegment(currentSelectedRecording, selection?.First());
-                    OnRecordingChanged(EventArgs.Empty);
-                }
+                UpdateRecordingsList(recordingId);
             }
         }
 
@@ -1219,7 +1269,7 @@ namespace BatRecordingManager
                     currentSelectedRecording = RecordingsListView.SelectedIndex;
                     selectionIsWavFile = true;
                 }
-                _isSegmentSelected = false;
+                
                 e.Handled = true;
                 if (e.AddedItems != null && e.AddedItems.Count > 0)
                 {
@@ -1235,7 +1285,7 @@ namespace BatRecordingManager
                             Debug.WriteLine("Recording Selected");
                         }
 
-                        _isSegmentSelected = false;
+                        
                     }
                 }
                 else
@@ -1319,7 +1369,7 @@ namespace BatRecordingManager
                                          select rec;
                         if (!recordings.IsNullOrEmpty()) foundRecording = recordings.First();
                         RecordingsListView.Focus();
-                        RecordingsListView.SelectedItem = foundRecording;
+                        foundRecording.isSelected = true;
                         RecordingsListView.ScrollIntoView(foundRecording);
                     }
 
@@ -1331,7 +1381,7 @@ namespace BatRecordingManager
                         if (!recordings.IsNullOrEmpty()) foundRecording = recordings.First();
                         RecordingsListView.Focus();
                         RecordingsListView.ScrollIntoView(foundRecording);
-                        RecordingsListView.SelectedItem = foundRecording;
+                        foundRecording.isSelected = true;
                     }
 
                     if (segmentIndex >= 0)
@@ -1347,6 +1397,7 @@ namespace BatRecordingManager
                             {
                                 lsegListView.UnselectAll();
                                 lsegListView.SelectedItem = foundSegment;
+                                foundSegment.isSelected = true;
                                 //lsegListView.ScrollIntoView(foundSegment);
                                 var lvi = (ListViewItem)lsegListView.ItemContainerGenerator.ContainerFromItem(lsegListView
                                     .SelectedItem);
@@ -1356,56 +1407,7 @@ namespace BatRecordingManager
                     }
                 }
 
-                /*
-                if (RecordingsListView.SelectedIndex >= 0)
-                {
-                    var currentSelectedListBoxItem =
-                        RecordingsListView.ItemContainerGenerator.ContainerFromIndex(RecordingsListView.SelectedIndex);
-                    //as ListViewItem;
-                    var lsegListView = Tools.FindDescendant<ListView>(currentSelectedListBoxItem);
-                    lsegListView?.UnselectAll();
-                    RecordingsListView.UnselectAll();
-                }
-
-                if (seArgs.IndexOfFoundItem < 0) return; //not found
-                var foundItem = _searchTargets.searchableCollection[seArgs.IndexOfFoundItem];
-                if (foundItem == null) return; // invalid result
-
-                var recordingId = foundItem.Item1;
-                var segmentIndex = foundItem.Item2;
-
-                Recording foundRecording = null;
-                if (selectedSession != null)
-                {
-                    var recordings = from rec in selectedSession.Recordings
-                                     where rec.Id == recordingId
-                                     select rec;
-                    if (!recordings.IsNullOrEmpty()) foundRecording = recordings.First();
-                    RecordingsListView.Focus();
-                    RecordingsListView.SelectedItem = foundRecording;
-                    RecordingsListView.ScrollIntoView(foundRecording);
-                }
-
-                if (segmentIndex >= 0)
-                {
-                    var foundSegment = foundRecording.LabelledSegments[segmentIndex];
-                    if (foundSegment != null)
-                    {
-                        var currentSelectedListBoxItem =
-                            RecordingsListView.ItemContainerGenerator.ContainerFromIndex(RecordingsListView
-                                .SelectedIndex) as ListViewItem;
-                        var lsegListView = Tools.FindDescendant<ListView>(currentSelectedListBoxItem);
-                        if (lsegListView != null)
-                        {
-                            lsegListView.UnselectAll();
-                            lsegListView.SelectedItem = foundSegment;
-                            //lsegListView.ScrollIntoView(foundSegment);
-                            var lvi = (ListViewItem)lsegListView.ItemContainerGenerator.ContainerFromItem(lsegListView
-                                .SelectedItem);
-                            OnListViewItemFocused(lvi, new RoutedEventArgs());
-                        }
-                    }
-                }*/
+                
             }
             catch (Exception ex)
             {
@@ -1433,9 +1435,21 @@ namespace BatRecordingManager
                 return;
             }
 
-            RecordingsListView.SelectedItems.Clear();
-            object item = RecordingsListView.Items[currentRecordingIndex];
-            RecordingsListView.SelectedItem = item;
+            RecordingsListView.UnselectAll();
+            var item = RecordingsListView.Items[currentRecordingIndex] as Recording;
+            item.isSelected = true;
+            if(item.LabelledSegments != null)
+            {
+                foreach(var seg in item.LabelledSegments)
+                {
+                    if (seg.Id == segment.Id){
+                        seg.isSelected = true;
+                    }else
+                    {
+                        seg.isSelected = false;
+                    }
+                }
+            }
 
             var row = RecordingsListView.ItemContainerGenerator.ContainerFromIndex(currentRecordingIndex) as DataGridRow;
             if (row == null)
@@ -1457,6 +1471,16 @@ namespace BatRecordingManager
 #pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved
 #pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved
     } // End of Class RecordingDetailListControl
+
+    public class RecordingChangedEventArgs : EventArgs
+    {
+        public RecordingChangedEventArgs(RecordingSession recordingSession)
+        {
+            this.recordingSession=recordingSession;
+        }
+
+        public RecordingSession recordingSession { get; set; }
+    }
 
     #region RecordingToGPSConverter (ValueConverter)
 
