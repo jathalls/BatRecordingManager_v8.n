@@ -348,6 +348,19 @@ namespace BatRecordingManager
             return result;
         }
 
+        internal static RecordingSession GetRecordingSessionByFolder(string workingFolder)
+        {
+            var dc = GetFastDataContext();
+            var sessions = from sess in dc.RecordingSessions
+                           where sess.OriginalFilePath == workingFolder
+                           select sess;
+            if(sessions!=null && sessions.Any())
+            {
+                return (sessions.First());
+            }
+            return (null);
+        }
+
         /// <summary>
         ///     Extension method on Recording.GetImageList(Bat)
         ///     returns a collection of StoredImage of all the images for all the segments
@@ -485,7 +498,7 @@ namespace BatRecordingManager
         /// </returns>
         public static BatStats GetPassesForBat(Bat bat)
         {
-            var stats = new BatStats();
+            var stats = new BatStats(bat.Name);
             if (bat != null)
             {
                 var segments = (from link in bat.BatSegmentLinks
@@ -493,7 +506,11 @@ namespace BatRecordingManager
                                 select link.LabelledSegment).Distinct();
                 if (!segments.IsNullOrEmpty())
                     foreach (var seg in segments)
-                        stats.Add(seg.EndOffset - seg.StartOffset, seg.AutoID);
+                    {
+                        var autoID = seg.AutoID;
+                        
+                        stats.Add(seg.EndOffset - seg.StartOffset, autoID,seg.isConfidenceLow);
+                    }
             }
 
             return stats;
@@ -1843,7 +1860,7 @@ namespace BatRecordingManager
             var workingDatabaseLocation = GetWorkingDatabaseLocation();
             var workingDatabaseFilename = GetWorkingDatabaseName(workingDatabaseLocation);
             List<string> tables = new List<string>();
-
+            string connectionString = "Undefined";
             try
             {
                 if (!File.Exists(workingDatabaseLocation + workingDatabaseFilename))
@@ -1876,14 +1893,15 @@ namespace BatRecordingManager
                         CreateDatabase(workingDatabaseLocation + workingDatabaseFilename);
                     }
                 }
+                connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + workingDatabaseLocation +
+                        workingDatabaseFilename + @";Integrated Security=False;Connect Timeout=60";
 
-                batReferenceDataContext = new BatReferenceDBLinqDataContext(
-                        @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + workingDatabaseLocation +
-                        workingDatabaseFilename + @";Integrated Security=False;Connect Timeout=60");
+
+                batReferenceDataContext = new BatReferenceDBLinqDataContext(connectionString);
             }
             catch (Exception ex)
             {
-                Tools.ErrorLog(ex + "\n" + ex.Message);
+                Tools.ErrorLog(ex + "\n" + ex.Message+$"\nConnection string =[{connectionString}]");
             }
             finally
             {
@@ -1894,10 +1912,7 @@ namespace BatRecordingManager
 
             if (_isDataContextUpToDate) return batReferenceDataContext;
 
-            tables = GetRawDatabaseTables(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" +
-                                          workingDatabaseLocation +
-                                          workingDatabaseFilename +
-                                          @";Integrated Security=False;Connect Timeout=60");
+            tables = GetRawDatabaseTables(connectionString);
 
             var versionTableExists = false;
             foreach (var table in tables)
@@ -1905,7 +1920,7 @@ namespace BatRecordingManager
                     versionTableExists = true;
             if (!versionTableExists)
             {
-                Tools.InfoLog("+@+@+@+@  Table in the database:-");
+                Tools.InfoLog("+@+@+@+@  Tables in the database:-");
                 foreach (var table in tables) Tools.InfoLog(table);
                 try
                 {
@@ -1914,7 +1929,7 @@ namespace BatRecordingManager
                 }
                 catch (Exception ex)
                 {
-                    Tools.ErrorLog("From GetDataContext, failed to create version table:- " + ex.Message);
+                    Tools.ErrorLog(" From GetDataContext, failed to create version table:- " + ex.Message+"\n"+connectionString);
                 }
 
                 try
@@ -3391,7 +3406,12 @@ namespace BatRecordingManager
                                          where item.bat.Id == bat.Id
                                          select item.segment;
 
-                foreach (var seg in segmentsForThisBat) stat.Add(seg.EndOffset - seg.StartOffset, seg.AutoID);
+                foreach (var seg in segmentsForThisBat)
+                {
+                    string autoID = seg.AutoID;
+                    
+                    stat.Add(seg.EndOffset - seg.StartOffset, autoID,seg.isConfidenceLow);
+                }
                 result.Add(stat);
             }
 
@@ -3436,7 +3456,10 @@ namespace BatRecordingManager
                     {
                         var stat = new BatStats { batCommonName = pass.Bat.Name };
 
-                        stat.Add(pass.LabelledSegment.EndOffset - pass.LabelledSegment.StartOffset, pass.LabelledSegment.AutoID);
+                        string autoID = pass.LabelledSegment.AutoID;
+                        
+
+                        stat.Add(pass.LabelledSegment.EndOffset - pass.LabelledSegment.StartOffset, autoID,pass.LabelledSegment.isConfidenceLow);
                         result.Add(stat);
                     }
             }
@@ -5058,12 +5081,13 @@ namespace BatRecordingManager
                 return (bigSession);
             }
 
-            string tag = bigSession.SessionTag + $"_d{dayNum}";
+            string tag = bigSession.SessionTag + $"_d{dayNum:D2}";
             string newTag = tag;
             int n = 1;
-            while (DBAccess.SessionTagExists(tag))
+            while (DBAccess.SessionTagExists(newTag))
             {
-                newTag = tag + n;
+                n++;
+                newTag = tag + $"-{n:D2}";
             }
             var newSession = new RecordingSession();
             newSession.Id = -1;

@@ -15,7 +15,7 @@ namespace BatRecordingManager
 {
     internal class SegmentSonagrams
     {
-        public bool GenerateForSegments(List<LabelledSegment> segmentList)
+        public bool GenerateForSegments(List<LabelledSegment> segmentList,bool experimental=false)
         {
             if (segmentList != null && segmentList.Any())
             {
@@ -24,7 +24,7 @@ namespace BatRecordingManager
                     if (seg.BatSegmentLinks?.Any() ?? false)
                     {
                         BulkObservableCollection<StoredImage> imageList = new BulkObservableCollection<StoredImage>();
-                        StoredImage spectrogram = generateSpectrogram(seg);
+                        StoredImage spectrogram = generateSpectrogram(seg,experimental:experimental);
                         if (spectrogram != null)
                         {
                             imageList.Add(spectrogram);
@@ -57,9 +57,11 @@ namespace BatRecordingManager
         /// Generates a spectrogram of the given LabelledSegment.  If the segment already has an image
         /// of type SPCT then that is retrieved and the image of it is modified to the new spectrogram
         /// </summary>
-        /// <param name="seg"></param>
+        /// <param name="seg">the labelled segment to be analysed</param>
+        /// <param name="param">instance of Parametrization for extracting numerical data</param>
+        /// <param name="experimental">boolean - true gives a spectrogram with hyerbolic (1/f) frequency axis</param>
         /// <returns></returns>
-        private StoredImage generateSpectrogram(LabelledSegment seg, Parametrization param = null)
+        private StoredImage generateSpectrogram(LabelledSegment seg, Parametrization param = null,bool experimental=false)
         {
             if (seg == null || (seg.StartOffset.TotalMilliseconds == 0 && seg.EndOffset == seg.StartOffset)) return (null);
             if (string.IsNullOrWhiteSpace(seg.Comment) || seg.Comment.Contains("No Bats")) return (null);
@@ -74,7 +76,7 @@ namespace BatRecordingManager
 
                 var data = GetDataSG(seg, settings.Spectrogram.FFTSize, out int sampleRate, (double)settings.Spectrogram.scale);
                 if (data.audio == null) return (null);
-
+                //if (experimental) data = halfWaveRectify(data);
                 Debug.WriteLine($"gen spectrogram-> data {data.audio.Count()} lasting {data.audio.Count() / (double)sampleRate}s");
                 int maxFrequency = sampleRate / 2;
                 if (settings.Spectrogram.maxFrequency > 0)
@@ -87,11 +89,17 @@ namespace BatRecordingManager
                     fftSize: settings.Spectrogram.FFTSize,
                     stepSize: settings.Spectrogram.FFTAdvance,
                     maxFreq: maxFrequency);
+                
                 sg.Add(data.audio);
                 sg.SetColormap(Colormap.GrayscaleReversed);
                 //sg.SaveImage(@"C:\BRMTestData\Test.png", dB: true, dBScale: 20, intensity: 5);
                 Debug.WriteLine($"Scale={settings.Spectrogram.scale}");
                 bmp = sg.GetBitmap(dB: true, dBScale: settings.Spectrogram.dBScale, intensity: settings.Spectrogram.intensity);
+                if (experimental)
+                {
+                    
+                    bmp = sg.GetBitmapMel(melBinCount: 512,dB:true,dBScale:settings.Spectrogram.dBScale,intensity:settings.Spectrogram.intensity);
+                }
 
                 bmp = DeepAnalysis.decorateBitmap(bmp, settings.Spectrogram.FFTSize, settings.Spectrogram.FFTAdvance, sampleRate, param);
                 //List<Spectrum> spectra = DeepAnalysis.GetSpectrum(data, sampleRate, FFTOrder, 0.5f, out int FFTAdvance, out double advanceMS, out double[] FFTQuiet);
@@ -102,6 +110,15 @@ namespace BatRecordingManager
                     -1, false, Tools.BlobType.SPCT);
             }
             return (si);
+        }
+
+        private (double[] audio, int sampleRate) halfWaveRectify((double[] audio, int sampleRate) data)
+        {
+            for(int i = 0; i < data.audio.Length; i++)
+            {
+                if(data.audio[i]<0)data.audio[i]= 0;
+            }
+            return data;
         }
 
         private List<float> GetData(LabelledSegment segment, int FFTOrder, out int sampleRate)

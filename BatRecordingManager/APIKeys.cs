@@ -8,7 +8,10 @@
     /// </summary>
     public static partial class APIKeys
     {
-        public static readonly string BingMapsLicenseKey = "";
-        public static readonly string DarkSkyApiKey = "";
+        public static readonly string BingMapsLicenseKey;
+
+
+        public static readonly string DarkSkyApiKey;
+
     }
 }

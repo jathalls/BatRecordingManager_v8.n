@@ -24,6 +24,7 @@
             Grid.Row="1"
             Center="51.789845,-0.225125"
             Mode="AerialWithLabels"
+            
             MouseDoubleClick="mapControl_MouseDoubleClick"
             ZoomLevel="16" />
 

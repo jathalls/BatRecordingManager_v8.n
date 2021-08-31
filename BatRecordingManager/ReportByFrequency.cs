@@ -121,7 +121,7 @@ namespace BatRecordingManager
                 if (reportDataList == null) reportDataList = new BulkObservableCollection<FrequencyData>();
                 reportDataList.Clear();
                 var binding = new Binding("reportDataList");
-                binding.Source = new FrequencyData(10, new Bat(), new BulkObservableCollection<int>());
+                //binding.Source = new FrequencyData(10, new Bat(), new BulkObservableCollection<int>());
                 ReportDataGrid.SetBinding(DataGrid.ItemsSourceProperty, binding);
             }
             catch (Exception ex)

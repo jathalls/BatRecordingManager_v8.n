@@ -203,7 +203,8 @@ namespace BatRecordingManager
             var existingRecording = DBAccess.GetRecordingForWavFile(file);
 
             var fileMetaData = new WavFileMetaData(file);
-            if (!fileMetaData.metaData.IsNullOrEmpty())
+
+            if (!fileMetaData.metaData.IsNullOrEmpty() && existingRecording!=null)
             {
                 existingRecording.Metas.Clear();
                 existingRecording.Metas.AddRange(fileMetaData.metaData);

@@ -32,11 +32,15 @@ namespace BatRecordingManager
         {
             InitializeComponent();
             DataContext = this;
-            ThisMap.CredentialsProvider = new ApplicationIdCredentialsProvider(APIKeys.BingMapsLicenseKey);
+            string key = APIKeys.BingMapsLicenseKey;
+            this.key = key;
+            ThisMap.CredentialsProvider = new ApplicationIdCredentialsProvider(key);
             ThisMap.Focus();
             lastInsertedPinLocation = null;
             LabelMode = ThisMap.Mode;
         }
+
+        public string key { get; set; } = "";
 
         public string BingMapsApiKey { get; } = APIKeys.BingMapsLicenseKey;
 

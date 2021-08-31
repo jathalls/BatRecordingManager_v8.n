@@ -179,7 +179,7 @@ namespace BatRecordingManager
                     if (!string.IsNullOrWhiteSpace(batname))
                     {
                         if (batsFound.ContainsKey(batname))
-                            batsFound[batname].Add(newDuration, "");
+                            batsFound[batname].Add(newDuration, "",line.Contains("?"));
                         else
                             batsFound.Add(batname, new BatStats(newDuration));
                     }
@@ -638,8 +638,8 @@ namespace BatRecordingManager
             var recording = new Recording();
             if (currentRecordingSessionId <= 0)
             {
-                MessageBox.Show("No session identified for these recordings", "ProcessLabelOrManualFile");
-                Tools.ErrorLog("No session defined for recordings");
+                //MessageBox.Show("No session identified for these recordings", "ProcessLabelOrManualFile");
+                //Tools.ErrorLog("No session defined for recordings");
                 return "";
             }
 
@@ -665,7 +665,8 @@ namespace BatRecordingManager
             {
                 if (File.Exists(fileName))
                 {
-                    var wavfile = fileName.Substring(0, fileName.Length - 4) + ".wav";
+                    //var wavfile = fileName.Substring(0, fileName.Length - 4) + ".wav";
+                    var wavfile = Path.ChangeExtension(fileName, ".wav");
                     duration = Tools.GetFileDatesAndTimes(fileName, out wavfile, out var fileStart, out var fileEnd);
                     // wavfile contains name of either .wav or .zc file
                     if (File.Exists(wavfile) && (new FileInfo(wavfile).Length > 0L))

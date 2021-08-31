@@ -38,6 +38,8 @@ namespace BatRecordingManager
             count = 0;
             segments = 0;
             passes = 0;
+            unsureSegments = 0;
+            unsurePasses = 0;
             batCommonName = "";
             batAutoID = "";
         }
@@ -57,11 +59,31 @@ namespace BatRecordingManager
             count = 0;
             segments = 0;
             passes = 0;
+            unsureSegments = 0;
+            unsurePasses = 0;
             batCommonName = "";
             batAutoID = "";
 
-            Add(duration, "");
+            Add(duration, "",false);
         }
+
+        public BatStats(string batName,bool unsure=false)
+        {
+            maxDuration = TimeSpan.MinValue;
+            minDuration = TimeSpan.MaxValue;
+            meanDuration = new TimeSpan();
+            totalDuration = new TimeSpan();
+            count = 0;
+            segments = 0;
+            passes = 0;
+            unsureSegments = 0;
+            unsurePasses = 0;
+            batCommonName = batName;
+            batAutoID = "";
+            this.unsure = unsure;
+        }
+
+        private bool unsure = false;
 
         public string batAutoID { get; set; }
 
@@ -122,6 +144,16 @@ namespace BatRecordingManager
         public int segments { get; set; }
 
         /// <summary>
+        /// Gets or sets the number of passes for which the comment ended with ?
+        /// </summary>
+        public int unsurePasses { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of segments for which the comment ended with ?
+        /// </summary>
+        public int unsureSegments { get;set;  }
+
+        /// <summary>
         ///     Gets or sets the total.
         /// </summary>
         /// <value>
@@ -135,20 +167,34 @@ namespace BatRecordingManager
         /// <param name="duration">
         ///     The duration.
         /// </param>
-        public void Add(TimeSpan duration, string AutoID)
+        public void Add(TimeSpan duration, string AutoID,bool lowConfidence)
         {
+            bool unsure = lowConfidence;
+            
             if (duration.Ticks < 0) duration = -duration;
             if (duration.Ticks > 0)
             {
                 segments++;
+                if (unsure)
+                {
+                    unsureSegments++;
+                }
                 if (duration.TotalSeconds <= 7.5d)
                 {
                     passes++;
+                    if (unsure)
+                    {
+                        unsurePasses++;
+                    }
                 }
                 else
                 {
                     var realPasses = duration.TotalSeconds / 5.0d;
                     passes += (int)Math.Round(realPasses);
+                    if (unsure)
+                    {
+                        unsurePasses+=(int)Math.Round(realPasses);
+                    }
                 }
 
                 count++;
@@ -165,7 +211,7 @@ namespace BatRecordingManager
                 }
             }
         }
-
+        /*
         /// <summary>
         ///     Adds all the listed segments to the stat
         /// </summary>
@@ -175,9 +221,14 @@ namespace BatRecordingManager
             if (!segList.IsNullOrEmpty())
                 foreach (var segment in segList.Distinct())
                 {
-                    Add(segment.EndOffset - segment.StartOffset, segment.AutoID);
+                    string autoID=segment.AutoID;
+                    if(segment.isConfidenceLow && !autoID.EndsWith("?"))
+                    {
+                        autoID = autoID + "?";
+                    }
+                    Add(segment.EndOffset - segment.StartOffset, autoID);
                 }
-        }
+        }*/
 
         /// <summary>
         ///     Adds the specified new data.
@@ -217,7 +268,9 @@ namespace BatRecordingManager
                 if (newData.minDuration < minDuration) minDuration = newData.minDuration;
                 count += newData.count;
                 segments += newData.segments;
+                unsureSegments += newData.unsureSegments;
                 passes += newData.passes;
+                unsurePasses += newData.unsurePasses;
                 totalDuration += newData.totalDuration;
                 meanDuration = new TimeSpan(totalDuration.Ticks / count);
             }
@@ -225,7 +278,7 @@ namespace BatRecordingManager
 
         /// <summary>
         /// given a string of bat names, some followed by a count in brackets, checks to see if the new bat is in the list
-        /// and if so either adds or incrments the count in brackets, otherwise adds the new string to the ; separated list.
+        /// and if so either adds or increments the count in brackets, otherwise adds the new string to the ; separated list.
         /// </summary>
         /// <param name="batAutoID"></param>
         /// <param name="newAutoID"></param>

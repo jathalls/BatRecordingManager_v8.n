@@ -20,7 +20,6 @@ G:\BRM-v11.n\BRMv10.n\UniversalToolkit\bin\x64\Debug\LiveCharts.Wpf.xml
 G:\BRM-v11.n\BRMv10.n\UniversalToolkit\bin\x64\Debug\Newtonsoft.Json.xml
 G:\BRM-v11.n\BRMv10.n\UniversalToolkit\bin\x64\Debug\Serilog.xml
 G:\BRM-v11.n\BRMv10.n\UniversalToolkit\bin\x64\Debug\System.Configuration.Abstractions.pdb
-G:\BRM-v11.n\BRMv10.n\UniversalToolkit\obj\x64\Debug\UniversalToolkit.csproj.AssemblyReference.cache
 G:\BRM-v11.n\BRMv10.n\UniversalToolkit\obj\x64\Debug\UniversalToolkit.csproj.ResolveComReference.cache
 G:\BRM-v11.n\BRMv10.n\UniversalToolkit\obj\x64\Debug\WPFTimePicker.baml
 G:\BRM-v11.n\BRMv10.n\UniversalToolkit\obj\x64\Debug\WPFDateTimePicker.g.cs
@@ -37,3 +36,4 @@ G:\BRM-v11.n\BRMv10.n\UniversalToolkit\obj\x64\Debug\UniversalToolkit.csproj.Cor
 G:\BRM-v11.n\BRMv10.n\UniversalToolkit\obj\x64\Debug\UniversalToolkit.csproj.CopyComplete
 G:\BRM-v11.n\BRMv10.n\UniversalToolkit\obj\x64\Debug\UniversalToolkit.dll
 G:\BRM-v11.n\BRMv10.n\UniversalToolkit\obj\x64\Debug\UniversalToolkit.pdb
+G:\BRM-v11.n\BRMv10.n\UniversalToolkit\obj\x64\Debug\UniversalToolkit.csproj.AssemblyReference.cache

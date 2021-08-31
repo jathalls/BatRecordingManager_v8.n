@@ -26,10 +26,10 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10" />
             <ColumnDefinition Width="200" />
-            <ColumnDefinition Width="70" />
-            <ColumnDefinition Width="70" />
-            <ColumnDefinition Width="70" />
-            <ColumnDefinition Width="30" />
+            <ColumnDefinition Width="80" />
+            <ColumnDefinition Width="80" />
+            <ColumnDefinition Width="80" />
+            <ColumnDefinition Width="20" />
             <ColumnDefinition Width="90" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
@@ -78,14 +78,14 @@
             Grid.Row="5"
             Grid.Column="2"
             Grid.ColumnSpan="5"
-            MaxPermitted="210" />
+            MaxPermitted="250" />
 
         <local:ParameterSetter
             x:Name="intervalSetter"
             Grid.Row="6"
             Grid.Column="2"
             Grid.ColumnSpan="5"
-            MaxPermitted="210" />
+            MaxPermitted="1000" />
 
         <local:ParameterSetter
             x:Name="bandwidthSetter"

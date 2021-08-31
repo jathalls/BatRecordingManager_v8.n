@@ -7,7 +7,6 @@ G:\BRM-v11.n\BRMv10.n\BatCallAnalyser\bin\x64\Debug\BatCallAnalysisControlSet.dl
 G:\BRM-v11.n\BRMv10.n\BatCallAnalyser\bin\x64\Debug\LinqStatistics.dll
 G:\BRM-v11.n\BRMv10.n\BatCallAnalyser\bin\x64\Debug\UniversalToolkit.dll
 G:\BRM-v11.n\BRMv10.n\BatCallAnalyser\bin\x64\Debug\LiveCharts.Plus.dll
-G:\BRM-v11.n\BRMv10.n\BatCallAnalyser\bin\x64\Debug\NumericUpDownLib.dll
 G:\BRM-v11.n\BRMv10.n\BatCallAnalyser\bin\x64\Debug\Invisionware.Settings.dll
 G:\BRM-v11.n\BRMv10.n\BatCallAnalyser\bin\x64\Debug\Invisionware.Settings.Sinks.JsonNet.dll
 G:\BRM-v11.n\BRMv10.n\BatCallAnalyser\bin\x64\Debug\Newtonsoft.Json.dll

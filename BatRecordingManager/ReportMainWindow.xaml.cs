@@ -42,8 +42,8 @@ namespace BatRecordingManager
         /// <param name="occurrencesPerPeriod"></param>
         public FrequencyData(int aggregationPeriod, Bat bat, BulkObservableCollection<int> occurrencesPerPeriod)
         {
-            AggregationPeriod = aggregationPeriod;
-            var periods = (int)Math.Floor(1440.0m / aggregationPeriod);// periods per daya
+            AggregationPeriod = aggregationPeriod==0?10:aggregationPeriod;
+            var periods = (int)Math.Floor(1440.0m / AggregationPeriod);// periods per daya
             this.bat = bat;
             OccurrencesPerPeriod = occurrencesPerPeriod ?? new BulkObservableCollection<int>();// set internal array to that provided or an empty one
             while (OccurrencesPerPeriod.Count < periods) OccurrencesPerPeriod.Add(0); // pad the internal array to the correct size if necessary
@@ -307,6 +307,7 @@ namespace BatRecordingManager
             List<Recording> reportRecordingList)
         {
             Debug.WriteLine(reportRecordingList.ToString());
+            string sessiontag = "";
 
             // Generic operations to set up the data
             ReportBatStatsList.Clear();
@@ -317,18 +318,29 @@ namespace BatRecordingManager
             {
                 ReportBatStatsList = new BulkObservableCollection<BatStatistics>();
                 ReportBatStatsList.AddRange(reportBatList.Where(rbl => rbl != null).Distinct());
+                
             }
 
             if (reportSessionList != null)
             {
                 ReportSessionList = new BulkObservableCollection<RecordingSession>();
                 ReportSessionList.AddRange(reportSessionList.Where(rsl => rsl != null).Distinct());
+                var reportSession = ReportSessionList.First();
+                if (reportSession != null && string.IsNullOrWhiteSpace(sessiontag))
+                {
+                    sessiontag = reportSession.SessionTag;
+                } 
             }
 
             if (reportRecordingList != null)
             {
                 ReportRecordingList = new BulkObservableCollection<Recording>();
                 ReportRecordingList.AddRange(reportRecordingList.Where(rrl => rrl != null).Distinct());
+                var reportRecording = ReportRecordingList.First();
+                if(reportRecording!=null && string.IsNullOrWhiteSpace(sessiontag))
+                {
+                    sessiontag = reportRecording.RecordingSession.SessionTag;
+                }
             }
 
             // Set data for the Test Frequency Tab
@@ -349,8 +361,12 @@ namespace BatRecordingManager
                     (tabitem as TabItem).Header = tabReportMaster.tabHeader;
                 }
 
+            this.sessionTag = sessionTag;
+
             SortSessionHeaders();
         }
+
+        private string sessionTag { get; set; } = "";
 
         internal void ExportAll()
         {
@@ -389,20 +405,30 @@ namespace BatRecordingManager
         /// <param name="e"></param>
         private void ExportTabButton_Click(object sender, RoutedEventArgs e)
         {
+            
             using (var dialog = new SaveFileDialog())
             {
-                SortSessionHeaders();
+                SortSessionHeaders();// does nothing
+                string tag = "";
+
+                if (!ReportSessionList.IsNullOrEmpty())
+                {
+                    var sess=ReportSessionList.First();
+                    tag = (sess?.SessionTag) ?? "";
+
+                }
+                
+                if (!string.IsNullOrWhiteSpace(tag))
+                {
+                    dialog.FileName = tag;
+                }
 
                 dialog.Filter = "csv file|*.csv|all files|*.*";
                 dialog.Title = "Export to .csv File";
                 dialog.ShowDialog();
                 if (!string.IsNullOrWhiteSpace(dialog.FileName))
                 {
-                    if (File.Exists(dialog.FileName))
-                    {
-                        if (File.Exists(dialog.FileName + ".bak")) File.Delete(dialog.FileName + ".bak");
-                        File.Move(dialog.FileName, dialog.FileName + ".bak");
-                    }
+                    
 
                     var filename = dialog.FileName;
                     if (string.IsNullOrWhiteSpace(filename)) return;
@@ -412,27 +438,47 @@ namespace BatRecordingManager
                     {
                         if (sender != null)
                         {
+
                             var selectedTab = MainWindowTabControl.SelectedItem as TabItem;
+
+                            filename = filename + "=" + selectedTab.Header;
+                            if (!filename.EndsWith(".csv")) filename = filename + ".csv";
+                            if (File.Exists(filename))
+                            {
+                                string backup = Path.ChangeExtension(filename, ".bak");
+                                if (File.Exists(backup)) File.Delete(backup);
+                                File.Move(filename, backup);
+                            }
+
+                            
                             ExportTabItem(selectedTab, filename + ".csv");
                         }
                         else
                         {
+                            string basename = filename+"-";
                             foreach (var tab in MainWindowTabControl.Items)
-                                if (!filename.EndsWith(".csv"))
+                            {
+                                
+                                
+                                var tabItem = tab as TabItem;
+                                if (!e.Handled && tabItem.Header.ToString().Contains("Freq")) continue;
+
+                                filename = basename + tabItem.Header + ".csv";
+                                if (File.Exists(filename))
                                 {
-                                    var tabItem = tab as TabItem;
-                                    ExportTabItem(tabItem, filename + tabItem.Header + ".csv");
+                                    string backup = Path.ChangeExtension(filename, ".bak");
+                                    if (File.Exists(backup)) File.Delete(backup);
+                                    File.Move(filename, backup);
                                 }
-                                else
-                                {
-                                    filename = StripExtension(filename);
-                                    var tabItem = tab as TabItem;
-                                    ExportTabItem(tabItem, filename + tabItem.Header + ".csv");
-                                }
+
+                                ExportTabItem(tabItem, filename);
+                            }
+
                         }
                     }
                 }
             }
+            e.Handled = true;
         }
 
         private void ExportTabItem(TabItem tab, string filename)
@@ -464,6 +510,25 @@ namespace BatRecordingManager
         {
             if (filename.Contains(".")) filename = filename.Substring(0, filename.LastIndexOf("."));
             return filename;
+        }
+
+        private void miExportTab_Click(object sender, RoutedEventArgs e)
+        {
+            ExportTabButton_Click(sender, e);
+            e.Handled = true;
+        }
+
+        private void miExportAllButFreq_Click(object sender, RoutedEventArgs e)
+        {
+            e.Handled = false;
+            ExportTabButton_Click(null, e);
+            e.Handled = true;
+        }
+
+        private void miExportAll_Click(object sender, RoutedEventArgs e)
+        {
+            e.Handled = true;
+            ExportTabButton_Click(null, e);
         }
     }
 }

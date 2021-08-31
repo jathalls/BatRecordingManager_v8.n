@@ -1145,13 +1145,15 @@ namespace BatRecordingManager
         private void miGenerateSegSpectrograms_Click(object sender, RoutedEventArgs e)
         {
             currentSelectedRecording = RecordingsListView.SelectedIndex;
+            bool experimental = false;
+            if (Keyboard.IsKeyDown(Key.LeftCtrl)) experimental = true;
 
             var selection = GetSelectedSegments();
             if (selection != null)
             {
                 var recordingId = (selection?.First()?.RecordingID) ?? -1;
                 SegmentSonagrams sonagramGenerator = new SegmentSonagrams();
-                sonagramGenerator.GenerateForSegments(selection);
+                sonagramGenerator.GenerateForSegments(selection,experimental);
                 UpdateRecordingsList(recordingId);
             }
         }

@@ -14,9 +14,11 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+using F23.StringSimilarity;
 using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -218,43 +220,300 @@ namespace BatRecordingManager
         internal static string GetSessionTag(FileBrowser fileBrowser)
         {
             string FolderPath = fileBrowser.WorkingFolder;
-            string SessionTag = "";
-            var tagPattern = @"[A-Z0-9]+[-_]{1}([0-9a-zA-Z]+[-_]{1})?20[0-9]{6}";
+            
+            
             if (!string.IsNullOrWhiteSpace(FolderPath) && Directory.Exists(FolderPath))
             {
+                FolderPath = Path.GetDirectoryName(FolderPath);
+                if(FolderPath.EndsWith("\\")) FolderPath=FolderPath.Substring(0,FolderPath.Length - 1);
+
+                
+                string parentFolder = FolderPath.Substring(FolderPath.LastIndexOf('\\') + 1);
+                string tag = GetLeadingTag(parentFolder);
+                if (!string.IsNullOrWhiteSpace(tag)) return (tag);
+
+                var TxtFileList = Directory.EnumerateFiles(FolderPath,"*.txt");
+                if (!TxtFileList.IsNullOrEmpty())
+                {
+                    foreach(var file in TxtFileList)
+                    {
+                        var fileName = Path.GetFileName(file);
+                        if (!string.IsNullOrWhiteSpace(fileName))
+                        {
+                            tag=GetLeadingTag(fileName);
+                            if(!string.IsNullOrWhiteSpace(tag)) return (tag);
+                        }
+                    }
+                }
+
                 var WavFileList = Directory.EnumerateFiles(FolderPath, "*.wav");
-                if (WavFileList.IsNullOrEmpty()) return ("");
+                if (WavFileList.IsNullOrEmpty())
+                {
+                    WavFileList = Directory.EnumerateFiles(FolderPath, "*.zc");
+                    if (WavFileList.IsNullOrEmpty()) return ("");
+                }
 
                 foreach (var file in WavFileList)
                 {
-                    var fileName = file.Substring(file.LastIndexOf(@"\"));
-                    var result = Regex.Match(fileName, tagPattern);
-                    if (result.Success)
+                    var fileName = Path.GetFileName(file);
+                    tag = GetLeadingTag(fileName);
+                    if (!string.IsNullOrWhiteSpace(tag))
                     {
-                        SessionTag = result.Value;
-                        return SessionTag;
+                        return (tag);
                     }
                 }
             }
 
             if (!string.IsNullOrWhiteSpace(fileBrowser.WorkingFolder))
             {
-                var tagRegex = new Regex("-[a-zA-Z]+[0-9]+-{1}[0-9]+[a-zA-Z]*_+[0-9]{8}.*");
-                var match = tagRegex.Match(fileBrowser.WorkingFolder);
-                if (match.Success)
+                string parentFolder = Path.GetDirectoryName(FolderPath);
+                string tag = GetLeadingTag(parentFolder);
+                if (!string.IsNullOrWhiteSpace(tag)) return (tag);
+            }
+
+
+
+            return "";
+        }
+
+        /// <summary>
+        /// Return a valid sessionTag from the data supplied.
+        /// 1) if a valid tag is supplied, return it.
+        /// 2) if the folder name starts with a valid tag, return it
+        /// 3) if any line in the header file starts with a tag, return it
+        /// 4) if any .WAV file in the working folder starts with a valid tag, return it.
+        /// 5) if any .TXT file in the working folder starts with a valid tag, return it
+        /// 6) return an empty string
+        /// </summary>
+        /// <param name="newSession"></param>
+        /// <param name="sessionTag"></param>
+        /// <param name="workingFolder"></param>
+        /// <param name="headerFileLines"></param>
+        /// <returns></returns>
+        private static string GetSessionTagFromheader(RecordingSession newSession, string sessionTag, string workingFolder, ref string[] headerFileLines)
+        {
+            string tag = GetLeadingTag(sessionTag);
+            if (!string.IsNullOrWhiteSpace(tag)) return (tag);
+
+            string parentFolder = Path.GetDirectoryName(workingFolder);
+            tag = GetLeadingTag(parentFolder);
+            if (!string.IsNullOrEmpty(tag)) return (tag);
+
+            if (headerFileLines != null && headerFileLines.Any())
+            {
+                for (int i = 0; i < headerFileLines.Length; i++)
                 {
-                    SessionTag = match.Value.Substring(1); // remove the surplus leading hyphen
-                    if (SessionTag.EndsWith("\\")) // remove any trailing backslash
-                        SessionTag = SessionTag.Substring(0, SessionTag.Length - 1);
-                    while (SessionTag.Contains(@"\")
-                    ) // tag may include parent folders as well as the lowest level folder so this removes leading folder names
-                        SessionTag = SessionTag.Substring(SessionTag.IndexOf(@"\") + 1);
+                    tag = GetLeadingTag(headerFileLines[i]);
+                    if (!string.IsNullOrEmpty(tag))
+                    {
+                        return (tag);
+                    }
                 }
             }
 
-            return SessionTag;
+            var wavFiles = Directory.GetFiles(workingFolder, "*.wav");
+            if (wavFiles != null)
+            {
+                foreach (var file in wavFiles)
+                {
+                    tag = GetLeadingTag(Path.GetFileName(file));
+                    if (!string.IsNullOrEmpty(tag)) return (tag);
+                }
+            }
+
+            var txtFiles = Directory.GetFiles(workingFolder, "*.txt");
+            if (txtFiles != null)
+            {
+                foreach (var file in txtFiles)
+                {
+                    tag = GetLeadingTag(Path.GetFileName(file));
+                    if (!string.IsNullOrEmpty(tag)) return (tag);
+                }
+            }
+            return (null);
         }
 
+        /// <summary>
+        /// Uses a Regex to see if the provided string starts with a valid sessionTag and if so returns the tag.
+        /// A tag should comprise:-
+        /// string in caps and 2 digits = e.g. AAA21
+        /// separator, underline or dash
+        /// 1 or more digits followed by 0 or more letters
+        /// 1 or more separators, underline or dash
+        /// a date in the format YYYYMMDD, or YYYY-MM-DD 
+        /// 
+        /// If not found returns an empty string
+        /// </summary>
+        /// <param name="sessionTag"></param>
+        /// <returns></returns>
+        private static string GetLeadingTag(string stringToMatch)
+        {
+            string tag = "";
+            string pattern = @"^([A-Z]{2,5}[0-9]{2}[-_]+[0-9]+[a-zA-Z]*[0-9]{0,2}[-_]+)";
+            // matches leading  nnn20-1am3_
+            var result = Regex.Match(stringToMatch, pattern);
+            if (result.Success)
+            {
+                if (result.Groups != null && result.Groups.Count > 0)
+                    tag = result.Groups[1].Value;
+                else tag = result.Value;
+                
+            }
+
+            //matches trailing yy-mm-dd or yyyy-mm-dd with or without seperators
+            pattern = @"(([12][0-9])?[0-9]{2}[-_\s]?[0-9]{2}[-_\s]?[0-9]{2} )\.";
+            result = Regex.Match(stringToMatch, pattern,RegexOptions.IgnorePatternWhitespace);
+            if (result.Success)
+            {
+                if (result.Groups != null && result.Groups.Count > 0)
+                {
+                    tag = tag + result.Groups[1].Value;
+                }
+                else tag += result.Value;
+            }
+            return (tag);
+        }
+
+        /// <summary>
+        /// TODO this needs rewriting - the session end time is not reported correctly and the code does not make it clear
+        /// where data is taken from or with what priority.
+        /// </summary>
+        /// <param name="newSession">An instance of a session to receive the parameters</param>
+        /// <param name="headerFile">fully qualified name of the header file</param>
+        /// <param name="sessionTag">The tag to be used for the session</param>
+        /// <param name="wavFileFolders">Collection of file paths containg wav files</param>
+        /// <returns></returns>
+        internal static RecordingSession PopulateSession2(RecordingSession newSession, string headerFile,
+                    string sessionTag, BulkObservableCollection<string> wavFileFolders)
+        {
+            bool noHeader = false;
+            string workingFolder = "";
+            string[] headerFileLines = null;
+
+            if (newSession == null) newSession = new RecordingSession();
+
+            var existingSession = DBAccess.GetRecordingSession(newSession.SessionTag);
+            if (existingSession != null) return existingSession; // short circuit the process if session exists in the database
+
+
+
+            if (string.IsNullOrWhiteSpace(headerFile) || !File.Exists(headerFile))
+            {
+                noHeader = true;
+            }
+            else
+            {
+                headerFileLines = File.ReadAllLines(headerFile);
+            }
+
+            if (wavFileFolders.IsNullOrEmpty())
+
+            {
+                if (!string.IsNullOrWhiteSpace(headerFile))
+                {
+                    workingFolder = Path.GetDirectoryName(headerFile);
+                    wavFileFolders = new BulkObservableCollection<string>();
+                    wavFileFolders.Add(workingFolder);
+                    newSession.OriginalFilePath = workingFolder;
+                }
+                else
+                {
+                    return (newSession);
+                }// nothing to do if no folders to process
+            }
+            else
+            {
+                workingFolder = Path.GetDirectoryName(wavFileFolders.First());
+                newSession.OriginalFilePath = workingFolder;
+            }
+            existingSession = DBAccess.GetRecordingSessionByFolder(workingFolder);
+            if (existingSession != null)
+            {
+                return (existingSession); // another short circuit - should not have multiple sessions using the same data folder
+            }
+
+            newSession = ExtractHeaderData(workingFolder, sessionTag, headerFileLines);
+
+
+            newSession.SessionTag = GetSessionTagFromheader(newSession, sessionTag, workingFolder, ref headerFileLines);
+            newSession = GetSessiondateAndTimes(newSession, workingFolder, ref headerFileLines);
+            //newSession.Equipment = GetSessionEquipment(newSession, ref headerFileLines);
+            //newSession.Microphone = GetSessionMicrophone(newSession, ref headerFileLines);
+            //newSession.Operator = GetSessionOperator(newSession, ref headerFileLines);
+            //newSession.Location = GetSessionLocation(newSession, workingFolder, ref headerFileLines);
+            //newSession.Weather = GetSessionWeather(newSession, workingFolder, ref headerFileLines);
+            //newSession.Temp = GetSessionTemp(newSession, ref headerFileLines);
+
+
+            return (newSession);
+        }
+
+        /// <summary>
+        /// Given a RecordingSession, path to a folder of .wav files, and a collection of lines from a header file, 
+        /// determines the start and end dates and times for the session and writes them to the supplied session
+        /// which is then returned.
+        /// 1) gets times and dates from the files in the working folder
+        /// OR 2) gets tmes and dates from the header file lines
+        /// OR 3) gets the date from the session Tag and defaults the times
+        /// OR 4) defaults the dates and times
+        /// </summary>
+        /// <param name="newSession">The Recording Session to be updated with dates and times</param>
+        /// <param name="workingFolder">The path to the folder of .wav files</param>
+        /// <param name="headerFileLines">The contents of the header file as a collection of lines</param>
+        /// <returns></returns>
+        private static RecordingSession GetSessiondateAndTimes(RecordingSession newSession, string workingFolder, ref string[] headerFileLines)
+        {
+            DateTime start = DateTime.Now;
+            DateTime end = DateTime.Now;
+
+
+
+            DateTime firstFileDateAndTimeFromName = new DateTime(1, 1, 1);
+            DateTime lastFileDateAndTimeFromName = new DateTime(1, 1, 1);
+            var wavFileList = Directory.EnumerateFiles(workingFolder, "*.wav").OrderBy(wf => wf);
+            if (wavFileList.IsNullOrEmpty())
+            {
+                wavFileList = Directory.EnumerateFiles(workingFolder, "*.zc").OrderBy(wf => wf);
+            }
+            if (!wavFileList.IsNullOrEmpty())
+            {
+                // uses FileProcessor to determine the start times and dates of the first and last files in the list
+                //GetFileDuration finds the earliest out of the modified, creation, filename and metadata dates and
+                // times to establish the real time when the file was recorded
+                var wavfileName = wavFileList.First();
+
+                _ = Tools.GetFileDatesAndTimes(wavfileName, out string explicitwavfilename, out DateTime fileStart, out DateTime fileEnd);
+                firstFileDateAndTimeFromName = fileStart;
+
+                wavfileName = wavFileList.Last();
+
+                _ = Tools.GetFileDatesAndTimes(wavfileName, out explicitwavfilename, out fileStart, out fileEnd);
+                lastFileDateAndTimeFromName = fileEnd;
+                if (lastFileDateAndTimeFromName > firstFileDateAndTimeFromName && firstFileDateAndTimeFromName.Year > 1970)
+                {
+                    newSession.SessionDate = firstFileDateAndTimeFromName;
+                    newSession.SessionStartTime = newSession.SessionDate.TimeOfDay;
+                    newSession.EndDate = lastFileDateAndTimeFromName;
+                    newSession.SessionEndTime = newSession.EndDate?.TimeOfDay;
+                    return (newSession);
+                }
+            }
+
+            // Couldn't get a reasonable date from the files, so try looking in the header file
+            return (newSession);
+        }
+
+       
+
+        /// <summary>
+        /// TODO this needs rewriting - the session end time is not reported correctly and the code does not make it clear
+        /// where data is taken from or with what priority.
+        /// </summary>
+        /// <param name="newSession">An instance of a session to receive the parameters</param>
+        /// <param name="headerFile">fully qualified name of the header file</param>
+        /// <param name="sessionTag">The tag to be used for the session</param>
+        /// <param name="wavFileFolders">Collection of file paths containg wav files</param>
+        /// <returns></returns>
         internal static RecordingSession PopulateSession(RecordingSession newSession, string headerFile,
                     string sessionTag, BulkObservableCollection<string> wavFileFolders)
         {
@@ -717,11 +976,67 @@ namespace BatRecordingManager
             if (headerFile == null || headerFile.Length <= 0) return "";
             var knownEquipment = DBAccess.GetEquipmentList();
             if (knownEquipment == null || knownEquipment.Count <= 0) return "";
+
+            string matchingEquipment = GetBestMatch(knownEquipment, headerFile);
+
             // get a line in the text containing a known operator
-            var matchingEquipment = headerFile.Where(line =>
-                knownEquipment.Any(txt => line.ToUpper().Contains(txt == null ? "none" : txt.ToUpper())));
-            if (!matchingEquipment.IsNullOrEmpty()) return matchingEquipment.First();
+            //var matchingEquipment = headerFile.Where(line =>
+            // knownEquipment.Any(txt => line.ToUpper().Contains(txt == null ? "none" : txt.ToUpper())));
+            if (!string.IsNullOrWhiteSpace(matchingEquipment)) return matchingEquipment;
             return "";
+        }
+
+        /// <summary>
+        /// Given two collections of strings, determines the pair with the greatest similarity and returns
+        /// the member of the second list from the best matched pair.
+        /// </summary>
+        /// <param name="referenceList">The list of known items to be matched against</param>
+        /// <param name="targetList">The list of unknowns from which to select a best match</param>
+        /// <returns></returns>
+        private static string GetBestMatch(BulkObservableCollection<string> referenceList, string[] targetList)
+        {
+            string bestSoFar = "";
+            double bestMatchValue = 0;
+
+            foreach (var target in targetList)
+            {
+                if (!string.IsNullOrWhiteSpace(target))
+                {
+                    foreach (var reference in referenceList)
+                    {
+                        if (!string.IsNullOrWhiteSpace(reference))
+                        {
+                            var matchValue = getSimilarity(reference, target);
+                            if (matchValue > bestMatchValue)
+                            {
+                                bestMatchValue = matchValue;
+                                bestSoFar = target;
+                                Debug.Write("v/ ");
+                            }
+                            Debug.WriteLine($"{reference} - {target} = {matchValue}");
+                        }
+                    }
+                }
+            }
+        
+            return(bestSoFar);
+        }
+
+        /// <summary>
+        /// Returns a value which is the measure of similarity between the two strings
+        /// </summary>
+        /// <param name="reference"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        private static double getSimilarity(string reference, string target)
+        {
+            /*QGram qGram = new QGram();
+            var similarity=qGram.Distance(reference, target);*/
+
+            var ro = new RatcliffObershelp();
+            var similarity = ro.Similarity(reference, target);
+            return similarity;
+
         }
 
         /// <summary>
@@ -804,15 +1119,16 @@ namespace BatRecordingManager
             if (headerFile == null || headerFile.Length <= 0) return "";
             var knownMicrophones = DBAccess.GetMicrophoneList();
             if (knownMicrophones == null || knownMicrophones.Count <= 0) return "";
+            string bestMatch = GetBestMatch(knownMicrophones, headerFile);
             // get a line in the text containing a known operator
-            var mm = from line in headerFile
+            /*var mm = from line in headerFile
                      join mic in knownMicrophones on line equals mic
                      select mic;
 
             var matchingMicrophones = headerFile.Where(line =>
                 knownMicrophones.Any(txt => line.ToUpper().Contains(txt == null ? "none" : txt.ToUpper())));
-            if (!matchingMicrophones.IsNullOrEmpty()) return matchingMicrophones.First();
-            return "";
+            if (!matchingMicrophones.IsNullOrEmpty()) return matchingMicrophones.First();*/
+            return bestMatch;
         }
 
         /// <summary>
@@ -829,10 +1145,8 @@ namespace BatRecordingManager
             var knownOperators = DBAccess.GetOperators();
             if (knownOperators == null || knownOperators.Count <= 0) return "";
             // get a line in the text containing a known operator
-            var matchingOperators = headerFile.Where(line =>
-                knownOperators.Any(txt => line.ToUpper().Contains(txt == null ? "none" : txt.ToUpper())));
-            if (!matchingOperators.IsNullOrEmpty()) return matchingOperators.First();
-            return "";
+
+            return GetBestMatch(knownOperators, headerFile);
         }
 
         /// <summary>

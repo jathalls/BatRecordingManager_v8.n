@@ -134,6 +134,7 @@ namespace BatRecordingManager
                 reportRecordingList = SessionsAndRecordings.GetSelectedRecordings();
 
                 reportWindow.SetReportData(reportBatStatsList, reportSessionList, reportRecordingList);
+                
             }
 
             reportWindow.ShowDialog();

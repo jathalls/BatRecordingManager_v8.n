@@ -57,7 +57,7 @@
                                                         ToolTip="Displays wamd/guano metadata for this recording" Click="miDisplayMetaData_Click" />
                                                 <MenuItem
                                                     x:Name="cmiGenerateSpectrograms"
-                                                    Header="Gnerate Spectrograms"
+                                                    Header="Generate Spectrograms"
                                                     ToolTip="Generates and displays spectrograms for all segments" Click="cmiGenerateSpectrograms_Click" />
                                             </ContextMenu>
                                         </TextBlock.ContextMenu>
@@ -162,7 +162,7 @@
                                                                               IsEnabled="{Binding Converter={StaticResource CallDisplayEnabled}}"
                                                                               ToolTip="Open a window to display details of all calls identified for this segment" Click="miDisplayCalls_Click" />
                                                                     <MenuItem x:Name="miGenerateSegSpectrograms"
-                                                                              ToolTip="Generate a spectrogram for this segment"
+                                                                              ToolTip="Generate a spectrogram for this segment +ALT for experimental spectrogram"
                                                                               Header="Generate Spectrogram" Click="miGenerateSegSpectrograms_Click" />
                                                                     <MenuItem x:Name="miDisplayMetaData" Header="MetaData" IsEnabled="{Binding Path=Recording.hasMetadata}"
                                                                               ToolTip="Displays wamd/guano metadata for this recording" Click="miDisplayMetaData_Click" />

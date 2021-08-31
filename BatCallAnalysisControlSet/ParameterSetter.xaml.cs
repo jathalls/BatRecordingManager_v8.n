@@ -70,7 +70,8 @@ namespace BatCallAnalysisControlSet
             get { return (_value_range); }
             set
             {
-                _value_range = value;
+                _value_range = Math.Abs(value);
+               
                 OnPropertyChanged(nameof(Value_range));
             }
         }
@@ -154,12 +155,21 @@ namespace BatCallAnalysisControlSet
         /// </summary>
         private void RationalizeValues(Changed changed)
         {
+            if (Value_min > Value_max)
+            {
+                var tmp = Value_min;
+                Value_min = Value_max;
+                Value_max = tmp;
+            }
+            Value_range=Math.Abs(Value_range);
+
             if (Value_mean == 0.0d)
             {
                 if (Value_max > 0.0d && Value_min > 0.0d)
                 {
-                    Value_mean = (Value_max - Value_min) / 0.0d;
-                    Value_range = Value_mean - Value_min;
+                   
+                    Value_mean = (Value_max - Value_min) / 2.0d;
+                    Value_range = (Value_max - Value_min)/2.0d;
                     return;
                 }
                 return; // we either have just the range, or just min or max set, so cannot compute
@@ -169,6 +179,7 @@ namespace BatCallAnalysisControlSet
             if (Value_min > Value_mean || Value_min == 0.0d) Value_min = Value_mean;
             if (changed == Changed.RANGE)
             {
+                
                 Value_min = Value_mean - Value_range;
                 Value_max = Value_mean + Value_range;
                 return;
@@ -176,7 +187,7 @@ namespace BatCallAnalysisControlSet
             if (changed == Changed.MIN || changed == Changed.MAX)
             {
                 Value_mean = (Value_min + Value_max) / 2.0d;
-                Value_range = Value_mean - Value_min;
+                Value_range = (Value_max - Value_min)/2.0d;
                 return;
             }
             if (changed == Changed.MEAN)

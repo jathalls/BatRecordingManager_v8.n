@@ -293,8 +293,12 @@ namespace BatRecordingManager
 
                 //if (!recordingSessionDataList.IsLoading) recordingSessionDataList.Refresh();
                 if (oldSelectionIndex >= 0) {
-                    var rd = recordingSessionDataList.Where(red => red.Id == oldSelectionIndex).FirstOrDefault();
-                    rd.IsSelected = true;
+                    var selectedList = recordingSessionDataList.Where(red => red.Id == oldSelectionIndex);
+                    if (selectedList?.Any() ?? false)
+                    {
+                        selectedList.First().IsSelected = true;
+                    }
+                    
                 }
                 SegmentImageScroller.Clear();
                 if (RecordingSessionListView.SelectedItem == null)
@@ -922,6 +926,11 @@ Mouse.OverrideCursor = null;*/
         {
         }
 
+        /// <summary>
+        /// Displays a BING map with the route of the current session and highlighting bat locations.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ShowMapButton_Click(object sender, RoutedEventArgs e)
         {
             if (RecordingSessionListView.SelectedItems != null &&

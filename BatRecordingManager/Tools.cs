@@ -391,23 +391,43 @@ namespace BatRecordingManager
         {
             date = new DateTime();
             var pattern =
-                @"([12][09][0-9]{2})[-_]?([0-1][0-9])[-_]?([0-3][0-9])[-_\s]?([0-2][0-9])[-_:]?([0-5][0-9])[-_:]?([0-5][0-9])";
+                @"(19|20)?([0-9]{2})[-_\s]?([0-1][0-9])[-_\s]?([0-3][0-9])[-_\s]?([0-2][0-9])[-_:\s]?([0-5][0-9])[-_:\s]?([0-5][0-9])\.";
             var match = Regex.Match(fullyQualifiedFileName, pattern);
             if (match.Success)
             {
-                if (match.Groups.Count >= 4)
+                if (match.Groups.Count >= 5)
                 {
-                    var year = match.Groups[1].Value.Trim();
-                    var month = match.Groups[2].Value.Trim();
-                    var day = match.Groups[3].Value.Trim();
+                    var year = match.Groups[1].Value.Trim()+match.Groups[2].Value.Trim();
+                    var month = match.Groups[3].Value.Trim();
+                    var day = match.Groups[4].Value.Trim();
                     var hour = "00";
                     var minute = "00";
                     var second = "00";
-                    if (match.Groups.Count >= 7)
+                    if (match.Groups.Count >= 8)
                     {
-                        hour = match.Groups[4].Value.Trim();
-                        minute = match.Groups[5].Value.Trim();
-                        second = match.Groups[6].Value.Trim();
+                        hour = match.Groups[5].Value.Trim();
+                        minute = match.Groups[6].Value.Trim();
+                        second = match.Groups[7].Value.Trim();
+                    }
+
+                    // we need to force the year representation to four digit form
+                    if (year.Length == 2)
+                    {
+                        // we only have the last two digitis of the year, so we have to deduce the century
+                        if(int.TryParse(year,out int iyear))
+                        {
+                            var yearNow = DateTime.Now.Year-2000; //Assume we are in the 21st century, after that needs a rewrite
+                            // we now have the current short year
+                            if (iyear > yearNow)
+                            {
+                                iyear += 1900;
+                            }
+                            else
+                            {
+                                iyear += 2000;
+                            }
+                            year = iyear.ToString();
+                        }
                     }
 
                     var result = new DateTime();
@@ -513,6 +533,8 @@ namespace BatRecordingManager
                 {
                     //var info = new FileInfo(fileName);
 
+                    
+
                     var fa = File.GetAttributes(fileName); // OK for both .wav and .zc
                     DateTime created = File.GetCreationTime(fileName);  // OK for both .wav and .zc
                     if (created.Year < 1990)
@@ -525,8 +547,8 @@ namespace BatRecordingManager
                     {
                         modified = DateTime.Now;
                     }
-                    DateTime named;
-                    if (!Tools.GetDateTimeFromFilename(fileName, out named))  // OK for both .wav and .zc
+                    
+                    if (!Tools.GetDateTimeFromFilename(fileName, out DateTime named))  // OK for both .wav and .zc
                     {
                         named = Tools.getDateTimeFromFilename(fileName); //// OK for both .wav and .zc
                     }
@@ -1182,6 +1204,7 @@ namespace BatRecordingManager
             if (value.passes > 0 || value.segments > 0)
                 result = value.batCommonName + " " + value.passes + (value.passes == 1 ? " pass in " : " passes in ") +
                          value.segments + " segment" + (value.segments != 1 ? "s" : "") +
+                         (value.unsureSegments>0?$" (unsure = {value.unsurePasses}/{value.unsureSegments})":"") +
                          " = ( " +
                          "Min=" + FormattedTimeSpan(value.minDuration) +
                          ", Max=" + FormattedTimeSpan(value.maxDuration) +
@@ -1194,7 +1217,9 @@ namespace BatRecordingManager
         internal static int GetNumberOfPassesForSegment(LabelledSegment segment)
         {
             var stat = new BatStats();
-            stat.Add(segment.EndOffset - segment.StartOffset, segment.AutoID);
+            string autoID = segment.AutoID;
+            
+            stat.Add(segment.EndOffset - segment.StartOffset, autoID,false);
             return stat.passes;
         }
 

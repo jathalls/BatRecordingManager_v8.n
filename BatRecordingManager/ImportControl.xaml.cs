@@ -104,12 +104,16 @@ namespace BatRecordingManager
                             _sessionForFolder = SessionManager.CreateSession(_fileBrowser.WorkingFolder,
                                 SessionManager.GetSessionTag(_fileBrowser), _gpxHandler);
                         }
-                        if (_sessionForFolder != null && _sessionForFolder.Id > 0)
+                        if (_sessionForFolder != null && _sessionForFolder.Id >= 0)
                         {
                             TbkOutputText.Text = _sessionForFolder.ToFormattedString();
                             foreach (var rec in _sessionForFolder.Recordings)
                                 DBAccess.DeleteRecording(
                                     rec); //so that we can recreate them from scrathch using the file data
+                        }
+                        else
+                        {
+                            return (false);
                         }
 
                         using (new WaitCursor())
@@ -322,7 +326,7 @@ namespace BatRecordingManager
                 {
                     DBAccess.UpdateRecordingSession(_sessionForFolder);
                     var existingSession = DBAccess.GetRecordingSession(_sessionForFolder.SessionTag);
-                    CurrentSessionId = existingSession != null ? existingSession.Id : 0;
+                    CurrentSessionId = existingSession != null ? existingSession.Id : -1;
                 }
 
                 // Tools.SetFolderIconTick(fileBrowser.WorkingFolder);
@@ -660,9 +664,9 @@ namespace BatRecordingManager
                             else
                             {
                                 TbkOutputText.Text = TbkOutputText.Text + "***\n\n" + FileProcessor.ProcessFile(filename,
-                                                         _gpxHandler, _sessionForFolder.Id, ref _fileProcessor.BatsFound) +
+                                                         _gpxHandler, (_sessionForFolder?.Id)??-1, ref _fileProcessor.BatsFound)??"" +
                                                      "\n";
-                                totalBatsFound = BatsConcatenate(totalBatsFound, _fileProcessor.BatsFound);
+                                totalBatsFound = BatsConcatenate(totalBatsFound, (_fileProcessor?.BatsFound)??new Dictionary<string, BatStats>());
                             }
                         }
 

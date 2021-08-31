@@ -5,60 +5,70 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:BatCallAnalysisControlSet"
             xmlns:tk="clr-namespace:NumericUpDownLib;assembly=NumericUpDownLib"
+             xmlns:utk="clr-namespace:UniversalToolkit;assembly=UniversalToolkit"
              mc:Ignorable="d"
-             d:DesignHeight="30" d:DesignWidth="350">
+             d:DesignHeight="30" d:DesignWidth="400">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="70" />
-            <ColumnDefinition Width="70" />
-            <ColumnDefinition Width="70" />
+            <ColumnDefinition Width="80" />
+            <ColumnDefinition Width="80" />
+            <ColumnDefinition Width="80" />
             <ColumnDefinition Width="20" />
-            <ColumnDefinition Width="70" />
+            <ColumnDefinition Width="90" />
             <ColumnDefinition Width="50*" />
         </Grid.ColumnDefinitions>
 
+        <!--
         <tk:DoubleUpDown
             Grid.Column="0"
             x:Name="vMin"
             Value="{Binding Path=Value_min, Mode=TwoWay}"
             MinValue="0"
-
-            MaxValue="210"  ValueChanged="vMin_ValueChanged" FormatString="##0.0"
+            
+            MaxValue="{Binding MaxPermitted}"  ValueChanged="vMin_ValueChanged" FormatString="##0.0"
             CanMouseDrag="VerticalOnly"
             IsReadOnly="False" IsMouseDragEnabled="False" NumberStyle="AllowDecimalPoint" ToolTip="Enter value or adjust with mouse wheel, buttons or arrow keys" />
+-->
+        <utk:NumericSpinner
+            Grid.Column="0"
+            x:Name="vMin"
+            Value="{Binding Path=Value_min, Mode=TwoWay}"
+            Step="1.0"
+            Decimals="1"
+           
+            MaxValue="{Binding MaxPermitted}"  
+            ValueChanged="vMin_ValueChanged" 
+            ToolTip="Enter value or adjust with  buttons or arrow keys" Margin="5,0,5,0" />
 
-        <tk:DoubleUpDown
+        <utk:NumericSpinner
             Grid.Column="1"
             x:Name="vMean"
             Value="{Binding Path=Value_mean, Mode=TwoWay}"
-            MinValue="0"
-            MaxValue="210"   ValueChanged="vMean_ValueChanged" FormatString="##0.0"
-            CanMouseDrag="VerticalOnly" IsMouseDragEnabled="False"
-            ToolTip="Enter value or adjust with mouse wheel, buttons or arrow keys"
-            IsReadOnly="False" />
+            
+            MaxValue="{Binding MaxPermitted}"   ValueChanged="vMean_ValueChanged" 
+            ToolTip="Enter value or adjust with  buttons or arrow keys" Margin="5,0,5,0"
+             />
 
-        <tk:DoubleUpDown
+        <utk:NumericSpinner
             Grid.Column="2"
             x:Name="vMax"
             Value="{Binding Path=Value_max, Mode=TwoWay}"
-            MinValue="0"
+            
 
-            MaxValue="210" ValueChanged="vMax_ValueChanged" FormatString="##0.0"
-            CanMouseDrag="VerticalOnly" IsMouseDragEnabled="False"
-            ToolTip="Enter value or adjust with mouse wheel, buttons or arrow keys"
-            IsReadOnly="False" />
+            MaxValue="{Binding MaxPermitted}" ValueChanged="vMax_ValueChanged" 
+            ToolTip="Enter value or adjust with  buttons or arrow keys" Margin="5,0,5,0"
+             />
 
-        <tk:DoubleUpDown
+        <utk:NumericSpinner
             Grid.Column="4"
             x:Name="vRange"
             Value="{Binding Path=Value_range, Mode=TwoWay}"
-            MinValue="0"
+            
             MaxValue="{Binding MaxPermitted}"
             ValueChanged="vRange_ValueChanged"
-            ToolTip="Enter value or adjust with mouse wheel, buttons or arrow keys"
-            FormatString="##0.0"
-            CanMouseDrag="VerticalOnly" IsMouseDragEnabled="False"
-            IsReadOnly="False" />
+            ToolTip="Enter value or adjust with buttons or arrow keys"
+            Margin="5,0,5,0"
+             />
 
         <Label
             Grid.Column="5"

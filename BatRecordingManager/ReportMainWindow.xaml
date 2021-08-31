@@ -189,10 +189,25 @@
                 Grid.Row="1"
                 Orientation="Horizontal"
                 HorizontalAlignment="Right">
-                <Button
-                    x:Name="ExportTabButton"
-                    Style="{StaticResource SimpleButton}"
-                    Content="Export" IsDefault="True" Click="ExportTabButton_Click" />
+                <Button x:Name="ExportTabButton"
+                        Style="{StaticResource SimpleButton}"
+                        Content="Export"
+                        IsDefault="True"
+                        Click="ExportTabButton_Click">
+                    <Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Name="miExportTab"
+                                      Header="Export Selected Tab"
+                                      Click="miExportTab_Click" />
+                            <MenuItem Name="miExportAllButFreq"
+                                      Header="Export All"
+                                      Click="miExportAllButFreq_Click" />
+                            <MenuItem Name="miExportAll"
+                                      Header="Export All Incl Freq"
+                                      Click="miExportAll_Click" />
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
                 <Button
                     x:Name="OkButton"
                     Style="{StaticResource SimpleButton}"

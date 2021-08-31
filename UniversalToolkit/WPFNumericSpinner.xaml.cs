@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 
 namespace UniversalToolkit
 {
@@ -21,10 +23,11 @@ namespace UniversalToolkit
         {
             InitializeComponent();
 
-            tb_main.SetBinding(TextBox.TextProperty, new Binding("Value")
+            _=tb_main.SetBinding(TextBox.TextProperty, new Binding("Value")
             {
                 ElementName = "root_numeric_spinner",
                 Mode = BindingMode.TwoWay,
+                StringFormat = "##0.0",
                 UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
             });
 
@@ -50,16 +53,21 @@ namespace UniversalToolkit
             get { return (decimal)GetValue(ValueProperty); }
             set
             {
-                if (value < MinValue)
-                    value = MinValue;
-                if (value > MaxValue)
-                    value = MaxValue;
-                SetValue(ValueProperty, value);
-                try
+                decimal newVal = decimal.Round(value, Decimals);
+                if (newVal != Value)
                 {
-                    ValueChanged(this, new EventArgs());
+                    if (newVal < MinValue)
+                        newVal = MinValue;
+                    if (newVal > MaxValue)
+                        newVal = MaxValue;
+
+                    SetValue(ValueProperty, newVal);
+                    try
+                    {
+                        ValueChanged(this, new EventArgs());
+                    }
+                    catch (Exception) { }
                 }
-                catch (Exception) { }
             }
         }
 
@@ -72,7 +80,7 @@ namespace UniversalToolkit
             "Step",
             typeof(decimal),
             typeof(NumericSpinner),
-            new PropertyMetadata(new decimal(0.1)));
+            new PropertyMetadata(new decimal(1.0)));
 
         public decimal Step
         {
@@ -177,22 +185,57 @@ namespace UniversalToolkit
             if (Value < MinValue) Value = MinValue;
             if (Value > MaxValue) Value = MaxValue;
 
-            Value = decimal.Round(Value, Decimals);
+            
         }
 
         private void cmdUp_Click(object sender, RoutedEventArgs e)
         {
-            Value += Step;
+            decimal factor = 1.0m;
+            if (Keyboard.IsKeyDown(Key.LeftCtrl)) factor /= 10.0m;
+            if(Keyboard.IsKeyDown(Key.LeftShift)) factor *= 10.0m;
+            Value += Step*factor;
+            if(Value>MaxValue) Value = MaxValue;
         }
 
         private void cmdDown_Click(object sender, RoutedEventArgs e)
         {
-            Value -= Step;
+            Debug.WriteLine("cmdDownClick");
+            decimal factor = 1.0m;
+            if (Keyboard.IsKeyDown(Key.LeftCtrl)) factor /= 10.0m;
+            if (Keyboard.IsKeyDown(Key.LeftShift)) factor *= 10.0m;
+            Value -= Step * factor;
+            if (Value <MinValue) Value = MinValue;
         }
 
         private void tb_main_Loaded(object sender, RoutedEventArgs e)
         {
             ValueChanged(this, new EventArgs());
+        }
+
+        private void Path_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Debug.WriteLine("LM Down Preview");
+        }
+
+        private bool textChanged = false;
+
+        private void tb_main_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            //textChanged = true;
+        }
+
+        private void tb_main_LostFocus(object sender, RoutedEventArgs e)
+        {/*
+            if (textChanged)
+            {
+                if(decimal.TryParse(tb_main.Text, out decimal value))
+                {
+                    Value = value;
+                }
+                
+                ValueChanged(this, EventArgs.Empty);
+            }
+            textChanged = false;*/
         }
     }
 }
