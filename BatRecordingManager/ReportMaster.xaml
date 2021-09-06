@@ -27,7 +27,7 @@
             x:Name="ReportDataGrid"
             Background="{StaticResource WindowBackgroundBrushLight}"
             Grid.Column="2"
-            ItemsSource="{Binding Path=reportDataList}"
+            
             AutoGenerateColumns="false" 
             FrozenColumnCount="2"
             

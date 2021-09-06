@@ -421,6 +421,13 @@ namespace BatRecordingManager
         }
     }
 
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    
+    /// <summary>
+    /// Partial class to add supporter functions for the LabelledSegment database table
+    /// </summary>
     public partial class LabelledSegment
     {
         public TimeSpan endTime
@@ -489,6 +496,8 @@ namespace BatRecordingManager
             }
         }
 
+        
+
         public TimeSpan startTime
         {
             get
@@ -505,9 +514,72 @@ namespace BatRecordingManager
             }
         }
 
+        private TimeSpan? _sunset = null;
+        private List<int> _occupiedPeriodsReSunset=new List<int>();
+
+        public List<int> getOccupiedPeriodsReSunset(out TimeSpan sunset)
+        {
+            if (_sunset == null) _sunset = Recording.sunset;
+            if (_sunset == null) _sunset = new TimeSpan(18, 0, 0);
+
+            sunset = _sunset.Value;
+
+            
+
+            _occupiedPeriodsReSunset.Clear();
+
+            if (endTime != startTime )
+            {
+                
+                int blocksFromSunsetToStart = getBlocksFromSunsetToTime(startTime);
+                int blocksFromSunsetToEnd = getBlocksFromSunsetToTime(endTime);
+                var startBlock = 36 + blocksFromSunsetToStart;
+                var endBlock = 36 + blocksFromSunsetToEnd;
+                Debug.WriteLine($"start={startTime} at block {startBlock} end={endTime} at block {endBlock}");
+                for(int i = startBlock; i <= endBlock; i++)
+                {
+                    _occupiedPeriodsReSunset.Add(i);
+                }
+
+
+            }
+            Debug.WriteLine(_occupiedPeriodsReSunset.ToString());
+            return(_occupiedPeriodsReSunset);   
+        }
+
+        /// <summary>
+        /// finds the time difference between the supplied time and sunset as a number of 10-minute blocks
+        /// </summary>
+        /// <param name="startTime"></param>
+        /// <returns></returns>
+        private int getBlocksFromSunsetToTime(TimeSpan time)
+        {
+            int numblocks = 0;
+
+            TimeSpan diff;
+            while(time>new TimeSpan(1,0,0,0))time-=new TimeSpan(1,0,0,0);
+            if(time<new TimeSpan(0, 12, 0, 0))
+            {
+                // we have a time between midnight and noon
+                diff = new TimeSpan(1, 0, 0, 0) - _sunset ?? new TimeSpan(0, 18, 0, 0);
+            }
+            else
+            {
+                diff = time - _sunset ?? new TimeSpan(0, 18, 0, 0);
+            }
+            numblocks = (int)Math.Floor(diff.TotalMinutes / 10);
+
+            return (numblocks);
+        }
+
+        /// <summary>
+        /// Gets the time difference between the end time and the reference time in minutes as a timespan
+        /// </summary>
+        /// <param name="refTimeMinutesSinceMidnight"></param>
+        /// <returns></returns>
         public TimeSpan EndTime(int refTimeMinutesSinceMidnight)
         {
-            if (endTime.Ticks <= 0) return (endTime); // we dont have a valid start time so give up
+            if (endTime.Ticks <= 0) return (endTime); // we dont have a valid end time so give up
 
             if (endTime.TotalMinutes < refTimeMinutesSinceMidnight)
                 return (endTime + new TimeSpan(1, 0, 0, 0) - TimeSpan.FromMinutes(refTimeMinutesSinceMidnight));

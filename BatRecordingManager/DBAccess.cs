@@ -3455,7 +3455,7 @@ namespace BatRecordingManager
                     foreach (var pass in batSegmentsinSession)
                     {
                         var stat = new BatStats { batCommonName = pass.Bat.Name };
-
+                        
                         string autoID = pass.LabelledSegment.AutoID;
                         
 
@@ -3464,6 +3464,33 @@ namespace BatRecordingManager
                     }
             }
 
+            return result;
+        }
+
+        internal static BulkObservableCollection<BatStats> GetStatsForSessions(List<int> sessionIDList,out List<Recording> recordingsList)
+        {
+            var dc = DBAccess.GetFastDataContext();
+            var result = new BulkObservableCollection<BatStats>();
+            var sessionIds = sessionIDList.Select(sess => sess);
+            recordingsList = new List<Recording>();
+            
+
+            var combinedList = from sess in dc.RecordingSessions
+                           where sessionIds.Contains(sess.Id) &&
+                                sess.Recordings.Any()
+                           from bsl in dc.BatSegmentLinks
+                           where bsl.LabelledSegment.Recording.RecordingSessionId == sess.Id && !(bsl.ByAutoID ?? false)
+                           select new { bs=new BatStats(bsl.Bat.Name,
+                                                  bsl.LabelledSegment.EndOffset, bsl.LabelledSegment.StartOffset,
+                                                  bsl.LabelledSegment.AutoID,
+                                                  bsl.LabelledSegment.isConfidenceLow
+                                                  ),
+                           rec=bsl.LabelledSegment.Recording};
+            if (combinedList != null && combinedList.Any())
+            {
+                result.AddRange(combinedList.Select(cl=>cl.bs));
+                recordingsList.AddRange(combinedList.Select(cl => cl.rec).Distinct());
+            }
             return result;
         }
 

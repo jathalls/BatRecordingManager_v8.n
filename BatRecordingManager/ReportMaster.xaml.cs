@@ -34,6 +34,8 @@ namespace BatRecordingManager
         /// </summary>
         public abstract string tabHeader { get; }
 
+
+
         /// <summary>
         ///     Generic SetData for each tabbed instance of ReportMaster
         /// </summary>

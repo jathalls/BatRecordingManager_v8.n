@@ -42,17 +42,25 @@ namespace BatRecordingManager
         /// <param name="occurrencesPerPeriod"></param>
         public FrequencyData(int aggregationPeriod, Bat bat, BulkObservableCollection<int> occurrencesPerPeriod)
         {
-            AggregationPeriod = aggregationPeriod==0?10:aggregationPeriod;
+            AggregationPeriod = aggregationPeriod == 0 ? 10 : aggregationPeriod;
             var periods = (int)Math.Floor(1440.0m / AggregationPeriod);// periods per daya
             this.bat = bat;
             OccurrencesPerPeriod = occurrencesPerPeriod ?? new BulkObservableCollection<int>();// set internal array to that provided or an empty one
+
             while (OccurrencesPerPeriod.Count < periods) OccurrencesPerPeriod.Add(0); // pad the internal array to the correct size if necessary
+
+            
         }
 
         /// <summary>
         ///     The size of the periods into which the session will be divided in minutes
         /// </summary>
         public int AggregationPeriod { get; set; }
+
+        /// <summary>
+        /// The time of sunset for this data set.  Sunset occurs in block 36 of 144
+        /// </summary>
+        public TimeSpan sunset { get; set; }
 
         /// <summary>
         ///     The species of bat to which this instance of Frequency daya relates
@@ -96,7 +104,7 @@ namespace BatRecordingManager
             {
                 fd.OccurrencesPerPeriod[i] = 0;
             }
-
+            fd.sunset = new TimeSpan(0, 18, 0, 0);
             return (fd);
         }
     }
@@ -275,6 +283,8 @@ namespace BatRecordingManager
 
             DataContext = this;
         }
+
+        
 
         public BulkObservableCollection<ReportData> reportDataByBatList { get; set; } =
             new BulkObservableCollection<ReportData>();

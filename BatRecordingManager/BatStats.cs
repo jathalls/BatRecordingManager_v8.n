@@ -83,6 +83,25 @@ namespace BatRecordingManager
             this.unsure = unsure;
         }
 
+        public BatStats(string batName, TimeSpan endTime, TimeSpan startTime, string AutoID, bool lowConfidence)
+        {
+            TimeSpan duration = endTime  - startTime ;
+            maxDuration = TimeSpan.MinValue;
+            minDuration = TimeSpan.MaxValue;
+            meanDuration = new TimeSpan();
+            totalDuration = new TimeSpan();
+            count = 0;
+            segments = 0;
+            passes = 0;
+            unsureSegments = 0;
+            unsurePasses = 0;
+            batCommonName = batName;
+            batAutoID = "";
+            this.unsure = lowConfidence;
+
+            Add(duration,AutoID,lowConfidence);
+        }
+
         private bool unsure = false;
 
         public string batAutoID { get; set; }

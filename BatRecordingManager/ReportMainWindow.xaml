@@ -26,101 +26,7 @@
         <TabControl
             x:Name="MainWindowTabControl"
             Background="{StaticResource BlueGradientBackground}">
-            <!--
-            <TabItem Header="By Bat" x:Name="ByBatTab">
-                <DataGrid
-                    x:Name="ReportDataGridByBat"
-                    Background="{StaticResource WindowBackgroundBrushLight}"
-                    VerticalScrollBarVisibility="Visible"
-                    ItemsSource="{Binding Path=reportDataByBatList}"
-                    AutoGenerateColumns="False">
-
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Binding="{Binding Path=bat.Name}" ClipboardContentBinding="{x:Null}" Header="Bat" SortDirection="Ascending" />
-                        <DataGridTextColumn Binding="{Binding Path=session.SessionTag}" ClipboardContentBinding="{x:Null}" Header="Session" />
-                        <DataGridTextColumn Binding="{Binding Path=session.Location}" ClipboardContentBinding="{x:Null}" Header="Location" />
-                        <DataGridTextColumn Binding="{Binding Path=session.SessionDate, Converter={StaticResource ShortDate_Converter}}" ClipboardContentBinding="{x:Null}" Header="Start Date" />
-                        <DataGridTextColumn Binding="{Binding Path=session.SessionStartTime, Converter={StaticResource ShortTime_Converter}}" ClipboardContentBinding="{x:Null}" Header="Start Time" />
-                        <DataGridTextColumn Binding="{Binding Path=session.SessionEndTime, Converter={StaticResource ShortTime_Converter}}" ClipboardContentBinding="{x:Null}" Header="End Time" />
-                        <DataGridTextColumn Binding="{Binding Path=sessionStats.passes}" ClipboardContentBinding="{x:Null}" Header="Passes in Session" />
-                        <DataGridTextColumn Binding="{Binding Path=sessionStats.meanDuration, Converter={StaticResource ShortTime_Converter}}" ClipboardContentBinding="{x:Null}" Header="Mean Length" />
-                        <DataGridTextColumn Binding="{Binding Path=sessionStats.totalDuration, Converter={StaticResource ShortTime_Converter}}" ClipboardContentBinding="{x:Null}" Header="Total Length" />
-                        <DataGridTextColumn Binding="{Binding Path=recording.RecordingName}" ClipboardContentBinding="{x:Null}" Header="Recording" />
-                        <DataGridTextColumn Binding="{Binding Path=recording.RecordingStartTime, Converter={StaticResource ShortTime_Converter}}" ClipboardContentBinding="{x:Null}" Header="Start Time" />
-                        <DataGridTextColumn Binding="{Binding Path=recording.RecordingEndTime, Converter={StaticResource ShortTime_Converter}}" ClipboardContentBinding="{x:Null}" Header="End Time" />
-                        <DataGridTextColumn Binding="{Binding Path=recordingStats.passes}" ClipboardContentBinding="{x:Null}" Header="Passes" />
-                        <DataGridTextColumn Binding="{Binding Path=recordingStats.totalDuration, Converter={StaticResource ShortTime_Converter}}" ClipboardContentBinding="{x:Null}" Header="Total Length" />
-                    </DataGrid.Columns>
-                </DataGrid>
-            </TabItem>-->
-            <!--
-            <TabItem Header="By Session" x:Name="BySessionTab">
-                <DataGrid
-                    x:Name="ReportDataGridBySession"
-                    Background="{StaticResource WindowBackgroundBrushLight}"
-
-                    AutoGenerateColumns="False"
-                    ItemsSource="{Binding Path=reportDataBySessionList}">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Binding="{Binding Path=session.SessionTag}" ClipboardContentBinding="{x:Null}" Header="Session" SortDirection="Descending" />
-                        <DataGridTextColumn Binding="{Binding Path=session.Location}" ClipboardContentBinding="{x:Null}" Header="Location" />
-                        <DataGridTextColumn Binding="{Binding Path=session.SessionDate, Converter={StaticResource ShortDate_Converter}}" ClipboardContentBinding="{x:Null}" Header="Start Date" />
-                        <DataGridTextColumn Binding="{Binding Path=session.SessionStartTime, Converter={StaticResource ShortTime_Converter}}" ClipboardContentBinding="{x:Null}" Header="Start Time" />
-                        <DataGridTextColumn Binding="{Binding Path=session.SessionEndTime, Converter={StaticResource ShortTime_Converter}}" ClipboardContentBinding="{x:Null}" Header="End Time" />
-                        <DataGridTextColumn Binding="{Binding Path=sessionStats.passes}" ClipboardContentBinding="{x:Null}" Header="Passes in Session" />
-                        <DataGridTextColumn Binding="{Binding Path=sessionStats.meanDuration, Converter={StaticResource ShortTime_Converter}}" ClipboardContentBinding="{x:Null}" Header="Mean Length" />
-                        <DataGridTextColumn Binding="{Binding Path=sessionStats.totalDuration, Converter={StaticResource ShortTime_Converter}}" ClipboardContentBinding="{x:Null}" Header="Total Length" />
-                        <DataGridTextColumn Binding="{Binding Path=bat.Name}" ClipboardContentBinding="{x:Null}" Header="Bat" />
-                        <DataGridTextColumn Binding="{Binding Path=recording.RecordingName}" ClipboardContentBinding="{x:Null}" Header="Recording" />
-                        <DataGridTextColumn Binding="{Binding Path=recording.RecordingStartTime, Converter={StaticResource ShortTime_Converter}}" ClipboardContentBinding="{x:Null}" Header="Start Time" />
-                        <DataGridTextColumn Binding="{Binding Path=recording.RecordingEndTime, Converter={StaticResource ShortTime_Converter}}" ClipboardContentBinding="{x:Null}" Header="End Time" />
-                        <DataGridTextColumn Binding="{Binding Path=recordingStats.passes}" ClipboardContentBinding="{x:Null}" Header="Passes" />
-                        <DataGridTextColumn Binding="{Binding Path=recordingStats.totalDuration, Converter={StaticResource ShortTime_Converter}}" ClipboardContentBinding="{x:Null}" Header="Total Length" />
-                    </DataGrid.Columns>
-                </DataGrid>
-            </TabItem>-->
-            <!--
-            <TabItem
-                x:Name="ByRecordingTab"
-                Header="By Recording" GotFocus="ByRecordingTab_GotFocus">
-                <Grid
-                    x:Name="ByRecordingGrid">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="211*" />
-                        <ColumnDefinition Width="23*" />
-                        <ColumnDefinition Width="28*" />
-                        <ColumnDefinition Width="524*" />
-                    </Grid.ColumnDefinitions>
-                    <TextBox
-                        Grid.Column="0"
-                        x:Name="sessionHeaderTextBox"
-                        Style="{StaticResource SimpleTextBox}" Grid.ColumnSpan="3"
-                        ></TextBox>
-                    <DataGrid
-                    x:Name="ReportDataGridByRecording"
-                    Background="{StaticResource WindowBackgroundBrushLight}"
-                    Grid.Column="3"
-                    AutoGenerateColumns="False"
-                        ItemsSource="{Binding Path=reportDataByRecordingList}"
-                        ColumnReordered="ReportDataGridByRecording_ColumnReordered">
-
-                        <DataGrid.Columns>
-
-                            <DataGridTextColumn Binding="{Binding Path=sessionHeader}" Header="Session" Visibility="Hidden" />
-                            <DataGridTextColumn Binding="{Binding Path=recording.RecordingName}" ClipboardContentBinding="{x:Null}" Header="Recording" SortDirection="Ascending" />
-                            <DataGridTextColumn Binding="{Binding Path=recording.RecordingGPSLatitude}" ClipboardContentBinding="{x:Null}" Header="Latitude" />
-                            <DataGridTextColumn Binding="{Binding Path=recording.RecordingGPSLongitude}" ClipboardContentBinding="{x:Null}" Header="Longitude" />
-
-                            <DataGridTextColumn Binding="{Binding Path=bat.Name}" ClipboardContentBinding="{x:Null}" Header="Bat" />
-
-                            <DataGridTextColumn Binding="{Binding Path=recording.RecordingStartTime, Converter={StaticResource ShortTime_Converter}}" ClipboardContentBinding="{x:Null}" Header="Start Time" />
-                            <DataGridTextColumn Binding="{Binding Path=recording.RecordingEndTime, Converter={StaticResource ShortTime_Converter}}" ClipboardContentBinding="{x:Null}" Header="End Time" />
-                            <DataGridTextColumn Binding="{Binding Path=recordingStats.passes}" ClipboardContentBinding="{x:Null}" Header="Passes" />
-                            <DataGridTextColumn Binding="{Binding Path=recordingStats.totalDuration, Converter={StaticResource ShortTime_Converter}}" ClipboardContentBinding="{x:Null}" Header="Total Length" />
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Grid>
-    </TabItem> -->
+            
             <TabItem
                 x:Name="BySummary"
                 Header="Summary">
@@ -160,25 +66,7 @@
                 <local:ReportByFrequency
                     x:Name="TestReport" />
             </TabItem>
-            <!--
-            <TabItem
-                x:Name="ByFrequencyTab"
-                Header="By Frequency" GotFocus="ByFrequencyTab_GotFocus">
-
-                <DataGrid
-                    x:Name="ReportDataGridByFrequency"
-                    Background="{StaticResource WindowBackgroundBrushLight}"
-                    Grid.Column="1"
-                    AutoGenerateColumns="False"
-                    ItemsSource="{Binding Path=reportDataByFrequencyList}"
-                    ColumnReordered="ReportDataGridByFrequency_ColumnReordered">
-
-                    <DataGrid.Columns>
-
-                        <DataGridTextColumn Binding="{Binding Path=batName}" Header="Bat" Visibility="Visible" />
-                    </DataGrid.Columns>
-                </DataGrid>
-            </TabItem> -->
+            
         </TabControl>
         <DockPanel
             Background="{StaticResource ButtonBarBackground}"

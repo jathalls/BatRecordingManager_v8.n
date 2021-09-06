@@ -130,9 +130,19 @@ namespace BatRecordingManager
                             Debug.WriteLine("Get Data for " + RecordingSessionListView.SelectedItems.Count +
                                             " items at " +
                                             DateTime.Now.ToLongTimeString());
+
+                            
+                            List<int> sessionIds= new List<int>();
                             foreach (var item in RecordingSessionListView.SelectedItems)
                             {
                                 if (!(item is RecordingSessionData sessionData)) return (false);
+                                sessionIds.Add((item as RecordingSessionData).Id);
+                                reportSessionList.Add(DBAccess.GetRecordingSession((item as RecordingSessionData).Id));
+                            }
+                            statsForAllSessions=DBAccess.GetStatsForSessions(sessionIds,out reportRecordingList);
+
+
+                                /*
                                 Debug.WriteLine("Get Data for Session " + sessionData.SessionTag + " at " +
                                                 DateTime.Now.ToLongTimeString());
                                 var session = DBAccess.GetRecordingSession(sessionData.Id);
@@ -142,8 +152,8 @@ namespace BatRecordingManager
 
                                 reportSessionList.Add(session);
                                 Debug.WriteLine(reportSessionList.Count + " items in the sessionList at " +
-                                                DateTime.Now.ToLongTimeString());
-                            }
+                                                DateTime.Now.ToLongTimeString());*/
+                            //}
                         }
                         else
                         {
@@ -171,15 +181,15 @@ namespace BatRecordingManager
                         Debug.WriteLine("Processing next stat at " + DateTime.Now.ToLongTimeString());
                         var bstat = new BatStatistics(DBAccess.GetNamedBat(bs.batCommonName));
                         reportBatStatsList.Add(bstat);
-                        var recordingsToreport = (from brLink in bstat.bat.BatRecordingLinks
-                                                  where !(brLink.ByAutoID ?? false)
-                                                  join sess in reportSessionList on brLink.Recording.RecordingSessionId equals sess.Id
-                                                  select brLink.Recording).Distinct();
+                        //var recordingsToreport = (from brLink in bstat.bat.BatRecordingLinks
+                        //                          where !(brLink.ByAutoID ?? false)
+                        //                          join sess in reportSessionList on brLink.Recording.RecordingSessionId equals sess.Id
+                        //                          select brLink.Recording).Distinct();
 
-                        if (recordingsToreport != null)
-                            foreach (var rec in recordingsToreport)
-                                if (reportRecordingList.All(existingRec => existingRec.Id != rec.Id))
-                                    reportRecordingList.Add(rec);
+                        //if (recordingsToreport != null)
+                        //    foreach (var rec in recordingsToreport)
+                        //        if (reportRecordingList.All(existingRec => existingRec.Id != rec.Id))
+                        //            reportRecordingList.Add(rec);
                         //ReportRecordingList.AddRange(recordingsToreport);
                     }
 

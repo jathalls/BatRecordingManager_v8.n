@@ -67,7 +67,7 @@ namespace BatRecordingManager
         /// <summary>
         ///     BOC to hold the formatted Frequency data for display and export
         /// </summary>
-        public BulkObservableCollection<FrequencyData> reportDataList { get; set; } =
+        public  BulkObservableCollection<FrequencyData> reportDataList { get; set; } =
             new BulkObservableCollection<FrequencyData>();
 
         /// <summary>
@@ -321,24 +321,50 @@ namespace BatRecordingManager
         private FrequencyData GetFrequencyData(Bat bat, RecordingSession recordingSession, BulkObservableCollection<Recording> reportRecordingList)
         {
             FrequencyData fd = FrequencyData.CreateEmpty(AggregationPeriodInMinutes, bat);
-
-            //List<int> OccurrencesPerPeriodForBat = new List<int>();
-            //for (int i = 0; i < NumberOfPeriods; i++) OccurrencesPerPeriodForBat.Add(0);
-
-            var segmentsForThisBat = from seg in (reportRecordingList.SelectMany(rec => rec.LabelledSegments))
-                                     where seg.Recording.RecordingSession.Id == recordingSession.Id &&
-                                           seg.StartOffset != seg.EndOffset
-                                     from lnk in seg.BatSegmentLinks
-                                     where !(lnk.ByAutoID ?? false) && lnk.BatID == bat.Id
-                                     select seg;
-
-            int firstBlock = GetFirstBlock(segmentsForThisBat);
-            int lastBlock = GetLastBlock(segmentsForThisBat);
-            for (int i = firstBlock; i <= lastBlock; i++)
+            var newOccurrencesPerPeriod = new int[144];
+            try
             {
-                fd.OccurrencesPerPeriod[i] = GetOcccurrencesForBlock(i, segmentsForThisBat);
-            }
+                
+                
+                //List<int> OccurrencesPerPeriodForBat = new List<int>();
+                //for (int i = 0; i < NumberOfPeriods; i++) OccurrencesPerPeriodForBat.Add(0);
+                //DateTime workStart1 = DateTime.Now;
+                var segmentsForThisBat = from seg in (reportRecordingList.SelectMany(rec => rec.LabelledSegments))
+                                         where seg.Recording.RecordingSession.Id == recordingSession.Id &&
+                                               seg.StartOffset != seg.EndOffset
+                                         from lnk in seg.BatSegmentLinks
+                                         where !(lnk.ByAutoID ?? false) && lnk.BatID == bat.Id
+                                         select seg;
+                /*Debug.WriteLine(segmentsForThisBat.ToList()[0]);
+                DateTime workstart2 = DateTime.Now;
+                int firstBlock = GetFirstBlock(segmentsForThisBat);
+                int lastBlock = GetLastBlock(segmentsForThisBat);
+                for (int i = firstBlock; i <= lastBlock; i++)
+                {
+                    fd.OccurrencesPerPeriod[i] = GetOcccurrencesForBlock(i, segmentsForThisBat);
+                }
 
+                DateTime workend = DateTime.Now;*/
+
+                foreach (var seg in segmentsForThisBat)
+                {
+                    var blocks = seg.getOccupiedPeriodsReSunset(out TimeSpan sunset);
+                    fd.sunset = sunset;
+                    foreach (var block in blocks)
+                    {
+                        //fd.OccurrencesPerPeriod[block]++;
+                        newOccurrencesPerPeriod[block]++;
+                    }
+                }
+
+                //DateTime workfinal = DateTime.Now;
+                fd.OccurrencesPerPeriod = new BulkObservableCollection<int>();
+                fd.OccurrencesPerPeriod.AddRange(newOccurrencesPerPeriod);
+                //Debug.WriteLine($"overhead={(workstart2 - workStart1)} oldway={(workend - workstart2).TotalSeconds} newWay={(workfinal - workend).TotalSeconds}");
+            }catch(Exception ex)
+            {
+                Debug.WriteLine("GFD Error" + ex.Message);
+            }
             return (fd);
         }
 
@@ -373,10 +399,10 @@ namespace BatRecordingManager
             {
                 foreach (var seg in segmentsForThisBat)
                 {
-                    Debug.WriteLine(
-                        $"seg start at {seg.StartTime(TableStartTimeInMinutesFromMidnight)}({seg.StartTime(TableStartTimeInMinutesFromMidnight).TotalMinutes})" +
-                        $" end at {seg.EndTime(TableStartTimeInMinutesFromMidnight)}({seg.EndTime(TableStartTimeInMinutesFromMidnight).TotalMinutes})" +
-                        $"in minute {minute} ");
+                   // Debug.WriteLine(
+                   //     $"seg start at {seg.StartTime(TableStartTimeInMinutesFromMidnight)}({seg.StartTime(TableStartTimeInMinutesFromMidnight).TotalMinutes})" +
+                   //     $" end at {seg.EndTime(TableStartTimeInMinutesFromMidnight)}({seg.EndTime(TableStartTimeInMinutesFromMidnight).TotalMinutes})" +
+                   //     $"in minute {minute} ");
                 }
 
                 var inseg = (from seg in segmentsForThisBat
