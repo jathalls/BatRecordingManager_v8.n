@@ -5135,6 +5135,11 @@ namespace BatRecordingManager
             newSession.Sunset = bigSession.Sunset;
             newSession.Weather = bigSession.Weather;
 
+            if (!(newSession.SessionNotes?.Contains("[TimeCorrection]"))??false)
+            {
+                newSession.SessionNotes += "\n[TimeCorrection] 00:00:00\n";
+            }
+
             dc.RecordingSessions.InsertOnSubmit(newSession);
             dc.SubmitChanges();
 

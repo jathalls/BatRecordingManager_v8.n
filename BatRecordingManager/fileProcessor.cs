@@ -286,12 +286,12 @@ namespace BatRecordingManager
         /// <returns>
         /// </returns>
         public static string ProcessFile(string fileName, GpxHandler gpxHandler, int currentRecordingSessionId,
-            ref Dictionary<string, BatStats> batsFound)
+            ref Dictionary<string, BatStats> batsFound,TimeSpan timeCorrection)
         {
             //mBatSummary = batSummary;
             var outputString = "";
             if (fileName.EndsWith(".TXT", StringComparison.OrdinalIgnoreCase) || fileName.EndsWith(".WAV", StringComparison.OrdinalIgnoreCase) || fileName.EndsWith(".zc", StringComparison.OrdinalIgnoreCase))
-                outputString = ProcessLabelOrManualFile(fileName, gpxHandler, currentRecordingSessionId, ref batsFound);
+                outputString = ProcessLabelOrManualFile(fileName, gpxHandler, currentRecordingSessionId, ref batsFound,timeCorrection);
             return outputString;
         }
 
@@ -340,8 +340,9 @@ namespace BatRecordingManager
             string result = "";
             var batsFound = new Dictionary<string, BatStats>();
             DBAccess.DeleteAllSegmentsForRecording(recording.Id);
+            TimeSpan timeCorrection = recording.RecordingSession.GetGPXCorrection() ?? new TimeSpan();
             result = ProcessLabelOrManualFile(labelFileName, new GpxHandler(recording.RecordingSession.Location),
-                recording.RecordingSession.Id, recording, ref batsFound);
+                recording.RecordingSession.Id, recording, ref batsFound,timeCorrection);
 
             return (result);
         }
@@ -632,7 +633,7 @@ namespace BatRecordingManager
         /// <returns>
         /// </returns>
         private static string ProcessLabelOrManualFile(string fileName, GpxHandler gpxHandler,
-            int currentRecordingSessionId, ref Dictionary<string, BatStats> batsFound)
+            int currentRecordingSessionId, ref Dictionary<string, BatStats> batsFound,TimeSpan timeCorrection)
         {
             batsFound = new Dictionary<string, BatStats>();
             var recording = new Recording();
@@ -645,11 +646,11 @@ namespace BatRecordingManager
 
             recording.RecordingSessionId = currentRecordingSessionId;
 
-            return ProcessLabelOrManualFile(fileName, gpxHandler, currentRecordingSessionId, recording, ref batsFound);
+            return ProcessLabelOrManualFile(fileName, gpxHandler, currentRecordingSessionId, recording, ref batsFound, timeCorrection);
         }
 
         private static string ProcessLabelOrManualFile(string fileName, GpxHandler gpxHandler,
-            int currentRecordingSessionId, Recording recording, ref Dictionary<string, BatStats> batsFound)
+            int currentRecordingSessionId, Recording recording, ref Dictionary<string, BatStats> batsFound,TimeSpan timeCorrection)
         {
             var listOfsegmentAndBatLists = new BulkObservableCollection<SegmentAndBatList>();
             var outputString = "";
@@ -715,7 +716,8 @@ namespace BatRecordingManager
                     if (duration.Ticks > 0L)
                         outputString = outputString + " \t" + duration.Minutes + "m" + duration.Seconds + "s";
                     outputString = outputString + "\n";
-                    var gpsLocation = gpxHandler.GetLocation(fileStart);
+                    
+                    var gpsLocation = gpxHandler.GetLocation(fileStart+timeCorrection);
                     if (gpsLocation != null && gpsLocation.Count == 2)
                     {
                         outputString = outputString + gpsLocation[0] + ", " + gpsLocation[1];
@@ -730,7 +732,7 @@ namespace BatRecordingManager
                             }
                     }
 
-                    gpsLocation = gpxHandler.GetLocation(fileEnd);
+                    gpsLocation = gpxHandler.GetLocation(fileEnd+timeCorrection);
                     if (gpsLocation != null && gpsLocation.Count == 2)
                         outputString = outputString + " => " + gpsLocation[0] + ", " + gpsLocation[1] + "\n";
                     if (string.IsNullOrWhiteSpace(recording.RecordingGPSLatitude))

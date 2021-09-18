@@ -140,7 +140,7 @@ namespace BatRecordingManager
                 foreach (var bat in batList)
                 {
                     FrequencyData fd = FrequencyData.CreateEmpty(AggregationPeriodInMinutes, bat);
-
+                    /*
                     foreach (var recordingSession in reportSessionList)
                     {
                         bool sessionHasBat = (
@@ -172,7 +172,8 @@ namespace BatRecordingManager
                             FrequencyData fdForSession = GetFrequencyData(bat, recordingSession, reportRecordingList);
                             fd.Add(fdForSession);
                         }
-                    }
+                    }*/
+                    fd=GetFrequencyData(bat,reportSessionList,reportRecordingList);
                     reportDataList.Add(fd);
                 }
             }
@@ -316,6 +317,59 @@ namespace BatRecordingManager
 
             var block = (int)firstSegmentStart.TotalMinutes / AggregationPeriodInMinutes;
             return (block);
+        }
+
+
+        private FrequencyData GetFrequencyData(Bat bat, BulkObservableCollection<RecordingSession> reportSessionList, BulkObservableCollection<Recording> reportRecordingList)
+        {
+            FrequencyData fd = FrequencyData.CreateEmpty(AggregationPeriodInMinutes, bat);
+            var newOccurrencesPerPeriod = new int[144];
+            try
+            {
+
+
+                //List<int> OccurrencesPerPeriodForBat = new List<int>();
+                //for (int i = 0; i < NumberOfPeriods; i++) OccurrencesPerPeriodForBat.Add(0);
+                //DateTime workStart1 = DateTime.Now;
+                var segmentsForThisBat = from seg in (reportRecordingList.SelectMany(rec => rec.LabelledSegments))
+                                         from sess in reportSessionList
+                                         where seg.Recording.RecordingSession.Id == sess.Id &&
+                                               seg.StartOffset != seg.EndOffset
+                                         from lnk in seg.BatSegmentLinks
+                                         where !(lnk.ByAutoID ?? false) && lnk.BatID == bat.Id
+                                         select seg;
+                /*Debug.WriteLine(segmentsForThisBat.ToList()[0]);
+                DateTime workstart2 = DateTime.Now;
+                int firstBlock = GetFirstBlock(segmentsForThisBat);
+                int lastBlock = GetLastBlock(segmentsForThisBat);
+                for (int i = firstBlock; i <= lastBlock; i++)
+                {
+                    fd.OccurrencesPerPeriod[i] = GetOcccurrencesForBlock(i, segmentsForThisBat);
+                }
+
+                DateTime workend = DateTime.Now;*/
+
+                foreach (var seg in segmentsForThisBat)
+                {
+                    var blocks = seg.getOccupiedPeriodsReSunset(out TimeSpan sunset);
+                    fd.sunset = sunset;
+                    foreach (var block in blocks)
+                    {
+                        //fd.OccurrencesPerPeriod[block]++;
+                        newOccurrencesPerPeriod[block]++;
+                    }
+                }
+
+                //DateTime workfinal = DateTime.Now;
+                fd.OccurrencesPerPeriod = new BulkObservableCollection<int>();
+                fd.OccurrencesPerPeriod.AddRange(newOccurrencesPerPeriod);
+                //Debug.WriteLine($"overhead={(workstart2 - workStart1)} oldway={(workend - workstart2).TotalSeconds} newWay={(workfinal - workend).TotalSeconds}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("GFD Error" + ex.Message);
+            }
+            return (fd);
         }
 
         private FrequencyData GetFrequencyData(Bat bat, RecordingSession recordingSession, BulkObservableCollection<Recording> reportRecordingList)

@@ -178,7 +178,9 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Gets or sets the selected session.
+        ///     Gets or sets the selected session.   .SessionNotes?.Contains("[TimeCorrection]"))??false
+        ///     
+        /// .SessionNotes?.Contains("[TimeCorrection]"))??false
         /// </summary>
         /// <value>
         ///     The selected session.
@@ -191,6 +193,10 @@ namespace BatRecordingManager
                 if (value == null)//mod
                 {
                     _selectedSession = new RecordingSession();
+                    if (!(_selectedSession.SessionNotes?.Contains("[TimeCorrection]"))??false)
+                    {
+                        _selectedSession.SessionNotes += "\n[TimeCorrection] 00:00:00\n";
+                    }
                     return;
                 }
                 if (value?.Id != _selectedSession?.Id)
@@ -202,6 +208,10 @@ namespace BatRecordingManager
                         //mod NotifyPropertyChanged(nameof(virtualRecordingsList));
                         //mod Refresh();
                         _selectedSession = new RecordingSession();//mod
+                        if (!(_selectedSession.SessionNotes?.Contains("[TimeCorrection]"))??false)
+                        {
+                            _selectedSession.SessionNotes += "\n[TimeCorrection] 00:00:00\n";
+                        }
 
                         return;
                     }

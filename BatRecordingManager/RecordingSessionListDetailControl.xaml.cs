@@ -15,6 +15,7 @@
 //         limitations under the License.
 
 using Microsoft.VisualStudio.Language.Intellisense;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -323,6 +324,10 @@ namespace BatRecordingManager
                     if ((RecordingSessionControl.recordingSession ?? new RecordingSession()).Id != selectedID)
                     {
                         var session = DBAccess.GetRecordingSession(selectedID);
+                        if (!(session.SessionNotes?.Contains("[TimeCorrection]"))??false)
+{
+                            session.SessionNotes += "\n[TimeCorrection] 00:00:00\n";
+                        }
                         RecordingSessionControl.recordingSession = session;
                         RecordingsListControl.selectedSession = session;
                         //RecordingsListControl.virtualRecordingsList.Clear();

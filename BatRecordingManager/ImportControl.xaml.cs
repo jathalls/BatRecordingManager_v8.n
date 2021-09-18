@@ -116,6 +116,8 @@ namespace BatRecordingManager
                             return (false);
                         }
 
+                        TimeSpan timeCorrection = _sessionForFolder.GetGPXCorrection()??new TimeSpan();
+
                         using (new WaitCursor())
                         {
                             foreach (var filename in _fileBrowser.TextFileNames)
@@ -130,7 +132,7 @@ namespace BatRecordingManager
                                 {
                                     TbkOutputText.Text = TbkOutputText.Text + "***\n\n" +
                                                          FileProcessor.ProcessFile(filename, _gpxHandler, CurrentSessionId,
-                                                             ref _fileProcessor.BatsFound) + "\n";
+                                                             ref _fileProcessor.BatsFound,timeCorrection) + "\n";
                                     totalBatsFound = BatsConcatenate(totalBatsFound, _fileProcessor.BatsFound);
                                 }
 
@@ -664,7 +666,7 @@ namespace BatRecordingManager
                             else
                             {
                                 TbkOutputText.Text = TbkOutputText.Text + "***\n\n" + FileProcessor.ProcessFile(filename,
-                                                         _gpxHandler, (_sessionForFolder?.Id)??-1, ref _fileProcessor.BatsFound)??"" +
+                                                         _gpxHandler, (_sessionForFolder?.Id)??-1, ref _fileProcessor.BatsFound,new TimeSpan())??"" +
                                                      "\n";
                                 totalBatsFound = BatsConcatenate(totalBatsFound, (_fileProcessor?.BatsFound)??new Dictionary<string, BatStats>());
                             }

@@ -16,6 +16,7 @@
 
 using F23.StringSimilarity;
 using Microsoft.VisualStudio.Language.Intellisense;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -208,7 +209,10 @@ namespace BatRecordingManager
             }
 
             newSession.OriginalFilePath = folderPath;
-
+            if (!(newSession.SessionNotes?.Contains("[TimeCorrection]"))??false)
+{
+                newSession.SessionNotes += "\n[TimeCorrection] 00:00:00\n";
+            }
             newSession = EditSession(newSession, sessionTag, folderPath);
             if (newSession == null) return null;
             newSession = SaveSession(newSession);
@@ -443,7 +447,10 @@ namespace BatRecordingManager
             //newSession.Location = GetSessionLocation(newSession, workingFolder, ref headerFileLines);
             //newSession.Weather = GetSessionWeather(newSession, workingFolder, ref headerFileLines);
             //newSession.Temp = GetSessionTemp(newSession, ref headerFileLines);
-
+            if (!(newSession.SessionNotes?.Contains("[TimeCorrection]"))??false)
+            {
+                newSession.SessionNotes += "\n[TimeCorrection] 00:00:00\n";
+            }
 
             return (newSession);
         }
@@ -783,6 +790,10 @@ namespace BatRecordingManager
 
             foreach (var line in headerFile) session.SessionNotes = session.SessionNotes + line + "\n";
             if (wfmd != null) session.SessionNotes += wfmd.FormattedText();
+            if (!(session.SessionNotes?.Contains("[TimeCorrection]"))??false)
+            {
+                session.SessionNotes += "\n[TimeCorrection] 00:00:00\n";
+            }
             return session;
         }
 

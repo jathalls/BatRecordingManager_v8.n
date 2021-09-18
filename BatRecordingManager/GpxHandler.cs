@@ -40,30 +40,30 @@ namespace BatRecordingManager
         /// Tries the location as aGPX filename or if not, if it is folder containing a .gpx file.
         /// If a GPX file is found loads the GPX data as an XDocument.
         /// </summary>
-        /// <param name="location">
+        /// <param name="gpxFileLocation">
         ///     The location.
         /// </param>
-        public GpxHandler(string location)
+        public GpxHandler(string gpxFileLocation)
         {
             var filename = "";
             _gpxFileExists = false;
-            if (string.IsNullOrWhiteSpace(location)) return;
+            if (string.IsNullOrWhiteSpace(gpxFileLocation)) return;
             //GPXData = new XDocument();
             //GPXData.Add(XElement.Parse("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>"));
-            if (location.ToUpper().EndsWith(".GPX"))
+            if (gpxFileLocation.ToUpper().EndsWith(".GPX"))
             {
-                if (File.Exists(location))
+                if (File.Exists(gpxFileLocation))
                 {
-                    filename = location;
+                    filename = gpxFileLocation;
                     _gpxFileExists = true;
                     //GPXData.Add(XElement.Load(Location));
                 }
             }
             else
             {
-                if (Directory.Exists(location))
+                if (Directory.Exists(gpxFileLocation))
                 {
-                    var gpxFileList = Directory.EnumerateFiles(Path.GetDirectoryName(location), "*.gpx");
+                    var gpxFileList = Directory.EnumerateFiles(Path.GetDirectoryName(gpxFileLocation), "*.gpx");
                     //var GPXFileList= Directory.EnumerateFiles(Location, "*.GPX");
                     //gpxFileList = gpxFileList.Concat<string>(GPXFileList);
                     if (!gpxFileList.IsNullOrEmpty())

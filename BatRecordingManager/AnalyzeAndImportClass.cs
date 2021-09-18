@@ -892,7 +892,7 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
                 if (ThisRecording == null)
                 {
                     result = FileProcessor.ProcessFile(textFileToProcess, ThisGpxHandler, ThisRecordingSession.Id,
-                        ref batsFound);
+                        ref batsFound,ThisRecordingSession.GetGPXCorrection()??new TimeSpan());
                 }
                 else
                 {

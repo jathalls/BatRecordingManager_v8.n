@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq.Dynamic;
+using System.Text.RegularExpressions;
 using System.Windows.Forms.VisualStyles;
 using UniversalToolkit;
 
@@ -916,6 +917,7 @@ namespace BatRecordingManager
                     if (!string.IsNullOrWhiteSpace(bat.Batgenus) && bat.Batgenus.Length >= 3 && !string.IsNullOrWhiteSpace(bat.BatSpecies) &&
                         (bat.BatSpecies.Length >= 3 || bat.BatSpecies == "sp"))
                     {
+                        if (bat.BatSpecies == "sp") bat.BatSpecies += ".";
                         string batstr = (bat.Batgenus.Substring(0, 3) + bat.BatSpecies.Substring(0, 3)).ToUpper();
                         result.Add(batstr);
                     }
@@ -992,6 +994,36 @@ namespace BatRecordingManager
 
             set { _hasGPSLocation = null; }
         }
+
+        /// <summary>
+        /// Looks in the recording session notes for a line starting [TimeCorrection] hh:mm:ss.sss
+        /// and if found returns the time specified as a TimeSpan.  The time specified will be added
+        /// tot he file start and end times when extracting a location from the GPS file.  It allows for
+        /// errors in the recording clock compared to the correct GPS clock.  The time may be positive or
+        /// negative.
+        /// </summary>
+        /// <returns></returns>
+        public TimeSpan? GetGPXCorrection()
+        {
+            if(_gpxCorrection!=null) return(_gpxCorrection);
+            TimeSpan result = new TimeSpan();
+            if (!string.IsNullOrWhiteSpace(SessionNotes))
+            {
+                string pattern = @"\[TimeCorrection\]\s*\-?(([0-9]{1,2}:)?[0-9]{2}:[0-9]{2})";
+                var match=Regex.Match(SessionNotes, pattern);
+                if (match.Success){
+                    TimeSpan.TryParse(match.Groups[1].Value, out result);
+                    if (match.Groups[0].Value.Contains("-"))
+                    {
+                        result = new TimeSpan() - result;
+                    }
+                    _gpxCorrection = result;
+                }
+            }
+            return result;
+        }
+
+        private TimeSpan? _gpxCorrection { get; set; } = null;
 
         public bool hasRecordings
         {
