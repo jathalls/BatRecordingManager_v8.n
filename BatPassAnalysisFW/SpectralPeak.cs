@@ -13,15 +13,17 @@ namespace BatPassAnalysisFW
         /// <summary>
         /// Constructor for spectralPeak initialises all Peak parameters but does not retains all the raw data for the peak
         /// </summary>
-        /// <param name="peakNumber"></param>
-        /// <param name="rate"></param>
-        /// <param name="segmentStart"></param>
-        /// <param name="peakStart"></param>
-        /// <param name="peakWidth"></param>
-        /// <param name="peakArea"></param>
-        /// <param name="peakMaxHeight"></param>
-        /// <param name="interval"></param>
+        /// <param name="fLow"></param>
+        /// <param name="fHigh"></param>
+        /// <param name="peakAreaHz"></param>
+        /// <param name="fPeak"></param>
+        /// <param name="sampleRate"></param>
+        /// <param name="autoCorrelationWidth"></param>
+        /// <param name="parentPeak"></param>
+        /// <param name="isValidPulse"></param>
         /// <param name="waveformData"></param>
+        /// <param name="HzPerSample"></param>
+        /// <param name="AbsoluteThreshold"></param>
         public SpectralPeak(int fLow, int fHigh, double peakAreaHz, int fPeak, int sampleRate, float autoCorrelationWidth,
             Peak parentPeak = null, bool isValidPulse = true, float[] waveformData = null, int HzPerSample = 1, float AbsoluteThreshold = 0.0f)
         {

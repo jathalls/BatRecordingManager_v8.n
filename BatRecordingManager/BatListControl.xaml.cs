@@ -16,6 +16,10 @@
 
 using Microsoft.VisualStudio.Language.Intellisense;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -25,7 +29,7 @@ namespace BatRecordingManager
     /// <summary>
     ///     Interaction logic for BatListControl.xaml
     /// </summary>
-    public partial class BatListControl : UserControl
+    public partial class BatListControl : UserControl, INotifyPropertyChanged
     {
         //private BatSummary batSummary;
 
@@ -43,7 +47,7 @@ namespace BatRecordingManager
             //batSummary = new BatSummary();
 
             BatDetailControl.e_ListChanged += BatDetailControl_ListChanged;
-            //RefreshData();
+            RefreshData();
 
             //batDetailControl.selectedBat = BatsDataGrid.SelectedItem as Bat;
         }
@@ -62,17 +66,34 @@ namespace BatRecordingManager
             return result;
         }
 
-        internal void RefreshData()
+        internal List<Bat> RefreshData_Async()
         {
-            using (new WaitCursor("Refreshing Bat List"))
-            {
-                var index = BatsDataGrid.SelectedIndex;
-                SortedBatList.Clear();
-                SortedBatList.AddRange(DBAccess.GetSortedBatList());
-                BatsDataGrid.SelectedIndex = index < SortedBatList.Count ? index : SortedBatList.Count - 1;
+            return DBAccess.GetSortedBatList();
+            
+            
+            
 
-                BatDetailControl.selectedBat = BatsDataGrid.SelectedItem as Bat;
-            }
+        }
+
+        internal async void RefreshData()
+        {
+            var index = BatsDataGrid.SelectedIndex;
+
+            var data = await Task.Run(() => RefreshData_Async());
+            SortedBatList.Clear();
+            SortedBatList.AddRange(data);
+
+
+            OnPropertyChanged(nameof(SortedBatList));
+            BatsDataGrid.SelectedIndex = index < SortedBatList.Count ? index : SortedBatList.Count - 1;
+
+            BatDetailControl.selectedBat = BatsDataGrid.SelectedItem as Bat;
+
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private void AddBatButton_Click(object sender, RoutedEventArgs e)
@@ -215,6 +236,8 @@ namespace BatRecordingManager
         public static readonly DependencyProperty SortedBatListProperty =
             DependencyProperty.Register(nameof(SortedBatList), typeof(BulkObservableCollection<Bat>), typeof(BatListControl),
                 new FrameworkPropertyMetadata(new BulkObservableCollection<Bat>()));
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
         ///     Gets or sets the SortedBatList property. This dependency property indicates ....

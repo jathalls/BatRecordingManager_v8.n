@@ -72,7 +72,7 @@ namespace BatRecordingManager
                             var mPosition = MatchTag(_moddedDescription, tag.BatTag1);
                             if (mPosition.Count > 0)
                             {
-                                _moddedDescription = _moddedDescription.Replace(tag.BatTag1, "");
+                                _moddedDescription = _moddedDescription.Remove(mPosition[0],Math.Min(tag.BatTag1.Length,_moddedDescription.Length));
                                 _moddedDescription = _moddedDescription.Insert(mPosition[0], tag.Bat.Name);
                                 _moddedDescription = _moddedDescription.Trim();
                             }
@@ -119,7 +119,7 @@ namespace BatRecordingManager
         /// <summary>
         ///     Gets all tags which are contained within the String description, regardless of case
         ///     except where the tag is all uppercase in which case the description matching must
-        ///     also be upper case.
+        ///     also be upper case. The list is sorted longest first
         /// </summary>
         /// <param name="description">
         ///     The description.
@@ -134,7 +134,25 @@ namespace BatRecordingManager
                             : description.ToUpper().Contains(tg.BatTag1.ToUpper())
                         orderby tg.BatTag1.Length descending
                         select tg).Distinct();
-            return tags?.ToList();
+            if(tags==null || !tags.Any()) return(new List<BatTag>());
+
+            List<Bat> bats=new List<Bat>();
+            foreach(var tag in tags)
+            {
+                bats.Add(tag.Bat);
+
+            }
+            var tagList = new List<BatTag>();
+            foreach(var bat in bats.Distinct())
+            {
+                var tag = (from tg in tags
+                           where tg.BatID == bat.Id
+                           orderby tg.BatTag1.Length descending
+                           select tg).First();
+                tagList.Add(tag);
+            }
+
+            return tagList;
         }
 
         /// <summary>

@@ -38,9 +38,9 @@ namespace BatRecordingManager
         private string _defaultDescription = "";
         private EventHandler<EventArgs> _okButtonClickedEvent;
 
-        /// <summary>
-        /// An instance of StoredImage to hold the image and its related metadata
-        /// </summary>
+        // <summary>
+        // An instance of StoredImage to hold the image and its related metadata
+        // </summary>
         //public StoredImage storedImage { get; set; } = new StoredImage(null, "", "", -1);
 
         /// <summary>

@@ -21,12 +21,10 @@ using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data.Linq;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -109,7 +107,7 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Event raised after the <see cref="Text" /> property value has changed.
+        ///     Event raised after the  property value has changed.
         /// </summary>
         public event EventHandler<RecordingChangedEventArgs> e_RecordingChanged
 #pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved
@@ -131,7 +129,7 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Event raised after the <see cref="Text" /> property value has changed.
+        ///     Event raised after the  property value has changed.
         /// </summary>
         [Category("Property Changed")]
 #pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved
@@ -169,7 +167,30 @@ namespace BatRecordingManager
             }
         }
 
-        public BulkObservableCollection<Recording> recordingsList { get; set; }
+        private BulkObservableCollection<Recording> _recordingsList;
+        public BulkObservableCollection<Recording> recordingsList {
+            get
+            {
+                if (_recordingsList == null)
+                {
+                    
+                    _recordingsList=new BulkObservableCollection<Recording>();
+                }
+                return(_recordingsList);
+            }
+            set
+            {
+                if (value == null)
+                {
+                    _recordingsList = new BulkObservableCollection<Recording>();
+                }
+                else
+                {
+                    _recordingsList = value;
+                }
+                NotifyPropertyChanged(nameof(recordingsList));
+            }
+        }
 
         public int selectedRecordingIndex
         {
@@ -193,71 +214,52 @@ namespace BatRecordingManager
                 if (value == null)//mod
                 {
                     _selectedSession = new RecordingSession();
-                    if (!(_selectedSession.SessionNotes?.Contains("[TimeCorrection]"))??false)
-                    {
-                        _selectedSession.SessionNotes += "\n[TimeCorrection] 00:00:00\n";
-                    }
+                    _selectedSession.TimeCorrection();
                     return;
                 }
-                if (value?.Id != _selectedSession?.Id)
+
+                _selectedSession = value;
+
+
+                //mod virtualRecordingsList = new AsyncVirtualizingCollection<Recording>(new RecordingProvider((selectedSession?.Id) ?? -1), 10, 3000, defRec);
+                // virtualRecordingsList.CollectionChanged += VirtualRecordingsList_CollectionChanged;
+
+                if (OffsetsButton != null)
                 {
-                    _selectedSession = DBAccess.GetRecordingSession(value?.Id ?? -1);
-                    if (_selectedSession == null)
+                    OffsetsButton.IsEnabled = false;
+
+                    if (_selectedSession != null)
                     {
-                        //mod virtualRecordingsList.Clear();
-                        //mod NotifyPropertyChanged(nameof(virtualRecordingsList));
-                        //mod Refresh();
-                        _selectedSession = new RecordingSession();//mod
-                        if (!(_selectedSession.SessionNotes?.Contains("[TimeCorrection]"))??false)
+                        if (_selectedSession.Sunset != null)
                         {
-                            _selectedSession.SessionNotes += "\n[TimeCorrection] 00:00:00\n";
+                            OffsetsButton.IsEnabled = true;
                         }
-
-                        return;
-                    }
-                    _selectedSession.IsSelected = true;
-                    Recording defRec = new Recording();
-                    defRec.RecordingName = "Loading...";
-                    //mod virtualRecordingsList = new AsyncVirtualizingCollection<Recording>(new RecordingProvider((selectedSession?.Id) ?? -1), 10, 3000, defRec);
-                    // virtualRecordingsList.CollectionChanged += VirtualRecordingsList_CollectionChanged;
-
-                    if (OffsetsButton != null)
-                    {
-                        OffsetsButton.IsEnabled = false;
-
-                        if (_selectedSession != null)
+                        else
                         {
-                            if (_selectedSession.Sunset != null)
+                            var sunset = SessionManager.CalculateSunset(value.SessionDate, value.LocationGPSLatitude,
+                                value.LocationGPSLongitude);
+                            _selectedSession.Sunset = sunset;
+                            if (sunset != null)
                             {
                                 OffsetsButton.IsEnabled = true;
                             }
                             else
                             {
-                                var sunset = SessionManager.CalculateSunset(value.SessionDate, value.LocationGPSLatitude,
-                                    value.LocationGPSLongitude);
-                                _selectedSession.Sunset = sunset;
-                                if (sunset != null)
+                                if (!value.Recordings.IsNullOrEmpty())
                                 {
-                                    OffsetsButton.IsEnabled = true;
-                                }
-                                else
-                                {
-                                    if (!value.Recordings.IsNullOrEmpty())
+                                    var rec = value.Recordings.First();
+                                    if (!string.IsNullOrWhiteSpace(rec.RecordingGPSLatitude) &&
+                                        !string.IsNullOrWhiteSpace(rec.RecordingGPSLongitude))
                                     {
-                                        var rec = value.Recordings.First();
-                                        if (!string.IsNullOrWhiteSpace(rec.RecordingGPSLatitude) &&
-                                            !string.IsNullOrWhiteSpace(rec.RecordingGPSLongitude))
+                                        if (decimal.TryParse(rec.RecordingGPSLatitude, out decimal lat) &&
+                                            decimal.TryParse(rec.RecordingGPSLongitude, out decimal longit))
                                         {
-                                            if (decimal.TryParse(rec.RecordingGPSLatitude, out decimal lat) &&
-                                                decimal.TryParse(rec.RecordingGPSLongitude, out decimal longit))
+                                            sunset = SessionManager.CalculateSunset(value.SessionDate, lat,
+                                                 longit);
+                                            if (sunset != null)
                                             {
-                                                sunset = SessionManager.CalculateSunset(value.SessionDate, lat,
-                                                     longit);
-                                                if (sunset != null)
-                                                {
-                                                    _selectedSession.Sunset = sunset;
-                                                    OffsetsButton.IsEnabled = true;
-                                                }
+                                                _selectedSession.Sunset = sunset;
+                                                OffsetsButton.IsEnabled = true;
                                             }
                                         }
                                     }
@@ -265,15 +267,19 @@ namespace BatRecordingManager
                             }
                         }
                     }
-
-                    recordingsList = new BulkObservableCollection<Recording>();
-                    if (_selectedSession != null && _selectedSession.Recordings.Any())
-                    {
-                        recordingsList.AddRange(_selectedSession.Recordings);
-                        NotifyPropertyChanged(nameof(recordingsList));
-                    }
-                    //NotifyPropertyChanged()
                 }
+
+                recordingsList.Clear();
+                try
+                {
+                    recordingsList.AddRange(_selectedSession.Recordings);
+                }
+                catch (Exception) { }
+
+                
+                //NotifyPropertyChanged()
+
+                NotifyPropertyChanged(nameof(recordingsList));
                 //RefreshData(5, 100);
                 //mod  NotifyPropertyChanged(nameof(virtualRecordingsList));
             }
@@ -292,13 +298,7 @@ namespace BatRecordingManager
         internal void NotifyPropertyChanged(string propertyName) =>
                                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        /// <summary>
-        ///     Gets or sets the recordings list.
-        /// </summary>
-        /// <value>
-        ///     The recordings list.
-        /// </value>
-        //public BulkObservableCollection<Recording> virtualRecordingsList { get; } = new BulkObservableCollection<Recording>();
+
         /// <summary>
         ///     Called when [ListView item focused].
         /// </summary>
@@ -306,7 +306,7 @@ namespace BatRecordingManager
         ///     The sender.
         /// </param>
         /// <param name="args">
-        ///     The <see cref="RoutedEventArgs" /> instance containing the event data.
+        ///     The  instance containing the event data.
         /// </param>
         internal void OnListViewItemFocused(object sender, RoutedEventArgs args)
         {
@@ -318,6 +318,7 @@ namespace BatRecordingManager
 
         internal void RefreshRecordings(List<Recording> recs)
         {
+            RecordingSession session = null;
             if (recs != null)
             {
                 foreach (var rec in recs)
@@ -325,11 +326,19 @@ namespace BatRecordingManager
                     int i = recordingsList.IndexOf(rec);
                     bool selected = recordingsList[i].isSelected;
                     recordingsList[i] = DBAccess.GetRecording(rec.Id);
+                    if (session == null)
+                    {
+                        session = recordingsList[i].RecordingSession;
+                    }
                     recordingsList[i].isSelected = selected;
                 }
             }
 
             NotifyPropertyChanged(nameof(recordingsList));
+            if (session != null)
+            {
+                OnRecordingChanged(new RecordingChangedEventArgs(session));
+            }
         }
 
         /// <summary>
@@ -355,7 +364,7 @@ namespace BatRecordingManager
                 }
                 NotifyPropertyChanged(nameof(recordingsList));
             }
-            
+
         }
 
         /// <summary>
@@ -416,15 +425,15 @@ namespace BatRecordingManager
 
         private RecordingSession _selectedSession;
 
-        private AnalyseAndImportClass aai;
+        private AnalyseAndImportClass analyseAndImport;
 
         private int currentSelectedRecording;
 
-        private int currentSelectedSegment;
+        //private int currentSelectedSegment;
         private DeepAnalysis deepAnalyser = null;
 
-        private bool isChanging = false;
-        private double offset = -1.0d;
+        //private bool isChanging = false;
+        //private double offset = -1.0d;
 
         private static DataGridCell GetCell(DataGrid recordingsListView, DataGridRow row, int column)
         {
@@ -453,8 +462,9 @@ namespace BatRecordingManager
         private void Aai_e_DataUpdated(object sender, EventArgs e)
         {
             //Tools.FindParent<RecordingSessionListDetailControl>(this).RefreshData();
-            if (aai.ThisRecording != null && Tools.IsTextFileModified(aai.startedAt ?? DateTime.Now, aai.ThisRecording))
+            if (analyseAndImport.ThisRecording != null && Tools.IsTextFileModified(analyseAndImport.startedAt ?? DateTime.Now, analyseAndImport.ThisRecording))
             {
+                var UpdatedSession = analyseAndImport.ThisRecording.RecordingSession;
                 DependencyObject d = this;
                 while (true)
                 {
@@ -474,12 +484,12 @@ namespace BatRecordingManager
                     {
                         if (t.Dispatcher.CheckAccess())
                         {
-                            t.RefreshData();
+                            t.RefreshData(UpdatedSession);
                         }
                         else
                         {
                             t.Dispatcher.Invoke(DispatcherPriority.Background,
-                                new Action(() => { t.RefreshData(); }));
+                                new Action(() => { t.RefreshData(UpdatedSession); }));
                         }
 
                         break;
@@ -522,16 +532,16 @@ namespace BatRecordingManager
 
             UpdateRecordingsList(recording.Id);
 
-            
+
             SearchButton.IsEnabled = (selectedSession != null && _selectedSession.Recordings.Count > 0);
-            
+
         }
 
         private void AddRecordingButton_Click(object sender, RoutedEventArgs e)
         {
             var recording = new Recording();
             AddEditRecording(recording);
-            
+
         }
 
         private void AddSegImgButton_Click(object sender, RoutedEventArgs e)
@@ -604,7 +614,7 @@ namespace BatRecordingManager
 
             DBAccess.UpdateRecording(selectedRecording, processedSegments, listOfCallImageLists);
             //this.Parent.RefreshData();
-            Tools.FindParent<RecordingSessionListDetailControl>(this).RefreshData();
+            Tools.FindParent<RecordingSessionListDetailControl>(this).RefreshData(selectedRecording.RecordingSession);
         }
 
         private void AnalyseRecordingPulses(Recording recording)
@@ -769,12 +779,13 @@ namespace BatRecordingManager
                 recordingSession = recording.RecordingSession;
                 DBAccess.DeleteRecording(recording);
                 recordingsList.Remove(recording);
+                NotifyPropertyChanged(nameof(recordingsList));
                 OnRecordingChanged(new RecordingChangedEventArgs(recordingSession));
             }
-            
+
             if (oldIndex >= 0 && oldIndex < RecordingsListView.Items.Count) RecordingsListView.SelectedIndex = oldIndex;
             SearchButton.IsEnabled = (selectedSession != null && selectedSession.Recordings.Count > 0);
-            
+
         }
 
         private void DisableSearchButton()
@@ -787,7 +798,7 @@ namespace BatRecordingManager
             var recording = new Recording();
             if (RecordingsListView.SelectedItem != null) recording = RecordingsListView.SelectedItem as Recording;
             AddEditRecording(recording);
-            
+
             if (selectedSession != null && selectedSession.Recordings.Count > 0)
                 SearchButton.IsEnabled = true;
             else
@@ -918,9 +929,9 @@ namespace BatRecordingManager
                     if (!isRecordingSelected)
                     {
                         RecordingsListView.UnselectAll();
-                        foreach(var rec in recordingsList)
+                        foreach (var rec in recordingsList)
                         {
-                            if(rec.Id==selectedSegment.RecordingID) rec.isSelected = true;
+                            if (rec.Id == selectedSegment.RecordingID) rec.isSelected = true;
                             else rec.isSelected = false;
                         }
                     }
@@ -1035,13 +1046,13 @@ namespace BatRecordingManager
                 listOfCallImageLists.Add(segmentImageList);
             }
 
-            Recording recording=DBAccess.UpdateRecording(selectedRecording, processedSegments, listOfCallImageLists);
+            Recording recording = DBAccess.UpdateRecording(selectedRecording, processedSegments, listOfCallImageLists);
             if (recording != null)
             {
                 UpdateRecordingsList(recording.Id);
             }
-            
-            
+
+
         }
 
         /// <summary>
@@ -1091,11 +1102,11 @@ namespace BatRecordingManager
                         ComparisonHost.Instance.AddImage(image);
                     }
                 }
-                
-                
+
+
                 UpdateRecordingsList(recId);
-                
-                
+
+
             }
         }
 
@@ -1108,25 +1119,28 @@ namespace BatRecordingManager
         {
             if (recordingID >= 0)
             {
-                var recording=DBAccess.GetRecording(recordingID);
+                var recording = DBAccess.GetRecording(recordingID);
 
                 if (recording != null)
                 {
                     recording.isSelected = true;
 
-                    var existing=recordingsList.Where(rec=>rec.Id==recording.Id).FirstOrDefault();
+                    var existing = recordingsList.Where(rec => rec.Id == recording.Id).FirstOrDefault();
                     if (existing != null)
                     {
-                        int i=recordingsList.IndexOf(existing);
+                        int i = recordingsList.IndexOf(existing);
                         recordingsList[i] = recording;
+                        RecordingsListView.SelectedIndex = i;
                     }
                     else
                     {
                         recordingsList.Add(recording);
+                        RecordingsListView.SelectedIndex = recordingsList.Count - 1;
                     }
                 }
 
                 OnRecordingChanged(new RecordingChangedEventArgs(recording?.RecordingSession));
+                NotifyPropertyChanged(nameof(recordingsList));
             }
         }
 
@@ -1163,7 +1177,7 @@ namespace BatRecordingManager
             {
                 var recordingId = (selection?.First()?.RecordingID) ?? -1;
                 SegmentSonagrams sonagramGenerator = new SegmentSonagrams();
-                sonagramGenerator.GenerateForSegments(selection,experimental);
+                sonagramGenerator.GenerateForSegments(selection, experimental);
                 UpdateRecordingsList(recordingId);
             }
         }
@@ -1261,9 +1275,9 @@ namespace BatRecordingManager
                 return;
             }
 
-            aai = new AnalyseAndImportClass(recording);
-            aai.e_DataUpdated += Aai_e_DataUpdated;
-            aai.AnalyseRecording();
+            analyseAndImport = new AnalyseAndImportClass(recording);
+            analyseAndImport.e_DataUpdated += Aai_e_DataUpdated;
+            analyseAndImport.AnalyseRecording();
         }
 
         private void RecordingsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1281,7 +1295,7 @@ namespace BatRecordingManager
                     currentSelectedRecording = RecordingsListView.SelectedIndex;
                     selectionIsWavFile = true;
                 }
-                
+
                 e.Handled = true;
                 if (e.AddedItems != null && e.AddedItems.Count > 0)
                 {
@@ -1297,7 +1311,7 @@ namespace BatRecordingManager
                             Debug.WriteLine("Recording Selected");
                         }
 
-                        
+
                     }
                 }
                 else
@@ -1419,7 +1433,7 @@ namespace BatRecordingManager
                     }
                 }
 
-                
+
             }
             catch (Exception ex)
             {
@@ -1450,13 +1464,15 @@ namespace BatRecordingManager
             RecordingsListView.UnselectAll();
             var item = RecordingsListView.Items[currentRecordingIndex] as Recording;
             item.isSelected = true;
-            if(item.LabelledSegments != null)
+            if (item.LabelledSegments != null)
             {
-                foreach(var seg in item.LabelledSegments)
+                foreach (var seg in item.LabelledSegments)
                 {
-                    if (seg.Id == segment.Id){
+                    if (seg.Id == segment.Id)
+                    {
                         seg.isSelected = true;
-                    }else
+                    }
+                    else
                     {
                         seg.isSelected = false;
                     }
@@ -1488,7 +1504,7 @@ namespace BatRecordingManager
     {
         public RecordingChangedEventArgs(RecordingSession recordingSession)
         {
-            this.recordingSession=recordingSession;
+            this.recordingSession = recordingSession;
         }
 
         public RecordingSession recordingSession { get; set; }

@@ -22,7 +22,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq.Dynamic;
 using System.Text.RegularExpressions;
-using System.Windows.Forms.VisualStyles;
 using UniversalToolkit;
 
 namespace BatRecordingManager
@@ -205,7 +204,7 @@ namespace BatRecordingManager
 
             var fileMetaData = new WavFileMetaData(file);
 
-            if (!fileMetaData.metaData.IsNullOrEmpty() && existingRecording!=null)
+            if (!fileMetaData.metaData.IsNullOrEmpty() && existingRecording != null)
             {
                 existingRecording.Metas.Clear();
                 existingRecording.Metas.AddRange(fileMetaData.metaData);
@@ -422,10 +421,10 @@ namespace BatRecordingManager
         }
     }
 
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
-    
+
+
     /// <summary>
     /// Partial class to add supporter functions for the LabelledSegment database table
     /// </summary>
@@ -497,7 +496,7 @@ namespace BatRecordingManager
             }
         }
 
-        
+
 
         public TimeSpan startTime
         {
@@ -516,7 +515,7 @@ namespace BatRecordingManager
         }
 
         private TimeSpan? _sunset = null;
-        private List<int> _occupiedPeriodsReSunset=new List<int>();
+        private List<int> _occupiedPeriodsReSunset = new List<int>();
 
         public List<int> getOccupiedPeriodsReSunset(out TimeSpan sunset)
         {
@@ -525,19 +524,19 @@ namespace BatRecordingManager
 
             sunset = _sunset.Value;
 
-            
+
 
             _occupiedPeriodsReSunset.Clear();
 
-            if (endTime != startTime )
+            if (endTime != startTime)
             {
-                
+
                 int blocksFromSunsetToStart = getBlocksFromSunsetToTime(startTime);
                 int blocksFromSunsetToEnd = getBlocksFromSunsetToTime(endTime);
                 var startBlock = 36 + blocksFromSunsetToStart;
                 var endBlock = 36 + blocksFromSunsetToEnd;
                 Debug.WriteLine($"start={startTime} at block {startBlock} end={endTime} at block {endBlock}");
-                for(int i = startBlock; i <= endBlock; i++)
+                for (int i = startBlock; i <= endBlock; i++)
                 {
                     _occupiedPeriodsReSunset.Add(i);
                 }
@@ -545,7 +544,7 @@ namespace BatRecordingManager
 
             }
             Debug.WriteLine(_occupiedPeriodsReSunset.ToString());
-            return(_occupiedPeriodsReSunset);   
+            return (_occupiedPeriodsReSunset);
         }
 
         /// <summary>
@@ -558,8 +557,8 @@ namespace BatRecordingManager
             int numblocks = 0;
 
             TimeSpan diff;
-            while(time>new TimeSpan(1,0,0,0))time-=new TimeSpan(1,0,0,0);
-            if(time<new TimeSpan(0, 12, 0, 0))
+            while (time > new TimeSpan(1, 0, 0, 0)) time -= new TimeSpan(1, 0, 0, 0);
+            if (time < new TimeSpan(0, 12, 0, 0))
             {
                 // we have a time between midnight and noon
                 diff = new TimeSpan(1, 0, 0, 0) - _sunset ?? new TimeSpan(0, 18, 0, 0);
@@ -995,6 +994,38 @@ namespace BatRecordingManager
             set { _hasGPSLocation = null; }
         }
 
+        public void TimeCorrection(TimeSpan? offset = null)
+        {
+            if (SessionNotes == null) SessionNotes = "";
+            if (offset == null)
+            {
+                if (!(SessionNotes?.Contains("[TimeCorrection]")) ?? false)
+                {
+                    SessionNotes += "\n[TimeCorrection] 00:00:00\n";
+                }
+            }
+            else
+            {
+                if ((SessionNotes?.Contains("[TimeCorrection]")) ?? false)
+                {
+                    string pattern = @"\[TimeCorrection\]\s*\-?(([0-9]{1,2}:)?[0-9]{2}:[0-9]{2})";
+                    SessionNotes = Regex.Replace(SessionNotes, pattern, "");
+                }
+                SessionNotes += $"\n[TimeCorrection] {offset.Value.Hours:00}:{offset.Value.Minutes:00}:{offset.Value.Seconds:00}\n";
+            }
+
+            if (!SessionNotes.Contains("CONFIG:"))
+            {
+                string configText = SessionManager.getConfigText(this.OriginalFilePath);
+                if (!string.IsNullOrWhiteSpace(configText))
+                {
+                    SessionNotes += configText + "\n";
+                }
+            }
+        }
+
+
+
         /// <summary>
         /// Looks in the recording session notes for a line starting [TimeCorrection] hh:mm:ss.sss
         /// and if found returns the time specified as a TimeSpan.  The time specified will be added
@@ -1005,13 +1036,14 @@ namespace BatRecordingManager
         /// <returns></returns>
         public TimeSpan? GetGPXCorrection()
         {
-            if(_gpxCorrection!=null) return(_gpxCorrection);
+            if (_gpxCorrection != null) return (_gpxCorrection);
             TimeSpan result = new TimeSpan();
             if (!string.IsNullOrWhiteSpace(SessionNotes))
             {
                 string pattern = @"\[TimeCorrection\]\s*\-?(([0-9]{1,2}:)?[0-9]{2}:[0-9]{2})";
-                var match=Regex.Match(SessionNotes, pattern);
-                if (match.Success){
+                var match = Regex.Match(SessionNotes, pattern);
+                if (match.Success)
+                {
                     TimeSpan.TryParse(match.Groups[1].Value, out result);
                     if (match.Groups[0].Value.Contains("-"))
                     {

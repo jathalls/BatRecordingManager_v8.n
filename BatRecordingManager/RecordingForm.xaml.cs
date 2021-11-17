@@ -415,7 +415,7 @@ namespace BatRecordingManager
         /// </param>
         private void OKButton_Click(object sender, RoutedEventArgs e)
         {
-            
+
             var processedSegments = new BulkObservableCollection<SegmentAndBatList>();
             using (new WaitCursor("Saving recording data..."))
             {
@@ -436,13 +436,13 @@ namespace BatRecordingManager
                     }
                 }
 
-                
+
             }
 
             var rec = DBAccess.UpdateRecording(recording, processedSegments,
                 RecordingFormImageScroller.ListofCallImageLists);
 
-            if (rec!=null)
+            if (rec != null)
             {
                 DialogResult = true;
                 Close();

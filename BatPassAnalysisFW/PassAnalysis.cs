@@ -48,8 +48,8 @@ namespace BatPassAnalysisFW
         public static Bitmap GetBitmap(ref List<float> shortData, ref ObservableList<Peak> peakList, double PassLengthInSamples = 0.0d, int blockSize = 1, int HzPerSample = 0)
 
         { // short data of 1863 samples, 6 peaks, passLength=963740, blockSize=21
-            /// example numbers taken from a 2.04s pass at 384000sps
-            ///
+            // example numbers taken from a 2.04s pass at 384000sps
+            //
             bool IsSpectralPlot = PassLengthInSamples == 0 || HzPerSample > 0;
 
             shortData = (from d in shortData select (float)Math.Abs(d)).ToList<float>(); //
@@ -236,7 +236,7 @@ namespace BatPassAnalysisFW
 
         /// <summary>
         /// returns an envelope graph for the selected pass
-        /// Length factor is a number <1 is the reduction in length from pass to envelope
+        /// Length factor is a number less than 1, is the reduction in length from pass to envelope
         /// </summary>
         /// <param name="data"></param>
         /// <param name="peakList"></param>
@@ -635,6 +635,7 @@ namespace BatPassAnalysisFW
         /// given a block of slope values and a starting bin calculates the interception of the slope with zero and converts that
         /// bin number to a frequency
         /// </summary>
+        /// <param name="slopeBlock"></param>
         /// <param name="positiveBlock"></param>
         /// <param name="hzPerBin"></param>
         /// <returns></returns>

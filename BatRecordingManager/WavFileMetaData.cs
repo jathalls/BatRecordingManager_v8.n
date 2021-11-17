@@ -147,8 +147,8 @@ namespace BatRecordingManager
         internal string FormattedText()
         {
             var text = "";
-            if (!string.IsNullOrWhiteSpace(m_source))
-                text += "[ " + m_source + " metadata:-";
+            if (!string.IsNullOrWhiteSpace(Source))
+                text += "[ " + Source + " metadata:-";
             else
                 text += "[ Metadata:-";
             if (m_FileName != null) text += "\n" + m_FileName;
@@ -164,13 +164,14 @@ namespace BatRecordingManager
                     text += " (" + m_Location.m_ID + ")";
             }
 
-            if (m_Location != null && m_Location.m_Latitude != null && m_Location.m_Longitude != null)
+            if (m_Location != null && GpxHandler.IsValidLocation((decimal)m_Location.m_Latitude, (decimal)m_Location.m_Longitude))
                 text += "\nGPS:- " + m_Location.m_Latitude + ", " + m_Location.m_Longitude;
             if (m_Device != null) text += "\nDevice:- " + m_Device;
             if (m_Microphone != null) text += "\nMic:- " + m_Microphone;
             if (m_Temperature != null) text += "\nTemp:- " + m_Temperature;
             if (m_Software != null) text += "\nAnalysed with:- " + m_Software;
             if (m_Note != null) text += "\n    " + m_Note;
+            if (!string.IsNullOrWhiteSpace(infoString)) text += $"\nINFO:-\n{infoString}";
             text += "\n]\n";
 
             return text.Replace("\n\n", "\n").Trim();
@@ -184,8 +185,10 @@ namespace BatRecordingManager
 
         private DateTime? m_MetaDate { get; set; }
         private string m_Notes { get; set; } = "";
-        private string m_source { get; set; }
+        private string Source { get; set; }
         private byte[] rawMetadata { get; set; }
+
+        public string infoString { get; set; } = "";
 
         /// <summary>
         ///     Given a 'chunk' of metadata from a wav file wamd chunk
@@ -328,10 +331,10 @@ namespace BatRecordingManager
 
             if (result)
             {
-                if (string.IsNullOrWhiteSpace(m_source))
-                    m_source = "WAMD";
+                if (string.IsNullOrWhiteSpace(Source))
+                    Source = "WAMD";
                 else
-                    m_source += " and WAMD";
+                    Source += " and WAMD";
             }
 
             return result;
@@ -478,10 +481,10 @@ namespace BatRecordingManager
 
             if (result)
             {
-                if (string.IsNullOrWhiteSpace(m_source))
-                    m_source = "GUANO";
+                if (string.IsNullOrWhiteSpace(Source))
+                    Source = "GUANO";
                 else
-                    m_source += " and GUANO";
+                    Source += " and GUANO";
             }
 
             return result;
@@ -670,6 +673,29 @@ namespace BatRecordingManager
                                 {
                                 }
 
+                                if (strHeader.ToLower() == "list" && data != null)
+                                {
+                                    List<byte> data2 = new List<byte>();
+                                    foreach (var item in data)
+                                    {
+                                        Char cItem = (char)item;
+                                        if (Char.IsLetterOrDigit(cItem) |
+                                            Char.IsPunctuation(cItem) ||
+                                            Char.IsWhiteSpace(cItem) ||
+                                            Char.IsSymbol(cItem)) data2.Add(item);
+                                    }
+                                    data = data2.ToArray();
+                                    Debug.WriteLine($"INFO data:- {header}/{size}/{data.Length}");
+                                    infoString = Encoding.UTF8.GetString(data).Trim();
+                                    infoString = infoString.Replace("INFO", "").Trim();
+                                    infoString = infoString.Replace("ICMT", "").Trim();
+                                    //infoString = infoString.Substring(4);
+                                    infoString = infoString.Replace(")", ")\n").Trim();
+                                    infoString = infoString.Replace("IART", "\n").Trim();
+
+
+
+                                }
                                 if (strHeader == "data") dataBytes = size;
                                 if (strHeader == "wamd" && data != null)
                                 {
@@ -730,25 +756,25 @@ namespace BatRecordingManager
                 m_FileName = fileName;
                 if (zcMetadata.hasGpsLocation)
                 {
-                    m_Location = new GPSLocation(zcMetadata.m_latitude, zcMetadata.m_longitude);
-                    m_Location.m_Name = zcMetadata.m_Location;
+                    m_Location = new GPSLocation(zcMetadata.Latitude, zcMetadata.Longitude);
+                    m_Location.m_Name = zcMetadata.Location;
                 }
 
-                m_ManualID = zcMetadata.m_Species;
-                m_Device = zcMetadata.m_Tape + " " + zcMetadata.m_Spec;
+                m_ManualID = zcMetadata.Species;
+                m_Device = zcMetadata.Tape + " " + zcMetadata.Spec;
 
-                m_Note = zcMetadata.m_Note + "\n" + zcMetadata.m_Note1;
+                m_Note = zcMetadata.Note + "\n" + zcMetadata.Note1;
 
-                if (!String.IsNullOrWhiteSpace(zcMetadata.m_GuanoData))
+                if (!String.IsNullOrWhiteSpace(zcMetadata.GuanoData))
                 {
-                    DecodeGuanoData(zcMetadata.m_GuanoData);
+                    DecodeGuanoData(zcMetadata.GuanoData);
                 }
                 rawMetadata = new byte[10];
                 if (m_Start == null || DateTime.Now - m_Start.Value < new TimeSpan(0, 5, 0))
                 {
-                    m_Start = zcMetadata.m_startDateTime;
+                    m_Start = zcMetadata.StartDateTime;
                 }
-                if (m_Duration == null) m_Duration = zcMetadata.m_duration;
+                if (m_Duration == null) m_Duration = zcMetadata.Duration;
                 result = true;
             }
             catch (Exception)
@@ -761,8 +787,8 @@ namespace BatRecordingManager
         }
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///
+    /*////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///*/
 
     #region GPSLocation
 

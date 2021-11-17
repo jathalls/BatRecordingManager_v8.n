@@ -16,7 +16,6 @@
 
 using Microsoft.Maps.MapControl.WPF;
 using Microsoft.VisualStudio.Language.Intellisense;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Diagnostics;
 using System.Windows;
@@ -301,10 +300,7 @@ namespace BatRecordingManager
 
                         session.Operator = OperatorComboBox.Text;
                         session.SessionNotes = SessionNotesRichtextBox.Text;
-                        if (!(session.SessionNotes?.Contains("[TimeCorrection]"))??false)
-{
-                            session.SessionNotes += "\n[TimeCorrection] 00:00:00\n";
-                        }
+                        session.TimeCorrection();
                     }
                     catch (Exception ex)
                     {
@@ -374,10 +370,7 @@ namespace BatRecordingManager
                                 }
                             }
                         }
-                        if (!(value.SessionNotes?.Contains("[TimeCorrection]"))??false)
-                        {
-                            value.SessionNotes += "\n[TimeCorrection] 00:00:00\n";
-                        }
+                        value.TimeCorrection();
 
                         SessionNotesRichtextBox.Text = value.SessionNotes;
 

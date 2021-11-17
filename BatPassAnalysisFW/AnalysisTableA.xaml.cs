@@ -19,7 +19,9 @@ namespace BatPassAnalysisFW
     public partial class AnalysisTableA : UserControl
     {
         //public bpaRecording recording { get; set; } = new bpaRecording(null);
-
+        /// <summary>
+        /// Constructor, initializes the table and sets the data Context
+        /// </summary>
         public AnalysisTableA()
         {
             try
@@ -35,6 +37,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// event handler for the callChanged event
+        /// </summary>
         public event EventHandler callChanged;
 
         /// <summary>
@@ -43,6 +48,10 @@ namespace BatPassAnalysisFW
         public AnalysisTableData tableData { get; set; } = new AnalysisTableData();
 
         //public AnalysisTableData tableData = new AnalysisTableData();
+        /// <summary>
+        /// configures and loads a data set into the table
+        /// </summary>
+        /// <param name="data">The data to be placed in the table</param>
         public void setTableData(AnalysisTableData data)
         {
             try
@@ -74,7 +83,7 @@ namespace BatPassAnalysisFW
 
                 if (File.Exists(textFQ_FileName))
                 {
-                    result = await ProcessSingleFileAsync(selectedFQ_FileName);
+                    result = ProcessSingleFile(selectedFQ_FileName);
                 }
                 else
                 {
@@ -85,7 +94,7 @@ namespace BatPassAnalysisFW
 
                     //AnalysisTable.setTableData(AnalysisTable.tableData);
 
-                    result = await ProcessFileGroupAsync(selectedFQ_FileName);
+                    result = ProcessFileGroup(selectedFQ_FileName);
                 }
                 var previous = passDataGrid.Columns[11].ActualWidth;
                 passDataGrid.Columns[11].Width = 20;
@@ -330,7 +339,7 @@ namespace BatPassAnalysisFW
             }
         }
 
-        private async Task<bool> ProcessFileGroupAsync(string selectedFQ_FileName)
+        private bool ProcessFileGroup(string selectedFQ_FileName)
         {
             string folderPath = System.IO.Path.GetDirectoryName(selectedFQ_FileName);
             if (Directory.Exists(folderPath))
@@ -348,7 +357,7 @@ namespace BatPassAnalysisFW
             return (true);
         }
 
-        private async Task<bool> ProcessSingleFileAsync(string selectedFQ_FileName)
+        private bool ProcessSingleFile(string selectedFQ_FileName)
         {
             // The selected .wav file has a corresponding .txt file
             // Therefore we assume it is an Audacity analysed long file
@@ -415,7 +424,7 @@ namespace BatPassAnalysisFW
             {
                 List<bpaRecording> allRecordings = new List<bpaRecording>();
                 int recNumber = 1;
-                long totSize = 0l;
+                long totSize = 0L;
                 bpaRecording recording = null;
                 foreach (var FQwavFile in allFQWavFiles)
                 {

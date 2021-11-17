@@ -11,16 +11,35 @@ namespace BatPassAnalysisFW
     {
         private readonly XElement m_Call;
         private readonly XElement m_Label;
+
+        /// <summary>
+        /// The bat that relates to the call
+        /// </summary>
         public string Bat { get; set; }
 
+        /// <summary>
+        /// Range for start frequencies
+        /// </summary>
         public (float Upper, float Lower, float Median) fStart { get; set; }
 
+        /// <summary>
+        /// Range of end frequencies
+        /// </summary>
         public (float Upper, float Lower, float Median) fEnd { get; set; }
 
+        /// <summary>
+        /// Range of peak (FmaxE) frequencies
+        /// </summary>
         public (float Upper, float Lower, float Median) fpeak { get; set; }
 
+        /// <summary>
+        /// Range of intervals
+        /// </summary>
         public (float Upper, float Lower, float Median) Interval { get; set; }
 
+        /// <summary>
+        /// Range of pulse durations
+        /// </summary>
         public (float Upper, float Lower, float Median) Duration { get; set; }
 
 
@@ -32,6 +51,13 @@ namespace BatPassAnalysisFW
 
         }
 
+
+        /// <summary>
+        ///  Given an XML call element and an XML label element, calculates pulse parameter ranges, and extracts a
+        ///  bat name from the label
+        /// </summary>
+        /// <param name="call"></param>
+        /// <param name="label"></param>
         public BatCall(XElement call, XElement label)
         {
             m_Call = call;
@@ -56,6 +82,14 @@ namespace BatPassAnalysisFW
 
         }
 
+        /// <summary>
+        /// Given a string in the form value-value where value is a floating point value, 
+        /// extracts those values as floats
+        /// </summary>
+        /// <param name="name">The string to be parsed</param>
+        /// <param name="first">The first floating point value</param>
+        /// <param name="second">the second floating point value</param>
+        /// <returns></returns>
         private bool ParseFloats(string name, out float first, out float second)
         {
             first = 0.0f;

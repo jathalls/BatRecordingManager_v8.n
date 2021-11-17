@@ -21,7 +21,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Windows.Documents;
 using System.Xml.Linq;
 
 namespace BatRecordingManager
@@ -109,7 +108,7 @@ namespace BatRecordingManager
             List<ValueTuple<decimal, decimal>> trackPointList = new List<ValueTuple<decimal, decimal>>();
             if (_gpxFileExists && _gpxData != null)
             {
-                XElement previous = null;
+                //XElement previous = null;
                 var all = _gpxData.Descendants();
 
                 // var trackPoints = GPXData.Descendants(gpxNamespace + "trkpt");

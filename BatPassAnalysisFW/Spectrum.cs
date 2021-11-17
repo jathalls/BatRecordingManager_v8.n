@@ -25,13 +25,7 @@ namespace BatPassAnalysisFW
     /// </summary>
     public class Spectrum
     {
-        /// <summary>
-        /// the fft of the real sample provided
-        /// </summary>
-        //public double[] fft;
-
-        //public float[] autoCorrelation;
-
+        
         /// <summary>
         /// the original sample rate
         /// </summary>
@@ -104,14 +98,14 @@ namespace BatPassAnalysisFW
             double[] sampleFFT = new double[frameSize / 2];
             double[] pre_sampleFFT = new double[frameSize / 2];
             double[] rawPreFFT = new double[frameSize / 2];
-            bool isValidPulse = false;
+            //bool isValidPulse = false;
             //GetSpectralDetail(sample, pre_sample);
 
             if (sample != null && sample.Length > 0)
             {
                 _ = GetSpectrum(sample, pre_sample, frameSize, Overlap, peak, out sampleFFT, out rawPreFFT);
             }
-            isValidPulse = true;
+            //isValidPulse = true;
             //Scale(1000, ref sampleFFT);
             sampleFFT = Smooth(sampleFFT, 3);
             //WriteFile(@"X:\Demos\sampleData.csv",sample);

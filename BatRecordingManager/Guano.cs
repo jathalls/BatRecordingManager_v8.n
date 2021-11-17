@@ -653,7 +653,7 @@ namespace BatRecordingManager
         ///     equivalent of an array of lines read from an Audacity comment file.
         /// </summary>
         /// <param name="fileName"></param>
-        /// <param name="wamd_data"></param>
+        /// <param name="wamdData"></param>
         /// <returns></returns>
         internal string[] ReadMetadata(string fileName, out WAMD_Data wamdData)
         {

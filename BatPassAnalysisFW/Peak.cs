@@ -10,6 +10,7 @@ namespace BatPassAnalysisFW
         /// <summary>
         ///
         /// </summary>
+        /// <param name="peakNumber">the index of the peak</param>
         /// <param name="rate">
         /// sample rate in samples per second</param>
         /// <param name="startOfPassInSegment">
@@ -18,11 +19,14 @@ namespace BatPassAnalysisFW
         /// offset in samples from the start of the segment tot he start of the peak</param>
         /// <param name="peakWidth">
         /// width of the peak in samples</param>
+        /// <param name="peakArea"></param>
         /// <param name="peakMaxHeight">
         /// maximum height of the peak envelope</param>
         /// <param name="interval">
         /// interval between the start of this peak and the end of the previous peak or zer0 if no
         /// previous peak </param>
+        /// <param name="RecordingNumber"></param>
+        /// <param name="AbsoluteThreshold"></param>
         public Peak(int peakNumber, int rate, int startOfPassInSegment, int startOfPeakInPass, int peakWidth, double peakArea, float peakMaxHeight, int interval, int RecordingNumber = 1, float AbsoluteThreshold = 0.0f)
         {
             this.peak_Number = peakNumber;

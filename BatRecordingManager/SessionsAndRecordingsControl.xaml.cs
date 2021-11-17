@@ -23,7 +23,6 @@ using System.IO;
 using System.Linq;
 using System.Linq.Dynamic;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -264,10 +263,11 @@ namespace BatRecordingManager
         public BulkObservableCollection<BatSessionRecordingData> matchingRecordingData { get; } = new BulkObservableCollection<BatSessionRecordingData>();
         //public BulkObservableCollection<BatSessionRecordingData> matchingRecordingData { get; set; }
 
-        /// <summary>
-        ///     A list of all the recordings in the selected sessions
-        /// </summary>
+        // <summary>
+        //     A list of all the recordings in the selected sessions
+        // </summary>
         //public BulkObservableCollection<BatRecording> matchingRecordings { get; } = new BulkObservableCollection<BatRecording>();
+
         /// <summary>
         ///     list of tailored class of items containg displayable data for the sessions list
         /// </summary>
@@ -713,6 +713,14 @@ namespace BatRecordingManager
                     //RecordingsDataGrid.SetBinding(DataGrid.ItemsSourceProperty, binding);
                 }
             }
+        }
+
+        private void SessionsDataGrid_MouseDoubleClick(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var dg = SessionsDataGrid;
+            if (!(dg.SelectedItem is BatSessionData selectedSession)) return;
+
+            OnSessionAction(new SessionActionEventArgs(selectedSession.SessionTag));
         }
     }
 }

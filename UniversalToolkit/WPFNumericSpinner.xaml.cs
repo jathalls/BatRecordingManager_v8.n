@@ -217,7 +217,7 @@ namespace UniversalToolkit
             Debug.WriteLine("LM Down Preview");
         }
 
-        private bool textChanged = false;
+        //private bool textChanged = false;
 
         private void tb_main_TextChanged(object sender, TextChangedEventArgs e)
         {

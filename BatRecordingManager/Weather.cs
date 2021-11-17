@@ -1,8 +1,6 @@
 ﻿using DarkSkyApi;
 using DarkSkyApi.Models;
 using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace BatRecordingManager
 {

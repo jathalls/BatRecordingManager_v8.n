@@ -112,7 +112,7 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Event raised after the <see cref="Text" /> property value has changed.
+        ///     Event raised after the  property value has changed.
         /// </summary>
         public event EventHandler<EventArgs> e_DelButtonPressed
         {
@@ -154,7 +154,7 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Event raised after the <see cref="Text" /> property value has changed.
+        ///     Event raised after the  property value has changed.
         /// </summary>
         public event EventHandler<EventArgs> e_Duplicate
         {
@@ -175,7 +175,7 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Event raised after the <see cref="Text" /> property value has changed.
+        ///     Event raised after the  property value has changed.
         /// </summary>
         public event EventHandler<EventArgs> e_FidsButtonRClicked
         {
@@ -262,13 +262,14 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Finds the ratio of the gridline position to the stored image height making allowance for the fit of
+        /// Finds the ratio of the gridline position to the stored image height making allowance for the fit of
         ///     the image in the background of the displayImageCanvas in that it might be stretched to fit
         ///     vertically or horizontally but not both.  The returned value, when multiplied by the actual
         ///     height of the canvas should determine the location of the horizontal gridline on the canvas.
         /// </summary>
         /// <param name="linePositionInImage"></param>
-        /// <param name="displayImageCanvas"></param>
+        /// <param name="canvasWidth"></param>
+        /// <param name="canvasHeight"></param>
         /// <param name="storedImage"></param>
         /// <returns></returns>
         public static double FindHScaleProportion(int linePositionInImage, double canvasWidth, double canvasHeight,
@@ -298,13 +299,14 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Finds the ratio of the gridline position to the stored image height making allowance for the fit of
+        /// Finds the ratio of the gridline position to the stored image height making allowance for the fit of
         ///     the image in the background of the displayImageCanvas in that it might be stretched to fit
         ///     vertically or horizontally but not both.  The returned value, when multiplied by the actual
         ///     height of the canvas should determine the location of the horizontal gridline on the canvas.
         /// </summary>
         /// <param name="linePositionInImage"></param>
-        /// <param name="displayImageCanvas"></param>
+        /// <param name="canvasWidth"></param>
+        /// <param name="canvasHeight"></param>
         /// <param name="storedImage"></param>
         /// <returns></returns>
         public static double FindVScaleProportion(int linePositionInImage, double canvasWidth, double canvasHeight,
@@ -566,7 +568,7 @@ namespace BatRecordingManager
 
         private bool isGridHighlighted = false;
 
-        private bool selectImagePoint = false;
+        //private bool selectImagePoint = false;
 
         private Point startOfDrag = new Point(0, 0);
 

@@ -15,20 +15,18 @@
 //         limitations under the License.
 
 using Microsoft.VisualStudio.Language.Intellisense;
-using Microsoft.VisualStudio.Text.Editor.Commanding.Commands;
+
 using System;
 using System.Collections.Generic;
 using System.Data.Linq;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Dynamic;
 using System.Text.RegularExpressions;
-using System.Windows;
-using System.Windows.Forms.VisualStyles;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace BatRecordingManager
@@ -354,7 +352,7 @@ namespace BatRecordingManager
             var sessions = from sess in dc.RecordingSessions
                            where sess.OriginalFilePath == workingFolder
                            select sess;
-            if(sessions!=null && sessions.Any())
+            if (sessions != null && sessions.Any())
             {
                 return (sessions.First());
             }
@@ -508,8 +506,8 @@ namespace BatRecordingManager
                     foreach (var seg in segments)
                     {
                         var autoID = seg.AutoID;
-                        
-                        stats.Add(seg.EndOffset - seg.StartOffset, autoID,seg.isConfidenceLow);
+
+                        stats.Add(seg.EndOffset - seg.StartOffset, autoID, seg.isConfidenceLow);
                     }
             }
 
@@ -1385,7 +1383,7 @@ namespace BatRecordingManager
 
         internal static void FixRecordingLocationData()
         {
-            /// TODO
+            // TODO
             throw new NotImplementedException();
         }
 
@@ -1901,7 +1899,7 @@ namespace BatRecordingManager
             }
             catch (Exception ex)
             {
-                Tools.ErrorLog(ex + "\n" + ex.Message+$"\nConnection string =[{connectionString}]");
+                Tools.ErrorLog(ex + "\n" + ex.Message + $"\nConnection string =[{connectionString}]");
             }
             finally
             {
@@ -1929,7 +1927,7 @@ namespace BatRecordingManager
                 }
                 catch (Exception ex)
                 {
-                    Tools.ErrorLog(" From GetDataContext, failed to create version table:- " + ex.Message+"\n"+connectionString);
+                    Tools.ErrorLog(" From GetDataContext, failed to create version table:- " + ex.Message + "\n" + connectionString);
                 }
 
                 try
@@ -2618,13 +2616,13 @@ namespace BatRecordingManager
         {
             var dc = GetFastDataContext();
 
-            var res=(from session in dc.RecordingSessions
-                     where session.Id==sessionId
-                     select session).SingleOrDefault().Recordings.Skip(startIndex).Take(count).AsQueryable();
+            var res = (from session in dc.RecordingSessions
+                       where session.Id == sessionId
+                       select session).SingleOrDefault().Recordings.Skip(startIndex).Take(count).AsQueryable();
             return (res);
             //var result = (from rec in dc.Recordings
             //              where rec.RecordingSessionId == sessionId
-           //               select rec).Skip(startIndex).Take(count).AsQueryable();
+            //               select rec).Skip(startIndex).Take(count).AsQueryable();
 
             //return result;
         }
@@ -3409,8 +3407,8 @@ namespace BatRecordingManager
                 foreach (var seg in segmentsForThisBat)
                 {
                     string autoID = seg.AutoID;
-                    
-                    stat.Add(seg.EndOffset - seg.StartOffset, autoID,seg.isConfidenceLow);
+
+                    stat.Add(seg.EndOffset - seg.StartOffset, autoID, seg.isConfidenceLow);
                 }
                 result.Add(stat);
             }
@@ -3455,11 +3453,11 @@ namespace BatRecordingManager
                     foreach (var pass in batSegmentsinSession)
                     {
                         var stat = new BatStats { batCommonName = pass.Bat.Name };
-                        
-                        string autoID = pass.LabelledSegment.AutoID;
-                        
 
-                        stat.Add(pass.LabelledSegment.EndOffset - pass.LabelledSegment.StartOffset, autoID,pass.LabelledSegment.isConfidenceLow);
+                        string autoID = pass.LabelledSegment.AutoID;
+
+
+                        stat.Add(pass.LabelledSegment.EndOffset - pass.LabelledSegment.StartOffset, autoID, pass.LabelledSegment.isConfidenceLow);
                         result.Add(stat);
                     }
             }
@@ -3467,28 +3465,31 @@ namespace BatRecordingManager
             return result;
         }
 
-        internal static BulkObservableCollection<BatStats> GetStatsForSessions(List<int> sessionIDList,out List<Recording> recordingsList)
+        internal static BulkObservableCollection<BatStats> GetStatsForSessions(List<int> sessionIDList, out List<Recording> recordingsList)
         {
             var dc = DBAccess.GetFastDataContext();
             var result = new BulkObservableCollection<BatStats>();
             var sessionIds = sessionIDList.Select(sess => sess);
             recordingsList = new List<Recording>();
-            
+
 
             var combinedList = from sess in dc.RecordingSessions
-                           where sessionIds.Contains(sess.Id) &&
-                                sess.Recordings.Any()
-                           from bsl in dc.BatSegmentLinks
-                           where bsl.LabelledSegment.Recording.RecordingSessionId == sess.Id && !(bsl.ByAutoID ?? false)
-                           select new { bs=new BatStats(bsl.Bat.Name,
-                                                  bsl.LabelledSegment.EndOffset, bsl.LabelledSegment.StartOffset,
-                                                  bsl.LabelledSegment.AutoID,
-                                                  bsl.LabelledSegment.isConfidenceLow
-                                                  ),
-                           rec=bsl.LabelledSegment.Recording};
+                               where sessionIds.Contains(sess.Id) &&
+                                    sess.Recordings.Any()
+                               from bsl in dc.BatSegmentLinks
+                               where bsl.LabelledSegment.Recording.RecordingSessionId == sess.Id && !(bsl.ByAutoID ?? false)
+                               select new
+                               {
+                                   bs = new BatStats(bsl.Bat.Name,
+                                                      bsl.LabelledSegment.EndOffset, bsl.LabelledSegment.StartOffset,
+                                                      bsl.LabelledSegment.AutoID,
+                                                      bsl.LabelledSegment.isConfidenceLow
+                                                      ),
+                                   rec = bsl.LabelledSegment.Recording
+                               };
             if (combinedList != null && combinedList.Any())
             {
-                result.AddRange(combinedList.Select(cl=>cl.bs));
+                result.AddRange(combinedList.Select(cl => cl.bs));
                 recordingsList.AddRange(combinedList.Select(cl => cl.rec).Distinct());
             }
             return result;
@@ -3728,8 +3729,14 @@ namespace BatRecordingManager
         ///     will be associated with a labelled segment at 0:0-0:0 offset within that
         ///     recording.  The description field should contain further details.
         /// </summary>
-        internal static void ResolveOrphanImages()
+        internal static async void ResolveOrphanImages()
         {
+            await Task.Run(() => { ResolveOrphanImagesAsync(); });
+        }
+
+        internal static void ResolveOrphanImagesAsync() 
+        { 
+
             var dc = GetDataContext();
 
             var orphans = from bd in dc.BinaryDatas
@@ -4070,101 +4077,101 @@ namespace BatRecordingManager
             BulkObservableCollection<SegmentAndBatList> listOfSegmentAndBatLists,
             BulkObservableCollection<BulkObservableCollection<StoredImage>> listOfSegmentImageLists)
         {
-            
+
 
             Recording existingRecording = null;
             var dc = GetFastDataContext();
 
-            
+
             try
             {
-                
-                    var session = (from sess in dc.RecordingSessions
-                                   where sess.Id == recording.RecordingSessionId
-                                   select sess).SingleOrDefault();
-                    if (session == null) return null;
 
-                    // find existing recordings with matching ID or Name
-                    IQueryable<Recording> existingRecordings = null;
-                    if (recording.Id <= 0 && !string.IsNullOrWhiteSpace(recording.RecordingName))
-                        existingRecordings = from rec in dc.Recordings
-                                             where rec.RecordingName == recording.RecordingName &&
-                                                rec.RecordingSessionId == recording.RecordingSessionId
-                                             select rec;
-                    else if (recording.Id > 0)
-                        existingRecordings = from rec in dc.Recordings
-                                             where rec.Id == recording.Id
-                                             select rec;
+                var session = (from sess in dc.RecordingSessions
+                               where sess.Id == recording.RecordingSessionId
+                               select sess).SingleOrDefault();
+                if (session == null) return null;
 
-                    // ...and extract the first and hopefully only eaxample
-                    if (!existingRecordings.IsNullOrEmpty()) existingRecording = existingRecordings.First();
+                // find existing recordings with matching ID or Name
+                IQueryable<Recording> existingRecordings = null;
+                if (recording.Id <= 0 && !string.IsNullOrWhiteSpace(recording.RecordingName))
+                    existingRecordings = from rec in dc.Recordings
+                                         where rec.RecordingName == recording.RecordingName &&
+                                            rec.RecordingSessionId == recording.RecordingSessionId
+                                         select rec;
+                else if (recording.Id > 0)
+                    existingRecordings = from rec in dc.Recordings
+                                         where rec.Id == recording.Id
+                                         select rec;
 
-                    if (existingRecording == null)
+                // ...and extract the first and hopefully only eaxample
+                if (!existingRecordings.IsNullOrEmpty()) existingRecording = existingRecordings.First();
+
+                if (existingRecording == null)
+                {
+                    recording.RecordingSessionId = session.Id;
+
+                    // if (existingRecording.Metas != null)
+                    // {
+                    //     existingRecording.Metas.Clear(); // we will add these back in later
+                    // }
+
+                    dc.Recordings.InsertOnSubmit(recording);
+                    existingRecording = recording;
+                }
+                else
+                {
+                    existingRecording.RecordingDate = recording.RecordingDate;
+                    existingRecording.RecordingEndTime = recording.RecordingEndTime.HasValue ?
+                        (TimeSpan?)((new DateTime() + recording.RecordingEndTime.Value).TimeOfDay) :
+                        null;
+                    existingRecording.RecordingGPSLatitude = recording.RecordingGPSLatitude;
+                    existingRecording.RecordingGPSLongitude = recording.RecordingGPSLongitude;
+                    existingRecording.RecordingName = recording.RecordingName;
+                    existingRecording.RecordingNotes = recording.RecordingNotes;
+                    existingRecording.RecordingSessionId = session.Id;
+                    existingRecording.RecordingStartTime = recording.RecordingStartTime.HasValue ?
+                        (TimeSpan?)((new DateTime() + recording.RecordingStartTime.Value).TimeOfDay) :
+                        null;
+                    //existingRecording.LabelledSegments.Clear();
+                }
+
+                // if we have an existing recording, update it, otherwise add it toe database
+                if (existingRecording.RecordingDate == null || existingRecording.RecordingDate.Value.Date >
+                    (session.EndDate ?? DateTime.Now).Date)
+                    // reported recording date is later than the end of the session and therefore could have been corrupted by
+                    // file copying or moving, so we will reset it to correspond to the session date or a date included in the filename
+                    existingRecording = NormalizeRecordingDateAndTimes(existingRecording, session);
+
+                /*           foreach(var bsl in listOfSegmentAndBatList)
+                           {
+                               existingRecording.LabelledSegments.Add(bsl.segment);
+                           }*/
+                if (existingRecording.RecordingStartTime != null && existingRecording.RecordingEndTime != null && (((existingRecording.RecordingEndTime ?? new TimeSpan()).Ticks <= 0L) || (existingRecording.RecordingEndTime ?? new TimeSpan()).Ticks < existingRecording.RecordingStartTime.Value.Ticks))
+                {
+                    existingRecording.RecordingEndTime =
+                        existingRecording.RecordingStartTime + new TimeSpan(0, 5, 0);
+                    if (existingRecording.RecordingDate != null)
                     {
-                        recording.RecordingSessionId = session.Id;
-
-                        // if (existingRecording.Metas != null)
-                        // {
-                        //     existingRecording.Metas.Clear(); // we will add these back in later
-                        // }
-
-                        dc.Recordings.InsertOnSubmit(recording);
-                        existingRecording = recording;
+                        existingRecording.RecordingDate =
+                            existingRecording.RecordingDate.Value.Date + existingRecording.RecordingStartTime;
                     }
-                    else
-                    {
-                        existingRecording.RecordingDate = recording.RecordingDate;
-                        existingRecording.RecordingEndTime = recording.RecordingEndTime.HasValue ?
-                            (TimeSpan?)((new DateTime() + recording.RecordingEndTime.Value).TimeOfDay) :
-                            null;
-                        existingRecording.RecordingGPSLatitude = recording.RecordingGPSLatitude;
-                        existingRecording.RecordingGPSLongitude = recording.RecordingGPSLongitude;
-                        existingRecording.RecordingName = recording.RecordingName;
-                        existingRecording.RecordingNotes = recording.RecordingNotes;
-                        existingRecording.RecordingSessionId = session.Id;
-                        existingRecording.RecordingStartTime = recording.RecordingStartTime.HasValue ?
-                            (TimeSpan?)((new DateTime() + recording.RecordingStartTime.Value).TimeOfDay) :
-                            null;
-                        //existingRecording.LabelledSegments.Clear();
-                    }
+                }
+                dc.SubmitChanges();
 
-                    // if we have an existing recording, update it, otherwise add it toe database
-                    if (existingRecording.RecordingDate == null || existingRecording.RecordingDate.Value.Date >
-                        (session.EndDate ?? DateTime.Now).Date)
-                        // reported recording date is later than the end of the session and therefore could have been corrupted by
-                        // file copying or moving, so we will reset it to correspond to the session date or a date included in the filename
-                        existingRecording = NormalizeRecordingDateAndTimes(existingRecording, session);
+                //if (!recording.Metas.IsNullOrEmpty())
+                //{
+                //    foreach (var meta in recording.Metas)
+                //     {
+                //         meta.RecordingId = existingRecording.Id;
+                //         dc.Metas.InsertOnSubmit(meta);
+                //     }
+                //     dc.SubmitChanges();
+                //}
 
-                    /*           foreach(var bsl in listOfSegmentAndBatList)
-                               {
-                                   existingRecording.LabelledSegments.Add(bsl.segment);
-                               }*/
-                    if (existingRecording.RecordingStartTime != null && existingRecording.RecordingEndTime != null && (((existingRecording.RecordingEndTime ?? new TimeSpan()).Ticks <= 0L) || (existingRecording.RecordingEndTime ?? new TimeSpan()).Ticks < existingRecording.RecordingStartTime.Value.Ticks))
-                    {
-                        existingRecording.RecordingEndTime =
-                            existingRecording.RecordingStartTime + new TimeSpan(0, 5, 0);
-                        if (existingRecording.RecordingDate != null)
-                        {
-                            existingRecording.RecordingDate =
-                                existingRecording.RecordingDate.Value.Date + existingRecording.RecordingStartTime;
-                        }
-                    }
-                    dc.SubmitChanges();
-
-                    //if (!recording.Metas.IsNullOrEmpty())
-                    //{
-                    //    foreach (var meta in recording.Metas)
-                    //     {
-                    //         meta.RecordingId = existingRecording.Id;
-                    //         dc.Metas.InsertOnSubmit(meta);
-                    //     }
-                    //     dc.SubmitChanges();
-                    //}
-
-                    // now we have a stored updated recording, update the labelled segments and their images
-                    if (listOfSegmentAndBatLists != null)
-                        UpdateLabelledSegments(listOfSegmentAndBatLists, existingRecording.Id, listOfSegmentImageLists,
-                            dc);
+                // now we have a stored updated recording, update the labelled segments and their images
+                if (listOfSegmentAndBatLists != null)
+                    UpdateLabelledSegments(listOfSegmentAndBatLists, existingRecording.Id, listOfSegmentImageLists,
+                        dc);
 
 
                 return existingRecording;
@@ -4366,7 +4373,7 @@ namespace BatRecordingManager
                                             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                                             @"Echolocation\WinBLP\");
 
-        private static readonly string DbVersion = "v5.31";
+        //private static readonly string DbVersion = "v5.31";
 
         /// <summary>
         ///     dbVersionDec is the decimal format version of the currently expected database
@@ -5135,10 +5142,9 @@ namespace BatRecordingManager
             newSession.Sunset = bigSession.Sunset;
             newSession.Weather = bigSession.Weather;
 
-            if (!(newSession.SessionNotes?.Contains("[TimeCorrection]"))??false)
-            {
-                newSession.SessionNotes += "\n[TimeCorrection] 00:00:00\n";
-            }
+            newSession.TimeCorrection();
+
+
 
             dc.RecordingSessions.InsertOnSubmit(newSession);
             dc.SubmitChanges();

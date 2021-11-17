@@ -15,7 +15,6 @@ namespace BatPassAnalysisFW
         /// <summary>
         /// constructor for the definition of a single pulse corresponding to a peak in the envelope
         /// </summary>
-        /// <param name="dataInPass"></param>
         /// <param name="passStartInSegment"></param>
         /// <param name="peak"></param>
         /// <param name="pass"></param>

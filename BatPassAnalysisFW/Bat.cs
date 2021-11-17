@@ -29,6 +29,11 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// Returns a list of all the call definitions from the bat reference XML file loaded during
+        /// class construction.
+        /// </summary>
+        /// <returns>List of BatCall with call and label for each defined bat call as a List</returns>
         public List<BatCall> getAllCalls()
         {
             var callList = from bats in batRef.Elements("Bat")

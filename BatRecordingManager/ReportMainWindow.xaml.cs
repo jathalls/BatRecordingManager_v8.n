@@ -49,7 +49,7 @@ namespace BatRecordingManager
 
             while (OccurrencesPerPeriod.Count < periods) OccurrencesPerPeriod.Add(0); // pad the internal array to the correct size if necessary
 
-            
+
         }
 
         /// <summary>
@@ -284,7 +284,7 @@ namespace BatRecordingManager
             DataContext = this;
         }
 
-        
+
 
         public BulkObservableCollection<ReportData> reportDataByBatList { get; set; } =
             new BulkObservableCollection<ReportData>();
@@ -328,7 +328,7 @@ namespace BatRecordingManager
             {
                 ReportBatStatsList = new BulkObservableCollection<BatStatistics>();
                 ReportBatStatsList.AddRange(reportBatList.Where(rbl => rbl != null).Distinct());
-                
+
             }
 
             if (reportSessionList != null)
@@ -339,7 +339,7 @@ namespace BatRecordingManager
                 if (reportSession != null && string.IsNullOrWhiteSpace(sessiontag))
                 {
                     sessiontag = reportSession.SessionTag;
-                } 
+                }
             }
 
             if (reportRecordingList != null)
@@ -347,7 +347,7 @@ namespace BatRecordingManager
                 ReportRecordingList = new BulkObservableCollection<Recording>();
                 ReportRecordingList.AddRange(reportRecordingList.Where(rrl => rrl != null).Distinct());
                 var reportRecording = ReportRecordingList.First();
-                if(reportRecording!=null && string.IsNullOrWhiteSpace(sessiontag))
+                if (reportRecording != null && string.IsNullOrWhiteSpace(sessiontag))
                 {
                     sessiontag = reportRecording.RecordingSession.SessionTag;
                 }
@@ -415,7 +415,7 @@ namespace BatRecordingManager
         /// <param name="e"></param>
         private void ExportTabButton_Click(object sender, RoutedEventArgs e)
         {
-            
+
             using (var dialog = new SaveFileDialog())
             {
                 SortSessionHeaders();// does nothing
@@ -423,11 +423,11 @@ namespace BatRecordingManager
 
                 if (!ReportSessionList.IsNullOrEmpty())
                 {
-                    var sess=ReportSessionList.First();
+                    var sess = ReportSessionList.First();
                     tag = (sess?.SessionTag) ?? "";
 
                 }
-                
+
                 if (!string.IsNullOrWhiteSpace(tag))
                 {
                     dialog.FileName = tag;
@@ -438,7 +438,7 @@ namespace BatRecordingManager
                 dialog.ShowDialog();
                 if (!string.IsNullOrWhiteSpace(dialog.FileName))
                 {
-                    
+
 
                     var filename = dialog.FileName;
                     if (string.IsNullOrWhiteSpace(filename)) return;
@@ -460,16 +460,16 @@ namespace BatRecordingManager
                                 File.Move(filename, backup);
                             }
 
-                            
+
                             ExportTabItem(selectedTab, filename + ".csv");
                         }
                         else
                         {
-                            string basename = filename+"-";
+                            string basename = filename + "-";
                             foreach (var tab in MainWindowTabControl.Items)
                             {
-                                
-                                
+
+
                                 var tabItem = tab as TabItem;
                                 if (!e.Handled && tabItem.Header.ToString().Contains("Freq")) continue;
 

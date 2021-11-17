@@ -55,11 +55,12 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
         /// the name of the file containing the recording being processed
         /// </summary>
         public string FQfilename { get; set; } = "";
 
-        public int? passCount
+        public int? PassCount
         {
             get
             {

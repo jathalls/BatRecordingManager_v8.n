@@ -20,17 +20,16 @@ using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.Data.Linq;
-using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
+using System.Media;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
@@ -38,17 +37,14 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using UniversalToolkit;
 using WindowsInput;
 using WindowsInput.Native;
 using Application = System.Windows.Application;
-using Brushes = System.Drawing.Brushes;
 using Cursor = System.Windows.Input.Cursor;
 using Cursors = System.Windows.Input.Cursors;
 using DataGrid = System.Windows.Controls.DataGrid;
@@ -397,7 +393,7 @@ namespace BatRecordingManager
             {
                 if (match.Groups.Count >= 5)
                 {
-                    var year = match.Groups[1].Value.Trim()+match.Groups[2].Value.Trim();
+                    var year = match.Groups[1].Value.Trim() + match.Groups[2].Value.Trim();
                     var month = match.Groups[3].Value.Trim();
                     var day = match.Groups[4].Value.Trim();
                     var hour = "00";
@@ -414,9 +410,9 @@ namespace BatRecordingManager
                     if (year.Length == 2)
                     {
                         // we only have the last two digitis of the year, so we have to deduce the century
-                        if(int.TryParse(year,out int iyear))
+                        if (int.TryParse(year, out int iyear))
                         {
-                            var yearNow = DateTime.Now.Year-2000; //Assume we are in the 21st century, after that needs a rewrite
+                            var yearNow = DateTime.Now.Year - 2000; //Assume we are in the 21st century, after that needs a rewrite
                             // we now have the current short year
                             if (iyear > yearNow)
                             {
@@ -485,7 +481,7 @@ namespace BatRecordingManager
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("Error parsing .zc filename ", fullyQualifiedFileName);
+                    Debug.WriteLine("Error parsing .zc filename " + fullyQualifiedFileName + "; " + ex.Message);
                     return (false);
                 }
             }
@@ -533,7 +529,7 @@ namespace BatRecordingManager
                 {
                     //var info = new FileInfo(fileName);
 
-                    
+
 
                     var fa = File.GetAttributes(fileName); // OK for both .wav and .zc
                     DateTime created = File.GetCreationTime(fileName);  // OK for both .wav and .zc
@@ -547,7 +543,7 @@ namespace BatRecordingManager
                     {
                         modified = DateTime.Now;
                     }
-                    
+
                     if (!Tools.GetDateTimeFromFilename(fileName, out DateTime named))  // OK for both .wav and .zc
                     {
                         named = Tools.getDateTimeFromFilename(fileName); //// OK for both .wav and .zc
@@ -808,6 +804,11 @@ namespace BatRecordingManager
 
             /* Set the path to system */
             File.SetAttributes(path, File.GetAttributes(path) | FileAttributes.System);
+        }
+
+        internal static void Beep()
+        {
+            SystemSounds.Beep.Play();
         }
 
         /// <summary>
@@ -1204,7 +1205,7 @@ namespace BatRecordingManager
             if (value.passes > 0 || value.segments > 0)
                 result = value.batCommonName + " " + value.passes + (value.passes == 1 ? " pass in " : " passes in ") +
                          value.segments + " segment" + (value.segments != 1 ? "s" : "") +
-                         (value.unsureSegments>0?$" (unsure = {value.unsurePasses}/{value.unsureSegments})":"") +
+                         (value.unsureSegments > 0 ? $" (unsure = {value.unsurePasses}/{value.unsureSegments})" : "") +
                          " = ( " +
                          "Min=" + FormattedTimeSpan(value.minDuration) +
                          ", Max=" + FormattedTimeSpan(value.maxDuration) +
@@ -1218,8 +1219,8 @@ namespace BatRecordingManager
         {
             var stat = new BatStats();
             string autoID = segment.AutoID;
-            
-            stat.Add(segment.EndOffset - segment.StartOffset, autoID,false);
+
+            stat.Add(segment.EndOffset - segment.StartOffset, autoID, false);
             return stat.passes;
         }
 
@@ -3400,7 +3401,7 @@ mod-script-pipe=C:\\audacity-win-portable\\modules\\mod-script-pipe.dll");
             }
         }
 
-        private readonly string _oldStatus = "null";
+        //private readonly string _oldStatus = "null";
         private readonly int Depth = 0;
         private Cursor _previousCursor = Cursors.Arrow;
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member

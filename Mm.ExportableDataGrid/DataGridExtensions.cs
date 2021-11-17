@@ -32,7 +32,7 @@ namespace Mm.ExportableDataGrid
         public static void ExportUsingRefection(this DataGrid grid, IExporter exporter, string exportPath)
         {
             /* Execute the private DoExportUsingRefection method on a background thread by starting a new task */
-            Task.Factory.StartNew(() => { DoExportUsingRefection(grid, exporter, exportPath); });
+            _=Task.Factory.StartNew(() => { DoExportUsingRefection(grid, exporter, exportPath); });
         }
 
         private static void DoExportUsingRefection(this DataGrid grid, IExporter exporter, string exportPath)
@@ -102,8 +102,7 @@ namespace Mm.ExportableDataGrid
                         var bb = (column as DataGridBoundColumn).Binding;
                         if (bb != null)
                         {
-                            var binding = bb as Binding;
-                            if (binding != null)
+                            if (bb is Binding binding)
                             {
                                 var boundProperty = binding.Path.Path;
 
@@ -178,8 +177,7 @@ namespace Mm.ExportableDataGrid
                         var bb = cmbColumn.SelectedValueBinding;
                         if (bb != null)
                         {
-                            var binding = bb as Binding;
-                            if (binding != null)
+                            if (bb is Binding binding)
                             {
                                 var boundProperty = binding.Path.Path; //returns "Category" (or CategoryId)
 

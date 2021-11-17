@@ -108,13 +108,10 @@ namespace BatRecordingManager
             get => (RecordingSession)GetValue(SelectedSessionProperty);
             set
             {
-                
+
                 if (value != null)
                 {
-                    if (!(value.SessionNotes?.Contains("[TimeCorrection]"))??false)
-                    {
-                        value.SessionNotes += "\n[TimeCorrection] 00:00:00\n";
-                    }
+                    value.TimeCorrection();
                     SessionTagTextBlock.Text = value.SessionTag ?? "";
                     //SessionDatePicker.Text = value.SessionDate.ToShortDateString();
                     //StartTimePicker.Text = (value.SessionStartTime ?? new TimeSpan()).ToString();
@@ -155,7 +152,7 @@ namespace BatRecordingManager
                     else
                         GpsLongitudeTextBox.Text = value.LocationGPSLongitude.Value.ToString();
                     SessionNotesRichtextBox.Text = value.SessionNotes ?? "";
-                    
+
                 }
                 else
                 {

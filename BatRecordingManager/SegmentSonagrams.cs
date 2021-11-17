@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using UniversalToolkit;
 
@@ -15,7 +14,7 @@ namespace BatRecordingManager
 {
     internal class SegmentSonagrams
     {
-        public bool GenerateForSegments(List<LabelledSegment> segmentList,bool experimental=false)
+        public bool GenerateForSegments(List<LabelledSegment> segmentList, bool experimental = false)
         {
             if (segmentList != null && segmentList.Any())
             {
@@ -24,7 +23,7 @@ namespace BatRecordingManager
                     if (seg.BatSegmentLinks?.Any() ?? false)
                     {
                         BulkObservableCollection<StoredImage> imageList = new BulkObservableCollection<StoredImage>();
-                        StoredImage spectrogram = generateSpectrogram(seg,experimental:experimental);
+                        StoredImage spectrogram = GenerateSpectrogram(seg, experimental: experimental);
                         if (spectrogram != null)
                         {
                             imageList.Add(spectrogram);
@@ -44,14 +43,20 @@ namespace BatRecordingManager
 
         internal StoredImage GenerateForSegment(LabelledSegment sel, Parametrization param = null)
         {
-            return (generateSpectrogram(sel, param));
+            return (GenerateSpectrogram(sel, param));
         }
 
         async internal void GenerateForSession(RecordingSession selectedSession)
         {
             List<LabelledSegment> segments = DBAccess.GetSessionSegments(selectedSession);
             var success = await GenerateForSegmentsAsync(segments);
+            OnGenerationComplete(EventArgs.Empty);
         }
+
+        public event EventHandler<EventArgs> GenerationComplete;
+
+        protected virtual void OnGenerationComplete(EventArgs args) => GenerationComplete?.Invoke(this, args);
+
 
         /// <summary>
         /// Generates a spectrogram of the given LabelledSegment.  If the segment already has an image
@@ -61,8 +66,9 @@ namespace BatRecordingManager
         /// <param name="param">instance of Parametrization for extracting numerical data</param>
         /// <param name="experimental">boolean - true gives a spectrogram with hyerbolic (1/f) frequency axis</param>
         /// <returns></returns>
-        private StoredImage generateSpectrogram(LabelledSegment seg, Parametrization param = null,bool experimental=false)
+        private StoredImage GenerateSpectrogram(LabelledSegment seg, Parametrization param = null, bool experimental = false, decimal percentOverlap = -1.0m)
         {
+
             if (seg == null || (seg.StartOffset.TotalMilliseconds == 0 && seg.EndOffset == seg.StartOffset)) return (null);
             if (string.IsNullOrWhiteSpace(seg.Comment) || seg.Comment.Contains("No Bats")) return (null);
             if (seg.BatSegmentLinks == null || seg.BatSegmentLinks.Count <= 0) return (null);
@@ -73,6 +79,14 @@ namespace BatRecordingManager
                 // List<float> data = GetData(seg, FFTOrder, out int sampleRate);
 
                 var settings = Settings.getSettings();
+
+                int stepSize = settings.Spectrogram.FFTAdvance;
+                if (percentOverlap > 0.0m)
+                {
+                    var pcAdvance = 100.0m - percentOverlap;
+                    stepSize = (int)((pcAdvance / 100.0m) * settings.Spectrogram.FFTSize);
+                    if (stepSize <= 0) stepSize = settings.Spectrogram.FFTAdvance;
+                }
 
                 var data = GetDataSG(seg, settings.Spectrogram.FFTSize, out int sampleRate, (double)settings.Spectrogram.scale);
                 if (data.audio == null) return (null);
@@ -89,16 +103,17 @@ namespace BatRecordingManager
                     fftSize: settings.Spectrogram.FFTSize,
                     stepSize: settings.Spectrogram.FFTAdvance,
                     maxFreq: maxFrequency);
-                
+
                 sg.Add(data.audio);
-                sg.SetColormap(Colormap.GrayscaleReversed);
+                sg.Colormap = Colormap.GrayscaleReversed;
+                //sg.SetColormap(Colormap.GrayscaleReversed);
                 //sg.SaveImage(@"C:\BRMTestData\Test.png", dB: true, dBScale: 20, intensity: 5);
                 Debug.WriteLine($"Scale={settings.Spectrogram.scale}");
                 bmp = sg.GetBitmap(dB: true, dBScale: settings.Spectrogram.dBScale, intensity: settings.Spectrogram.intensity);
                 if (experimental)
                 {
-                    
-                    bmp = sg.GetBitmapMel(melBinCount: 512,dB:true,dBScale:settings.Spectrogram.dBScale,intensity:settings.Spectrogram.intensity);
+
+                    bmp = sg.GetBitmapMel(melBinCount: 512, dB: true, dBScale: settings.Spectrogram.dBScale, intensity: settings.Spectrogram.intensity);
                 }
 
                 bmp = DeepAnalysis.decorateBitmap(bmp, settings.Spectrogram.FFTSize, settings.Spectrogram.FFTAdvance, sampleRate, param);
@@ -114,9 +129,9 @@ namespace BatRecordingManager
 
         private (double[] audio, int sampleRate) halfWaveRectify((double[] audio, int sampleRate) data)
         {
-            for(int i = 0; i < data.audio.Length; i++)
+            for (int i = 0; i < data.audio.Length; i++)
             {
-                if(data.audio[i]<0)data.audio[i]= 0;
+                if (data.audio[i] < 0) data.audio[i] = 0;
             }
             return data;
         }

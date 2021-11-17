@@ -24,7 +24,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Linq.Dynamic;
-using System.Windows;
 using System.Windows.Media.Imaging;
 using UniversalToolkit;
 using Color = System.Drawing.Color;
@@ -341,7 +340,8 @@ namespace BatRecordingManager
         /// <summary>
         /// Scales a value return a color that can be displayed in the bitmap
         /// </summary>
-        /// <param name="s"></param>
+        /// <param name="val"></param>
+        /// <param name="MaximumValue"></param>
         /// <returns></returns>
         public static Color Scale(double val, double MaximumValue)
         {
@@ -483,8 +483,8 @@ namespace BatRecordingManager
 
         protected virtual void OnSaveClicked(EventArgs e) => SaveClicked?.Invoke(this, e);
 
-        private readonly double logMaximumValue;
-        private readonly double logMinimumValue;
+        //private readonly double logMaximumValue;
+        //private readonly double logMinimumValue;
         private double advanceMS = 0;
         private List<float> alldata = new List<float>();
         private double[] FFTQuiet;
@@ -699,7 +699,7 @@ namespace BatRecordingManager
         /// specified period
         /// </summary>
         /// <param name="fft"></param>
-        /// <param name="v"></param>
+        /// <param name="period"></param>
         /// <returns></returns>
         private double interpolate(double[] fft, double period)
         {

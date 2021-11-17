@@ -528,10 +528,7 @@ namespace BatRecordingManager
         /// </summary>
         private string _outputLogFileName = "";
 
-        /// <summary>
-        ///     The text file names
-        /// </summary>
-        //private BulkObservableCollection<String> TextFileNames = new BulkObservableCollection<String>();
+
         /// <summary>
         ///     The working folder
         /// </summary>

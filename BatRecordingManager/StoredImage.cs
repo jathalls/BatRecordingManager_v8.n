@@ -376,7 +376,7 @@ namespace BatRecordingManager
                 {
                     byte[] rawImage;
 
-                    ///ERROR IN HERE
+                    //ERROR IN HERE
 
                     var pngTextMetadata = EncodeMetadata(horizontalGridLines, verticalGridLines);
 

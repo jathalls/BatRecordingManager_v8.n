@@ -276,6 +276,10 @@ namespace BatPassAnalysisFW
         /// which should be handled separately
         /// </summary>
         /// <param name="srcPulse"></param>
+        /// <param name="PassDab"></param>
+        /// <param name="spectralDetails"></param>
+        /// <param name="peak"></param>
+        /// <param name="SpectrumThresholdFactor"></param>
         /// <returns></returns>
         private static Pulse CopyPulsePTA2BPA(PTAPulse srcPulse, DataAccessBlock PassDab, SpectrumDetails spectralDetails, Peak peak, decimal SpectrumThresholdFactor)
         {

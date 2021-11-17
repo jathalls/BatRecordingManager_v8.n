@@ -193,8 +193,8 @@ namespace BatPassAnalysisFW
         /// <summary>
         /// Creates a pass based on startSample and endSample
         /// </summary>
-        /// <param name="startSample"></param>
-        /// <param name="endSample"></param>
+        /// <param name="startSecs"></param>
+        /// <param name="endSecs"></param>
         /// <param name="prependSecs"></param>
         /// <returns></returns>
         private (float start, float end, string comment) makePass(float startSecs, float endSecs, float prependSecs)

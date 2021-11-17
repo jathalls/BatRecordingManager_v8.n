@@ -35,10 +35,11 @@ namespace BatRecordingManager
         /// </summary>
         public override string tabHeader { get; } = "HertsAtlas";
 
-        /// <summary>
-        /// BySession data list for cross reference
-        /// </summary>
+        // <summary>
+        // BySession data list for cross reference
+        // </summary>
         //public BulkObservableCollection<ReportData> reportDataBySessionList { get; set; } = new BulkObservableCollection<ReportData>();
+
         /// <summary>
         ///     default constructor
         /// </summary>

@@ -15,9 +15,7 @@
 //         limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace BatRecordingManager
@@ -64,10 +62,10 @@ namespace BatRecordingManager
             batCommonName = "";
             batAutoID = "";
 
-            Add(duration, "",false);
+            Add(duration, "", false);
         }
 
-        public BatStats(string batName,bool unsure=false)
+        public BatStats(string batName, bool unsure = false)
         {
             maxDuration = TimeSpan.MinValue;
             minDuration = TimeSpan.MaxValue;
@@ -85,7 +83,7 @@ namespace BatRecordingManager
 
         public BatStats(string batName, TimeSpan endTime, TimeSpan startTime, string AutoID, bool lowConfidence)
         {
-            TimeSpan duration = endTime  - startTime ;
+            TimeSpan duration = endTime - startTime;
             maxDuration = TimeSpan.MinValue;
             minDuration = TimeSpan.MaxValue;
             meanDuration = new TimeSpan();
@@ -99,7 +97,7 @@ namespace BatRecordingManager
             batAutoID = "";
             this.unsure = lowConfidence;
 
-            Add(duration,AutoID,lowConfidence);
+            Add(duration, AutoID, lowConfidence);
         }
 
         private bool unsure = false;
@@ -170,7 +168,7 @@ namespace BatRecordingManager
         /// <summary>
         /// Gets or sets the number of segments for which the comment ended with ?
         /// </summary>
-        public int unsureSegments { get;set;  }
+        public int unsureSegments { get; set; }
 
         /// <summary>
         ///     Gets or sets the total.
@@ -186,10 +184,10 @@ namespace BatRecordingManager
         /// <param name="duration">
         ///     The duration.
         /// </param>
-        public void Add(TimeSpan duration, string AutoID,bool lowConfidence)
+        public void Add(TimeSpan duration, string AutoID, bool lowConfidence)
         {
             bool unsure = lowConfidence;
-            
+
             if (duration.Ticks < 0) duration = -duration;
             if (duration.Ticks > 0)
             {
@@ -212,7 +210,7 @@ namespace BatRecordingManager
                     passes += (int)Math.Round(realPasses);
                     if (unsure)
                     {
-                        unsurePasses+=(int)Math.Round(realPasses);
+                        unsurePasses += (int)Math.Round(realPasses);
                     }
                 }
 

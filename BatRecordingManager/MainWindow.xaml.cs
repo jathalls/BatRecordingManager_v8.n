@@ -106,10 +106,14 @@ namespace BatRecordingManager
 
                 try
                 {
+                    /*
                     if (!MainWindowPaneGrid.Children.Contains(recordingSessionListControl))
                         MainWindowPaneGrid.Children.Add(recordingSessionListControl);
                     recordingSessionListControl.Visibility = Visibility.Visible;
-                    recordingSessionListControl.RefreshData();
+                    recordingSessionListControl.RefreshData();*/
+
+                    
+
                     SetTitle();
                 }
                 catch (Exception ex)
@@ -138,8 +142,11 @@ namespace BatRecordingManager
         {
             if (sender != null && (sender is AnalyseAndImportClass))
             {
-                recordingSessionListControl?.RefreshData();
+                
                 var UpdatedSessionTag = (sender as AnalyseAndImportClass).SessionTag;
+                RecordingSession upDatedSession = DBAccess.GetRecordingSession(UpdatedSessionTag);
+                recordingSessionListControl?.RefreshData(upDatedSession);
+
                 if (!string.IsNullOrWhiteSpace(UpdatedSessionTag) && _runKaleidoscope)
                 {
                     var mbResult = MessageBox.Show("Do you wish to Generate a report for this dataset?",
@@ -154,8 +161,8 @@ namespace BatRecordingManager
 
                                 //recordingSessionListControl.ReportSessionDataButton_Click(sender,
                                 //new RoutedEventArgs());
-                                RecordingSession upDatedSession = DBAccess.GetRecordingSession(UpdatedSessionTag);
-                                recordingSessionListControl.GenerateReportSet(upDatedSession, true);
+                                
+                                recordingSessionListControl?.GenerateReportSet(upDatedSession, true);
                             }));
                 }
             }
@@ -220,14 +227,14 @@ namespace BatRecordingManager
 
         private bool _useCurrentSession;
 
-        private BatListControl batListControl { get; } = new BatListControl();
+        public BatListControl batListControl { get; } = new BatListControl();
 
-        private BatRecordingsListDetailControl BatRecordingListDetailControl { get; } =
+        public BatRecordingsListDetailControl BatRecordingListDetailControl { get; } =
             new BatRecordingsListDetailControl();
 
-        private ImportControl importControl { get; } = new ImportControl();
+        public ImportControl importControl { get; } = new ImportControl();
 
-        private RecordingSessionListDetailControl recordingSessionListControl { get; } =
+        public RecordingSessionListDetailControl recordingSessionListControl { get; } =
             new RecordingSessionListDetailControl();
 
         /// <summary>
@@ -285,10 +292,10 @@ namespace BatRecordingManager
 
         private void HideAllControlPanes()
         {
-            BatRecordingListDetailControl.Visibility = Visibility.Hidden;
-            recordingSessionListControl.Visibility = Visibility.Hidden;
-            importControl.Visibility = Visibility.Hidden;
-            batListControl.Visibility = Visibility.Hidden;
+            BatRecordingListDetailControl.Visibility = Visibility.Visible;
+            recordingSessionListControl.Visibility = Visibility.Visible;
+            importControl.Visibility = Visibility.Visible;
+            batListControl.Visibility = Visibility.Visible;
         }
 
         /// <summary>
@@ -737,30 +744,7 @@ Do you wish to update that database to the latest specification?", "Out of Date 
             }
         }
 
-        /// <summary>
-        ///     Handles the Click event of the miNewLogFile control. Now the Import item
-        ///     to import analysis data from .txt files or .wav file metadata.
-        /// </summary>
-        /// <param name="sender">
-        ///     The source of the event.
-        /// </param>
-        /// <param name="e">
-        ///     The <see cref="RoutedEventArgs" /> instance containing the event data.
-        /// </param>
-        private void miNewLogFile_Click(object sender, RoutedEventArgs e)
-        {
-            using (new WaitCursor("Switching to Import View"))
-            {
-                HideAllControlPanes();
-
-                if (!MainWindowPaneGrid.Children.Contains(importControl))
-                    MainWindowPaneGrid.Children.Add(importControl);
-                importControl.Clear();
-                importControl.Visibility = Visibility.Visible;
-                InvalidateArrange();
-                UpdateLayout();
-            }
-        }
+        
 
         /// <summary>
         ///     Handles the Click event of the miRecordingSearch control.
@@ -775,11 +759,7 @@ Do you wish to update that database to the latest specification?", "Out of Date 
         {
             using (new WaitCursor("Switching to Sessions View..."))
             {
-                HideAllControlPanes();
-                recordingSessionListControl.Visibility = Visibility.Visible;
-                recordingSessionListControl.RefreshData();
-                InvalidateArrange();
-                UpdateLayout();
+                SessionListTab.IsSelected = true;
             }
         }
 
@@ -799,16 +779,7 @@ Do you wish to update that database to the latest specification?", "Out of Date 
             miRecordingSearch_Click(this, new RoutedEventArgs());
         }
 
-        /// <summary>
-        ///     The is saved
-        /// </summary>
-        //private bool isSaved = true;
 
-        /// <summary>
-        ///     The window title
-        /// </summary>
-        ///
-        //private string _windowTitle { get; set; } = "Bat Log Manager - v";
 
         #region _windowTitle
 
@@ -845,8 +816,11 @@ Do you wish to update that database to the latest specification?", "Out of Date 
         /// </param>
         private void SessionsAndRecordings_SessionAction(object sender, SessionActionEventArgs e)
         {
+            //int index=from sess in 
+
             miRecordingSearch_Click(this, new RoutedEventArgs());
             recordingSessionListControl.Select(e.RecordingSessionId);
+            SessionListTab.IsSelected = true;
         }
 
         private void SetImportImageCaption(string caption)
@@ -910,5 +884,78 @@ Do you wish to update that database to the latest specification?", "Out of Date 
         public string statusText { get; set; }
 
         #endregion statusText
+
+        /// <summary>
+        /// Handles the import from .wav file selection
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MiImportTextData_Click(object sender, RoutedEventArgs e)
+        {
+            importControl.Clear();
+            importControl.Visibility = Visibility.Visible;
+            ImportTab.IsEnabled = true;
+            ImportTab.IsSelected = true;
+            importControl.ImportFolderButton_Click(this, e);
+        }
+
+        /// <summary>
+        /// Handles the import from .eav file selection
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MiImportWavData_Click(object sender, RoutedEventArgs e)
+        {
+            importControl.Clear();
+            importControl.Visibility = Visibility.Visible;
+            ImportTab.IsEnabled = true;
+            ImportTab.IsSelected = true;
+            importControl.ImportWavFilesButton_Click(this, e);
+        }
+
+        private void MiImportZCData_Click(object sender, RoutedEventArgs e)
+        {
+            importControl.Clear();
+            importControl.Visibility = Visibility.Visible;
+            ImportTab.IsEnabled = true;
+            ImportTab.IsSelected = true;
+            importControl.ImportZcFilesButton_Click(this, e);
+        }
+
+        private void MiImportPictures_Click(object sender, RoutedEventArgs e)
+        {
+            importControl.Clear();
+            importControl.Visibility = Visibility.Visible;
+            ImportTab.IsEnabled = true;
+            ImportTab.IsSelected = true;
+            importControl.ImportPicturesButton_Click(this, e);
+        }
+
+
+        /*
+        /// <summary>
+        ///     Handles the Click event of the miNewLogFile control. Now the Import item
+        ///     to import analysis data from .txt files or .wav file metadata.
+        /// </summary>
+        /// <param name="sender">
+        ///     The source of the event.
+        /// </param>
+        /// <param name="e">
+        ///     The <see cref="RoutedEventArgs" /> instance containing the event data.
+        /// </param>
+        private void miNewLogFile_Click(object sender, RoutedEventArgs e)
+        {
+            using (new WaitCursor("Switching to Import View"))
+            {
+                HideAllControlPanes();
+
+                if (!MainWindowPaneGrid.Children.Contains(importControl))
+                    MainWindowPaneGrid.Children.Add(importControl);
+                importControl.Clear();
+                importControl.Visibility = Visibility.Visible;
+                InvalidateArrange();
+                UpdateLayout();
+            }
+        }*/
     }
 }

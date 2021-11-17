@@ -32,3 +32,13 @@ BUGS:-
 2021 Aug 25 - Minor - session tag recognition is sometimes confused when there is a long name and the date portion gets omitted from the reconstructed tag.  It is easy enough to manually add the date portion and the leadin is correct.  Non-urgent.
 
 BUG:- System.Windows.Data Error: 40 : BindingExpression path error: 'reportDataList' property not found on 'object' ''FrequencyData' (HashCode=52816024)'. BindingExpression:Path=reportDataList; DataItem='FrequencyData' (HashCode=52816024); target element is 'DataGrid' (Name='ReportDataGrid'); target property is 'ItemsSource' (type 'IEnumerable')
+
+TODO
+Add all text from file whose name includes CONFIG.TXT to the session notes - includes details of audioMoth settings.
+Add text from the INFO section of a .wav file to the recording notes - Typically used by audio Moths to include the serial number of the device, battery state and temperature at the time of the recording.
+
+BUG:- when editing some segment comments the bat name is doubled in the revised comment.
+FIXED:- in tagMatcher a string replacement for _moddedDescription used a replace function which is case sensitive, whereas the tag to be replaced had been matched independently of case.  Therefore the replacement did not happen.  Fixed by removing the matched string by length and position then inserted the new string.
+    Incidentally ensured that tag matcher only returns one matched tag for each identified bat, that being the longest tag for the bat.
+
+

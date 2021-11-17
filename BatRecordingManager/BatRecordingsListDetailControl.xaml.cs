@@ -14,11 +14,13 @@
 //         See the License for the specific language governing permissions and
 //         limitations under the License.
 
+
 using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -29,7 +31,7 @@ namespace BatRecordingManager
     /// <summary>
     ///     Interaction logic for BatRecordingsListDetailControl.xaml
     /// </summary>
-    public partial class BatRecordingsListDetailControl : UserControl
+    public partial class BatRecordingsListDetailControl : UserControl, INotifyPropertyChanged
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="BatRecordingsListDetailControl" /> class.
@@ -46,6 +48,7 @@ namespace BatRecordingManager
             ListByBatsImageScroller.IsReadOnly = true;
             BatStatsDataGrid.EnableColumnVirtualization = true;
             BatStatsDataGrid.EnableRowVirtualization = true;
+            RefreshData();
             //sessionsAndRecordings.imageScroller = ListByBatsImageScroller;
         }
 
@@ -58,49 +61,67 @@ namespace BatRecordingManager
         public BulkObservableCollection<BatStatistics> BatStatisticsList { get; } =
             new BulkObservableCollection<BatStatistics>();
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         /// <summary>
         ///     Refreshes the data from the databse during a context switch from any other display
         ///     screen to this one.
         /// </summary>
         /// <exception cref="System.NotImplementedException">
         /// </exception>
-        internal void RefreshData()
+        internal async void RefreshData()
         {
-            var oldSelection = BatStatsDataGrid.SelectedIndex;
-            var multiSelection = BatStatsDataGrid.SelectedItems;
-
-            BatStatisticsList.Clear();
-            //BatStatisticsList.AddRange(DBAccess.GetBatStatistics());
-            // Stopwatch watch = Stopwatch.StartNew();
-            BatStatisticsList.AddRange(DBAccess.GetBatStatistics());
-            // watch.Stop();
-            // Debug.WriteLine("GetBatStatistics took " + watch.ElapsedMilliseconds + "ms");
-
-            //BatStatsDataGrid.ItemsSource = BatStatisticsList;
-            if (multiSelection.Count > 0)
+            using (new WaitCursor())
             {
-                foreach (var item in multiSelection)
+                var oldSelection = BatStatsDataGrid.SelectedIndex;
+                var multiSelection = BatStatsDataGrid.SelectedItems;
+
+                var data = await System.Threading.Tasks.Task.Run(() => getBatStatisticsAsync());
+                BatStatisticsList.Clear();
+                //BatStatisticsList.AddRange(DBAccess.GetBatStatistics());
+                // Stopwatch watch = Stopwatch.StartNew();
+                BatStatisticsList.AddRange(data);
+                // watch.Stop();
+                // Debug.WriteLine("GetBatStatistics took " + watch.ElapsedMilliseconds + "ms");
+
+                //BatStatsDataGrid.ItemsSource = BatStatisticsList;
+                if (multiSelection.Count > 0)
                 {
-                    BatStatsDataGrid.SelectedItems.Add(item);
-                }
-            }
-            else
-            {
-                if (BatStatsDataGrid.SelectedIndex != oldSelection)
-                {
-                    if (oldSelection < BatStatisticsList.Count) BatStatsDataGrid.SelectedIndex = oldSelection;
+                    foreach (var item in multiSelection)
+                    {
+                        BatStatsDataGrid.SelectedItems.Add(item);
+                    }
                 }
                 else
                 {
-                    BatStatsDataGrid_SelectionChanged(this, null);
+                    if (BatStatsDataGrid.SelectedIndex != oldSelection)
+                    {
+                        if (oldSelection < BatStatisticsList.Count) BatStatsDataGrid.SelectedIndex = oldSelection;
+                    }
+                    else
+                    {
+                        BatStatsDataGrid_SelectionChanged(this, null);
+                    }
                 }
-            }
 
-            //  watch.Reset();
-            //  watch.Start();
-            BatStatsDataGrid.Items.Refresh();
-            //  watch.Stop();
-            // Debug.WriteLine("DataGrid Item refresh took " + watch.ElapsedMilliseconds + "ms");
+                OnPropertyChanged(nameof(BatStatisticsList));
+
+                //  watch.Reset();
+                //  watch.Start();
+                //BatStatsDataGrid.Items.Refresh();
+                //  watch.Stop();
+                // Debug.WriteLine("DataGrid Item refresh took " + watch.ElapsedMilliseconds + "ms");
+            }
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private BulkObservableCollection<BatStatistics> getBatStatisticsAsync()
+        {
+            return DBAccess.GetBatStatistics();
         }
 
         internal void SelectSession(string sessionUpdated)
@@ -134,7 +155,7 @@ namespace BatRecordingManager
                 reportRecordingList = SessionsAndRecordings.GetSelectedRecordings();
 
                 reportWindow.SetReportData(reportBatStatsList, reportSessionList, reportRecordingList);
-                
+
             }
 
             reportWindow.ShowDialog();

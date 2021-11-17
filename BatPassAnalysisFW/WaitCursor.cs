@@ -12,7 +12,7 @@ namespace BatPassAnalysisFW
     public class WaitCursor : IDisposable
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
-        private readonly string _oldStatus = "null";
+        //private readonly string _oldStatus = "null";
         private Cursor _previousCursor = Cursors.Arrow;
         private readonly int Depth = 0;
 

@@ -83,7 +83,9 @@
                 x:Name="FullSizeButton"
 
                 Style="{StaticResource SimpleButton}"
-                Content="FULL" MouseRightButtonDown="FullSizeButton_MouseRightButtonUp" Click="FullSizeButton_Click">
+                Content="FULL" 
+                MouseRightButtonDown="FullSizeButton_MouseRightButtonUp" 
+                Click="FullSizeButton_Click">
                 <Button.ToolTip>
                     <TextBlock>
                         "Toggle between displaying one or two items on the screen"<LineBreak />

@@ -559,3 +559,55 @@ miAnalyseSegment_Click
 	deepAnalyser.GetImage()
 	new StoredImage(image)
 	ComparisonHost.Instance.AddImage(storedImage)
+
+###################################################################################################################################
+GenerateSonagrams_Click // accessible from various context menus at different levels - this code tracks from RecordingSesssion List
+	(new WaitCursor()
+		GetSelectedSession()
+		new SegmentSonagrams()
+		sonagrams.GenerateForSession(selectedSession)
+		save selectedIndex
+		Clear() recordingSessionDataList
+		OnSessionChanged()
+	)
+
+#####################################################################################################################################
+Class SegmentSonagrams
+
+new()
+	
+GenerateForSegmentAsync(segments)
+	Task.Run(GenerateForSegments(segments))
+		[GenerateForSegments(segmentList)]
+			foreach segment with BatSegmentLinks
+				new imageList
+				spectrogram=generateSpectrogram(segment)
+				imageList.Add spectrogram
+				DBAccess.UpdateSegmentImages(imageList,segment)
+
+
+GenerateForSegment(segments,Parametrization)
+	return(GenerateSpectrogram(sel,param))
+
+GenerateSpectrogram(segment,[param],[experimental])
+	[validate segment]
+	get segment spectrogram if any
+	if not{
+		getSettings()
+		data=GetDataSG(segment,FFTSize,scale)
+		validate data
+
+		sg=new SpectrogramGenerator(sampleRate,fftSize,stepSize,maxFrequency)
+		sg.Add data.audio
+		sg.Colormap=grey scale
+		bmp=sg.GetBitmap(dB,dbScale,intensity)
+		bmp=DeepAnalysis.decorateBitmap(bmp,FFTSize,FFTAdvance,sampleRate,param)
+		si=new StoredImage(bmp)
+		}
+	return(si)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Class SpectrogramGenerator
+
+new(sampleRate,FFTSize,stepSize,maxFrequency)
+	

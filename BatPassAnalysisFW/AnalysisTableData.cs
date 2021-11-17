@@ -13,6 +13,9 @@ namespace BatPassAnalysisFW
 {
     public class AnalysisTableData : INotifyPropertyChanged
     {
+        /// <summary>
+        /// Constructor the AnalysisTableData class which holds displayable data
+        /// </summary>
         public AnalysisTableData()
         {
             try
@@ -30,8 +33,14 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// PropertyChanged delegate
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// Flag to identify if Auto-correlation is enabled
+        /// </summary>
         public bool AutoCorEnabled
         {
             get { return _autoCorEnabled; }
@@ -42,12 +51,34 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// List of Passes to be analysed
+        /// </summary>
         public ObservableList<bpaPass> combinedPassList { get; set; } = new ObservableList<bpaPass>();
+
+        /// <summary>
+        /// List of Pulses to be analyzed/displayed
+        /// </summary>
         public ObservableList<Pulse> combinedPulseList { get; set; } = new ObservableList<Pulse>();
+
+        /// <summary>
+        /// List of recordings to be analyzed/displayed
+        /// </summary>
         public ObservableList<bpaRecording> combinedRecordingList { get; set; } = new ObservableList<bpaRecording>();
+
+        /// <summary>
+        /// List of Segments to be analyzed/displayed
+        /// </summary>
         public ObservableList<bpaSegment> combinedSegmentList { get; set; } = new ObservableList<bpaSegment>();
+
+        /// <summary>
+        /// List of spectra to be analysed/displayed
+        /// </summary>
         public ObservableList<SpectralPeak> combinedSpectrumList { get; set; } = new ObservableList<SpectralPeak>();
 
+        /// <summary>
+        /// Image of the calculated auot-correlation
+        /// </summary>
         public BitmapImage CorrelationImage
         {
             get
@@ -61,6 +92,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// Flag to show if filtering is enabled
+        /// </summary>
         public bool EnableFilter
         {
             get
@@ -74,6 +108,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// Flag to show if envelope processing is enabled
+        /// </summary>
         public bool EnvelopeEnabled
         {
             get { return _envelopeEnabled; }
@@ -84,6 +121,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// Image of the calculated signal envelope
+        /// </summary>
         public BitmapImage envelopeImage
         {
             get
@@ -97,6 +137,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// Image of the frequency scale for display as a header for the spectrum summary column in the table
+        /// </summary>
         public BitmapImage FrequencyHeader
         {
             get { return (_frequencyHeader); }
@@ -108,6 +151,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// Text to be displayed as a table header
+        /// </summary>
         public string headerText
         {
             get
@@ -121,6 +167,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// Flag to show if pulse envelopes are to be displayed
+        /// </summary>
         public bool PulseEnvelopeEnabled
         {
             get { return (_PulseEnvelopEnabled); }
@@ -131,6 +180,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// Image of the pulse train for display
+        /// </summary>
         public BitmapImage pulseImageBmp
         {
             get
@@ -148,6 +200,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// Flag to show if spectra should be calculated/displayed
+        /// </summary>
         public bool SpectrumEnabled
         {
             get { return _spectrumEnabled; }
@@ -158,6 +213,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// Factor for scaling the spectrum
+        /// </summary>
         public decimal spectrumFactor
         {
             get
@@ -171,6 +229,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// Image of the spectrum to be displayed
+        /// </summary>
         public BitmapImage SpectrumImage
         {
             get
@@ -184,6 +245,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// Image of the auto-correlation to be displayed
+        /// </summary>
         public BitmapImage TDCorrelationImage
         {
             get
@@ -197,6 +261,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// Factor for calculating the signal threshold for pulse detection
+        /// </summary>
         public decimal thresholdFactor
         {
             get
@@ -210,6 +277,9 @@ namespace BatPassAnalysisFW
             }
         }
 
+        /// <summary>
+        /// Version number
+        /// </summary>
         public string Version
         {
             get { return _version; }
@@ -217,6 +287,11 @@ namespace BatPassAnalysisFW
         }
 
         //public Visibility segmentDataGridVisibility { get; set; } = Visibility.Hidden;
+        /// <summary>
+        /// Generates an image of a summary spectrum for display as a table header
+        /// </summary>
+        /// <param name="width">the size of the calculated image</param>
+        /// <returns>the image as a BitmapImage</returns>
         public BitmapImage createFrequencyHeaderBitmap(int width = 384)
         {
             //int width = 384;
@@ -246,7 +321,7 @@ namespace BatPassAnalysisFW
         /// if the pass datagrid selection has changed update the pulse datagrid to hold
         /// the pulses for the selected passes
         /// </summary>
-        /// <param name="selectedItems"></param>
+        /// <param name="selectedItems">List of the item in the new selection</param>
         public void passDataGrid_SelectionChanged(IList selectedItems)
         {
             List<bpaPass> selectedPasses = new List<bpaPass>();
@@ -282,7 +357,7 @@ namespace BatPassAnalysisFW
         /// if the pulse datagrid selection has changed update the spectral preak datagrid
         /// with the spectrs for the selected pulses
         /// </summary>
-        /// <param name="selectedItems"></param>
+        /// <param name="selectedItems">List of the items in the new selection</param>
         public void pulseDataGrid_SelectionChange(IList selectedItems)
         {
             combinedSpectrumList.Clear();
@@ -309,7 +384,7 @@ namespace BatPassAnalysisFW
         /// if the recordings datagrid selection has changed, update the sgement datagrid
         /// to hold the segments for the selected recordings
         /// </summary>
-        /// <param name="selectedItems"></param>
+        /// <param name="selectedItems">List of the items in the new selection</param>
         public void recordingsDataGrid_SelectionChanged(IList selectedItems)
         {
             List<bpaRecording> recList = new List<bpaRecording>();
@@ -345,7 +420,7 @@ namespace BatPassAnalysisFW
         /// <summary>
         /// Sets a single recording to be analysed where the recording has an associated .txt file
         /// </summary>
-        /// <param name="recording"></param>
+        /// <param name="recording">the recording to be analysed</param>
         public void SetRecording(bpaRecording recording)
         {
             //this.recording = recording;
@@ -373,7 +448,7 @@ namespace BatPassAnalysisFW
         /// <summary>
         /// Initialises the display for multiple recordings of 1 segment each
         /// </summary>
-        /// <param name="bpaRecordingList"></param>
+        /// <param name="bpaRecordingList">List of recordings to be displayed</param>
         public void SetRecordings(List<bpaRecording> bpaRecordingList)
         {
             combinedRecordingList.Clear();
@@ -402,7 +477,7 @@ namespace BatPassAnalysisFW
         /// re-create the spectrum of that pulse, and creata graph of the spectrum as a bitmap.  Then
         /// raise an event to pass the bitmap back to a display handling parent.
         /// </summary>
-        /// <param name="selectedItems"></param>
+        /// <param name="selectedItems">List of the selected items</param>
         public void spectralPeakDataGrid_SelectionChanged(IList selectedItems)
         {
             SpectrumEnabled = false;

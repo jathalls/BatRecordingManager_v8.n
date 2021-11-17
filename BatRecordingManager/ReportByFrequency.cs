@@ -67,7 +67,7 @@ namespace BatRecordingManager
         /// <summary>
         ///     BOC to hold the formatted Frequency data for display and export
         /// </summary>
-        public  BulkObservableCollection<FrequencyData> reportDataList { get; set; } =
+        public BulkObservableCollection<FrequencyData> reportDataList { get; set; } =
             new BulkObservableCollection<FrequencyData>();
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace BatRecordingManager
                             fd.Add(fdForSession);
                         }
                     }*/
-                    fd=GetFrequencyData(bat,reportSessionList,reportRecordingList);
+                    fd = GetFrequencyData(bat, reportSessionList, reportRecordingList);
                     reportDataList.Add(fd);
                 }
             }
@@ -216,7 +216,7 @@ namespace BatRecordingManager
             ReportDataGrid.ItemsSource = reportDataList;*/
         }
 
-        private readonly int _numberOfPeriods = 144;
+        //private readonly int _numberOfPeriods = 144;
 
         private readonly BulkObservableCollection<FrequencyData> OccurrencesPerPeriod =
             new BulkObservableCollection<FrequencyData>();
@@ -378,8 +378,8 @@ namespace BatRecordingManager
             var newOccurrencesPerPeriod = new int[144];
             try
             {
-                
-                
+
+
                 //List<int> OccurrencesPerPeriodForBat = new List<int>();
                 //for (int i = 0; i < NumberOfPeriods; i++) OccurrencesPerPeriodForBat.Add(0);
                 //DateTime workStart1 = DateTime.Now;
@@ -415,7 +415,8 @@ namespace BatRecordingManager
                 fd.OccurrencesPerPeriod = new BulkObservableCollection<int>();
                 fd.OccurrencesPerPeriod.AddRange(newOccurrencesPerPeriod);
                 //Debug.WriteLine($"overhead={(workstart2 - workStart1)} oldway={(workend - workstart2).TotalSeconds} newWay={(workfinal - workend).TotalSeconds}");
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Debug.WriteLine("GFD Error" + ex.Message);
             }
@@ -453,10 +454,10 @@ namespace BatRecordingManager
             {
                 foreach (var seg in segmentsForThisBat)
                 {
-                   // Debug.WriteLine(
-                   //     $"seg start at {seg.StartTime(TableStartTimeInMinutesFromMidnight)}({seg.StartTime(TableStartTimeInMinutesFromMidnight).TotalMinutes})" +
-                   //     $" end at {seg.EndTime(TableStartTimeInMinutesFromMidnight)}({seg.EndTime(TableStartTimeInMinutesFromMidnight).TotalMinutes})" +
-                   //     $"in minute {minute} ");
+                    // Debug.WriteLine(
+                    //     $"seg start at {seg.StartTime(TableStartTimeInMinutesFromMidnight)}({seg.StartTime(TableStartTimeInMinutesFromMidnight).TotalMinutes})" +
+                    //     $" end at {seg.EndTime(TableStartTimeInMinutesFromMidnight)}({seg.EndTime(TableStartTimeInMinutesFromMidnight).TotalMinutes})" +
+                    //     $"in minute {minute} ");
                 }
 
                 var inseg = (from seg in segmentsForThisBat

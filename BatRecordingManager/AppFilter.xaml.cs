@@ -8,7 +8,6 @@ using System.Linq.Dynamic;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Threading;
 
 namespace BatRecordingManager
@@ -281,9 +280,6 @@ namespace BatRecordingManager
         private List<string> _errors = new List<string>();
         private List<string> _filteredFileList;
         private IEnumerable<string> _parentFileList;
-        /// <summary>
-        /// Name of the parent folder holding files to be filtered
-        /// </summary>
 
         #region _parentFolderPath
 
@@ -306,11 +302,7 @@ namespace BatRecordingManager
 
         #endregion _parentFolderPath
 
-        //public String _parentFolderPath { get; set; } = "";
-        /// <summary>
-        /// cumulative status string which is bound to statusTextBlock.text
-        /// </summary>
-        //public string statusText { get; set; } = "";
+
 
         #region statusText
 

@@ -16,7 +16,6 @@
 
 using F23.StringSimilarity;
 using Microsoft.VisualStudio.Language.Intellisense;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -209,10 +208,7 @@ namespace BatRecordingManager
             }
 
             newSession.OriginalFilePath = folderPath;
-            if (!(newSession.SessionNotes?.Contains("[TimeCorrection]"))??false)
-{
-                newSession.SessionNotes += "\n[TimeCorrection] 00:00:00\n";
-            }
+            newSession.TimeCorrection();
             newSession = EditSession(newSession, sessionTag, folderPath);
             if (newSession == null) return null;
             newSession = SaveSession(newSession);
@@ -224,28 +220,28 @@ namespace BatRecordingManager
         internal static string GetSessionTag(FileBrowser fileBrowser)
         {
             string FolderPath = fileBrowser.WorkingFolder;
-            
-            
+
+
             if (!string.IsNullOrWhiteSpace(FolderPath) && Directory.Exists(FolderPath))
             {
                 FolderPath = Path.GetDirectoryName(FolderPath);
-                if(FolderPath.EndsWith("\\")) FolderPath=FolderPath.Substring(0,FolderPath.Length - 1);
+                if (FolderPath.EndsWith("\\")) FolderPath = FolderPath.Substring(0, FolderPath.Length - 1);
 
-                
+
                 string parentFolder = FolderPath.Substring(FolderPath.LastIndexOf('\\') + 1);
                 string tag = GetLeadingTag(parentFolder);
                 if (!string.IsNullOrWhiteSpace(tag)) return (tag);
 
-                var TxtFileList = Directory.EnumerateFiles(FolderPath,"*.txt");
+                var TxtFileList = Directory.EnumerateFiles(FolderPath, "*.txt");
                 if (!TxtFileList.IsNullOrEmpty())
                 {
-                    foreach(var file in TxtFileList)
+                    foreach (var file in TxtFileList)
                     {
                         var fileName = Path.GetFileName(file);
                         if (!string.IsNullOrWhiteSpace(fileName))
                         {
-                            tag=GetLeadingTag(fileName);
-                            if(!string.IsNullOrWhiteSpace(tag)) return (tag);
+                            tag = GetLeadingTag(fileName);
+                            if (!string.IsNullOrWhiteSpace(tag)) return (tag);
                         }
                     }
                 }
@@ -361,12 +357,12 @@ namespace BatRecordingManager
                 if (result.Groups != null && result.Groups.Count > 0)
                     tag = result.Groups[1].Value;
                 else tag = result.Value;
-                
+
             }
 
             //matches trailing yy-mm-dd or yyyy-mm-dd with or without seperators
             pattern = @"(([12][0-9])?[0-9]{2}[-_\s]?[0-9]{2}[-_\s]?[0-9]{2} )\.";
-            result = Regex.Match(stringToMatch, pattern,RegexOptions.IgnorePatternWhitespace);
+            result = Regex.Match(stringToMatch, pattern, RegexOptions.IgnorePatternWhitespace);
             if (result.Success)
             {
                 if (result.Groups != null && result.Groups.Count > 0)
@@ -390,7 +386,7 @@ namespace BatRecordingManager
         internal static RecordingSession PopulateSession2(RecordingSession newSession, string headerFile,
                     string sessionTag, BulkObservableCollection<string> wavFileFolders)
         {
-            bool noHeader = false;
+            //bool noHeader = false;
             string workingFolder = "";
             string[] headerFileLines = null;
 
@@ -403,7 +399,7 @@ namespace BatRecordingManager
 
             if (string.IsNullOrWhiteSpace(headerFile) || !File.Exists(headerFile))
             {
-                noHeader = true;
+                headerFileLines = new string[0];
             }
             else
             {
@@ -447,10 +443,7 @@ namespace BatRecordingManager
             //newSession.Location = GetSessionLocation(newSession, workingFolder, ref headerFileLines);
             //newSession.Weather = GetSessionWeather(newSession, workingFolder, ref headerFileLines);
             //newSession.Temp = GetSessionTemp(newSession, ref headerFileLines);
-            if (!(newSession.SessionNotes?.Contains("[TimeCorrection]"))??false)
-            {
-                newSession.SessionNotes += "\n[TimeCorrection] 00:00:00\n";
-            }
+            newSession.TimeCorrection();
 
             return (newSession);
         }
@@ -510,7 +503,7 @@ namespace BatRecordingManager
             return (newSession);
         }
 
-       
+
 
         /// <summary>
         /// TODO this needs rewriting - the session end time is not reported correctly and the code does not make it clear
@@ -789,12 +782,34 @@ namespace BatRecordingManager
             session.SessionNotes = "";
 
             foreach (var line in headerFile) session.SessionNotes = session.SessionNotes + line + "\n";
+
             if (wfmd != null) session.SessionNotes += wfmd.FormattedText();
-            if (!(session.SessionNotes?.Contains("[TimeCorrection]"))??false)
-            {
-                session.SessionNotes += "\n[TimeCorrection] 00:00:00\n";
-            }
+            session.TimeCorrection();
             return session;
+        }
+
+        public static string getConfigText(string folder)
+        {
+            string result = "";
+            if (!string.IsNullOrWhiteSpace(folder))
+            {
+
+                string folderPath = Path.GetFullPath(folder);
+                if (Directory.Exists(folderPath))
+                {
+                    var files = Directory.GetFiles(folderPath, "*.txt");
+                    foreach (var file in files ?? new string[0])
+                    {
+                        if (Path.GetFileName(file).Contains("CONFIG"))
+                        {
+                            result += "CONFIG:-\n";
+                            result += File.ReadAllText(file);
+                            result += "\n";
+                        }
+                    }
+                }
+            }
+            return (result);
         }
 
         /// <summary>
@@ -1029,8 +1044,8 @@ namespace BatRecordingManager
                     }
                 }
             }
-        
-            return(bestSoFar);
+
+            return (bestSoFar);
         }
 
         /// <summary>

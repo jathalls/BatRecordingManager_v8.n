@@ -23,8 +23,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using WindowsInput;
-using WindowsInput.Native;
 
 namespace BatRecordingManager
 {
@@ -892,7 +890,7 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
                 if (ThisRecording == null)
                 {
                     result = FileProcessor.ProcessFile(textFileToProcess, ThisGpxHandler, ThisRecordingSession.Id,
-                        ref batsFound,ThisRecordingSession.GetGPXCorrection()??new TimeSpan());
+                        ref batsFound, ThisRecordingSession.GetGPXCorrection() ?? new TimeSpan());
                 }
                 else
                 {

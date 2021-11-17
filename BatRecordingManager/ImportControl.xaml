@@ -19,6 +19,7 @@
                     Background="{StaticResource ButtonBarBackground}"
                     Grid.ColumnSpan="2"
                     Grid.Column="0" Grid.Row="0">
+            <!--
             <Button
                 x:Name="ImportFolderButton"
                 Style="{StaticResource SimpleButton}"
@@ -43,6 +44,7 @@
                 Width="75"
                 ToolTip="Import images from files or the clipboard"
                 Content="Import Pictures" Click="ImportPicturesButton_Click" />
+            -->
             <Button
                 x:Name="SortFileOrderButton"
                 Style="{StaticResource SimpleButton}"

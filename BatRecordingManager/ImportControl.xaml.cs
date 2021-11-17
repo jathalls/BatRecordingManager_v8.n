@@ -116,7 +116,7 @@ namespace BatRecordingManager
                             return (false);
                         }
 
-                        TimeSpan timeCorrection = _sessionForFolder.GetGPXCorrection()??new TimeSpan();
+                        TimeSpan timeCorrection = _sessionForFolder.GetGPXCorrection() ?? new TimeSpan();
 
                         using (new WaitCursor())
                         {
@@ -132,7 +132,7 @@ namespace BatRecordingManager
                                 {
                                     TbkOutputText.Text = TbkOutputText.Text + "***\n\n" +
                                                          FileProcessor.ProcessFile(filename, _gpxHandler, CurrentSessionId,
-                                                             ref _fileProcessor.BatsFound,timeCorrection) + "\n";
+                                                             ref _fileProcessor.BatsFound, timeCorrection) + "\n";
                                     totalBatsFound = BatsConcatenate(totalBatsFound, _fileProcessor.BatsFound);
                                 }
 
@@ -435,7 +435,7 @@ namespace BatRecordingManager
         /// <param name="e">
         ///     The <see cref="RoutedEventArgs" /> instance containing the event data.
         /// </param>
-        private void ImportFolderButton_Click(object sender, RoutedEventArgs e)
+        public void ImportFolderButton_Click(object sender, RoutedEventArgs e)
         {
             Clear();
             ImportPictureControl.Visibility = Visibility.Hidden;
@@ -463,7 +463,7 @@ namespace BatRecordingManager
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ImportPicturesButton_Click(object sender, RoutedEventArgs e)
+        public void ImportPicturesButton_Click(object sender, RoutedEventArgs e)
         {
             StackPanelScroller.Visibility = Visibility.Hidden;
             OutputWindowScrollViewer.Visibility = Visibility.Hidden;
@@ -485,7 +485,7 @@ namespace BatRecordingManager
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ImportWavFilesButton_Click(object sender, RoutedEventArgs e)
+        public void ImportWavFilesButton_Click(object sender, RoutedEventArgs e)
         {
             Clear();
             ImportPictureControl.Visibility = Visibility.Hidden;
@@ -533,7 +533,7 @@ namespace BatRecordingManager
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ImportZcFilesButton_Click(object sender, RoutedEventArgs e)
+        public void ImportZcFilesButton_Click(object sender, RoutedEventArgs e)
         {
             Clear();
             ImportPictureControl.Visibility = Visibility.Hidden;
@@ -666,9 +666,9 @@ namespace BatRecordingManager
                             else
                             {
                                 TbkOutputText.Text = TbkOutputText.Text + "***\n\n" + FileProcessor.ProcessFile(filename,
-                                                         _gpxHandler, (_sessionForFolder?.Id)??-1, ref _fileProcessor.BatsFound,new TimeSpan())??"" +
+                                                         _gpxHandler, (_sessionForFolder?.Id) ?? -1, ref _fileProcessor.BatsFound, new TimeSpan()) ?? "" +
                                                      "\n";
-                                totalBatsFound = BatsConcatenate(totalBatsFound, (_fileProcessor?.BatsFound)??new Dictionary<string, BatStats>());
+                                totalBatsFound = BatsConcatenate(totalBatsFound, (_fileProcessor?.BatsFound) ?? new Dictionary<string, BatStats>());
                             }
                         }
 

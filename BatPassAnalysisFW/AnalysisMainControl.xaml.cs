@@ -20,7 +20,11 @@ namespace BatPassAnalysisFW
         //private AnalysisTableData tableData = new AnalysisTableData();
 
         //private decimal thresholdFactor = 1.5m;
-
+        /// <summary>
+        /// Constructor the AnalysisMain user control.
+        /// Initializes the PTA_Database, the UI and creates a main window header
+        /// Loads defaults from the settings and establishes UI bindings
+        /// </summary>
         public AnalysisMainControl()
         {
             PTA_DBAccess.InitialiseDatabase();
