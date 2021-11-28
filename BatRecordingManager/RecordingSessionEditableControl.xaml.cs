@@ -200,34 +200,33 @@ namespace BatRecordingManager
 
         private void LocationComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(LocationComboBox.Text))
+
+            string newloc = "";
+            if (e.AddedItems.Count > 0) newloc = (string)e.AddedItems[0];
+            string oldloc = "";
+            if (e.RemovedItems.Count > 0) oldloc = (string)e.RemovedItems[0];
+            if (string.IsNullOrWhiteSpace(newloc) || newloc == oldloc)
             {
-                string newloc = "";
-                if (e.AddedItems.Count > 0) newloc = (string)e.AddedItems[0];
-                string oldloc = "";
-                if (e.RemovedItems.Count > 0) oldloc = (string)e.RemovedItems[0];
-                if (string.IsNullOrWhiteSpace(newloc) || newloc == oldloc)
-                {
-                    return;
-                }
+                return;
+            }
+            
+            if (!string.IsNullOrWhiteSpace(GpsLatitudeTextBox.Text) && GpsLatitudeTextBox.Text != "0" &&
+                !string.IsNullOrWhiteSpace(GpsLongitudeTextBox.Text) && GpsLongitudeTextBox.Text != "0")
+            {
+                // we already have a valid GPS location defined
+                return;
+            }
 
-                if (!string.IsNullOrWhiteSpace(GpsLatitudeTextBox.Text) && GpsLatitudeTextBox.Text != "0" &&
-                    !string.IsNullOrWhiteSpace(GpsLongitudeTextBox.Text) && GpsLongitudeTextBox.Text != "0")
+            if (_locationList.Contains(newloc))
+            {
+                GPSLocation gpsLocation = DBAccess.GetGPSForLocation(newloc);
+                if (gpsLocation != null)
                 {
-                    // we already have a valid GPS location defined
-                    return;
-                }
-
-                if (_locationList.Contains(newloc))
-                {
-                    GPSLocation gpsLocation = DBAccess.GetGPSForLocation(newloc);
-                    if (gpsLocation != null)
-                    {
-                        GpsLatitudeTextBox.Text = gpsLocation.m_Latitude.ToString();
-                        GpsLongitudeTextBox.Text = gpsLocation.m_Longitude.ToString();
-                    }
+                    GpsLatitudeTextBox.Text = gpsLocation.m_Latitude.ToString();
+                    GpsLongitudeTextBox.Text = gpsLocation.m_Longitude.ToString();
                 }
             }
+
         }
 
         private void SunsetCalcButton_Click(object sender, RoutedEventArgs e)

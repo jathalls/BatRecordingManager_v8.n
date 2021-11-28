@@ -139,7 +139,8 @@
 
                 Background="{StaticResource WindowBackgroundBrushLight}"
                 Grid.Row="6" Grid.Column="1" IsEditable="True"
-                ToolTip="Select a known location from the list or type in a new name for this site" SelectionChanged="LocationComboBox_SelectionChanged" />
+                ToolTip="Select a known location from the list or type in a new name for this site" 
+                SelectionChanged="LocationComboBox_SelectionChanged" />
 
             <Label
                 Style="{StaticResource SimpleLabel}"

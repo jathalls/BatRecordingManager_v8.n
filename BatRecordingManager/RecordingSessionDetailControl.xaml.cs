@@ -179,5 +179,7 @@ namespace BatRecordingManager
         private string _gridRef = "";
 
         #endregion SelectedSession
+
+       
     }
 }

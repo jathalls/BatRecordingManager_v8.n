@@ -240,6 +240,12 @@ namespace BatRecordingManager
             if (string.IsNullOrWhiteSpace(FolderPath)) return null;
             if (!Directory.Exists(FolderPath)) return null;
 
+            var manifestFiles = Directory.EnumerateFiles(FolderPath, "*.manifest");
+            foreach(var manifestFile in manifestFiles??Enumerable.Empty<string>())
+            {
+                File.Delete(manifestFile);
+            }
+
             GetFileList();
             if (!string.IsNullOrWhiteSpace(SessionTag) && DBAccess.SessionTagExists(SessionTag))
             {
@@ -488,7 +494,7 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
         ///     Raises the <see cref="e_DataUpdated" /> event.
         /// </summary>
         /// <param name="e"><see cref="EventArgs" /> object that provides the arguments for the event.</param>
-        protected virtual void OnDataUpdated(EventArgs e)
+        protected virtual void OnDataUpdated(ImportEventArgs e)
         {
             EventHandler<EventArgs> handler = null;
 
@@ -555,7 +561,12 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
         private RecordingSession CreateSession()
         {
             var newSession = SessionManager.CreateSession(FolderPath, SessionTag, null);
-            if (newSession != null) OnDataUpdated(new EventArgs());
+
+            if (newSession != null)
+            {
+                SessionTag = newSession.SessionTag;
+                OnDataUpdated(new ImportEventArgs(newSession.Id));
+            }
 
             return newSession;
         }
@@ -638,7 +649,7 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
                 if (!string.IsNullOrWhiteSpace(_kaleidoscopeFolderPath) && Directory.Exists(_kaleidoscopeFolderPath))
                 {
                     ImportKaleidoscopeFolder(_kaleidoscopeFolderPath);
-                    OnDataUpdated(new EventArgs());
+                    OnDataUpdated(new ImportEventArgs(-1));
                 }
             }
         }
@@ -900,7 +911,7 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
 
             Debug.WriteLine("AnalyseAndImport.SaveRecording:-" + FileToAnalyse + "\n" + result + "\n~~~~~~~~~~~~\n");
 
-            OnDataUpdated(new EventArgs());
+            OnDataUpdated(new ImportEventArgs(ThisRecordingSession.Id));
         }
 
         /// <summary>
@@ -912,8 +923,18 @@ Are you sure this is correct?", "Append Analysis to current Session", MessageBox
         {
             var savedSession = SessionManager.SaveSession(newSession);
 
-            OnDataUpdated(new EventArgs());
+            OnDataUpdated(new ImportEventArgs(savedSession.Id));
             return savedSession;
+        }
+    }
+
+    public class ImportEventArgs : EventArgs
+    {
+        public int SessionID { get; set; } = -1;
+
+        public ImportEventArgs(int id)
+        {
+            SessionID = id;
         }
     }
 }

@@ -14,8 +14,8 @@
 
             Style="{StaticResource SimpleLabel}"
             x:Name="RecordingNameLabel" BorderThickness="0,2,0,0" BorderBrush="Black" />
+       
         <Label
-
             Style="{StaticResource SimpleLabel}"
             x:Name="GpsLabel" Focusable="True" />
         <Label

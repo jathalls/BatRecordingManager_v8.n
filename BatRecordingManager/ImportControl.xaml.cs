@@ -166,9 +166,14 @@ namespace BatRecordingManager
             {
                 result = ProcessWavMetadata();
             }
-
+            OnImportCompleted(EventArgs.Empty);
             return result;
         }
+
+        public event EventHandler ImportCompleted;
+
+        protected virtual void OnImportCompleted(EventArgs e) => ImportCompleted?.Invoke(this, e);
+
 
         /// <summary>
         ///     Reads all the files selected through a File Open Dialog. File names are contained a
@@ -388,7 +393,7 @@ namespace BatRecordingManager
         /// <summary>
         ///     The session for folder
         /// </summary>
-        private RecordingSession _sessionForFolder;
+        public RecordingSession _sessionForFolder { get; set; }
 
         /// <summary>
         ///     Batses the concatenate.

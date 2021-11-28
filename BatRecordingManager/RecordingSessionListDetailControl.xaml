@@ -43,7 +43,9 @@
                     Background="{StaticResource BlueGradientBackground}">
                     <Label
                         Style="{StaticResource SimpleLabel}"
-                        Content="Sessions:- " />
+                        ToolTip="Click to Refresh data in the list"
+                        Content="Sessions:- "
+                           MouseLeftButtonUp="Label_MouseLeftButtonUp" />
                     <Button
                         x:Name="AddRecordingSessionButton"
                         Width="50" Height="25"

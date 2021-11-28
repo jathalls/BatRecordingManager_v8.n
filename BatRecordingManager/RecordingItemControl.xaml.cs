@@ -114,5 +114,10 @@ namespace BatRecordingManager
         }
 
         #endregion recordingItem
+
+        private void Dummy_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+
+        }
     }
 }

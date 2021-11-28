@@ -1,5 +1,6 @@
 ﻿<UserControl x:Class="BatRecordingManager.RecordingsDetailListControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -100,9 +101,9 @@
                                     ItemsSource="{Binding LabelledSegments}"
                                     
                                     Width="{Binding ElementName=RecordingsListView, Path=ActualWidth, Converter={StaticResource AddValueConverter}, ConverterParameter='-30'}"
-
-                                    SelectionChanged="LabelledSegmentListView_SelectionChanged"
                                     PreviewMouseWheel="LabelledSegmentListView_PreviewMouseWheel"
+                                    SelectionChanged="LabelledSegmentListView_SelectionChanged"
+                                          
                                     VerticalAlignment="Top"
                                     HorizontalAlignment="Stretch"
                                     SelectionMode="Extended"
@@ -201,6 +202,7 @@
 
             <StackPanel Orientation="Horizontal" Background="{StaticResource BlueGradientBackground}">
                 <!-- A button bar allows manipulation of the recording list /-->
+                
                 <Label
                     Style="{StaticResource SimpleLabel}"
                     Content="Recording:- " />

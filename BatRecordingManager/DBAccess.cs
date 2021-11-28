@@ -250,6 +250,8 @@ namespace BatRecordingManager
                 if (bat != null)
                 {
                     //  Stopwatch watch2 = Stopwatch.StartNew();
+                    
+
                     var segmentsWithBat = from seg in recording.LabelledSegments
                                           from bsLink in seg.BatSegmentLinks
                                           where bsLink.BatID == bat.Id && !(bsLink.ByAutoID ?? false)
@@ -304,8 +306,8 @@ namespace BatRecordingManager
             if (segment != null)
             {
                 var blobs = segment.SegmentDatas.Select(sdLnk => sdLnk.BinaryData);
-                if (!blobs.IsNullOrEmpty())
-                    foreach (var blob in blobs)
+                
+                    foreach (var blob in blobs??Enumerable.Empty<BinaryData>())
                     {
                         StoredImage si;
                         si = StoredImage.CreateFromBinary(blob);
@@ -330,8 +332,8 @@ namespace BatRecordingManager
                 if (call == null) return null;
 
                 var binaryCollection = call.CallPictures.Select(cp => cp.BinaryData);
-                if (!binaryCollection.IsNullOrEmpty())
-                    foreach (var bin in binaryCollection)
+                
+                    foreach (var bin in binaryCollection??Enumerable.Empty<BinaryData>())
                     {
                         var si = StoredImage.CreateFromBinary(bin);
 
@@ -389,8 +391,8 @@ namespace BatRecordingManager
                        from sdLink in seg.SegmentDatas
                        select sdLink.BinaryData;
 
-            if (!imgs.IsNullOrEmpty())
-                foreach (var img in imgs)
+            
+                foreach (var img in imgs??Enumerable.Empty<BinaryData>())
                 {
                     var si = StoredImage.CreateFromBinary(img);
 
@@ -416,8 +418,8 @@ namespace BatRecordingManager
             var imgs = from bpLink in bat.BatPictures
                        select bpLink.BinaryData;
 
-            if (!imgs.IsNullOrEmpty())
-                foreach (var img in imgs)
+            
+                foreach (var img in imgs??Enumerable.Empty<BinaryData>())
                 {
                     var si = StoredImage.CreateFromBinary(img);
 
@@ -444,8 +446,8 @@ namespace BatRecordingManager
                        from sd in seg.SegmentDatas
                        select sd.BinaryData;
 
-            if (!imgs.IsNullOrEmpty())
-                foreach (var img in imgs)
+            
+                foreach (var img in imgs??Enumerable.Empty<BinaryData>())
                 {
                     var si = StoredImage.CreateFromBinary(img);
 
@@ -502,8 +504,8 @@ namespace BatRecordingManager
                 var segments = (from link in bat.BatSegmentLinks
                                 where !(link.ByAutoID ?? false)
                                 select link.LabelledSegment).Distinct();
-                if (!segments.IsNullOrEmpty())
-                    foreach (var seg in segments)
+                
+                    foreach (var seg in segments??Enumerable.Empty<LabelledSegment>())
                     {
                         var autoID = seg.AutoID;
 
@@ -1163,8 +1165,7 @@ namespace BatRecordingManager
                     {
                         var calls = dc.Calls.Where(call => batcalls.Any(batcall => batcall.CallID == call.Id));
 
-                        if (!calls.IsNullOrEmpty())
-                            foreach (var call in calls)
+                            foreach (var call in calls??Enumerable.Empty<Call>().AsQueryable())
                                 if (call.CallPictures != null)
                                     DeleteImagesForCall(call, dc);
 
@@ -1430,23 +1431,12 @@ namespace BatRecordingManager
                     var segmentsForBat = from link in bat.BatSegmentLinks
                                          where link.LabelledSegment.SegmentDatas.Count > 0 && !(link.ByAutoID ?? false)
                                          select link.LabelledSegment;
-                    if (!segmentsForBat.IsNullOrEmpty())
-                        foreach (var seg in segmentsForBat)
+                    
+                        foreach (var seg in segmentsForBat??Enumerable.Empty<LabelledSegment>())
                             result.AddRange(seg.GetImageList());
                 }
 
-                //var importedSegmentsForBat = from link in DBAccess.GetImportedSegmentDatasForBat(bat)
-                //                             select link.LabelledSegment;
-                //if (!importedSegmentsForBat.IsNullOrEmpty())
-                //{
-                //    foreach(var seg in importedSegmentsForBat)
-                //    {
-                //        if (seg != null)
-                //        {
-                //           result.AddRange(seg.GetImageList());
-                //       }
-                //    }
-                //}
+                
             }
             catch (Exception ex)
             {
@@ -1586,8 +1576,8 @@ namespace BatRecordingManager
             var dc = GetFastDataContext();
             var segsForsession = from sess in dc.RecordingSessions
                                  where sess.SessionTag == tag
-                                 from seg in dc.LabelledSegments
-                                 where seg.Recording.RecordingSessionId == sess.Id
+                                 join seg in dc.LabelledSegments
+                                    on sess.Id equals  seg.Recording.RecordingSessionId
                                  select seg;
             if (segsForsession?.Any() ?? false)
             {
@@ -1625,8 +1615,8 @@ namespace BatRecordingManager
                          bsLink.Bat.Name,
                          (from bsLnk in dc.BatSegmentLinks.Where(lnk => lnk.BatID == batID && !(lnk.ByAutoID ?? false))
                           join sdLnk in dc.SegmentDatas.Where(sd =>
-                         sd.LabelledSegment.Recording.RecordingSessionId == bsLink.SessionID) on bsLnk
-                         .LabelledSegmentID equals sdLnk.SegmentId
+                         sd.LabelledSegment.Recording.RecordingSessionId == bsLink.SessionID) 
+                            on bsLnk.LabelledSegmentID equals sdLnk.SegmentId
                           where bsLnk.LabelledSegment.StartOffset != bsLnk.LabelledSegment.EndOffset
                           select sdLnk.LabelledSegment).Count()
                          +
@@ -2163,16 +2153,15 @@ namespace BatRecordingManager
             var sessionsAtLocation = from sess in dc.RecordingSessions
                                      where sess.Location == text
                                      select sess;
-            if (!sessionsAtLocation.IsNullOrEmpty())
+
+            foreach (var sess in sessionsAtLocation ?? Enumerable.Empty<RecordingSession>().AsQueryable())
             {
-                foreach (var sess in sessionsAtLocation ?? Enumerable.Empty<RecordingSession>().AsQueryable())
+                if (sess.hasGPSLocation)
                 {
-                    if (sess.hasGPSLocation)
-                    {
-                        result = new GPSLocation((double)(sess.LocationGPSLatitude ?? 200), (double)(sess.LocationGPSLongitude ?? 200));
-                    }
+                    result = new GPSLocation((double)(sess.LocationGPSLatitude ?? 200), (double)(sess.LocationGPSLongitude ?? 200));
                 }
             }
+
             return (result);
         }
 
@@ -2236,46 +2225,7 @@ namespace BatRecordingManager
                                                  )
                                            select sd;
 
-                //if (!importedSegmentDatas.IsNullOrEmpty())
-                //{
-                //foreach (var sd in importedSegmentDatas)
-                //{
-                /*
-                var batList = DBAccess.GetDescribedBats(sd.BinaryData.Description.Replace('$',' '));
-                if (batList != null && batList.Count > 0)
-                {
-                    var match = from bt in batList
-                                where bt.Id == bat.Id
-                                select bt;
-                    if (!match.IsNullOrEmpty())
-                    {
-                        result.Add(sd);
-                    }
-                }*/
-                //if (!bat.BatTags.IsNullOrEmpty())
-                //{
-                //    foreach (var tag in bat.BatTags)
-                //    {
-                //        if (tag.BatTag1.ToUpper() == tag.BatTag1)
-                //        {
-                //            if (sd.BinaryData.Description.Contains(tag.BatTag1))
-                //            {
-                //                result.Add(sd);
-                //                break;
-                //            }
-                //        }
-                //        else
-                //        {
-                //            if (sd.BinaryData.Description.ToUpper().Contains(tag.BatTag1.ToUpper()))
-                //            {
-                //                result.Add(sd);
-                //                break;
-                //            }
-                //        }
-                //    }
-                //}
-                //}
-                //}
+               
             }
 
             return result;
@@ -2299,29 +2249,29 @@ namespace BatRecordingManager
                                            where sd.LabelledSegment.RecordingID == recording.Id &&
                                                  sd.LabelledSegment.Comment.Contains("Recording Images")
                                            select sd;
-                if (!importedSegmentDatas.IsNullOrEmpty())
-                    foreach (var sd in importedSegmentDatas)
-                        if (!bat.BatTags.IsNullOrEmpty())
-                            foreach (var tag in bat.BatTags)
+
+                foreach (var sd in importedSegmentDatas ?? Enumerable.Empty<SegmentData>().AsQueryable())
+
+                    foreach (var tag in bat.BatTags ?? new EntitySet<BatTag>())
+                    {
+                        var tagUc = tag.BatTag1.ToUpper();
+                        if (tagUc == tag.BatTag1)
+                        {
+                            if (sd.BinaryData.Description.Contains(tag.BatTag1))
                             {
-                                var tagUc = tag.BatTag1.ToUpper();
-                                if (tagUc == tag.BatTag1)
-                                {
-                                    if (sd.BinaryData.Description.Contains(tag.BatTag1))
-                                    {
-                                        result.Add(sd);
-                                        break;
-                                    }
-                                }
-                                else
-                                {
-                                    if (sd.BinaryData.Description.ToUpper().Contains(tagUc))
-                                    {
-                                        result.Add(sd);
-                                        break;
-                                    }
-                                }
+                                result.Add(sd);
+                                break;
                             }
+                        }
+                        else
+                        {
+                            if (sd.BinaryData.Description.ToUpper().Contains(tagUc))
+                            {
+                                result.Add(sd);
+                                break;
+                            }
+                        }
+                    }
 
                 //if (!importedSegmentDatas.IsNullOrEmpty())
                 //{
@@ -2532,17 +2482,17 @@ namespace BatRecordingManager
                                 && (bd.CallPictures == null || bd.CallPictures.Count == 0)
                                 && (bd.SegmentDatas == null || bd.SegmentDatas.Count == 0)
                           select bd;
-            if (!orphans.IsNullOrEmpty())
-                foreach (var blob in orphans)
-                {
-                    var si = StoredImage.CreateFromBinary(blob);
-                    var filename = si.caption.ExtractFilename(".wav");
-                    if (!string.IsNullOrWhiteSpace(filename) && File.Exists(filename) && (new FileInfo(filename).Length > 0L))
-                        si.Uri = filename;
-                    else
-                        si.Uri = "";
-                    result.Add(si);
-                }
+
+            foreach (var blob in orphans ?? Enumerable.Empty<BinaryData>().AsQueryable())
+            {
+                var si = StoredImage.CreateFromBinary(blob);
+                var filename = si.caption.ExtractFilename(".wav");
+                if (!string.IsNullOrWhiteSpace(filename) && File.Exists(filename) && (new FileInfo(filename).Length > 0L))
+                    si.Uri = filename;
+                else
+                    si.Uri = "";
+                result.Add(si);
+            }
 
             return result;
         }
@@ -2580,7 +2530,8 @@ namespace BatRecordingManager
 
             if (linkList2.IsNullOrEmpty()) return result;
             result = from brLink in linkList2
-                     from rec in dc.Recordings.Where(r => r.Id == brLink.RecordingID).DefaultIfEmpty()
+                     //from rec in dc.Recordings.Where(r => r.Id == brLink.RecordingID).DefaultIfEmpty()
+                     join rec in dc.Recordings on brLink.RecordingID equals rec.Id
                      select new BatSessionRecordingData(
                          rec.RecordingSessionId,
                          brLink.RecordingID,
@@ -2641,27 +2592,27 @@ namespace BatRecordingManager
             var result = Enumerable.Empty<RecordingSessionData>();
 
             var sessions = GetPagedRecordingSessionList(pageSize, topOfScreen, field, dc);
-            if (!sessions.IsNullOrEmpty())
-                try
-                {
-                    result = (from sess in sessions
-                              select new
-                                  RecordingSessionData(
-                                      sess.Id,
-                                      sess.SessionTag,
-                                      sess.Location,
-                                      sess.SessionDate,
-                                      sess.SessionStartTime,
-                                      dc.SegmentDatas.Count(
-                                          lnk => lnk.LabelledSegment.Recording.RecordingSessionId == sess.Id),
-                                      sess.Recordings.Count
-                                  )).AsEnumerable();
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("Error reading data:- " + ex.Message);
-                    Tools.ErrorLog(ex.Message);
-                }
+
+            try
+            {
+                result = (from sess in sessions ?? Enumerable.Empty<RecordingSession>().AsQueryable()
+                          select new
+                              RecordingSessionData(
+                                  sess.Id,
+                                  sess.SessionTag,
+                                  sess.Location,
+                                  sess.SessionDate,
+                                  sess.SessionStartTime,
+                                  dc.SegmentDatas.Count(
+                                      lnk => lnk.LabelledSegment.Recording.RecordingSessionId == sess.Id),
+                                  sess.Recordings.Count
+                              )).AsEnumerable();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error reading data:- " + ex.Message);
+                Tools.ErrorLog(ex.Message);
+            }
 
             return result;
         }
@@ -2697,68 +2648,7 @@ namespace BatRecordingManager
                 ? dc.RecordingSessions.Skip(topOfScreen).Take(pageSize).AsQueryable()
                 : dc.RecordingSessions.OrderBy(field).Skip(topOfScreen).Take(pageSize);
 
-            /*
-
-            switch (field)
-            {
-                case "NONE":
-                    result = (from sess in dc.RecordingSessions
-
-                              select sess).Skip(topOfScreen).Take(pageSize);
-                    break;
-
-                case "DATE^":
-                    result = (from sess in dc.RecordingSessions
-                              orderby sess.SessionDate
-                              select sess).Skip(topOfScreen).Take(pageSize);
-                    break;
-
-                case "DATEv":
-                    result = (from sess in dc.RecordingSessions
-                              orderby sess.SessionDate descending
-                              select sess).Skip(topOfScreen).Take(pageSize);
-                    break;
-
-                case "TAG^":
-                    result = (from sess in dc.RecordingSessions
-                              orderby sess.SessionTag
-                              select sess).Skip(topOfScreen).Take(pageSize);
-                    break;
-
-                case "TAGv":
-                    result = (from sess in dc.RecordingSessions
-                              orderby sess.SessionTag descending
-                              select sess).Skip(topOfScreen).Take(pageSize);
-                    break;
-
-                case "LOCATION^":
-                    result = (from sess in dc.RecordingSessions
-                              orderby sess.Location
-                              select sess).Skip(topOfScreen).Take(pageSize);
-                    break;
-
-                case "LOCATIONv":
-                    result = (from sess in dc.RecordingSessions
-                              orderby sess.Location descending
-                              select sess).Skip(topOfScreen).Take(pageSize);
-                    break;
-
-                case "RECORDINGS^":
-                    result = (from sess in dc.RecordingSessions
-                              orderby sess.Recordings.Count
-                              select sess).Skip(topOfScreen).Take(pageSize);
-                    break;
-
-                case "RECORDINGSv":
-                    result = (from sess in dc.RecordingSessions
-                              orderby sess.Recordings.Count descending
-                              select sess).Skip(topOfScreen).Take(pageSize);
-                    break;
-
-                default:
-                    result = dc.RecordingSessions.Skip(topOfScreen).Take(pageSize).AsQueryable();
-                    break;
-            }*/
+            
 
             return result;
         }
@@ -2956,8 +2846,7 @@ namespace BatRecordingManager
                             select sdLlnk.BinaryData;
             }
 
-            if (!segImages.IsNullOrEmpty())
-                foreach (var img in segImages)
+                foreach (var img in segImages??Enumerable.Empty<BinaryData>().AsQueryable())
                 {
                     var si = StoredImage.CreateFromBinary(img);
                     result.Add(si);
@@ -3081,6 +2970,8 @@ namespace BatRecordingManager
         internal static RecordingSessionData GetRecordingSessionData(int id)
         {
             RecordingSessionData result = null;
+            if (id < 0) return result;
+
             var dc = GetFastDataContext();
             var sess = (from rs in dc.RecordingSessions
                         where rs.Id == id
@@ -3258,8 +3149,8 @@ namespace BatRecordingManager
             var linkedSegments = from link in dc.SegmentDatas
                                  where link.BinaryDataId == imageID
                                  select link.LabelledSegment;
-            if (!linkedSegments.IsNullOrEmpty())
-                foreach (var seg in linkedSegments)
+            
+                foreach (var seg in linkedSegments??Enumerable.Empty<LabelledSegment>().AsQueryable())
                     if ((seg.Duration() ?? new TimeSpan()).Ticks == 0L)
                         foreach (var segment in seg.Recording.LabelledSegments)
                             result.Add((segment.Duration() ?? new TimeSpan()).Ticks > 0L ? segment : seg);
@@ -3278,8 +3169,8 @@ namespace BatRecordingManager
                 var recordings = from rec in dc.Recordings
                                  where rec.RecordingName.ToUpper().Contains(filename.ToUpper())
                                  select rec;
-                if (!recordings.IsNullOrEmpty())
-                    foreach (var seg in recordings.First().LabelledSegments)
+                
+                    foreach (var seg in recordings?.FirstOrDefault().LabelledSegments ?? new EntitySet<LabelledSegment>())
                         if ((seg.Duration() ?? new TimeSpan()).Ticks > 0L)
                             result.Add(seg);
             }
@@ -3404,7 +3295,7 @@ namespace BatRecordingManager
                                          where item.bat.Id == bat.Id
                                          select item.segment;
 
-                foreach (var seg in segmentsForThisBat)
+                foreach (var seg in segmentsForThisBat??Enumerable.Empty<LabelledSegment>())
                 {
                     string autoID = seg.AutoID;
 
@@ -3449,8 +3340,8 @@ namespace BatRecordingManager
                 //
                 //                           select pass;
 
-                if (batSegmentsinSession?.Any() ?? false)
-                    foreach (var pass in batSegmentsinSession)
+                
+                    foreach (var pass in batSegmentsinSession??Enumerable.Empty<BatSegmentLink>().AsQueryable())
                     {
                         var stat = new BatStats { batCommonName = pass.Bat.Name };
 
@@ -3473,11 +3364,14 @@ namespace BatRecordingManager
             recordingsList = new List<Recording>();
 
 
+
+
             var combinedList = from sess in dc.RecordingSessions
                                where sessionIds.Contains(sess.Id) &&
                                     sess.Recordings.Any()
-                               from bsl in dc.BatSegmentLinks
-                               where bsl.LabelledSegment.Recording.RecordingSessionId == sess.Id && !(bsl.ByAutoID ?? false)
+                               join bsl in dc.BatSegmentLinks.Where(lnk => !(lnk.ByAutoID ?? false))
+                                    on sess.Id equals  bsl.LabelledSegment.Recording.RecordingSessionId
+                                
                                select new
                                {
                                    bs = new BatStats(bsl.Bat.Name,
@@ -3744,8 +3638,8 @@ namespace BatRecordingManager
                                 && (bd.CallPictures == null || bd.CallPictures.Count == 0)
                                 && (bd.SegmentDatas == null || bd.SegmentDatas.Count == 0)
                           select bd;
-            if (!orphans.IsNullOrEmpty())
-                foreach (var orphan in orphans)
+            
+                foreach (var orphan in orphans??Enumerable.Empty<BinaryData>().AsQueryable())
                     ResolveOrphan(orphan, dc);
             LinkBatsToSegmentZeros(dc);
         }
@@ -4597,8 +4491,8 @@ namespace BatRecordingManager
                 if (existingBat == null)
                 {
                     var callDefinitions = bat.Descendants("Call");
-                    if (!callDefinitions.IsNullOrEmpty())
-                        foreach (var call in callDefinitions)
+                    
+                        foreach (var call in callDefinitions??Enumerable.Empty<XElement>())
                         {
                             var dbCall = GetXmlCallParameters(call, parameters);
 
@@ -4724,9 +4618,10 @@ namespace BatRecordingManager
         {
             if (!recordingsToDelete.IsNullOrEmpty())
             {
-                var metasToDelete = from meta in dc.Metas
-                                    from rec in recordingsToDelete
-                                    where meta.RecordingId == rec.Id
+                var metasToDelete = from rec in recordingsToDelete
+                                    join meta in dc.Metas
+                                    
+                                        on rec.Id equals meta.RecordingId
                                     select meta;
                 if (!metasToDelete.IsNullOrEmpty())
                 {
@@ -4805,8 +4700,8 @@ namespace BatRecordingManager
             if (!recordings.IsNullOrEmpty())
             {
                 var segmentsToDelete = (from seg in dc.LabelledSegments
-                                        from rec in recordings
-                                        where seg.RecordingID == rec.Id
+                                        join rec in recordings
+                                            on seg.RecordingID equals rec.Id
                                         select seg).Distinct();
                 if (!segmentsToDelete.IsNullOrEmpty())
                 {
@@ -4888,8 +4783,8 @@ namespace BatRecordingManager
             if (!recordings.IsNullOrEmpty())
             {
                 var linksTodelete = from lnk in dc.BatRecordingLinks
-                                    from rec in recordings
-                                    where lnk.RecordingID == rec.Id
+                                    join rec in recordings
+                                    on lnk.RecordingID equals rec.Id
                                     select lnk;
                 if (!linksTodelete.IsNullOrEmpty())
                 {
@@ -4921,8 +4816,8 @@ namespace BatRecordingManager
             var batImageLinks = from sd in dc.SegmentDatas
                                 where sd.SegmentId == bat.Id
                                 select sd;
-            if (!batImageLinks.IsNullOrEmpty())
-                foreach (var sd in batImageLinks)
+           
+                foreach (var sd in batImageLinks??Enumerable.Empty<SegmentData>().AsQueryable())
                 {
                     var links = 0;
                     links = links + sd.BinaryData.CallPictures.Count;
@@ -4947,8 +4842,8 @@ namespace BatRecordingManager
             var callPictureLinks = from cp in dc.CallPictures
                                    where cp.CallID == call.Id
                                    select cp;
-            if (!callPictureLinks.IsNullOrEmpty())
-                foreach (var cp in callPictureLinks)
+            
+                foreach (var cp in callPictureLinks??Enumerable.Empty<CallPicture>().AsQueryable())
                 {
                     var links = 0;
                     links = links + cp.BinaryData.CallPictures.Count;
@@ -4967,8 +4862,8 @@ namespace BatRecordingManager
             var segmentImageLinks = from sd in dc.SegmentDatas
                                     where sd.SegmentId == segment.Id
                                     select sd;
-            if (!segmentImageLinks.IsNullOrEmpty())
-                foreach (var sd in segmentImageLinks)
+            
+                foreach (var sd in segmentImageLinks??Enumerable.Empty<SegmentData>().AsQueryable())
                 {
                     var links = 0;
                     links = links + sd.BinaryData.CallPictures.Count;
@@ -5002,9 +4897,8 @@ namespace BatRecordingManager
                 var linksToDelete = from lnk in dc.BatSegmentLinks
                                     where lnk.LabelledSegmentID == id
                                     select lnk;
-                if (!linksToDelete.IsNullOrEmpty())
-                {
-                    foreach (var link in linksToDelete)
+                
+                    foreach (var link in linksToDelete??Enumerable.Empty<BatSegmentLink>().AsQueryable())
                     {
                         // is this the last segment in this recording that refers to this bat?
                         var otherBsLs = from batseglink in dc.BatSegmentLinks
@@ -5020,7 +4914,7 @@ namespace BatRecordingManager
 
                     dc.BatSegmentLinks.DeleteAllOnSubmit(linksToDelete);
                     dc.SubmitChanges();
-                }
+                
 
                 var callLinks = from lnk in dc.SegmentCalls
                                 where lnk.LabelledSegmentID == id
@@ -5306,8 +5200,8 @@ namespace BatRecordingManager
                                                      segmentAndBatList.Segment.EndOffset >= seg.EndOffset)
                                               select seg;
                     var greatestOverlap = double.MinValue;
-                    if (!overlappingSegments.IsNullOrEmpty())
-                        foreach (var seg in overlappingSegments)
+                    
+                        foreach (var seg in overlappingSegments??Enumerable.Empty<LabelledSegment>().AsQueryable())
                         {
                             var overlap = Math.Min(seg.EndOffset.TotalMilliseconds,
                                               segmentAndBatList.Segment.EndOffset.TotalMilliseconds) -
@@ -5349,26 +5243,25 @@ namespace BatRecordingManager
             var variances = new List<Tuple<LabelledSegment, double>>();
             if (recording != null)
             {
-                if (!recording.LabelledSegments.IsNullOrEmpty())
-                {
-                    foreach (var segment in recording.LabelledSegments)
-                    {
-                        if (segment.StartOffset <= start && segment.EndOffset >= start)
-                            return segment; // if start is inside the segment return it
-                        if (segment.EndOffset >= end && segment.StartOffset <= end)
-                            return segment; // if end is inside the segment return it
-                        if (start < segment.StartOffset && end > segment.EndOffset)
-                            return segment; // if the entire segment is between start and end return it
-                        var variance =
-                            Math.Sqrt(Math.Pow(segment.StartOffset.TotalMilliseconds - start.TotalMilliseconds, 2.0d) +
-                                      Math.Pow(segment.EndOffset.TotalMilliseconds - end.TotalMilliseconds, 2.0d));
-                        variances.Add(new Tuple<LabelledSegment, double>(segment, variance));
-                    }
 
-                    var bestFit = variances
-                        .FirstOrDefault(var => var.Item2 == variances.Min(minvar => minvar.Item2));
-                    if (bestFit.Item2 < 7000.0d) return bestFit.Item1;
+                foreach (var segment in recording?.LabelledSegments ?? new EntitySet<LabelledSegment>())
+                {
+                    if (segment.StartOffset <= start && segment.EndOffset >= start)
+                        return segment; // if start is inside the segment return it
+                    if (segment.EndOffset >= end && segment.StartOffset <= end)
+                        return segment; // if end is inside the segment return it
+                    if (start < segment.StartOffset && end > segment.EndOffset)
+                        return segment; // if the entire segment is between start and end return it
+                    var variance =
+                        Math.Sqrt(Math.Pow(segment.StartOffset.TotalMilliseconds - start.TotalMilliseconds, 2.0d) +
+                                  Math.Pow(segment.EndOffset.TotalMilliseconds - end.TotalMilliseconds, 2.0d));
+                    variances.Add(new Tuple<LabelledSegment, double>(segment, variance));
                 }
+
+                var bestFit = variances
+                    .FirstOrDefault(var => var.Item2 == variances.Min(minvar => minvar.Item2));
+                if (bestFit.Item2 < 7000.0d) return bestFit.Item1;
+
 
                 if (start.TotalMilliseconds <= 10 && end.Milliseconds <= 10 || start == end)
                 {
@@ -5609,28 +5502,27 @@ namespace BatRecordingManager
                                    where !seg.BatSegmentLinks.Any()
                                    select seg;
 
-            if (!eligibleSegments.IsNullOrEmpty())
-            {
-                // we have a list of LabelledSegments which do not have any batTags defined
-                // this includes segmentZeros but also any other labelled segment with no associated bat
-                foreach (var seg in eligibleSegments)
-                {
-                    var referredToBats = GetDescribedBats(seg.Comment, out string _, BracketedText.INCLUDE);
 
-                    foreach (var bat in referredToBats.bats)
+            // we have a list of LabelledSegments which do not have any batTags defined
+            // this includes segmentZeros but also any other labelled segment with no associated bat
+            foreach (var seg in eligibleSegments ?? Enumerable.Empty<LabelledSegment>().AsQueryable())
+            {
+                var referredToBats = GetDescribedBats(seg.Comment, out string _, BracketedText.INCLUDE);
+
+                foreach (var bat in referredToBats.bats)
+                {
+                    var existingLinks =
+                        dc.BatSegmentLinks.Any(lnk => !(lnk.ByAutoID ?? false) && lnk.BatID == bat.Id && lnk.LabelledSegmentID == seg.Id);
+                    if (!existingLinks)
                     {
-                        var existingLinks =
-                            dc.BatSegmentLinks.Any(lnk => !(lnk.ByAutoID ?? false) && lnk.BatID == bat.Id && lnk.LabelledSegmentID == seg.Id);
-                        if (!existingLinks)
-                        {
-                            var bsl = new BatSegmentLink { BatID = bat.Id, LabelledSegmentID = seg.Id, ByAutoID = false };
-                            dc.BatSegmentLinks.InsertOnSubmit(bsl);
-                        }
+                        var bsl = new BatSegmentLink { BatID = bat.Id, LabelledSegmentID = seg.Id, ByAutoID = false };
+                        dc.BatSegmentLinks.InsertOnSubmit(bsl);
                     }
                 }
-
-                dc.SubmitChanges();
             }
+
+            dc.SubmitChanges();
+
         }
 
         /// <summary>
@@ -6150,23 +6042,22 @@ namespace BatRecordingManager
                 var imagesToDelete = allImagesForBat.AsEnumerable()
                     .Where(aib => newImageList.All(ni => ni.ImageID != aib.Id));
 
-                if (!imagesToDelete.IsNullOrEmpty())
-                {
-                    foreach (var bd in imagesToDelete)
+                
+                    foreach (var bd in imagesToDelete??Enumerable.Empty<BinaryData>())
                     {
                         dc.BatPictures.DeleteAllOnSubmit(bd.BatPictures);
                         dc.BinaryDatas.DeleteOnSubmit(bd);
                     }
 
                     dc.SubmitChanges();
-                }
+                
 
                 // then we modify existing images that might have changed
 
                 var matchingImages = newImageList.Where(newImage =>
                     allImagesForBat.Any(oldImage => oldImage.Id == newImage.ImageID));
-                if (!matchingImages.IsNullOrEmpty())
-                    foreach (var modifiedImage in matchingImages)
+                
+                    foreach (var modifiedImage in matchingImages??Enumerable.Empty<StoredImage>())
                     {
                         var existingBinaryData = (from bp in dc.BatPictures
                                                   where bp.BinaryDataId == modifiedImage.ImageID && bp.BatId == existingBat.Id
@@ -6187,8 +6078,8 @@ namespace BatRecordingManager
                 //
 
                 var imagesToAdd = newImageList.Where(newImage => newImage.ImageID < 0);
-                if (!imagesToAdd.IsNullOrEmpty())
-                    foreach (var image in imagesToAdd)
+                
+                    foreach (var image in imagesToAdd??Enumerable.Empty<StoredImage>())
                     {
                         var newBinaryData = image.GetAsBinaryData();
                         dc.BinaryDatas.InsertOnSubmit(newBinaryData);
@@ -6396,51 +6287,50 @@ namespace BatRecordingManager
                 var newImageList = from image in listOfImages select image;
                 var imagesToDelete = allImagesForCall.AsEnumerable()
                     .Where(aic => newImageList.All(ni => ni.ImageID != aic.Id));
-                if (!imagesToDelete.IsNullOrEmpty())
-                {
-                    foreach (var bd in imagesToDelete)
-                    {
-                        dc.CallPictures.DeleteAllOnSubmit(bd.CallPictures);
-                        dc.BinaryDatas.DeleteOnSubmit(bd);
-                    }
 
-                    dc.SubmitChanges();
+                foreach (var bd in imagesToDelete ?? Enumerable.Empty<BinaryData>())
+                {
+                    dc.CallPictures.DeleteAllOnSubmit(bd.CallPictures);
+                    dc.BinaryDatas.DeleteOnSubmit(bd);
                 }
+
+                dc.SubmitChanges();
+
 
                 //then we modify existing images that might have changed
                 //
                 var matchingImages = newImageList.Where(newImage =>
                     allImagesForCall.Any(oldImage => oldImage.Id == newImage.ImageID));
-                if (!matchingImages.IsNullOrEmpty())
-                    foreach (var modifiedImage in matchingImages)
+
+                foreach (var modifiedImage in matchingImages ?? Enumerable.Empty<StoredImage>())
+                {
+                    var existingBinaryData = (from cp in dc.CallPictures
+                                              where cp.BinaryDataID == modifiedImage.ImageID && cp.CallID == call.Id
+                                              select cp.BinaryData).FirstOrDefault();
+                    if (existingBinaryData != null && existingBinaryData.Id >= 0)
                     {
-                        var existingBinaryData = (from cp in dc.CallPictures
-                                                  where cp.BinaryDataID == modifiedImage.ImageID && cp.CallID == call.Id
-                                                  select cp.BinaryData).FirstOrDefault();
-                        if (existingBinaryData != null && existingBinaryData.Id >= 0)
-                        {
-                            existingBinaryData.Description = modifiedImage.GetCombinedText();
-                            existingBinaryData.BinaryDataType = Tools.BlobType.PNG.ToString();
-                            var bd = StoredImage.ConvertBitmapImageToPngBinary(modifiedImage.image,
-                                modifiedImage.HorizontalGridlines, modifiedImage.VerticalGridLines);
-                            existingBinaryData.BinaryData1 = bd ?? new Binary(new byte[0]);
-                            dc.SubmitChanges();
-                        }
+                        existingBinaryData.Description = modifiedImage.GetCombinedText();
+                        existingBinaryData.BinaryDataType = Tools.BlobType.PNG.ToString();
+                        var bd = StoredImage.ConvertBitmapImageToPngBinary(modifiedImage.image,
+                            modifiedImage.HorizontalGridlines, modifiedImage.VerticalGridLines);
+                        existingBinaryData.BinaryData1 = bd ?? new Binary(new byte[0]);
+                        dc.SubmitChanges();
                     }
+                }
 
                 // Finally we add any new images
                 //
                 var imagesToAdd = newImageList.Where(newImage => newImage.ImageID < 0);
-                if (!imagesToAdd.IsNullOrEmpty())
-                    foreach (var image in imagesToAdd)
-                    {
-                        var newBinaryData = image.GetAsBinaryData();
-                        dc.BinaryDatas.InsertOnSubmit(newBinaryData);
-                        dc.SubmitChanges();
-                        var newCallImageLink = new CallPicture { CallID = call.Id, BinaryDataID = newBinaryData.Id };
-                        dc.CallPictures.InsertOnSubmit(newCallImageLink);
-                        dc.SubmitChanges();
-                    }
+
+                foreach (var image in imagesToAdd ?? Enumerable.Empty<StoredImage>())
+                {
+                    var newBinaryData = image.GetAsBinaryData();
+                    dc.BinaryDatas.InsertOnSubmit(newBinaryData);
+                    dc.SubmitChanges();
+                    var newCallImageLink = new CallPicture { CallID = call.Id, BinaryDataID = newBinaryData.Id };
+                    dc.CallPictures.InsertOnSubmit(newCallImageLink);
+                    dc.SubmitChanges();
+                }
             }
         }
 
@@ -6505,23 +6395,21 @@ namespace BatRecordingManager
                                   select call;
 
                 var callsToDelete = allCallsForBat.AsEnumerable().Where(ac => newCallList.All(nc => nc.Id != ac.Id));
-                if (!callsToDelete.IsNullOrEmpty())
-                {
-                    foreach (var call in callsToDelete)
+                
+                    foreach (var call in callsToDelete??Enumerable.Empty<Call>())
                     {
                         dc.BatCalls.DeleteAllOnSubmit(call.BatCalls);
                         dc.Calls.DeleteOnSubmit(call);
                     }
 
                     dc.SubmitChanges();
-                }
+                
 
                 //var matchingCalls = allCallsForBat.Where(oldcall => !newCallList.Contains(newcall => newcall.Id == oldcall.Id));
                 var matchingCalls =
                     newCallList.Where(newcall => allCallsForBat.Any(oldcall => oldcall.Id == newcall.Id));
-                if (!matchingCalls.IsNullOrEmpty())
-                {
-                    foreach (var mcall in matchingCalls)
+                
+                    foreach (var mcall in matchingCalls??Enumerable.Empty<Call>())
                     {
                         var callToUpdate = allCallsForBat.SingleOrDefault(call => call.Id == mcall.Id);
                         var updatingCall = newCallList.SingleOrDefault(call => call.Id == mcall.Id);
@@ -6544,7 +6432,7 @@ namespace BatRecordingManager
                     }
 
                     dc.SubmitChanges();
-                }
+                
 
                 var callsToAdd = newCallList.Where(newcall => newcall.Id <= 0);
                 if (!callsToAdd.IsNullOrEmpty())
@@ -6913,9 +6801,8 @@ ADD [AutoID] NVARCHAR (50) NULL;"
                     .Where(aic => newImageList.All(ni => ni.ImageID != aic.Id));
                 // then all images in segment but not in new list
 
-                if (!imagesToDelete.IsNullOrEmpty())
-                {
-                    foreach (var bd in imagesToDelete)
+                
+                    foreach (var bd in imagesToDelete??Enumerable.Empty<BinaryData>())
                     {
                         dc.SegmentDatas.DeleteAllOnSubmit(bd.SegmentDatas);
                         if (!(bd.BatPictures.Count > 0 || bd.CallPictures.Count > 0 || bd.SegmentDatas.Count > 1))
@@ -6923,15 +6810,15 @@ ADD [AutoID] NVARCHAR (50) NULL;"
                     }
 
                     dc.SubmitChanges();
-                }
+                
 
                 //then we modify existing images that might have changed
 
                 // get all images for the segment which are also in the new list
                 var matchingStoredImages = newImageList.Where(newImage =>
                     allImagesForSegment.Any(oldImage => oldImage.Id == newImage.ImageID));
-                if (!matchingStoredImages.IsNullOrEmpty())
-                    foreach (var modifiedImage in matchingStoredImages)
+                
+                    foreach (var modifiedImage in matchingStoredImages??Enumerable.Empty<StoredImage>())
                     {
                         var existingBinaryData = (from cp in dc.SegmentDatas
                                                   where cp.BinaryDataId == modifiedImage.ImageID && cp.SegmentId == segment.Id
@@ -6979,8 +6866,8 @@ ADD [AutoID] NVARCHAR (50) NULL;"
                 {
                     imagesToAdd = newImageList.Where(newImage => newImage.ImageID >= 0);
                     // we have an existing image to link into this segment
-                    if (!imagesToAdd.IsNullOrEmpty())
-                        foreach (var image in imagesToAdd)
+                   
+                        foreach (var image in imagesToAdd??Enumerable.Empty<StoredImage>())
                             if (image.ImageID >= 0)
                             {
                                 var existingLink = from xsd in dc.SegmentDatas

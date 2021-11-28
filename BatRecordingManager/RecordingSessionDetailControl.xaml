@@ -148,7 +148,8 @@
                 Background="{StaticResource WindowBackgroundBrush}"
                 Grid.Row="6"
                 IsReadOnly="True"
-                Grid.Column="1" />
+                Grid.Column="1"
+                      />
 
             <Label
                 Style="{StaticResource SimpleLabel}"

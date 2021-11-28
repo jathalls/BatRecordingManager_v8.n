@@ -41,4 +41,4 @@ BUG:- when editing some segment comments the bat name is doubled in the revised 
 FIXED:- in tagMatcher a string replacement for _moddedDescription used a replace function which is case sensitive, whereas the tag to be replaced had been matched independently of case.  Therefore the replacement did not happen.  Fixed by removing the matched string by length and position then inserted the new string.
     Incidentally ensured that tag matcher only returns one matched tag for each identified bat, that being the longest tag for the bat.
 
-
+TODO at the end of ProcessFiles() in ImportControl.cs, need a callback to notify that _sessionForFolder has been created or modified.  This to be picked ip by MainWindow to initiate a RefreshData for the session in RecordingSessionsList

@@ -238,9 +238,21 @@ namespace BatRecordingManager
         {
             Recording result = null;
 
-            if (RecordingsListControl?.RecordingsListView?.SelectedItems != null &&
-                RecordingsListControl.RecordingsListView.SelectedItems.Count > 0)
-                result = RecordingsListControl.RecordingsListView.SelectedItems[0] as Recording;
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.Invoke(new Action(() =>
+                {
+                    if (RecordingsListControl?.RecordingsListView?.SelectedItems != null &&
+                        RecordingsListControl.RecordingsListView.SelectedItems.Count > 0)
+                        result = RecordingsListControl.RecordingsListView.SelectedItems[0] as Recording;
+                }));
+            }
+            else
+            {
+                if (RecordingsListControl?.RecordingsListView?.SelectedItems != null &&
+                        RecordingsListControl.RecordingsListView.SelectedItems.Count > 0)
+                    result = RecordingsListControl.RecordingsListView.SelectedItems[0] as Recording;
+            }
 
             return result;
         }
@@ -253,11 +265,26 @@ namespace BatRecordingManager
         internal RecordingSession GetSelectedSession()
         {
             RecordingSession result = null;
-            if (RecordingSessionListView?.SelectedItems != null && RecordingSessionListView.SelectedItems.Count > 0)
+            if (!Dispatcher.CheckAccess())
             {
-                result = RecordingSessionListView.SelectedItems[0] is RecordingSessionData sessionData
-                    ? DBAccess.GetRecordingSession(sessionData.Id)
-                    : null;
+                Dispatcher.Invoke(new Action(() =>
+                {
+                    if (RecordingSessionListView?.SelectedItems != null && RecordingSessionListView.SelectedItems.Count > 0)
+                    {
+                        result = RecordingSessionListView.SelectedItems[0] is RecordingSessionData sessionData
+                            ? DBAccess.GetRecordingSession(sessionData.Id)
+                            : null;
+                    }
+                }));
+            }
+            else
+            {
+                if (RecordingSessionListView?.SelectedItems != null && RecordingSessionListView.SelectedItems.Count > 0)
+                {
+                    result = RecordingSessionListView.SelectedItems[0] is RecordingSessionData sessionData
+                        ? DBAccess.GetRecordingSession(sessionData.Id)
+                        : null;
+                }
             }
 
             return result;
@@ -267,32 +294,85 @@ namespace BatRecordingManager
 
         internal void RefreshData()
         {
+
+
             Dispatcher.BeginInvoke(DispatcherPriority.Background,
                 //Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background,
-                new Action(() => { RefreshData(PageSize, CurrentTopOfScreen); }));
+                new Action(() =>
+                {
+
+                    RefreshData(PageSize, CurrentTopOfScreen);
+
+
+                }));
         }
 
         internal void RefreshData(RecordingSession UpdatedSession)
         {
             if (UpdatedSession != null)
             {
-                var upDatedSessionData = DBAccess.GetRecordingSessionData(UpdatedSession.Id);
-
-                var existingSession=from sess in recordingSessionDataList
-                                    where sess.Id==UpdatedSession.Id
-                                    select sess;
-                if(existingSession==null || existingSession.Count() <= 0)
+                if (!Dispatcher.CheckAccess())
                 {
-                    recordingSessionDataList.Add(upDatedSessionData);
+                    Dispatcher.Invoke(new Action(() =>
+                    {
+                        var selectedRecording = GetSelectedRecording();
+
+                        var upDatedSessionData = DBAccess.GetRecordingSessionData(UpdatedSession.Id);
+
+                        var existingSession = from sess in recordingSessionDataList
+                                              where sess.Id == UpdatedSession.Id
+                                              select sess;
+                        if (existingSession == null || existingSession.Count() <= 0)
+                        {
+                            recordingSessionDataList.Add(upDatedSessionData);
+                        }
+                        else
+                        {
+                            int index = recordingSessionDataList.IndexOf(existingSession.First());
+
+                            recordingSessionDataList[index] = upDatedSessionData;
+
+                        }
+                        RecordingSessionListView.SelectedItem = upDatedSessionData;
+                        RecordingSessionListView.ScrollIntoView(upDatedSessionData);
+                        NotifyPropertyChanged(nameof(recordingSessionDataList));
+
+                        if (selectedRecording != null)
+                        {
+                            RecordingsListControl.SelectRecording(selectedRecording);
+                        }
+                    }));
                 }
                 else
                 {
-                    int index = recordingSessionDataList.IndexOf(existingSession.First());
-                    
-                    recordingSessionDataList[index] = upDatedSessionData;
+                    var selectedRecording = GetSelectedRecording();
+
+                    var upDatedSessionData = DBAccess.GetRecordingSessionData(UpdatedSession.Id);
+
+                    var existingSession = from sess in recordingSessionDataList
+                                          where sess.Id == UpdatedSession.Id
+                                          select sess;
+                    if (existingSession == null || existingSession.Count() <= 0)
+                    {
+                        recordingSessionDataList.Add(upDatedSessionData);
+                    }
+                    else
+                    {
+                        int index = recordingSessionDataList.IndexOf(existingSession.First());
+
+                        recordingSessionDataList[index] = upDatedSessionData;
+
+                    }
+                    RecordingSessionListView.SelectedItem = upDatedSessionData;
+                    RecordingSessionListView.ScrollIntoView(upDatedSessionData);
+                    NotifyPropertyChanged(nameof(recordingSessionDataList));
+
+                    if (selectedRecording != null)
+                    {
+                        RecordingsListControl.SelectRecording(selectedRecording);
+                    }
 
                 }
-                NotifyPropertyChanged(nameof(recordingSessionDataList));
             }
         }
 
@@ -494,7 +574,8 @@ Mouse.OverrideCursor = null;*/
             {
                 if (RecordingSessionListView.SelectedItem != null && RecordingSessionListView.SelectedItems.Count > 0)
                 {
-                    oldIndex = selectedIndex; ;
+                    oldIndex = selectedIndex; 
+                    List<RecordingSessionData> deletedItems= new List<RecordingSessionData>();  
                     for (int i = 0; i < RecordingSessionListView.SelectedItems.Count; i++)
                     {
                         var session =
@@ -505,27 +586,25 @@ Mouse.OverrideCursor = null;*/
                             "Delete RecordingSession", MessageBoxButton.YesNo);
                         if (result == MessageBoxResult.Yes)
                         {
-                            //recordingSessionDataList.RemoveAt(oldIndex);
-                            if (RecordingSessionListView.Items.Count > 0)
-                            {
-                                oldIndex--;
-                                if (oldIndex < 0) oldIndex = 0;
-                                //RecordingSessionListView.SelectedIndex = oldIndex;
-                            }
-                            else
-                            {
-                                RecordingSessionControl.recordingSession = null;
-                                RecordingsListControl.selectedSession = null;
-                                //RecordingsListControl.virtualRecordingsList.Clear();
-                            }
+                            deletedItems.Add(RecordingSessionListView.SelectedItems[i] as RecordingSessionData);
+                            
+
 
                             DBAccess.DeleteSession(session);
                         }
                     }
+                    foreach(var item in deletedItems)
+                    {
+                        recordingSessionDataList.Remove(item);
+                    }
+                    RecordingSessionControl.recordingSession = null;
+                    RecordingsListControl.selectedSession = null;
+                    //RecordingsListControl.virtualRecordingsList.Clear();
 
                     //RefreshData(PageSize, CurrentTopOfScreen);
                     if (RecordingSessionListView.SelectedItem != null)
                         RecordingSessionListView.ScrollIntoView(RecordingSessionListView.SelectedItem);
+                    NotifyPropertyChanged(nameof(recordingSessionDataList));
                 }
                 OnSessionChanged(EventArgs.Empty);
             }
@@ -909,24 +988,7 @@ Mouse.OverrideCursor = null;*/
             //OnSessionChanged(EventArgs.Empty);
             var session = e.recordingSession;
 
-            var index = selectedIndex;
-            if (session != null)
-            {
-                var data = DBAccess.GetRecordingSessionData(session.Id);
-                //data.IsSelected = true;
-
-                var existing = recordingSessionDataList.Where(rsd => rsd.Id == data.Id).FirstOrDefault();
-                if (existing != null)
-                {
-                    int i = recordingSessionDataList.IndexOf(existing);
-                    recordingSessionDataList[i] = data;
-                    RecordingSessionListView.SelectedIndex = i;
-                }
-
-
-
-            }
-            OnPropertyChanged(nameof(recordingSessionDataList));
+            RefreshData(session);
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
@@ -971,8 +1033,25 @@ Mouse.OverrideCursor = null;*/
         /// </summary>
         public BulkObservableCollection<RecordingSessionData> recordingSessionDataList
         {
-            get => (BulkObservableCollection<RecordingSessionData>)GetValue(recordingSessionDataListProperty);
-            set => SetValue(recordingSessionDataListProperty, value);
+            get
+            {
+                BulkObservableCollection<RecordingSessionData> result = null;
+                Dispatcher.Invoke(DispatcherPriority.Background, new Action(() =>
+                {
+                    result = (BulkObservableCollection<RecordingSessionData>)GetValue(recordingSessionDataListProperty);
+                }));
+                return result;
+            }
+
+            set
+            {
+                Dispatcher.Invoke(DispatcherPriority.Background, new Action(() =>
+                 {
+                     SetValue(recordingSessionDataListProperty, value);
+                 }));
+            }
+            
+            
         }
 
         #endregion recordingSessionDataList
@@ -1033,6 +1112,12 @@ Mouse.OverrideCursor = null;*/
                 }
                 this.RefreshData();
             }
+        }
+
+        private void Label_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            
+            this.RefreshData();
         }
     }
 }

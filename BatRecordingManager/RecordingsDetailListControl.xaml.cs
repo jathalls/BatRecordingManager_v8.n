@@ -33,6 +33,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+
 using UniversalToolkit;
 
 namespace BatRecordingManager
@@ -101,7 +102,7 @@ namespace BatRecordingManager
             if (recordingsList == null) recordingsList = new BulkObservableCollection<Recording>();
             //virtualRecordingsList.CollectionChanged += VirtualRecordingsList_CollectionChanged;
             //RefreshData(5, 100);
-
+            
             //RecordingsListView.ItemsSource = recordingsList;
             CreateSearchDialog();
         }
@@ -299,22 +300,7 @@ namespace BatRecordingManager
                                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
 
-        /// <summary>
-        ///     Called when [ListView item focused].
-        /// </summary>
-        /// <param name="sender">
-        ///     The sender.
-        /// </param>
-        /// <param name="args">
-        ///     The  instance containing the event data.
-        /// </param>
-        internal void OnListViewItemFocused(object sender, RoutedEventArgs args)
-        {
-            var lvi = sender as ListViewItem;
-
-            lvi.BringIntoView();
-            lvi.IsSelected = true;
-        }
+        
 
         internal void RefreshRecordings(List<Recording> recs)
         {
@@ -384,6 +370,19 @@ namespace BatRecordingManager
             }
 
             handler(this, rce);
+        }
+
+        internal void SelectRecording(Recording selectedRecording)
+        {
+            if (selectedRecording!=null )
+            {
+                var newSelection = (from rec in recordingsList
+                                    where rec.Id == selectedRecording.Id
+                                    select rec).SingleOrDefault();
+
+                RecordingsListView.SelectedItem = newSelection;
+                RecordingsListView.ScrollIntoView(newSelection);
+            }
         }
 
         /// <summary>
@@ -740,13 +739,13 @@ namespace BatRecordingManager
                 _searchDialog = new SearchDialog();
                 _searchDialog.e_Searched += SearchDialog_Searched;
                 _searchDialog.Closed += SearchDialog_Closed;
-                _searchTargets.Clear();/*
+                _searchTargets.Clear();
             foreach (var recording in _selectedSession.Recordings)
             {
                 _searchTargets.Add(recording.Id, -1, recording.RecordingNotes);
                 _searchTargets.AddRange(recording.Id, GetSegmentComments(recording));
                 _searchDialog.targetStrings = _searchTargets.GetStringCollection();
-            }*/
+            }
 
                 if (SearchButton != null)
                 {
@@ -1388,46 +1387,45 @@ namespace BatRecordingManager
                     Recording foundRecording = null;
                     int recordingId = itemFound.Item1;
                     int segmentIndex = itemFound.Item2;
-                    if (selectedSession != null)
+                    if (recordingsList?.Any() ?? false)
                     {
-                        var recordings = from rec in selectedSession.Recordings
+                        var recordings = from rec in recordingsList
                                          where rec.Id == recordingId
                                          select rec;
-                        if (!recordings.IsNullOrEmpty()) foundRecording = recordings.First();
-                        RecordingsListView.Focus();
-                        foundRecording.isSelected = true;
-                        RecordingsListView.ScrollIntoView(foundRecording);
-                    }
-
-                    if (selectedSession != null)
-                    {
-                        var recordings = from rec in selectedSession.Recordings
-                                         where rec.Id == recordingId
-                                         select rec;
-                        if (!recordings.IsNullOrEmpty()) foundRecording = recordings.First();
-                        RecordingsListView.Focus();
-                        RecordingsListView.ScrollIntoView(foundRecording);
-                        foundRecording.isSelected = true;
+                        if (!recordings.IsNullOrEmpty())
+                        {
+                            foundRecording = recordings.First();
+                            RecordingsListView.Focus();
+                            foundRecording.isSelected = true;
+                            RecordingsListView.ScrollIntoView(foundRecording);
+                            //int index = RecordingsListView.Items.Cast<Recording>().ToList().IndexOf(foundRecording);
+                            //if (index >= 0) RecordingsListView.SelectedIndex = index;
+                            RecordingsListView.SelectedItem = foundRecording;
+                        }
                     }
 
                     if (segmentIndex >= 0)
                     {
-                        var foundSegment = foundRecording.LabelledSegments[segmentIndex];
+                        var foundSegment = foundRecording?.LabelledSegments[segmentIndex];
                         if (foundSegment != null)
                         {
+                            foundSegment.isSelected = true;
+                            UpdateLayout();
+                            //RecordingsListView.ScrollIntoView(foundRecording);
                             var currentSelectedListBoxItem =
                                 RecordingsListView.ItemContainerGenerator.ContainerFromIndex(RecordingsListView
-                                    .SelectedIndex) as ListViewItem;
+                                    .SelectedIndex);
                             var lsegListView = Tools.FindDescendant<ListView>(currentSelectedListBoxItem);
                             if (lsegListView != null)
                             {
-                                lsegListView.UnselectAll();
+                                lsegListView.ScrollIntoView(foundSegment);
+                                //lsegListView.UnselectAll();
                                 lsegListView.SelectedItem = foundSegment;
-                                foundSegment.isSelected = true;
-                                //lsegListView.ScrollIntoView(foundSegment);
-                                var lvi = (ListViewItem)lsegListView.ItemContainerGenerator.ContainerFromItem(lsegListView
-                                    .SelectedItem);
-                                OnListViewItemFocused(lvi, new RoutedEventArgs());
+                                
+                                
+                                
+                                
+                                
                             }
                         }
                     }
@@ -1494,6 +1492,11 @@ namespace BatRecordingManager
                     cell.Focus();
                 }
             }
+        }
+
+        private void LabelledSegmentListView_PreviewMouseWheel_1(object sender, MouseWheelEventArgs e)
+        {
+
         }
 
 #pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved

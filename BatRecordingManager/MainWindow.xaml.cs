@@ -95,6 +95,8 @@ namespace BatRecordingManager
 
                     BatRecordingListDetailControl.SessionsAndRecordings.e_SessionAction +=
                         SessionsAndRecordings_SessionAction;
+                    importControl.ImportCompleted += ImportControl_ImportCompleted;
+                    
                     miRecordingSearch_Click(this, new RoutedEventArgs());
                     //SetStatusText("");
                 }
@@ -128,6 +130,15 @@ namespace BatRecordingManager
             }
         }
 
+        private void ImportControl_ImportCompleted(object sender, EventArgs e)
+        {
+            RecordingSession session = null;
+            var importer = sender as ImportControl;
+            session = importer._sessionForFolder;
+
+            recordingSessionListControl.RefreshData(session);
+        }
+
         /// <summary>
         ///     Flag to indicate if the database listing item in help is enabled
         /// </summary>
@@ -138,14 +149,22 @@ namespace BatRecordingManager
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void AnalyseAndImport_DataUpdated(object sender, EventArgs e)
+        public void AnalyseAndImport_DataUpdated(object sender,EventArgs e)
         {
             if (sender != null && (sender is AnalyseAndImportClass))
             {
-                
+
                 var UpdatedSessionTag = (sender as AnalyseAndImportClass).SessionTag;
-                RecordingSession upDatedSession = DBAccess.GetRecordingSession(UpdatedSessionTag);
-                recordingSessionListControl?.RefreshData(upDatedSession);
+                RecordingSession upDatedSession = DBAccess.GetRecordingSession((e as ImportEventArgs).SessionID);
+
+                if (upDatedSession != null)
+                {
+                    recordingSessionListControl?.RefreshData(upDatedSession);
+                }
+                else
+                {
+                    recordingSessionListControl.RefreshData();
+                }
 
                 if (!string.IsNullOrWhiteSpace(UpdatedSessionTag) && _runKaleidoscope)
                 {
@@ -156,15 +175,18 @@ namespace BatRecordingManager
                             //Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background,
                             new Action(() =>
                             {
-                                //recordingSessionListControl.RefreshData();
-                                //recordingSessionListControl.SelectSession(sessionUpdated);
+                                    //recordingSessionListControl.RefreshData();
+                                    //recordingSessionListControl.SelectSession(sessionUpdated);
 
-                                //recordingSessionListControl.ReportSessionDataButton_Click(sender,
-                                //new RoutedEventArgs());
-                                
-                                recordingSessionListControl?.GenerateReportSet(upDatedSession, true);
+                                    //recordingSessionListControl.ReportSessionDataButton_Click(sender,
+                                    //new RoutedEventArgs());
+
+                                    recordingSessionListControl?.GenerateReportSet(upDatedSession, true);
                             }));
                 }
+
+
+
             }
 
             if (_analyseAndImport != null)
